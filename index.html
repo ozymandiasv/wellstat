@@ -1301,6 +1301,7 @@ canvas{display:block}
             <div class="stg-nav-item" onclick="showStgPanel('looks')" id="sni-looks">🎨 Customise Looks</div>
             <div class="stg-nav-item" onclick="showStgPanel('data')" id="sni-data">📦 Data</div>
             <div class="stg-nav-item" onclick="showStgPanel('sync')" id="sni-sync">☁️ Sheets Sync</div>
+            <div class="stg-nav-item" onclick="showStgPanel('gist')" id="sni-gist">🐙 GitHub Sync</div>
             <div class="stg-nav-item" onclick="showStgPanel('ai')" id="sni-ai">🤖 AI Integration</div>
           </div>
           <div class="stg-content" id="stg-content">
@@ -1484,7 +1485,7 @@ screen:[
   {key:'cognitive_time', label:'Cognitive',  unit:'min',scored:false,computed:true},
 ],
 habits:[
-  {key:'stuff_count',    label:'Stuff Count',unit:'',  scored:false},
+  {key:'stuff_count',    label:'Stuff Count',unit:'',  bl:null,bh:0,bl2:null,bh2:5, scored:true},
   {key:'alcohol',        label:'Alcohol',    unit:'units',bl:null,bh:0,bl2:null,bh2:3,scored:true},
 ],
 movement:[
@@ -3212,6 +3213,8 @@ function saveLogEntry(){
       })
       .catch(()=>{ showToast('⚠️ Saved locally — Sheets offline'); });
   }
+  // Auto-push to Gist if configured (debounced 3s)
+  gistAutoUpsert(logDate);
 }
 
 function deleteLogEntry(){
@@ -3944,8 +3947,9 @@ function ahCard(key, dates, sizeClass, opts={}){
   const yr   = new Date().getFullYear().toString();
   const yrDates = allD.filter(d=>d.startsWith(yr));
 
-  const vals  = dates.map(d=>computeAllFields(getEntry(d))[key]).filter(v=>v!=null&&!isNaN(v)&&v>0);
-  const yrVals= yrDates.map(d=>computeAllFields(getEntry(d))[key]).filter(v=>v!=null&&!isNaN(v)&&v>0);
+  // Include zero values (e.g. alcohol=0 is valid and meaningful)
+  const vals  = dates.map(d=>computeAllFields(getEntry(d))[key]).filter(v=>v!=null&&!isNaN(v)&&v!==undefined);
+  const yrVals= yrDates.map(d=>computeAllFields(getEntry(d))[key]).filter(v=>v!=null&&!isNaN(v)&&v!==undefined);
 
   const dispVal = vals.length ? vals.reduce((a,b)=>a+b,0)/vals.length : null;
   const yrAvg   = yrVals.length ? yrVals.reduce((a,b)=>a+b,0)/yrVals.length : null;
@@ -5208,6 +5212,7 @@ function renderStgPanel(id){
     looks:   renderStgLooks,
     data:    renderStgData,
     sync:    renderStgSync,
+    gist:    renderStgGist,
     // ai panel removed,
   };
   if(map[id]) map[id]();
@@ -6089,11 +6094,46 @@ function removeFieldIcon(key, e){
 function renderStgData(){
   const sc = document.getElementById('stg-content');
   const allD = allDates();
+  const lastExport = localStorage.getItem('ws2_last_export') || null;
   sc.innerHTML = `<div class="stg-panel on" id="sp-data">
     <div class="stg-panel-title">📦 Data Management</div>
     <div class="stg-panel-sub">Export, import, and manage your health data.</div>
 
-    <div style="font-size:12px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.6px;margin-bottom:10px">Export</div>
+    <!-- ── CROSS-DEVICE SYNC ── -->
+    <div style="background:linear-gradient(135deg,rgba(59,130,246,.1),rgba(99,102,241,.07));border:1px solid rgba(99,102,241,.25);border-radius:var(--r);padding:16px;margin-bottom:18px">
+      <div style="font-size:13px;font-weight:700;color:var(--accent);margin-bottom:4px">📲 Cross-Device Sync</div>
+      <div style="font-size:12px;color:var(--t3);margin-bottom:14px">Export a backup file → save to iCloud Drive → import on any other device. No account needed.</div>
+
+      <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+        <button class="stg-btn primary" onclick="exportJSON()" style="flex:1;min-width:120px;justify-content:center">
+          📤 Export Backup
+        </button>
+        <button class="stg-btn" onclick="document.getElementById('json-import-inp').click()" style="flex:1;min-width:120px;justify-content:center">
+          📥 Import Backup
+        </button>
+        <input type="file" id="json-import-inp" accept=".json" style="display:none" onchange="importJSON(this)">
+      </div>
+
+      <div style="margin-top:10px;display:flex;gap:16px;flex-wrap:wrap">
+        <div style="font-size:11px;color:var(--t4)">
+          📅 ${allD.length} days of data
+        </div>
+        ${lastExport ? `<div style="font-size:11px;color:var(--t4)">Last export: ${lastExport}</div>` : ''}
+      </div>
+
+      <div style="margin-top:12px;background:var(--surface2);border-radius:var(--rs);padding:10px 12px">
+        <div style="font-size:11px;font-weight:700;color:var(--t3);margin-bottom:6px">HOW TO SYNC BETWEEN DEVICES</div>
+        <div style="font-size:11px;color:var(--t3);line-height:1.7">
+          1. Tap <strong style="color:var(--t2)">Export Backup</strong> on this device → file saves to Files / iCloud Drive<br>
+          2. On your other device, open WellStat → Settings → Data<br>
+          3. Tap <strong style="color:var(--t2)">Import Backup</strong> → pick the file from iCloud Drive<br>
+          4. Choose <strong style="color:var(--t2)">Merge</strong> to combine both devices, or <strong style="color:var(--t2)">Replace</strong> to overwrite
+        </div>
+      </div>
+    </div>
+
+    <div class="stg-divider"></div>
+    <div style="font-size:12px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.6px;margin-bottom:10px">CSV Export</div>
 
     <div class="stg-row">
       <div>
@@ -6112,7 +6152,7 @@ function renderStgData(){
     </div>
 
     <div class="stg-divider"></div>
-    <div style="font-size:12px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.6px;margin-bottom:10px">Import</div>
+    <div style="font-size:12px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.6px;margin-bottom:10px">CSV Import</div>
 
     <div class="stg-row">
       <div>
@@ -6145,28 +6185,155 @@ function renderStgData(){
   </div>`;
 }
 
-function buildCSV(data){
-  const fields = allFields();
-  const keys   = ['date', ...fields.map(f=>f.key)];
-  const header = keys.join(',');
-  const rows   = Object.keys(data).sort().map(d => {
-    const e = data[d];
-    return keys.map(k => k==='date'?d : (e[k]!=null?e[k]:'')).join(',');
+function exportJSON(){
+  // Clean data — strip computed fields and empty entries
+  const clean = {};
+  Object.keys(allData).sort().forEach(date => {
+    const entry = allData[date];
+    const stripped = {};
+    Object.keys(entry).forEach(k => {
+      if(PASTE_COMPUTED.has(k)) return;
+      const v = entry[k];
+      if(v != null && v !== '') stripped[k] = v;
+    });
+    if(Object.keys(stripped).length > 0) clean[date] = stripped;
   });
-  return [header,...rows].join('\n');
+
+  const payload = {
+    version: 2,
+    exported: new Date().toISOString(),
+    device: navigator.userAgent.includes('iPhone') ? 'iPhone'
+          : navigator.userAgent.includes('iPad') ? 'iPad'
+          : navigator.userAgent.includes('Mac') ? 'Mac' : 'Unknown',
+    days: Object.keys(clean).length,
+    data: clean
+  };
+
+  const blob = new Blob([JSON.stringify(payload, null, 2)], {type: 'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  const ts = new Date().toISOString().slice(0,10);
+  a.download = `wellstat-backup-${ts}.json`;
+  a.click();
+
+  const tsLabel = new Date().toLocaleString();
+  localStorage.setItem('ws2_last_export', tsLabel);
+  showToast(`✅ Exported ${Object.keys(clean).length} days`);
+  renderStgData(); // refresh to show last export time
+}
+
+function importJSON(input){
+  const file = input.files[0];
+  if(!file){ return; }
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const payload = JSON.parse(e.target.result);
+      // Support both raw {date: {...}} and wrapped {data: {date: {...}}}
+      const incoming = payload.data || payload;
+      if(typeof incoming !== 'object' || Array.isArray(incoming)){
+        showToast('❌ Invalid backup file'); return;
+      }
+
+      const incomingDates = Object.keys(incoming).filter(k => /^\d{4}-\d{2}-\d{2}$/.test(k));
+      if(!incomingDates.length){ showToast('❌ No valid dates found in file'); return; }
+
+      const existingDays = allDates().length;
+      const newDays = incomingDates.filter(d => !allData[d]).length;
+      const conflictDays = incomingDates.filter(d => allData[d]).length;
+
+      // Show merge dialog
+      const msg = `Backup contains ${incomingDates.length} days.\n\n`
+        + `• ${newDays} new days (will be added)\n`
+        + `• ${conflictDays} days already exist locally\n\n`
+        + `Choose:\n`
+        + `OK = Merge (keep newest value per field)\n`
+        + `Cancel = Replace (backup overwrites everything)`;
+
+      const doMerge = confirm(msg);
+
+      if(doMerge){
+        // Merge: for each field take whichever is non-null, prefer incoming for conflicts
+        incomingDates.forEach(date => {
+          if(!allData[date]) allData[date] = {};
+          const src = incoming[date];
+          Object.keys(src).forEach(k => {
+            if(PASTE_COMPUTED.has(k)) return;
+            const v = src[k];
+            if(v != null && v !== '') allData[date][k] = v;
+          });
+        });
+        saveData();
+        showToast(`✅ Merged — ${incomingDates.length} days imported`);
+      } else {
+        if(!confirm('Replace ALL local data with backup? This cannot be undone.')) return;
+        // Replace: clear and load
+        allData = {};
+        incomingDates.forEach(date => {
+          const src = incoming[date];
+          const clean = {};
+          Object.keys(src).forEach(k => {
+            if(PASTE_COMPUTED.has(k)) return;
+            const v = src[k];
+            if(v != null && v !== '') clean[k] = v;
+          });
+          if(Object.keys(clean).length) allData[date] = clean;
+        });
+        saveData();
+        showToast(`✅ Replaced — ${Object.keys(allData).length} days loaded`);
+      }
+
+      renderDashboard();
+      renderStgData();
+    } catch(err) {
+      showToast('❌ Could not read file: ' + err.message);
+    }
+  };
+  reader.readAsText(file);
+  input.value = ''; // reset so same file can be re-imported
+}
+
+function buildCSV(data){
+  // Use COLUMNS master list — same order as import template
+  // This guarantees export and import are always compatible
+  const loggableKeys = COLUMNS.filter(k => k !== 'date' && !PASTE_COMPUTED.has(k));
+  const keys = ['date', ...loggableKeys];
+  const header = keys.join(',');
+  const rows = Object.keys(data).sort().map(d => {
+    const e = data[d] || {};
+    return keys.map(k => {
+      if(k === 'date') return d;
+      const v = e[k];
+      // Explicitly write 0 as 0, null/undefined as blank
+      return (v !== null && v !== undefined && v !== '') ? v : '';
+    }).join(',');
+  });
+  return [header, ...rows].join('\n');
 }
 
 function exportLoggedCSV(){
-  const csv  = buildCSV(allData);
-  const blob = new Blob([csv],{type:'text/csv'});
+  // Strip computed fields, keep zeros
+  const cleanData = {};
+  Object.keys(allData).sort().forEach(date => {
+    const entry = allData[date] || {};
+    const clean = {};
+    Object.keys(entry).forEach(k => {
+      if(PASTE_COMPUTED.has(k)) return;
+      const v = entry[k];
+      if(v !== null && v !== undefined && v !== '') clean[k] = v;
+    });
+    if(Object.keys(clean).length > 0) cleanData[date] = clean;
+  });
+  const csv  = buildCSV(cleanData);
+  const blob = new Blob([csv], {type:'text/csv'});
   const a    = document.createElement('a');
   a.href = URL.createObjectURL(blob);
   a.download = `wellstat_export_${new Date().toISOString().slice(0,10)}.csv`;
   a.click();
-  showToast('📤 Exported');
+  showToast('📤 Exported — ' + Object.keys(cleanData).length + ' days');
 }
 
-function exportAllCSV(){ exportLoggedCSV(); } // same for now, extend when IMPORTED_DATA exists
+function exportAllCSV(){ exportLoggedCSV(); }
 
 function importCSVData(inp){
   const file = inp.files[0];
@@ -6194,8 +6361,9 @@ function importCSVData(inp){
       header.forEach((k, i) => {
         if(i === dateIdx || !k) return;
         const v = (vals[i]||'').trim();
-        if(v === '') return; // blank = don't overwrite
+        if(v === '') return; // blank = don't overwrite existing
         const num = parseFloat(v);
+        // Write 0 explicitly — isNaN check ensures non-numeric strings stay as strings
         allData[date][k] = isNaN(num) ? v : num;
       });
       count++;
@@ -6225,16 +6393,15 @@ function parseCSVLine(line){
 }
 
 function downloadImportTemplate(){
-  // Only fields the user actually logs — exclude all auto-computed fields
-  const fields = allFields().filter(f => f.logged !== false && !PASTE_COMPUTED.has(f.key));
-  const keys   = ['date', ...fields.map(f=>f.key)];
-  // Row 1: header with field names
-  // Row 2: units/hints row (comment row with # prefix)
-  // Row 3: blank example row for today
+  // Use same COLUMNS order as export for round-trip compatibility
+  const allF = allFields();
+  const loggableKeys = COLUMNS.filter(k => k !== 'date' && !PASTE_COMPUTED.has(k));
+  const fields = loggableKeys.map(k => allF.find(f => f.key === k)).filter(Boolean);
+  const keys   = ['date', ...fields.map(f => f.key)];
   const header  = keys.join(',');
   const hints   = ['# units', ...fields.map(f => f.unit || '')].join(',');
   const today   = new Date().toISOString().slice(0,10);
-  const example = [today, ...fields.map(()=>'')].join(',');
+  const example = [today, ...fields.map(() => '')].join(',');
   const csv     = header + '\n' + hints + '\n' + example;
   const blob    = new Blob([csv], {type:'text/csv'});
   const a       = document.createElement('a');
@@ -6617,6 +6784,186 @@ window.runInsights = function(){
   if(!aiKeys[active]){ showPage('settings'); setTimeout(()=>showStgPanel('ai'),100); showToast('Configure an AI key first'); return; }
   runAIInsights(active);
 };
+
+// ═══════════════════════════════════════════════
+// GITHUB GIST SYNC
+// ═══════════════════════════════════════════════
+
+let gistConfig = JSON.parse(localStorage.getItem('ws2_gist')||'{}');
+
+function saveGistConfig(){ localStorage.setItem('ws2_gist', JSON.stringify(gistConfig)); }
+
+function renderStgGist(){
+  const sc = document.getElementById('stg-content');
+  const connected = !!(gistConfig.gistId && gistConfig.token);
+  const lastSync = localStorage.getItem('ws2_gist_last_sync') || 'never';
+  const allD = allDates();
+
+  sc.innerHTML = `<div class="stg-panel on" id="sp-gist">
+    <div class="stg-panel-title">🐙 GitHub Gist Sync</div>
+    <div class="stg-panel-sub">Free, permanent sync via GitHub Gist. No Google account needed. Your data is stored as a private JSON file on GitHub.</div>
+
+    <div class="sync-status-bar">
+      <div class="sdot${connected?' ok':''}"></div>
+      <span>${connected ? '✅ Connected · last sync: '+lastSync : 'Not configured'}</span>
+      ${connected?`<button class="stg-btn" style="margin-left:auto" onclick="gistSyncNow()">↻ Sync Now</button>`:''}
+    </div>
+
+    <div style="background:linear-gradient(135deg,rgba(34,197,94,.08),rgba(59,130,246,.06));border:1px solid rgba(34,197,94,.2);border-radius:var(--r);padding:14px;margin-bottom:16px">
+      <div style="font-size:12px;font-weight:700;color:var(--t2);margin-bottom:8px">⚡ One-time setup (2 minutes)</div>
+      <div style="font-size:12px;color:var(--t3);line-height:1.8">
+        <strong style="color:var(--t2)">1.</strong> Go to <strong>gist.github.com</strong> → New gist<br>
+        <strong style="color:var(--t2)">2.</strong> Filename: <code style="background:var(--surface3);padding:1px 5px;border-radius:4px">wellstat-data.json</code> · Content: <code style="background:var(--surface3);padding:1px 5px;border-radius:4px">{}</code> → Create <strong>secret</strong> gist<br>
+        <strong style="color:var(--t2)">3.</strong> Copy the Gist ID from the URL: <code style="background:var(--surface3);padding:1px 5px;border-radius:4px">gist.github.com/<em>username</em>/<strong>THIS_PART</strong></code><br>
+        <strong style="color:var(--t2)">4.</strong> Go to <strong>github.com/settings/tokens</strong> → Generate new token (classic)<br>
+        <strong style="color:var(--t2)">5.</strong> Tick only <strong>gist</strong> scope → Generate → copy token<br>
+        <strong style="color:var(--t2)">6.</strong> Paste both below → Save → Push
+      </div>
+    </div>
+
+    <div class="stg-row">
+      <div class="stg-row-label">Gist ID</div>
+      <input class="stg-input wide" id="gist-id-inp" value="${gistConfig.gistId||''}" placeholder="a3f8b2c1d4e5f6..." style="width:240px;font-family:var(--fm);font-size:12px">
+    </div>
+    <div class="stg-row">
+      <div class="stg-row-label">GitHub Token</div>
+      <input class="stg-input wide" id="gist-token-inp" type="password" value="${gistConfig.token||''}" placeholder="ghp_xxxxxxxxxxxx" style="width:240px;font-family:var(--fm);font-size:12px">
+    </div>
+    <div class="stg-row" style="margin-top:4px">
+      <button class="stg-btn primary" onclick="saveGistSettings()">💾 Save</button>
+      ${connected?`<button class="stg-btn" onclick="gistPing()">🔌 Test</button>`:''}
+    </div>
+
+    ${connected?`
+    <div class="stg-divider"></div>
+    <div style="font-size:12px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.6px;margin-bottom:10px">Sync</div>
+
+    <div class="stg-row">
+      <div>
+        <div class="stg-row-label">Push to GitHub</div>
+        <div class="stg-row-sub">Upload your ${allD.length} days to the Gist</div>
+      </div>
+      <button class="stg-btn primary" onclick="gistPush()">⬆ Push</button>
+    </div>
+    <div class="stg-row">
+      <div>
+        <div class="stg-row-label">Pull from GitHub</div>
+        <div class="stg-row-sub">Download Gist data and merge with local</div>
+      </div>
+      <button class="stg-btn" onclick="gistPull()">⬇ Pull</button>
+    </div>
+
+    <div style="margin-top:12px;background:var(--surface2);border-radius:var(--rs);padding:10px 12px">
+      <div style="font-size:11px;font-weight:700;color:var(--t3);margin-bottom:4px">SYNC ON OTHER DEVICES</div>
+      <div style="font-size:11px;color:var(--t3);line-height:1.6">Enter the same Gist ID + token on any device → tap Pull → done. Push from whichever device has newer data.</div>
+    </div>
+    `:''}
+  </div>`;
+}
+
+function saveGistSettings(){
+  const id = document.getElementById('gist-id-inp').value.trim();
+  const tok = document.getElementById('gist-token-inp').value.trim();
+  if(!id || !tok){ showToast('❌ Enter both Gist ID and token'); return; }
+  gistConfig = { gistId: id, token: tok };
+  saveGistConfig();
+  showToast('✅ Saved');
+  renderStgGist();
+}
+
+function gistPing(){
+  if(!gistConfig.gistId||!gistConfig.token){ showToast('Configure Gist first'); return; }
+  showToast('⏳ Testing...');
+  fetch(`https://api.github.com/gists/${gistConfig.gistId}`, {
+    headers: { 'Authorization': 'token ' + gistConfig.token, 'Accept': 'application/vnd.github.v3+json' }
+  }).then(r => {
+    if(r.ok) showToast('✅ GitHub connected!');
+    else showToast('❌ Failed — check Gist ID and token');
+  }).catch(() => showToast('❌ Network error'));
+}
+
+function gistPush(){
+  if(!gistConfig.gistId||!gistConfig.token){ showToast('Configure Gist first'); return; }
+  showToast('⏳ Pushing...');
+
+  // Clean data — strip computed, keep zeros
+  const clean = {};
+  Object.keys(allData).sort().forEach(date => {
+    const entry = allData[date] || {};
+    const stripped = {};
+    Object.keys(entry).forEach(k => {
+      if(PASTE_COMPUTED.has(k)) return;
+      const v = entry[k];
+      if(v !== null && v !== undefined && v !== '') stripped[k] = v;
+    });
+    if(Object.keys(stripped).length > 0) clean[date] = stripped;
+  });
+
+  const payload = { version:2, pushed: new Date().toISOString(), days: Object.keys(clean).length, data: clean };
+
+  fetch(`https://api.github.com/gists/${gistConfig.gistId}`, {
+    method: 'PATCH',
+    headers: { 'Authorization': 'token ' + gistConfig.token, 'Accept': 'application/vnd.github.v3+json', 'Content-Type': 'application/json' },
+    body: JSON.stringify({ files: { 'wellstat-data.json': { content: JSON.stringify(payload, null, 2) } } })
+  }).then(r => r.json()).then(d => {
+    if(d.id){
+      const ts = new Date().toLocaleString();
+      localStorage.setItem('ws2_gist_last_sync', ts);
+      showToast(`✅ Pushed ${Object.keys(clean).length} days`);
+      renderStgGist();
+    } else {
+      showToast('❌ Push failed: ' + (d.message||'unknown error'));
+    }
+  }).catch(e => showToast('❌ ' + e.message));
+}
+
+function gistPull(){
+  if(!gistConfig.gistId||!gistConfig.token){ showToast('Configure Gist first'); return; }
+  showToast('⏳ Pulling...');
+
+  fetch(`https://api.github.com/gists/${gistConfig.gistId}`, {
+    headers: { 'Authorization': 'token ' + gistConfig.token, 'Accept': 'application/vnd.github.v3+json' }
+  }).then(r => r.json()).then(d => {
+    const file = d.files && d.files['wellstat-data.json'];
+    if(!file){ showToast('❌ wellstat-data.json not found in Gist'); return; }
+
+    const payload = JSON.parse(file.content);
+    const incoming = payload.data || payload;
+    const incomingDates = Object.keys(incoming).filter(k => /^\d{4}-\d{2}-\d{2}$/.test(k));
+    if(!incomingDates.length){ showToast('Gist is empty — nothing to pull'); return; }
+
+    const newDays = incomingDates.filter(d => !allData[d]).length;
+    const conflictDays = incomingDates.filter(d => allData[d]).length;
+
+    // Merge: incoming values win on conflict (Gist is source of truth after push)
+    incomingDates.forEach(date => {
+      if(!allData[date]) allData[date] = {};
+      const src = incoming[date];
+      Object.keys(src).forEach(k => {
+        if(PASTE_COMPUTED.has(k)) return;
+        const v = src[k];
+        if(v !== null && v !== undefined && v !== '') allData[date][k] = v;
+      });
+    });
+
+    saveData();
+    renderDashboard();
+    const ts = new Date().toLocaleString();
+    localStorage.setItem('ws2_gist_last_sync', ts);
+    showToast(`✅ Pulled — ${newDays} new, ${conflictDays} merged`);
+    renderStgGist();
+  }).catch(e => showToast('❌ ' + e.message));
+}
+
+// Auto-upsert to Gist on every log save (debounced)
+let _gistDebounce = null;
+function gistAutoUpsert(date){
+  if(!gistConfig.gistId || !gistConfig.token) return;
+  clearTimeout(_gistDebounce);
+  _gistDebounce = setTimeout(() => gistPush(), 3000); // push 3s after last save
+}
+
+function gistSyncNow(){ gistPush(); }
 
 // ═══════════════════════════════════════════════
 // HOOK SETTINGS INTO showPage
