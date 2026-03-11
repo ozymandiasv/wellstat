@@ -1288,6 +1288,25 @@ canvas{display:block}
             <div id="mob-sync-status" style="font-size:12px;color:var(--good);margin-top:10px"></div>
           </div>
         </div>
+
+        <!-- GitHub Gist sync panel for mobile -->
+        <div style="width:100%;max-width:400px;text-align:left;background:var(--surface2);border:1px solid var(--border);border-radius:var(--rm);padding:18px;margin-top:14px">
+          <div style="font-family:var(--fd);font-size:15px;font-weight:800;color:var(--t1);margin-bottom:4px">🐙 GitHub Sync</div>
+          <div style="font-size:12px;color:var(--t3);margin-bottom:14px">Sync via GitHub Gist — free, no Google needed. Same Gist ID + token across all devices.</div>
+          <div id="stg-mobile-gist-content">
+            <div style="font-size:11px;font-weight:700;color:var(--t3);margin-bottom:4px">Gist ID</div>
+            <input id="mob-gist-id" class="stg-input" style="width:100%;margin-bottom:10px;box-sizing:border-box;font-family:var(--fm);font-size:12px" placeholder="a3f8b2c1d4e5f6..." value="">
+            <div style="font-size:11px;font-weight:700;color:var(--t3);margin-bottom:4px">GitHub Token</div>
+            <input id="mob-gist-token" class="stg-input" style="width:100%;margin-bottom:14px;box-sizing:border-box;font-family:var(--fm);font-size:12px" placeholder="ghp_xxxxxxxxxxxx" type="password" value="">
+            <div style="display:flex;gap:8px;flex-wrap:wrap">
+              <button class="stg-btn primary" onclick="mobGistSave()">💾 Save</button>
+              <button class="stg-btn" onclick="mobGistPull()">⬇ Pull</button>
+              <button class="stg-btn" onclick="mobGistPush()">⬆ Push</button>
+              <button class="stg-btn" onclick="mobGistPing()">🔌 Test</button>
+            </div>
+            <div id="mob-gist-status" style="font-size:12px;color:var(--good);margin-top:10px"></div>
+          </div>
+        </div>
       </div>
 
       <!-- Desktop-only: full settings layout -->
@@ -6484,6 +6503,105 @@ function mobSyncInit(){
   const s = document.getElementById('mob-sync-secret');
   if(u && syncConfig.url)    u.value = syncConfig.url;
   if(s && syncConfig.secret) s.value = syncConfig.secret;
+  // Pre-fill Gist fields too
+  const gi = document.getElementById('mob-gist-id');
+  const gt = document.getElementById('mob-gist-token');
+  if(gi && gistConfig.gistId) gi.value = gistConfig.gistId;
+  if(gt && gistConfig.token)  gt.value = gistConfig.token;
+}
+
+function mobGistSave(){
+  const id  = document.getElementById('mob-gist-id')?.value.trim();
+  const tok = document.getElementById('mob-gist-token')?.value.trim();
+  if(!id || !tok){ showToast('Enter Gist ID and token'); return; }
+  gistConfig = { gistId: id, token: tok };
+  saveGistConfig();
+  const st = document.getElementById('mob-gist-status');
+  if(st){ st.textContent = '✅ Saved'; setTimeout(()=>st.textContent='', 2000); }
+  showToast('✅ GitHub Sync saved');
+}
+
+function mobGistPing(){
+  const id  = document.getElementById('mob-gist-id')?.value.trim() || gistConfig.gistId;
+  const tok = document.getElementById('mob-gist-token')?.value.trim() || gistConfig.token;
+  if(!id || !tok){ showToast('Save your Gist config first'); return; }
+  const st = document.getElementById('mob-gist-status');
+  if(st) st.textContent = '⏳ Testing…';
+  fetch(`https://api.github.com/gists/${id}`, {
+    headers: { 'Authorization': 'token ' + tok, 'Accept': 'application/vnd.github.v3+json' }
+  }).then(r => {
+    if(r.ok){ if(st) st.textContent = '✅ Connected!'; showToast('✅ GitHub connected!'); }
+    else     { if(st) st.textContent = '❌ Check ID & token'; showToast('❌ Failed'); }
+  }).catch(() => { if(st) st.textContent = '❌ Network error'; });
+}
+
+function mobGistPull(){
+  const id  = document.getElementById('mob-gist-id')?.value.trim() || gistConfig.gistId;
+  const tok = document.getElementById('mob-gist-token')?.value.trim() || gistConfig.token;
+  if(!id || !tok){ showToast('Save your Gist config first'); return; }
+  const st = document.getElementById('mob-gist-status');
+  if(st) st.textContent = '⏳ Pulling…';
+  fetch(`https://api.github.com/gists/${id}`, {
+    headers: { 'Authorization': 'token ' + tok, 'Accept': 'application/vnd.github.v3+json' }
+  }).then(r => r.json()).then(d => {
+    const file = d.files && d.files['wellstat-data.json'];
+    if(!file){ if(st) st.textContent = '❌ File not found in Gist'; showToast('❌ wellstat-data.json not found'); return; }
+    const payload = JSON.parse(file.content);
+    const incoming = payload.data || payload;
+    const dates = Object.keys(incoming).filter(k => /^\d{4}-\d{2}-\d{2}$/.test(k));
+    if(!dates.length){ if(st) st.textContent = 'Gist is empty'; showToast('Gist is empty'); return; }
+    const before = allDates().length;
+    dates.forEach(date => {
+      if(!allData[date]) allData[date] = {};
+      const src = incoming[date];
+      Object.keys(src).forEach(k => {
+        if(PASTE_COMPUTED.has(k)) return;
+        const v = src[k];
+        if(v !== null && v !== undefined && v !== '') allData[date][k] = v;
+      });
+    });
+    saveData(); renderDashboard();
+    const newD = allDates().length - before;
+    const ts = new Date().toLocaleString();
+    localStorage.setItem('ws2_gist_last_sync', ts);
+    if(st) st.textContent = `✅ Pulled — ${dates.length} days (${newD} new)`;
+    showToast(`✅ Pulled ${dates.length} days from GitHub`);
+  }).catch(e => { if(st) st.textContent = '❌ ' + e.message; showToast('❌ Pull failed'); });
+}
+
+function mobGistPush(){
+  const id  = document.getElementById('mob-gist-id')?.value.trim() || gistConfig.gistId;
+  const tok = document.getElementById('mob-gist-token')?.value.trim() || gistConfig.token;
+  if(!id || !tok){ showToast('Save your Gist config first'); return; }
+  const st = document.getElementById('mob-gist-status');
+  if(st) st.textContent = '⏳ Pushing…';
+  const clean = {};
+  Object.keys(allData).sort().forEach(date => {
+    const entry = allData[date] || {};
+    const stripped = {};
+    Object.keys(entry).forEach(k => {
+      if(PASTE_COMPUTED.has(k)) return;
+      const v = entry[k];
+      if(v !== null && v !== undefined && v !== '') stripped[k] = v;
+    });
+    if(Object.keys(stripped).length > 0) clean[date] = stripped;
+  });
+  const payload = { version:2, pushed: new Date().toISOString(), days: Object.keys(clean).length, data: clean };
+  fetch(`https://api.github.com/gists/${id}`, {
+    method: 'PATCH',
+    headers: { 'Authorization': 'token ' + tok, 'Accept': 'application/vnd.github.v3+json', 'Content-Type': 'application/json' },
+    body: JSON.stringify({ files: { 'wellstat-data.json': { content: JSON.stringify(payload, null, 2) } } })
+  }).then(r => r.json()).then(d => {
+    if(d.id){
+      const ts = new Date().toLocaleString();
+      localStorage.setItem('ws2_gist_last_sync', ts);
+      if(st) st.textContent = `✅ Pushed ${Object.keys(clean).length} days`;
+      showToast(`✅ Pushed to GitHub`);
+    } else {
+      if(st) st.textContent = '❌ ' + (d.message || 'Push failed');
+      showToast('❌ Push failed');
+    }
+  }).catch(e => { if(st) st.textContent = '❌ ' + e.message; showToast('❌ Push failed'); });
 }
 
 function mobSyncSave(){
