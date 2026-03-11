@@ -2,16 +2,21 @@
 <html lang="en" data-theme="light">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="WellStat">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#EEF3FB" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0D1117" media="(prefers-color-scheme: dark)">
 <title>WellStat</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,300;12..96,400;12..96,500;12..96,600;12..96,700;12..96,800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+
 <style>
 /* ── TOKENS ─────────────────────────────────── */
 :root{
-  --fd: 'Bricolage Grotesque',sans-serif;
-  --fb: 'DM Sans',sans-serif;
-  --fm: 'DM Mono',monospace;
+  --fd: -apple-system, "SF Pro Display", "Helvetica Neue", ui-sans-serif, sans-serif;
+  --fb: -apple-system, "SF Pro Text", "Helvetica Neue", ui-sans-serif, sans-serif;
+  --fm: "SF Mono", ui-monospace, "Cascadia Code", "Fira Code", Menlo, monospace;
   --bg:#EEF3FB;
   --surface:rgba(255,255,255,.84);
   --surface2:rgba(255,255,255,.55);
@@ -42,7 +47,22 @@
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html,body{height:100%;overflow:hidden}
-body{font-family:var(--fb);background:var(--grad);color:var(--t1);font-size:14px;line-height:1.5}
+body{font-family:var(--fb);background:var(--grad);color:var(--t1);font-size:14px;line-height:1.5;
+  /* iOS safe area for notch/home bar */
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+  -webkit-text-size-adjust: 100%;
+}
+/* iOS input styling fix */
+input, button, select, textarea {
+  -webkit-appearance: none;
+  border-radius: 0;
+}
+input[type=number] { -webkit-appearance: textfield; }
+/* iOS momentum scrolling */
+.main-content, .ah-page, .stg-content, #sheet-wrap {
+  -webkit-overflow-scrolling: touch;
+}
 button{font-family:var(--fb);cursor:pointer;border:none;outline:none}
 input,select{font-family:var(--fb);outline:none}
 *{scrollbar-width:thin;scrollbar-color:var(--border2) transparent}
@@ -3167,7 +3187,15 @@ function saveLogEntry(){
   showToast('✅ Saved — ' + logDate);
   // Auto-sync this date to Sheets if configured
   if(syncConfig.url && syncConfig.secret){
-    const payload = { action:'upsert', secret:syncConfig.secret, date:logDate, row:computeAllFields(getEntry(logDate)) };
+    // Send only raw logged fields — strip computed to keep sheet as source of truth
+    const rawEntry = getEntry(logDate) || {};
+    const cleanEntry = {};
+    Object.keys(rawEntry).forEach(k => {
+      if(PASTE_COMPUTED.has(k)) return;
+      const v = rawEntry[k];
+      if(v != null && v !== '') cleanEntry[k] = v;
+    });
+    const payload = { action:'upsert', secret:syncConfig.secret, date:logDate, row:cleanEntry };
     fetch(syncConfig.url, { method:'POST', body:JSON.stringify(payload) })
       .then(r=>r.json())
       .then(d=>{
@@ -3516,6 +3544,7 @@ function mobNav(id){
 
 // ── INIT ─────────────────────────────────────
 window.addEventListener('load', ()=>{
+  try {
   loadData();
   loadTargets();
   loadProfile();
@@ -3564,6 +3593,16 @@ window.addEventListener('load', ()=>{
     saveData();
   }
   renderDashboard();
+  } catch(e) {
+    console.error('WellStat init error:', e);
+    // Show minimal error so iOS users know what happened
+    document.body.innerHTML = '<div style="padding:40px;font-family:sans-serif;text-align:center">'
+      + '<div style="font-size:40px;margin-bottom:16px">⚠️</div>'
+      + '<div style="font-size:18px;font-weight:700;margin-bottom:8px">WellStat failed to start</div>'
+      + '<div style="font-size:13px;color:#666;margin-bottom:20px">' + e.message + '</div>'
+      + '<div style="font-size:12px;color:#999">Try refreshing. If using iCloud, open via Files app in Safari.</div>'
+      + '</div>';
+  }
 });
 </script>
 
@@ -4624,6 +4663,7 @@ function buildStreakCalendar(rowDefs, nDays){
   }
 
   const lastDataDate = allD.length ? allD[allD.length-1] : todayStr;
+  const CELL=24, LW=120, SW=170;
 
   // Header
   const headerCells = days.map(d=>{
@@ -4843,6 +4883,21 @@ window.showPage = function(id){
 // ═══════════════════════════════════════════════
 // INJECT DRILL OVERLAY HTML
 // ═══════════════════════════════════════════════
+window.addEventListener('error', function(e){
+  const msg = e.message || 'Unknown error';
+  const src = e.filename ? e.filename.split('/').pop() : '';
+  const loc = e.lineno ? ` L${e.lineno}:${e.colno}` : '';
+  // Don't show noisy "Script error." cross-origin noise with no info
+  if(msg === 'Script error.' && !e.lineno) return;
+  console.error('WellStat error:', msg, src, loc, e.error?.stack);
+  showToast('⚠️ ' + msg + (loc ? loc : ''), 6000);
+});
+window.addEventListener('unhandledrejection', function(e){
+  const msg = e.reason?.message || String(e.reason) || 'Promise rejected';
+  console.error('WellStat unhandled promise:', msg);
+  showToast('⚠️ ' + msg, 6000);
+});
+
 document.addEventListener('DOMContentLoaded', ()=>{
   // Drill overlay
   const drillEl = document.createElement('div');
@@ -5684,11 +5739,16 @@ function sheetSaveAll(){
   sheetRows.forEach(row => {
     const d = row.date;
     if(!d){ skipped++; return; }
+
+    // Only touch allData if the row actually has non-empty values
+    const hasValues = Object.keys(row).some(k => k !== 'date' && row[k] != null && row[k] !== '');
+    if(!hasValues){ skipped++; return; }
+
     if(!allData[d]) allData[d] = {};
     Object.keys(row).forEach(k => {
       if(k === 'date') return;
       if(row[k] != null && row[k] !== '') allData[d][k] = row[k];
-      // null/blank = user left it empty intentionally, preserve existing value
+      // null/blank = user left it empty, preserve existing value
     });
     saved++;
   });
@@ -5952,7 +6012,7 @@ function pickWidgetImage(widgetId){
       </div>
 
       <div style="display:flex;gap:8px;justify-content:flex-end">
-        ${widgetImages['${widgetId}'] ? `<button class="stg-btn danger" onclick="removeWidgetImage('${widgetId}',event);document.getElementById('wimg-modal').remove()">Remove</button>` : ''}
+        ${widgetImages[widgetId] ? `<button class="stg-btn danger" onclick="removeWidgetImage('${widgetId}',event);document.getElementById('wimg-modal').remove()">Remove</button>` : ''}
         <button class="stg-btn" onclick="document.getElementById('wimg-modal').remove()">Cancel</button>
       </div>
     </div>`;
@@ -6337,12 +6397,20 @@ function doSync(mode){
     fetch(syncConfig.url, {method:'POST', body:JSON.stringify({action:'pull',secret:syncConfig.secret})})
       .then(r=>r.json()).then(d=>{
         if(d.ok&&d.data){
-          // Merge: local wins for any key already set, sheet fills in missing
+          // Merge: sheet overwrites local, but skip computed fields and skip blank values
           Object.keys(d.data).forEach(date=>{
+            const incoming = d.data[date];
+            // Skip dates where ALL values are empty (phantom blank rows)
+            const hasRealData = Object.values(incoming).some(v => v != null && v !== '');
+            if(!hasRealData) return;
             if(!allData[date]) allData[date]={};
-            Object.keys(d.data[date]).forEach(k=>{
-              // Only write if local value is missing
-              if(allData[date][k]==null) allData[date][k]=d.data[date][k];
+            Object.keys(incoming).forEach(k=>{
+              // Never overwrite with computed fields — they're derived, not source data
+              if(PASTE_COMPUTED.has(k)) return;
+              // Never write null/empty over existing real data
+              const v = incoming[k];
+              if(v == null || v === '') return;
+              allData[date][k] = typeof v === 'number' ? v : (isNaN(parseFloat(v)) ? v : parseFloat(v));
             });
           });
           saveData();
@@ -6353,8 +6421,20 @@ function doSync(mode){
         } else showToast('❌ Pull error: '+(d.error||''));
       }).catch(()=>showToast('❌ Sync failed'));
   } else {
-    // Push: upsert each date
-    fetch(syncConfig.url, {method:'POST', body:JSON.stringify({action:'push',secret:syncConfig.secret,data:allData})})
+    // Push: send only real data, no computed fields, no phantom empty entries
+    const cleanData = {};
+    Object.keys(allData).forEach(date => {
+      const entry = allData[date];
+      const clean = {};
+      Object.keys(entry).forEach(k => {
+        if(PASTE_COMPUTED.has(k)) return;       // skip computed
+        const v = entry[k];
+        if(v == null || v === '') return;        // skip empty
+        clean[k] = v;
+      });
+      if(Object.keys(clean).length > 0) cleanData[date] = clean;  // skip phantom empty dates
+    });
+    fetch(syncConfig.url, {method:'POST', body:JSON.stringify({action:'push',secret:syncConfig.secret,data:cleanData})})
       .then(r=>r.json()).then(d=>{
         if(d.ok){
           const ts = new Date().toLocaleString();
