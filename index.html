@@ -1307,6 +1307,13 @@ canvas{display:block}
             <div id="mob-gist-status" style="font-size:12px;color:var(--good);margin-top:10px"></div>
           </div>
         </div>
+
+        <!-- Danger zone for mobile -->
+        <div style="width:100%;max-width:400px;text-align:left;background:rgba(239,68,68,.06);border:1px solid rgba(239,68,68,.25);border-radius:var(--rm);padding:18px;margin-top:14px">
+          <div style="font-family:var(--fd);font-size:15px;font-weight:800;color:var(--danger);margin-bottom:4px">🗑 Danger Zone</div>
+          <div style="font-size:12px;color:var(--t3);margin-bottom:14px;line-height:1.6">Delete all local data on this device. Useful if you're seeing stale cached data — delete here then Pull from GitHub to reload fresh.</div>
+          <button class="stg-btn danger" style="width:100%" onclick="mobDeleteAllData()">🗑 Delete All Data on This Device</button>
+        </div>
       </div>
 
       <!-- Desktop-only: full settings layout -->
@@ -6602,6 +6609,17 @@ function mobGistPush(){
       showToast('❌ Push failed');
     }
   }).catch(e => { if(st) st.textContent = '❌ ' + e.message; showToast('❌ Push failed'); });
+}
+
+function mobDeleteAllData(){
+  if(!confirm('Delete ALL data on this device? This cannot be undone.\n\nMake sure you have pushed to GitHub first if you want to keep your data.')) return;
+  if(!confirm('Last chance — are you sure?')) return;
+  allData = {};
+  saveData();
+  renderDashboard();
+  showToast('🗑 All local data deleted');
+  const st = document.getElementById('mob-gist-status');
+  if(st){ st.textContent = 'Data cleared — Pull from GitHub to reload'; }
 }
 
 function mobSyncSave(){
