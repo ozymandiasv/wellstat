@@ -6550,32 +6550,21 @@ function mobGistPull(){
   if(!id || !tok){ showToast('Save your Gist config first'); return; }
   const st = document.getElementById('mob-gist-status');
   if(st) st.textContent = '⏳ Pulling…';
+  // Temporarily use these credentials
+  const prev = {...gistConfig};
+  gistConfig = { gistId: id, token: tok };
   fetch(`https://api.github.com/gists/${id}`, {
     headers: { 'Authorization': 'token ' + tok, 'Accept': 'application/vnd.github.v3+json' }
   }).then(r => r.json()).then(d => {
     const file = d.files && d.files['wellstat-data.json'];
-    if(!file){ if(st) st.textContent = '❌ File not found in Gist'; showToast('❌ wellstat-data.json not found'); return; }
+    if(!file){ if(st) st.textContent = '❌ File not found'; showToast('❌ wellstat-data.json not found'); gistConfig=prev; return; }
     const payload = JSON.parse(file.content);
-    const incoming = payload.data || payload;
-    const dates = Object.keys(incoming).filter(k => /^\d{4}-\d{2}-\d{2}$/.test(k));
-    if(!dates.length){ if(st) st.textContent = 'Gist is empty'; showToast('Gist is empty'); return; }
-    const before = allDates().length;
-    dates.forEach(date => {
-      if(!allData[date]) allData[date] = {};
-      const src = incoming[date];
-      Object.keys(src).forEach(k => {
-        if(PASTE_COMPUTED.has(k)) return;
-        const v = src[k];
-        if(v !== null && v !== undefined && v !== '') allData[date][k] = v;
-      });
-    });
-    saveData(); renderDashboard();
-    const newD = allDates().length - before;
-    const ts = new Date().toLocaleString();
-    localStorage.setItem('ws2_gist_last_sync', ts);
-    if(st) st.textContent = `✅ Pulled — ${dates.length} days (${newD} new)`;
-    showToast(`✅ Pulled ${dates.length} days from GitHub`);
-  }).catch(e => { if(st) st.textContent = '❌ ' + e.message; showToast('❌ Pull failed'); });
+    const { newDays } = gistApplyPayload(payload);
+    localStorage.setItem('ws2_gist_last_sync', new Date().toLocaleString());
+    const settingsMsg = payload.settings ? ' + settings' : '';
+    if(st) st.textContent = '✅ Pulled — ' + newDays + ' new days' + settingsMsg;
+    showToast('✅ Pulled from GitHub' + settingsMsg);
+  }).catch(e => { if(st) st.textContent = '❌ ' + e.message; showToast('❌ Pull failed'); gistConfig=prev; });
 }
 
 function mobGistPush(){
@@ -6584,34 +6573,26 @@ function mobGistPush(){
   if(!id || !tok){ showToast('Save your Gist config first'); return; }
   const st = document.getElementById('mob-gist-status');
   if(st) st.textContent = '⏳ Pushing…';
-  const clean = {};
-  Object.keys(allData).sort().forEach(date => {
-    const entry = allData[date] || {};
-    const stripped = {};
-    Object.keys(entry).forEach(k => {
-      if(PASTE_COMPUTED.has(k)) return;
-      const v = entry[k];
-      if(v !== null && v !== undefined && v !== '') stripped[k] = v;
-    });
-    if(Object.keys(stripped).length > 0) clean[date] = stripped;
-  });
-  const payload = { version:2, pushed: new Date().toISOString(), days: Object.keys(clean).length, data: clean };
+  const prev = {...gistConfig};
+  gistConfig = { gistId: id, token: tok };
+  const payload = gistBuildPayload();
   fetch(`https://api.github.com/gists/${id}`, {
     method: 'PATCH',
     headers: { 'Authorization': 'token ' + tok, 'Accept': 'application/vnd.github.v3+json', 'Content-Type': 'application/json' },
     body: JSON.stringify({ files: { 'wellstat-data.json': { content: JSON.stringify(payload, null, 2) } } })
   }).then(r => r.json()).then(d => {
     if(d.id){
-      const ts = new Date().toLocaleString();
-      localStorage.setItem('ws2_gist_last_sync', ts);
-      if(st) st.textContent = `✅ Pushed ${Object.keys(clean).length} days`;
-      showToast(`✅ Pushed to GitHub`);
+      localStorage.setItem('ws2_gist_last_sync', new Date().toLocaleString());
+      if(st) st.textContent = '✅ Pushed — ' + payload.days + ' days + settings';
+      showToast('✅ Pushed to GitHub');
     } else {
-      if(st) st.textContent = '❌ ' + (d.message || 'Push failed');
+      if(st) st.textContent = '❌ ' + (d.message||'Push failed');
       showToast('❌ Push failed');
+      gistConfig = prev;
     }
-  }).catch(e => { if(st) st.textContent = '❌ ' + e.message; showToast('❌ Push failed'); });
+  }).catch(e => { if(st) st.textContent = '❌ ' + e.message; showToast('❌ Push failed'); gistConfig=prev; });
 }
+
 
 function mobDeleteAllData(){
   if(!confirm('Delete ALL data on this device? This cannot be undone.\n\nMake sure you have pushed to GitHub first if you want to keep your data.')) return;
@@ -6765,37 +6746,20 @@ function topbarGistRefresh(){
     return;
   }
   const btn = document.getElementById('tb-gist-btn');
-  if(btn){ btn.style.animation = 'spin 1s linear infinite'; btn.style.display='inline-block'; }
+  if(btn) btn.style.animation = 'spin 1s linear infinite';
   showToast('↻ Refreshing from GitHub…');
-
   fetch(`https://api.github.com/gists/${gistConfig.gistId}`, {
     headers: { 'Authorization': 'token ' + gistConfig.token, 'Accept': 'application/vnd.github.v3+json' }
   }).then(r => r.json()).then(d => {
     const file = d.files && d.files['wellstat-data.json'];
-    if(!file){ showToast('❌ wellstat-data.json not found in Gist'); return; }
+    if(!file){ showToast('❌ wellstat-data.json not found'); return; }
     const payload = JSON.parse(file.content);
-    const incoming = payload.data || payload;
-    const dates = Object.keys(incoming).filter(k => /^\d{4}-\d{2}-\d{2}$/.test(k));
-    if(!dates.length){ showToast('Gist is empty'); return; }
-    const before = allDates().length;
-    dates.forEach(date => {
-      if(!allData[date]) allData[date] = {};
-      const src = incoming[date];
-      Object.keys(src).forEach(k => {
-        if(PASTE_COMPUTED.has(k)) return;
-        const v = src[k];
-        if(v !== null && v !== undefined && v !== '') allData[date][k] = v;
-      });
-    });
-    saveData();
-    renderDashboard();
-    const newD = allDates().length - before;
+    const { newDays } = gistApplyPayload(payload);
     localStorage.setItem('ws2_gist_last_sync', new Date().toLocaleString());
-    showToast(`✅ Refreshed — ${newD > 0 ? newD + ' new days' : 'up to date'}`);
+    const settingsMsg = payload.settings ? ' + settings' : '';
+    showToast('✅ Refreshed — ' + (newDays > 0 ? newDays + ' new days' : 'up to date') + settingsMsg);
   }).catch(e => showToast('❌ Refresh failed: ' + e.message))
-  .finally(() => {
-    if(btn){ btn.style.animation = ''; }
-  });
+  .finally(() => { if(btn) btn.style.animation = ''; });
 }
 
 function copySyncScript(){
@@ -7061,11 +7025,9 @@ function gistPing(){
   }).catch(() => showToast('❌ Network error'));
 }
 
-function gistPush(){
-  if(!gistConfig.gistId||!gistConfig.token){ showToast('Configure Gist first'); return; }
-  showToast('⏳ Pushing...');
+// ── Gist helpers: build full snapshot and restore it ──
 
-  // Clean data — strip computed, keep zeros
+function gistBuildPayload(){
   const clean = {};
   Object.keys(allData).sort().forEach(date => {
     const entry = allData[date] || {};
@@ -7077,62 +7039,89 @@ function gistPush(){
     });
     if(Object.keys(stripped).length > 0) clean[date] = stripped;
   });
+  const settings = {
+    profile:    localStorage.getItem('ws2_profile')    || null,
+    targets:    localStorage.getItem('ws2_targets')    || null,
+    tgt_log:    localStorage.getItem('ws2_tgt_log')    || null,
+    theme:      localStorage.getItem('ws2_theme')      || null,
+    colors:     localStorage.getItem('ws2_colors')     || null,
+    cf:         localStorage.getItem('ws2_cf')         || null,
+    temphabits: localStorage.getItem('ws2_temphabits') || null,
+    icons:      localStorage.getItem('ws2_icons')      || null,
+    sync:       localStorage.getItem('ws2_sync')       || null,
+    ai_active:  localStorage.getItem('ws2_ai_active')  || null,
+  };
+  return { version:3, pushed: new Date().toISOString(), days: Object.keys(clean).length, data: clean, settings };
+}
 
-  const payload = { version:2, pushed: new Date().toISOString(), days: Object.keys(clean).length, data: clean };
+function gistApplyPayload(payload){
+  const incoming = payload.data || {};
+  const incomingDates = Object.keys(incoming).filter(k => /^\d{4}-\d{2}-\d{2}$/.test(k));
+  const before = allDates().length;
+  incomingDates.forEach(date => {
+    if(!allData[date]) allData[date] = {};
+    const src = incoming[date];
+    Object.keys(src).forEach(k => {
+      if(PASTE_COMPUTED.has(k)) return;
+      const v = src[k];
+      if(v !== null && v !== undefined && v !== '') allData[date][k] = v;
+    });
+  });
+  saveData();
+  const s = payload.settings;
+  if(s){
+    if(s.profile)    localStorage.setItem('ws2_profile',    s.profile);
+    if(s.targets)    localStorage.setItem('ws2_targets',    s.targets);
+    if(s.tgt_log)    localStorage.setItem('ws2_tgt_log',    s.tgt_log);
+    if(s.theme)      localStorage.setItem('ws2_theme',      s.theme);
+    if(s.colors)     localStorage.setItem('ws2_colors',     s.colors);
+    if(s.cf)         localStorage.setItem('ws2_cf',         s.cf);
+    if(s.temphabits) localStorage.setItem('ws2_temphabits', s.temphabits);
+    if(s.icons)      localStorage.setItem('ws2_icons',      s.icons);
+    if(s.sync)       localStorage.setItem('ws2_sync',       s.sync);
+    if(s.ai_active)  localStorage.setItem('ws2_ai_active',  s.ai_active);
+    loadTargets(); loadProfile(); loadTheme(); loadStgState();
+  }
+  renderDashboard();
+  return { newDays: allDates().length - before, total: incomingDates.length };
+}
 
+function gistPush(){
+  if(!gistConfig.gistId||!gistConfig.token){ showToast('Configure Gist first'); return; }
+  showToast('\u23f3 Pushing...');
+  const payload = gistBuildPayload();
   fetch(`https://api.github.com/gists/${gistConfig.gistId}`, {
     method: 'PATCH',
     headers: { 'Authorization': 'token ' + gistConfig.token, 'Accept': 'application/vnd.github.v3+json', 'Content-Type': 'application/json' },
     body: JSON.stringify({ files: { 'wellstat-data.json': { content: JSON.stringify(payload, null, 2) } } })
   }).then(r => r.json()).then(d => {
     if(d.id){
-      const ts = new Date().toLocaleString();
-      localStorage.setItem('ws2_gist_last_sync', ts);
-      showToast(`✅ Pushed ${Object.keys(clean).length} days`);
+      localStorage.setItem('ws2_gist_last_sync', new Date().toLocaleString());
+      showToast('\u2705 Pushed \u2014 ' + payload.days + ' days + settings');
       renderStgGist();
     } else {
-      showToast('❌ Push failed: ' + (d.message||'unknown error'));
+      showToast('\u274c Push failed: ' + (d.message||'unknown error'));
     }
-  }).catch(e => showToast('❌ ' + e.message));
+  }).catch(e => showToast('\u274c ' + e.message));
 }
 
 function gistPull(){
   if(!gistConfig.gistId||!gistConfig.token){ showToast('Configure Gist first'); return; }
-  showToast('⏳ Pulling...');
-
+  showToast('\u23f3 Pulling...');
   fetch(`https://api.github.com/gists/${gistConfig.gistId}`, {
     headers: { 'Authorization': 'token ' + gistConfig.token, 'Accept': 'application/vnd.github.v3+json' }
   }).then(r => r.json()).then(d => {
     const file = d.files && d.files['wellstat-data.json'];
-    if(!file){ showToast('❌ wellstat-data.json not found in Gist'); return; }
-
+    if(!file){ showToast('\u274c wellstat-data.json not found in Gist'); return; }
     const payload = JSON.parse(file.content);
-    const incoming = payload.data || payload;
-    const incomingDates = Object.keys(incoming).filter(k => /^\d{4}-\d{2}-\d{2}$/.test(k));
-    if(!incomingDates.length){ showToast('Gist is empty — nothing to pull'); return; }
-
-    const newDays = incomingDates.filter(d => !allData[d]).length;
-    const conflictDays = incomingDates.filter(d => allData[d]).length;
-
-    // Merge: incoming values win on conflict (Gist is source of truth after push)
-    incomingDates.forEach(date => {
-      if(!allData[date]) allData[date] = {};
-      const src = incoming[date];
-      Object.keys(src).forEach(k => {
-        if(PASTE_COMPUTED.has(k)) return;
-        const v = src[k];
-        if(v !== null && v !== undefined && v !== '') allData[date][k] = v;
-      });
-    });
-
-    saveData();
-    renderDashboard();
-    const ts = new Date().toLocaleString();
-    localStorage.setItem('ws2_gist_last_sync', ts);
-    showToast(`✅ Pulled — ${newDays} new, ${conflictDays} merged`);
+    const { newDays } = gistApplyPayload(payload);
+    localStorage.setItem('ws2_gist_last_sync', new Date().toLocaleString());
+    const settingsMsg = payload.settings ? ' + settings' : '';
+    showToast('\u2705 Pulled \u2014 ' + newDays + ' new days' + settingsMsg);
     renderStgGist();
-  }).catch(e => showToast('❌ ' + e.message));
+  }).catch(e => showToast('\u274c ' + e.message));
 }
+
 
 // Auto-upsert to Gist on every log save (debounced)
 let _gistDebounce = null;
