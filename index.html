@@ -1628,6 +1628,28 @@ function scoreColorHex(s){
   if(s>=35) return '#F59E0B';
   return '#EF4444';
 }
+
+// Per-ring color palettes: each ring has 9 stops (3 bad → 3 mid → 3 good)
+// so all three rings are always visually distinct
+function ringRingColor(ring, score, rawRatio){
+  // Over 100% — use the bright over-target color for the base ring too
+  if(rawRatio != null && rawRatio > 1){
+    return {move:'#FF6B9D',steps:'#7DD3FC',exercise:'#6EE7B7'}[ring] || '#FF6B9D';
+  }
+  const palettes = {
+    // Move ring: deep crimson → coral → rose (bad), amber → gold (mid), lime → emerald → green (good)
+    move:     ['#7F1D1D','#B91C1C','#EF4444',  '#F97316','#FBBF24',  '#84CC16','#22C55E','#16A34A','#14532D'],
+    // Steps ring: deep navy → blue → sky (bad), violet → purple (mid), teal → cyan → aqua (good)
+    steps:    ['#1E3A5F','#1D4ED8','#60A5FA',  '#7C3AED','#A78BFA',  '#0D9488','#2DD4BF','#22D3EE','#0E7490'],
+    // Exercise ring: dark plum → magenta → pink (bad), orange-red → peach (mid), mint → sage → forest (good)
+    exercise: ['#4A044E','#A21CAF','#E879F9',  '#EA580C','#FB923C',  '#4ADE80','#86EFAC','#6EE7B7','#064E3B'],
+  };
+  const stops = palettes[ring] || palettes.move;
+  if(score == null) return stops[4]; // mid fallback
+  // Map score 0–100 to index 0–8
+  const idx = Math.round((Math.min(Math.max(score,0),100)/100)*8);
+  return stops[idx];
+}
 function _toHex(cssVar){
   if(!cssVar) return '#3B82F6';
   if(cssVar.startsWith('#') || cssVar.startsWith('rgb')) return cssVar;
@@ -2623,9 +2645,9 @@ function renderDashboard(){
     exercise: scoreFieldV2('exercise_mins', ringVals.exercise),
   };
   const ringColors = {
-    move:     ringScores.move != null ? scoreColorHex(ringScores.move) : '#FF3B5C',
-    steps:    ringScores.steps != null ? scoreColorHex(ringScores.steps) : '#FFCC00',
-    exercise: ringScores.exercise != null ? scoreColorHex(ringScores.exercise) : '#34C759',
+    move:     ringRingColor('move',     ringScores.move,     ringVals.move/ringTargets.move),
+    steps:    ringRingColor('steps',    ringScores.steps,    ringVals.steps/ringTargets.steps),
+    exercise: ringRingColor('exercise', ringScores.exercise, ringVals.exercise/ringTargets.exercise),
   };
   const rings = [
     {key:'move',  label:'Move',    val:ringVals.move,     target:ringTargets.move,    unit:'kcal',r:52,color:ringColors.move},
@@ -2635,11 +2657,20 @@ function renderDashboard(){
   const CX=60,CY=60;
   document.getElementById('rings-svg').innerHTML = rings.map(rg=>{
     const circ2=2*Math.PI*rg.r;
-    const pctV=Math.min(rg.val/rg.target,1);
+    const rawPct=rg.val/rg.target;
+    const pctV=Math.min(rawPct,1);
+    const over=rawPct>1;
+    const overPct=over?Math.min(rawPct-1,1):0; // how far past 100% (cap at 200%)
+    // Over-100 colors: dazzling white-gold per ring
+    const overColors={move:'#FFE566',steps:'#E0F2FE',exercise:'#D1FAE5'};
+    const overColor=overColors[rg.key]||'#FFE566';
     return `<circle cx="${CX}" cy="${CY}" r="${rg.r}" fill="none" stroke="${rg.color}22" stroke-width="9"/>
       <circle cx="${CX}" cy="${CY}" r="${rg.r}" fill="none" stroke="${rg.color}" stroke-width="9"
         stroke-linecap="round" stroke-dasharray="${circ2}" stroke-dashoffset="${circ2*(1-pctV)}"
-        transform="rotate(-90 ${CX} ${CY})" style="transition:stroke-dashoffset .9s cubic-bezier(.4,0,.2,1)"/>`;
+        transform="rotate(-90 ${CX} ${CY})" style="transition:stroke-dashoffset .9s cubic-bezier(.4,0,.2,1)"/>
+      ${over?`<circle cx="${CX}" cy="${CY}" r="${rg.r}" fill="none" stroke="${overColor}" stroke-width="5"
+        stroke-linecap="round" stroke-dasharray="${circ2}" stroke-dashoffset="${circ2*(1-overPct)}"
+        transform="rotate(-90 ${CX} ${CY})" style="transition:stroke-dashoffset .9s cubic-bezier(.4,0,.2,1);filter:drop-shadow(0 0 4px ${overColor})"/>`:''}`;
   }).join('');
   document.getElementById('rings-leg').innerHTML = rings.map(rg=>{
     const pctD=rg.val>0?Math.round(rg.val/rg.target*100):0;
@@ -3105,7 +3136,7 @@ function renderLogFields(){
 
     return `<div class="lf-card" style="position:relative">
       <div class="lf-label">
-        <span>${f.label}</span>
+        <span>${fieldIcons[key] ? renderFieldIcon(key) + ' ' : ''}${f.label}</span>
         <span class="lf-unit">${f.unit}</span>
       </div>
       ${copyBtn}
@@ -4034,7 +4065,7 @@ function ahCard(key, dates, sizeClass, opts={}){
   return `<div class="ah-card${isBig?' big':''} ${sizeClass}" onclick="openDrill('${key}')">
     <div class="ah-card-top">
       <div>
-        <div class="ah-card-label">${opts.icon||''} ${f.label}</div>
+        <div class="ah-card-label">${fieldIcons[key] ? renderFieldIcon(key) : (opts.icon || '')} ${f.label}</div>
         <div style="display:flex;align-items:flex-end;gap:3px;margin-top:4px">
           <div class="ah-card-val" style="color:${dispVal!=null?col:'var(--t4)'}">${displayStr}</div>
           <div class="ah-card-unit">${f.unit}</div>
@@ -5233,6 +5264,7 @@ let syncConfig = { url:'', secret:'' };
 
 let fieldIcons   = {};
 let widgetImages = {};
+let navIcons     = {};
 
 function loadStgState(){
   try { customFields  = JSON.parse(localStorage.getItem('ws2_cf')||'[]');    } catch(e){ customFields=[]; }
@@ -5241,14 +5273,16 @@ function loadStgState(){
   try { syncConfig    = Object.assign(syncConfig, JSON.parse(localStorage.getItem('ws2_sync')||'{}')); } catch(e){}
   try { fieldIcons    = JSON.parse(localStorage.getItem('ws2_icons')||'{}'); } catch(e){ fieldIcons={}; }
   try { widgetImages  = JSON.parse(localStorage.getItem('ws2_wimgs')||'{}'); } catch(e){ widgetImages={}; }
+  try { navIcons      = JSON.parse(localStorage.getItem('ws2_navicons')||'{}'); } catch(e){ navIcons={}; }
 }
 function saveStgState(){
   localStorage.setItem('ws2_cf',     JSON.stringify(customFields));
   localStorage.setItem('ws2_colors', JSON.stringify(lookColors));
   localStorage.setItem('ws2_ai',     JSON.stringify(aiKeys));
   localStorage.setItem('ws2_sync',   JSON.stringify(syncConfig));
-  localStorage.setItem('ws2_icons',  JSON.stringify(fieldIcons));
-  localStorage.setItem('ws2_wimgs',  JSON.stringify(widgetImages));
+  localStorage.setItem('ws2_icons',    JSON.stringify(fieldIcons));
+  localStorage.setItem('ws2_wimgs',    JSON.stringify(widgetImages));
+  localStorage.setItem('ws2_navicons', JSON.stringify(navIcons));
 }
 
 // ═══════════════════════════════════════════════
@@ -5282,6 +5316,7 @@ function initSettings(){
   loadStgState();
   loadTempHabits();
   setTimeout(applyWidgetImages, 200);
+  setTimeout(applyNavIcons, 200);
   renderStgPanel(stgPanel);
   document.querySelectorAll('.stg-nav-item').forEach(n => n.classList.remove('on'));
   const ni = document.getElementById('sni-'+stgPanel);
@@ -5945,70 +5980,126 @@ function renderStgLooks(){
 
   let colorsHTML = '';
   Object.keys(catGroups).forEach(cat => {
-    colorsHTML += `<div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--t3);padding:12px 0 6px">${catLabels[cat]||cat}</div>`;
-    colorsHTML += catGroups[cat].map(cd => `
-      <div class="color-row">
-        <div class="color-label">${cd.label}</div>
-        <input type="color" class="color-inp" value="${lookColors[cd.key]||'#3B82F6'}"
-          onchange="updateLookColor('${cd.key}',this.value)">
-        <input type="text" class="color-hex" value="${lookColors[cd.key]||'#3B82F6'}"
-          id="hex-${cd.key}"
-          onchange="updateLookColor('${cd.key}',this.value)">
-      </div>`).join('');
+    colorsHTML += '<div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--t3);padding:12px 0 6px">'+(catLabels[cat]||cat)+'</div>';
+    colorsHTML += catGroups[cat].map(cd =>
+      '<div class="color-row">' +
+        '<div class="color-label">'+cd.label+'</div>' +
+        '<input type="color" class="color-inp" value="'+(lookColors[cd.key]||'#3B82F6')+'" onchange="updateLookColor(\''+cd.key+'\',this.value)">' +
+        '<input type="text" class="color-hex" value="'+(lookColors[cd.key]||'#3B82F6')+'" id="hex-'+cd.key+'" onchange="updateLookColor(\''+cd.key+'\',this.value)">' +
+      '</div>'
+    ).join('');
   });
 
-  sc.innerHTML = `<div class="stg-panel on" id="sp-looks">
-    <div class="stg-panel-title">🎨 Customise Looks</div>
-    <div class="stg-panel-sub">Personalise colours, widget images, and icons.</div>
+  // Icon chips
+  let iconChipsHTML = '';
+  if(Object.keys(fieldIcons).length){
+    iconChipsHTML = '<div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:10px">';
+    Object.keys(fieldIcons).forEach(k => {
+      const f = allFields().find(f=>f.key===k);
+      if(f) iconChipsHTML += '<span style="display:inline-flex;align-items:center;gap:4px;background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:3px 10px;font-size:12px">'+renderFieldIcon(k)+' <span style="color:var(--t2)">'+f.label+'</span><button onclick="removeFieldIcon(\''+k+'\',event)" style="background:none;border:none;color:var(--t4);cursor:pointer;font-size:11px;padding:0 0 0 4px">x</button></span>';
+    });
+    iconChipsHTML += '</div>';
+  }
 
-    <div style="display:flex;gap:8px;margin-bottom:16px">
-      <button class="stg-btn primary" onclick="applyLookColors()">✓ Apply Colours</button>
-      <button class="stg-btn" onclick="resetLookColors()">↩ Reset</button>
-    </div>
+  // Widget selector options
+  const widgetNames = ['Score','Active Cal','Steps','Sleep','Heart Rate','Distance','Rings','Screen','Cardio','HRV'];
+  let wimgOpts = '';
+  widgetNames.forEach(w => { wimgOpts += '<option value="'+w+'">'+(widgetImages[w]?'[img] ':'')+w+'</option>'; });
 
-    ${colorsHTML}
+  // Icon field options
+  let iconOpts = '';
+  allFields().forEach(f => { iconOpts += '<option value="'+f.key+'">'+(fieldIcons[f.key]?fieldIcons[f.key]+' ':'')+f.label+'</option>'; });
 
-    <div class="stg-divider"></div>
-    <div style="font-size:13px;font-weight:700;color:var(--t2);margin-bottom:4px">🖼 Widget Images</div>
-    <div style="font-size:12px;color:var(--t3);margin-bottom:12px">Assign background images to dashboard widgets</div>
-    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:10px">
-      ${['Score','Active Cal','Steps','Sleep','Heart Rate','Distance','Rings','Screen','Body','Weight'].map(w=>`
-        <div class="widget-img-card" onclick="pickWidgetImage('${w}')" style="position:relative;cursor:pointer">
-          <div class="widget-img-preview" style="position:relative;overflow:hidden;border-radius:8px">
-            ${widgetImages[w]
-              ? `<img src="${widgetImages[w]}" style="width:100%;height:100%;object-fit:cover;border-radius:8px">`
-              : `<span style="font-size:24px">🖼</span>`}
-          </div>
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-top:5px">
-            <div class="widget-img-label">${w}</div>
-            ${widgetImages[w] ? '<button onclick="removeWidgetImage(\''+w+'\',event)" style="background:none;border:none;color:var(--danger);cursor:pointer;font-size:12px;padding:0;line-height:1">✕</button>' : ''}
-          </div>
-        </div>`).join('')}
-    </div>
+  sc.innerHTML =
+    '<div class="stg-panel on" id="sp-looks">' +
+    '<div class="stg-panel-title">Customise Looks</div>' +
+    '<div class="stg-panel-sub">Personalise colours, widget images, and icons.</div>' +
 
-    <div class="stg-divider"></div>
-    <div style="font-size:13px;font-weight:700;color:var(--t2);margin-bottom:4px">🏷 Icon Management</div>
-    <div style="font-size:12px;color:var(--t3);margin-bottom:12px">Custom emoji or image icons for metrics</div>
-    <div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);padding:14px">
-      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:10px">
-        <select class="stg-select" id="icon-field-sel" style="flex:1;min-width:140px">
-          ${allFields().map(f=>`<option value="${f.key}">${fieldIcons[f.key]?fieldIcons[f.key]+' ':''}${f.label}</option>`).join('')}
-        </select>
-        <input class="stg-input" id="icon-emoji" placeholder="🏋️" style="width:70px;text-align:center;font-size:18px">
-        <button class="stg-btn primary" onclick="saveFieldIcon()">Save</button>
-      </div>
-      <div style="font-size:11px;color:var(--t4);margin-bottom:${Object.keys(fieldIcons).length?'10px':'0'}">Pick a field, type an emoji, click Save.</div>
-      ${Object.keys(fieldIcons).length ? `<div style="display:flex;flex-wrap:wrap;gap:6px">
-        ${Object.keys(fieldIcons).map(k=>{
-          const f = allFields().find(f=>f.key===k);
-          return f ? `<span style="display:inline-flex;align-items:center;gap:4px;background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:3px 10px;font-size:12px">
-            ${fieldIcons[k]} <span style="color:var(--t2)">${f.label}</span>
-            <button onclick="removeFieldIcon('${k}',event)" style="background:none;border:none;color:var(--t4);cursor:pointer;font-size:11px;padding:0 0 0 4px">✕</button>
-          </span>` : '';
-        }).join('')}
-      </div>` : ''}
-    </div>
-  </div>`;
+    '<div style="display:flex;gap:8px;margin-bottom:16px">' +
+      '<button class="stg-btn primary" onclick="applyLookColors()">Apply Colours</button>' +
+      '<button class="stg-btn" onclick="resetLookColors()">Reset</button>' +
+    '</div>' +
+
+    colorsHTML +
+
+    '<div class="stg-divider"></div>' +
+    '<div style="font-size:13px;font-weight:700;color:var(--t2);margin-bottom:4px">Widget Images</div>' +
+    '<div style="font-size:12px;color:var(--t3);margin-bottom:12px">Pick a widget, paste a URL, preview and save.</div>' +
+    '<div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);padding:14px">' +
+      '<div style="display:flex;gap:8px;align-items:center;margin-bottom:10px;flex-wrap:wrap">' +
+        '<select class="stg-select" id="wimg-widget-sel" style="flex:1;min-width:140px" onchange="wimgSelChange()">' + wimgOpts + '</select>' +
+        '<button class="stg-btn danger" onclick="wimgRemoveSel()">Remove</button>' +
+      '</div>' +
+      '<div style="display:flex;gap:8px;margin-bottom:10px">' +
+        '<input id="wimg-inline-url" class="stg-input" placeholder="https://res.cloudinary.com/..." style="flex:1">' +
+        '<button class="stg-btn primary" onclick="wimgSave()">Set</button>' +
+      '</div>' +
+      '<div id="wimg-inline-preview" style="border-radius:var(--rs);overflow:hidden;background:var(--surface3);min-height:100px;display:flex;align-items:center;justify-content:center">' +
+        '<span id="wimg-inline-ph" style="font-size:12px;color:var(--t4)">Preview will appear here</span>' +
+      '</div>' +
+      '<div id="wimg-inline-status" style="font-size:11px;color:var(--t4);margin-top:4px;min-height:16px"></div>' +
+    '</div>' +
+
+    '<div class="stg-divider"></div>' +
+    '<div style="font-size:13px;font-weight:700;color:var(--t2);margin-bottom:4px">Icon Management</div>' +
+    '<div style="font-size:12px;color:var(--t3);margin-bottom:12px">Pick a field, paste an image URL or type an emoji, preview and save.</div>' +
+    '<div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);padding:14px">' +
+      '<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:10px">' +
+        '<select class="stg-select" id="icon-field-sel" style="flex:1;min-width:140px" onchange="iconSelChange()">' + iconOpts + '</select>' +
+        '<button class="stg-btn danger" onclick="removeSelectedFieldIcon()">Remove</button>' +
+      '</div>' +
+      '<div style="display:flex;gap:8px;margin-bottom:10px">' +
+        '<input class="stg-input" id="icon-url-inp" placeholder="https://... or paste emoji" style="flex:1">' +
+        '<button class="stg-btn primary" onclick="saveFieldIcon()">Save</button>' +
+      '</div>' +
+      '<div id="icon-inline-preview" style="border-radius:var(--rs);overflow:hidden;background:var(--surface3);min-height:80px;display:flex;align-items:center;justify-content:center">' +
+        '<span id="icon-inline-ph" style="font-size:12px;color:var(--t4)">Preview will appear here</span>' +
+      '</div>' +
+      '<div id="icon-inline-status" style="font-size:11px;color:var(--t4);margin-top:4px;min-height:16px"></div>' +
+      iconChipsHTML +
+    '</div>' +
+
+    '<div class="stg-divider"></div>' +
+    '<div style="font-size:13px;font-weight:700;color:var(--t2);margin-bottom:4px">Nav & Card Icons</div>' +
+    '<div style="font-size:12px;color:var(--t3);margin-bottom:12px">Customise sidebar, mobile nav, and dashboard card icons.</div>' +
+    '<div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);padding:14px">' +
+      '<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:10px">' +
+        '<select class="stg-select" id="navicon-sel" style="flex:1;min-width:160px">' +
+          NAV_ICON_DEFS.map(function(d){ return '<option value="'+d.key+'">'+(navIcons[d.key]?'[custom] ':'')+d.label+'</option>'; }).join('') +
+        '</select>' +
+        '<button class="stg-btn danger" onclick="removeNavIcon()">Remove</button>' +
+      '</div>' +
+      '<div style="display:flex;gap:8px;margin-bottom:10px">' +
+        '<input class="stg-input" id="navicon-inp" placeholder="Emoji or https://..." style="flex:1">' +
+        '<button class="stg-btn primary" onclick="saveNavIcon()">Save</button>' +
+      '</div>' +
+      '<div id="navicon-preview" style="border-radius:var(--rs);overflow:hidden;background:var(--surface3);min-height:80px;display:flex;align-items:center;justify-content:center">' +
+        '<span id="navicon-ph" style="font-size:12px;color:var(--t4)">Preview will appear here</span>' +
+      '</div>' +
+      '<div id="navicon-status" style="font-size:11px;color:var(--t4);margin-top:4px;min-height:16px"></div>' +
+    '</div>' +
+
+    '</div>';
+
+  // Wire up image previews using addEventListener (no inline handlers)
+  var wimgUrlInp = document.getElementById('wimg-inline-url');
+  if(wimgUrlInp) wimgUrlInp.addEventListener('input', wimgPreview);
+
+  var iconUrlInp = document.getElementById('icon-url-inp');
+  if(iconUrlInp) iconUrlInp.addEventListener('input', iconUrlPreview);
+
+  var naviconInp = document.getElementById('navicon-inp');
+  if(naviconInp) naviconInp.addEventListener('input', navIconPreview);
+
+  var naviconSel = document.getElementById('navicon-sel');
+  if(naviconSel) naviconSel.addEventListener('change', navIconSelChange);
+
+  // Init dropdowns
+  setTimeout(function(){
+    wimgSelChange();
+    iconSelChange();
+    navIconSelChange();
+  }, 10);
 }
 
 function updateLookColor(key, val){
@@ -6048,97 +6139,286 @@ function resetLookColors(){
   showToast('↩ Colours reset');
 }
 
-function pickWidgetImage(widgetId){
-  // Show inline input panel — works on iOS Safari (no programmatic .click())
-  const existing = document.getElementById('wimg-modal');
-  if(existing && existing.dataset.wid === widgetId){ existing.remove(); return; }
-  if(existing) existing.remove();
-
-  const panel = document.createElement('div');
-  panel.id = 'wimg-modal';
-  panel.dataset.wid = widgetId;
-  panel.style.cssText = 'position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;padding:20px';
-  panel.innerHTML = `
-    <div style="background:var(--surface);border-radius:var(--rm);padding:24px;width:100%;max-width:380px;box-shadow:0 20px 60px rgba(0,0,0,.3)">
-      <div style="font-family:var(--fd);font-size:16px;font-weight:800;color:var(--t1);margin-bottom:4px">Set Image — ${widgetId}</div>
-      <div style="font-size:12px;color:var(--t3);margin-bottom:16px">Upload a file or paste an image URL</div>
-
-      <div style="font-size:11px;font-weight:700;color:var(--t3);margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px">Upload file</div>
-      <label style="display:flex;align-items:center;gap:10px;background:var(--surface2);border:1px dashed var(--border2);border-radius:var(--rs);padding:14px;cursor:pointer;margin-bottom:14px">
-        <span style="font-size:24px">📁</span>
-        <span style="font-size:13px;color:var(--t2)">Choose image from device</span>
-        <input type="file" accept="image/*" style="display:none" onchange="handleWidgetFile(event,'${widgetId}')">
-      </label>
-
-      <div style="font-size:11px;font-weight:700;color:var(--t3);margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px">Or paste URL</div>
-      <div style="display:flex;gap:8px;margin-bottom:16px">
-        <input id="wimg-url-inp" class="stg-input" placeholder="https://..." style="flex:1" value="${widgetImages[widgetId]&&widgetImages[widgetId].startsWith('http')?widgetImages[widgetId]:''}">
-        <button class="stg-btn primary" onclick="setWidgetImageURL('${widgetId}')">Set</button>
-      </div>
-
-      <div style="display:flex;gap:8px;justify-content:flex-end">
-        ${widgetImages[widgetId] ? `<button class="stg-btn danger" onclick="removeWidgetImage('${widgetId}',event);document.getElementById('wimg-modal').remove()">Remove</button>` : ''}
-        <button class="stg-btn" onclick="document.getElementById('wimg-modal').remove()">Cancel</button>
-      </div>
-    </div>`;
-  panel.addEventListener('click', e => { if(e.target===panel) panel.remove(); });
-  document.body.appendChild(panel);
+// wimgSelChange: when dropdown changes, load current URL into input + show preview
+function wimgSelChange(){
+  var sel = document.getElementById('wimg-widget-sel');
+  if(!sel) return;
+  var w = sel.value;
+  var inp = document.getElementById('wimg-inline-url');
+  if(inp) inp.value = (widgetImages[w] && widgetImages[w].startsWith('http')) ? widgetImages[w] : '';
+  wimgPreview();
 }
 
-function handleWidgetFile(e, widgetId){
-  const file = e.target.files[0]; if(!file) return;
-  const reader = new FileReader();
-  reader.onload = ev => {
-    widgetImages[widgetId] = ev.target.result;
+function wimgPreview(){
+  var url = (document.getElementById('wimg-inline-url')||{}).value || '';
+  url = url.trim();
+  var previewBox = document.getElementById('wimg-inline-preview');
+  var ph  = document.getElementById('wimg-inline-ph');
+  var st  = document.getElementById('wimg-inline-status');
+  if(!previewBox) return;
+
+  // Remove any existing preview img
+  var old = document.getElementById('wimg-preview-built');
+  if(old) old.remove();
+
+  if(!url || !url.startsWith('http')){
+    if(ph){ ph.style.display='flex'; ph.textContent='Preview will appear here'; }
+    if(st) st.textContent='';
+    return;
+  }
+  if(ph) ph.style.display='none';
+  if(st){ st.textContent='Loading...'; st.style.color='var(--t4)'; }
+
+  var img = document.createElement('img');
+  img.id = 'wimg-preview-built';
+  img.style.cssText = 'width:100%;max-height:180px;object-fit:cover;display:block';
+  img.addEventListener('load', function(){
+    if(ph) ph.style.display='none';
+    if(st){ st.textContent='Image loaded'; st.style.color='var(--good)'; }
+  });
+  img.addEventListener('error', function(){
+    img.remove();
+    if(ph){ ph.style.display='flex'; ph.textContent='Could not load - check URL'; ph.style.color='var(--danger)'; }
+    if(st){ st.textContent='Failed'; st.style.color='var(--danger)'; }
+  });
+  img.src = url;
+  previewBox.appendChild(img);
+}
+
+function wimgSave(){
+  var sel = document.getElementById('wimg-widget-sel');
+  var inp = document.getElementById('wimg-inline-url');
+  if(!sel || !inp) return;
+  var w = sel.value;
+  var url = inp.value.trim();
+  if(!url){ showToast('Paste a URL first'); return; }
+  var st = document.getElementById('wimg-inline-status');
+  // If the preview image already loaded successfully, just save directly
+  var built = document.getElementById('wimg-preview-built');
+  if(built && built.complete && built.naturalWidth > 0){
+    widgetImages[w] = url;
     saveStgState(); applyWidgetImages(); renderStgLooks();
-    const m = document.getElementById('wimg-modal'); if(m) m.remove();
-    showToast('✅ Image set for ' + widgetId);
-  };
-  reader.readAsDataURL(file);
+    showToast('Image set for ' + w);
+    return;
+  }
+  if(st){ st.textContent='Testing...'; st.style.color='var(--t4)'; }
+  var t = new Image();
+  t.onload = function(){ widgetImages[w]=url; saveStgState(); applyWidgetImages(); renderStgLooks(); showToast('Image set for '+w); };
+  t.onerror = function(){ if(st){st.textContent='Could not load'; st.style.color='var(--danger)';} showToast('Bad URL'); };
+  t.src = url;
 }
 
-function setWidgetImageURL(widgetId){
-  const url = document.getElementById('wimg-url-inp')?.value.trim();
-  if(!url){ showToast('Paste an image URL first'); return; }
-  widgetImages[widgetId] = url;
+function wimgRemoveSel(){
+  var sel = document.getElementById('wimg-widget-sel');
+  if(!sel) return;
+  delete widgetImages[sel.value];
   saveStgState(); applyWidgetImages(); renderStgLooks();
-  const m = document.getElementById('wimg-modal'); if(m) m.remove();
-  showToast('✅ Image set for ' + widgetId);
+  showToast('Image removed');
 }
 
 function removeWidgetImage(widgetId, e){
   e && e.stopPropagation();
   delete widgetImages[widgetId];
   saveStgState(); applyWidgetImages(); renderStgLooks();
-  showToast('Image removed');
+}
+
+// Returns an <img> tag if the icon is a URL, otherwise the emoji/text itself
+function renderFieldIcon(key){
+  var v = fieldIcons[key];
+  if(!v) return '';
+  if(v.startsWith('http')) return '<img src="'+v+'" style="height:14px;width:14px;object-fit:contain;vertical-align:middle;border-radius:2px" onerror="this.style.display=\'none\'">';
+  return v;
+}
+
+// NAV ICONS — applies custom icons to sidebar, mobile nav, and dashboard card wm-ic badges
+const NAV_ICON_DEFS = [
+  {key:'dashboard',  label:'Dashboard',     sel:['#n-dashboard .nav-ic',    '.mob-nav-item[onclick*="dashboard"] .mni-ic']},
+  {key:'log',        label:'Log Entry',     sel:['#n-log .nav-ic',          '.mob-nav-item[onclick*="log"] .mni-ic']},
+  {key:'history',    label:'History',       sel:['#n-history .nav-ic',      '.mob-nav-item[onclick*="history"] .mni-ic']},
+  {key:'energy',     label:'Energy',        sel:['#n-ah-energy .nav-ic',    '.mob-nav-item[onclick*="energy"] .mni-ic']},
+  {key:'activity',   label:'Activity',      sel:['#n-ah-activity .nav-ic',  '.mob-nav-item[onclick*="activity"] .mni-ic']},
+  {key:'workout',    label:'Workout',       sel:['#n-ah-workout .nav-ic',   '.mob-nav-item[onclick*="workout"] .mni-ic']},
+  {key:'vitals',     label:'Vitals',        sel:['#n-ah-vitals .nav-ic',    '.mob-nav-item[onclick*="vitals"] .mni-ic']},
+  {key:'sleep',      label:'Sleep',         sel:['#n-ah-sleep .nav-ic',     '.mob-nav-item[onclick*="sleep"] .mni-ic']},
+  {key:'physique',   label:'Physique',      sel:['#n-ah-physique .nav-ic',  '.mob-nav-item[onclick*="physique"] .mni-ic']},
+  {key:'nutrition',  label:'Nutrition',     sel:['#n-ah-nutrition .nav-ic', '.mob-nav-item[onclick*="nutrition"] .mni-ic']},
+  {key:'screen',     label:'Screen',        sel:['#n-ah-screen .nav-ic',    '.mob-nav-item[onclick*="screen"] .mni-ic']},
+  {key:'habits',     label:'Habits',        sel:['#n-ah-habits .nav-ic',    '.mob-nav-item[onclick*="habits"] .mni-ic']},
+  {key:'settings',   label:'Settings',      sel:['#n-settings .nav-ic',     '.mob-nav-item[onclick*="settings"] .mni-ic']},
+  // Dashboard card wm-ic badges
+  {key:'wm-acal',    label:'Card: Active Cal',   sel:['#w-acal .wm-ic']},
+  {key:'wm-steps',   label:'Card: Steps',        sel:['#w-steps .wm-ic']},
+  {key:'wm-stand',   label:'Card: Standing',     sel:['#w-stand .wm-ic']},
+  {key:'wm-exer',    label:'Card: Exercise',     sel:['#w-exer .wm-ic']},
+  {key:'wm-hr',      label:'Card: Heart Rate',   sel:['#w-hr .wm-ic']},
+  {key:'wm-cardio',  label:'Card: Cardio',       sel:['#w-cardio .wm-ic']},
+  {key:'wm-mindful', label:'Card: Mindful',      sel:['#w-mindful .wm-ic']},
+  {key:'wm-hrv',     label:'Card: HRV',          sel:['#w-hrv .wm-ic']},
+];
+
+function applyNavIcons(){
+  NAV_ICON_DEFS.forEach(function(def){
+    if(!navIcons[def.key]) return;
+    var val = navIcons[def.key];
+    def.sel.forEach(function(selector){
+      var el = document.querySelector(selector);
+      if(!el) return;
+      if(val.startsWith('http')){
+        el.innerHTML = '<img src="'+val+'" style="height:18px;width:18px;object-fit:contain;vertical-align:middle;border-radius:3px" onerror="this.style.display=\'none\'">';
+      } else {
+        el.textContent = val;
+      }
+    });
+  });
+}
+
+function navIconSelChange(){
+  var sel = document.getElementById('navicon-sel');
+  if(!sel) return;
+  var key = sel.value;
+  var inp = document.getElementById('navicon-inp');
+  if(inp) inp.value = navIcons[key] || '';
+  navIconPreview();
+}
+
+function navIconPreview(){
+  var val = ((document.getElementById('navicon-inp')||{}).value||'').trim();
+  var box = document.getElementById('navicon-preview');
+  var ph  = document.getElementById('navicon-ph');
+  var st  = document.getElementById('navicon-status');
+  if(!box) return;
+  var old = document.getElementById('navicon-preview-img');
+  if(old) old.remove();
+  if(!val){
+    if(ph){ ph.style.display='flex'; ph.textContent='Preview will appear here'; ph.style.color='var(--t4)'; ph.style.fontSize='12px'; }
+    if(st) st.textContent='';
+    return;
+  }
+  if(!val.startsWith('http')){
+    if(ph){ ph.style.display='flex'; ph.textContent=val; ph.style.fontSize='40px'; ph.style.color='var(--t1)'; }
+    if(st){ st.textContent='Emoji preview'; st.style.color='var(--t4)'; }
+    return;
+  }
+  if(ph) ph.style.display='none';
+  if(st){ st.textContent='Loading...'; st.style.color='var(--t4)'; }
+  var img = document.createElement('img');
+  img.id = 'navicon-preview-img';
+  img.style.cssText = 'max-width:100%;max-height:80px;object-fit:contain;display:block';
+  img.addEventListener('load',  function(){ if(ph) ph.style.display='none'; if(st){st.textContent='Loaded';st.style.color='var(--good)';} });
+  img.addEventListener('error', function(){ img.remove(); if(ph){ph.style.display='flex';ph.textContent='Could not load';ph.style.color='var(--danger)';} if(st){st.textContent='Failed';st.style.color='var(--danger)';} });
+  img.src = val;
+  box.appendChild(img);
+}
+
+function saveNavIcon(){
+  var key = ((document.getElementById('navicon-sel')||{}).value||'');
+  var val = ((document.getElementById('navicon-inp')||{}).value||'').trim();
+  if(!key||!val){ showToast('Pick a nav item and enter emoji or URL'); return; }
+  navIcons[key] = val;
+  saveStgState(); applyNavIcons();
+  showToast('Nav icon saved');
+}
+
+function removeNavIcon(){
+  var key = ((document.getElementById('navicon-sel')||{}).value||'');
+  if(!key) return;
+  delete navIcons[key];
+  saveStgState(); applyNavIcons(); renderStgLooks();
+  showToast('Nav icon removed');
 }
 
 function applyWidgetImages(){
-  const map = {
-    'Score':'w-score','Active Cal':'w-energy','Steps':'w-steps',
-    'Sleep':'w-sleep','Heart Rate':'w-hr','Distance':'w-dist',
-    'Rings':'w-rings','Screen':'w-screen','Body':'w-body','Weight':'w-weight'
-  };
-  Object.keys(map).forEach(wid => {
-    const el = document.getElementById(map[wid]); if(!el) return;
+  var map = {'Score':'w-score','Active Cal':'w-acal','Steps':'w-steps','Sleep':'w-sleep','Heart Rate':'w-hr','Distance':'w-dist','Rings':'w-rings','Screen':'w-screen','Cardio':'w-cardio','HRV':'w-hrv'};
+  Object.keys(map).forEach(function(wid){
+    var el = document.getElementById(map[wid]); if(!el) return;
+    // Remove any existing overlay
+    var old = el.querySelector('.widget-bg-img');
+    if(old) old.remove();
     if(widgetImages[wid]){
-      el.style.backgroundImage    = `url(${widgetImages[wid]})`;
-      el.style.backgroundSize     = 'cover';
-      el.style.backgroundPosition = 'center';
-      el.style.backgroundRepeat   = 'no-repeat';
-    } else {
-      el.style.backgroundImage = el.style.backgroundSize = el.style.backgroundPosition = '';
+      // Reset any old backgroundImage approach
+      el.style.backgroundImage = '';
+      // Make card position:relative so overlay works
+      el.style.position = 'relative';
+      var img = document.createElement('img');
+      img.className = 'widget-bg-img';
+      img.src = widgetImages[wid];
+      img.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0.18;pointer-events:none;z-index:0;border-radius:inherit';
+      el.insertBefore(img, el.firstChild);
+      // Ensure all card children are above the overlay
+      Array.from(el.children).forEach(function(ch){
+        if(ch !== img) ch.style.position = 'relative';
+      });
     }
   });
 }
 
+function iconSelChange(){
+  var sel = document.getElementById('icon-field-sel');
+  if(!sel) return;
+  var key = sel.value;
+  var inp = document.getElementById('icon-url-inp');
+  if(inp) inp.value = fieldIcons[key] || '';
+  iconUrlPreview();
+}
+
+function iconUrlPreview(){
+  var val = (document.getElementById('icon-url-inp')||{}).value || '';
+  val = val.trim();
+  var previewBox = document.getElementById('icon-inline-preview');
+  var ph  = document.getElementById('icon-inline-ph');
+  var st  = document.getElementById('icon-inline-status');
+  if(!previewBox) return;
+
+  var old = document.getElementById('icon-preview-built');
+  if(old) old.remove();
+
+  if(!val){
+    if(ph){ ph.style.display='flex'; ph.textContent='Preview will appear here'; ph.style.color='var(--t4)'; }
+    if(st) st.textContent='';
+    return;
+  }
+
+  // Emoji or short text — show as big text
+  if(!val.startsWith('http')){
+    if(ph){ ph.style.display='flex'; ph.textContent=val; ph.style.fontSize='40px'; ph.style.color='var(--t1)'; }
+    if(st){ st.textContent='Emoji preview'; st.style.color='var(--t4)'; }
+    return;
+  }
+
+  // URL — load as image
+  if(ph) ph.style.display='none';
+  if(st){ st.textContent='Loading...'; st.style.color='var(--t4)'; }
+  var img = document.createElement('img');
+  img.id = 'icon-preview-built';
+  img.style.cssText = 'max-width:100%;max-height:80px;object-fit:contain;display:block';
+  img.addEventListener('load', function(){
+    if(ph) ph.style.display='none';
+    if(st){ st.textContent='Image loaded'; st.style.color='var(--good)'; }
+  });
+  img.addEventListener('error', function(){
+    img.remove();
+    if(ph){ ph.style.display='flex'; ph.textContent='Could not load - check URL'; ph.style.color='var(--danger)'; }
+    if(st){ st.textContent='Failed'; st.style.color='var(--danger)'; }
+  });
+  img.src = val;
+  previewBox.appendChild(img);
+}
+
 function saveFieldIcon(){
-  const key  = document.getElementById('icon-field-sel')?.value;
-  const icon = document.getElementById('icon-emoji')?.value.trim();
-  if(!key || !icon){ showToast('Pick a field and enter an emoji'); return; }
-  fieldIcons[key] = icon;
+  var key = (document.getElementById('icon-field-sel')||{}).value;
+  var val = ((document.getElementById('icon-url-inp')||{}).value||'').trim();
+  if(!key || !val){ showToast('Pick a field and enter emoji or URL'); return; }
+  fieldIcons[key] = val;
   saveStgState(); renderStgLooks();
-  showToast('✅ Icon saved for ' + (allFields().find(f=>f.key===key)?.label||key));
+  showToast('Icon saved');
+}
+
+function removeSelectedFieldIcon(){
+  var key = (document.getElementById('icon-field-sel')||{}).value;
+  if(!key) return;
+  delete fieldIcons[key];
+  saveStgState(); renderStgLooks();
+  showToast('Icon removed');
 }
 
 function removeFieldIcon(key, e){
@@ -6147,6 +6427,7 @@ function removeFieldIcon(key, e){
   saveStgState(); renderStgLooks();
   showToast('Icon removed');
 }
+
 
 // ═══════════════════════════════════════════════
 // 5. DATA (Export / Import / Delete)
@@ -7083,7 +7364,16 @@ function gistBuildPayload(){
     sync:       localStorage.getItem('ws2_sync')       || null,
     ai_active:  localStorage.getItem('ws2_ai_active')  || null,
     ai:         localStorage.getItem('ws2_ai')         || null,
-    // ws2_wimgs excluded — base64 images, too large for Gist
+    navicons:   localStorage.getItem('ws2_navicons')   || null,
+    // ws2_wimgs: only sync URL-based images (not base64 uploads — too large)
+    wimgs_urls: (() => {
+      try {
+        const all = JSON.parse(localStorage.getItem('ws2_wimgs') || '{}');
+        const urlOnly = {};
+        Object.keys(all).forEach(k => { if(all[k] && all[k].startsWith('http')) urlOnly[k] = all[k]; });
+        return Object.keys(urlOnly).length ? JSON.stringify(urlOnly) : null;
+      } catch(e){ return null; }
+    })(),
   };
   return { version:3, pushed: new Date().toISOString(), days: Object.keys(clean).length, data: clean, settings };
 }
@@ -7115,6 +7405,15 @@ function gistApplyPayload(payload){
     if(s.sync)       localStorage.setItem('ws2_sync',       s.sync);
     if(s.ai_active)  localStorage.setItem('ws2_ai_active',  s.ai_active);
     if(s.ai)         localStorage.setItem('ws2_ai',         s.ai);
+    if(s.wimgs_urls){
+      // Merge URL images — don't overwrite base64 uploads
+      try {
+        const existing = JSON.parse(localStorage.getItem('ws2_wimgs') || '{}');
+        const incoming = JSON.parse(s.wimgs_urls);
+        Object.keys(incoming).forEach(k => { existing[k] = incoming[k]; });
+        localStorage.setItem('ws2_wimgs', JSON.stringify(existing));
+      } catch(e){}
+    }
     loadTargets(); loadProfile(); loadTheme(); loadStgState();
   }
   renderDashboard();
