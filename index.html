@@ -138,6 +138,7 @@ input,select{font-family:var(--fb);outline:none}
 .sdot.err{background:var(--danger)}
 .sdot.spin{background:var(--warn);animation:blink 1s infinite}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:.35}}
+@keyframes spin{to{transform:rotate(360deg)}}
 .theme-btn{
   display:flex;align-items:center;gap:8px;
   padding:7px 10px;border-radius:var(--rs);
@@ -796,7 +797,8 @@ canvas{display:block}
     <div class="tb-right">
       <div id="tb-profile" style="cursor:pointer;font-size:13px;font-weight:600;color:var(--t3);min-width:28px;text-align:center" onclick="showPage('settings');setTimeout(()=>showStgPanel('profile'),100)" title="Profile">👤</div>
       <div class="tb-btn mob-menu-btn" onclick="openMobNav()" title="Menu" style="display:none">☰</div>
-      <div class="tb-btn" onclick="triggerSync()" title="Sync">☁️</div>
+      <div class="tb-btn" onclick="triggerSync()" title="Sheets Sync">☁️</div>
+      <div class="tb-btn" onclick="topbarGistRefresh()" title="Refresh from GitHub" id="tb-gist-btn">↻</div>
       <div class="tb-btn" onclick="showPage('settings');setTimeout(()=>showStgPanel('data'),100)" title="Export">📤</div>
       <div class="tb-btn" onclick="showPage('log')" title="Log Entry">✏️</div>
     </div>
@@ -6754,6 +6756,47 @@ function doSync(mode){
 }
 
 function triggerSync(){ doSync(); }
+
+function topbarGistRefresh(){
+  if(!gistConfig.gistId || !gistConfig.token){
+    showToast('Configure GitHub Sync in Settings first');
+    showPage('settings');
+    setTimeout(()=>showStgPanel('gist'), 150);
+    return;
+  }
+  const btn = document.getElementById('tb-gist-btn');
+  if(btn){ btn.style.animation = 'spin 1s linear infinite'; btn.style.display='inline-block'; }
+  showToast('↻ Refreshing from GitHub…');
+
+  fetch(`https://api.github.com/gists/${gistConfig.gistId}`, {
+    headers: { 'Authorization': 'token ' + gistConfig.token, 'Accept': 'application/vnd.github.v3+json' }
+  }).then(r => r.json()).then(d => {
+    const file = d.files && d.files['wellstat-data.json'];
+    if(!file){ showToast('❌ wellstat-data.json not found in Gist'); return; }
+    const payload = JSON.parse(file.content);
+    const incoming = payload.data || payload;
+    const dates = Object.keys(incoming).filter(k => /^\d{4}-\d{2}-\d{2}$/.test(k));
+    if(!dates.length){ showToast('Gist is empty'); return; }
+    const before = allDates().length;
+    dates.forEach(date => {
+      if(!allData[date]) allData[date] = {};
+      const src = incoming[date];
+      Object.keys(src).forEach(k => {
+        if(PASTE_COMPUTED.has(k)) return;
+        const v = src[k];
+        if(v !== null && v !== undefined && v !== '') allData[date][k] = v;
+      });
+    });
+    saveData();
+    renderDashboard();
+    const newD = allDates().length - before;
+    localStorage.setItem('ws2_gist_last_sync', new Date().toLocaleString());
+    showToast(`✅ Refreshed — ${newD > 0 ? newD + ' new days' : 'up to date'}`);
+  }).catch(e => showToast('❌ Refresh failed: ' + e.message))
+  .finally(() => {
+    if(btn){ btn.style.animation = ''; }
+  });
+}
 
 function copySyncScript(){
   const script = `// WellStat Apps Script — columnar format (one column per field)
