@@ -2603,9 +2603,24 @@ function renderDashboard(){
   }).join('');
 
   // ── Activity rings ──
-  const ringTargets = {move:600,steps:9000,exercise:45};
+  // Activity rings — use user targets if set, fall back to defaults
+  const ringTargets = {
+    move:     (getTarget('active_calories')?.lo ?? 600),
+    steps:    (getTarget('steps')?.lo ?? 9000),
+    exercise: (getTarget('exercise_mins')?.lo ?? 45),
+  };
   const ringVals = {move:dv('active_calories')||0,steps:dv('steps')||0,exercise:dv('exercise_mins')||0};
-  const ringColors = {move:'#FF3B5C',steps:'#FFCC00',exercise:'#34C759'};
+  // Ring colors based on score (red→green) with fallback to brand colors
+  const ringScores = {
+    move:     scoreFieldV2('active_calories', ringVals.move),
+    steps:    scoreFieldV2('steps', ringVals.steps),
+    exercise: scoreFieldV2('exercise_mins', ringVals.exercise),
+  };
+  const ringColors = {
+    move:     ringScores.move != null ? scoreColorHex(ringScores.move) : '#FF3B5C',
+    steps:    ringScores.steps != null ? scoreColorHex(ringScores.steps) : '#FFCC00',
+    exercise: ringScores.exercise != null ? scoreColorHex(ringScores.exercise) : '#34C759',
+  };
   const rings = [
     {key:'move',  label:'Move',    val:ringVals.move,     target:ringTargets.move,    unit:'kcal',r:52,color:ringColors.move},
     {key:'steps', label:'Steps',   val:ringVals.steps,    target:ringTargets.steps,   unit:'steps',r:40,color:ringColors.steps},
@@ -2643,6 +2658,10 @@ function renderDashboard(){
     const yEl=document.getElementById(ytdId);
     const isAvgOnly = AVG_ONLY.has(key);
 
+    // Use user target if set, fall back to passed default
+    const userTgt = getTarget(key);
+    const effectiveTarget = userTgt ? (userTgt.lo ?? userTgt.hi ?? target) : target;
+
     // Main display val = latest if single, else period avg
     const mainVal = dv(key);
     if(vEl) vEl.textContent = fmtVal(mainVal,key);
@@ -2670,8 +2689,15 @@ function renderDashboard(){
       }
     }
 
-    // Score bar
-    if(bEl) bEl.style.width=(mainVal&&target?Math.min(100,Math.round(mainVal/target*100)):0)+'%';
+    // Score bar — width from target, color from score (red→green)
+    if(bEl){
+      const pct = (mainVal != null && effectiveTarget)
+        ? Math.min(100, Math.round(mainVal / effectiveTarget * 100)) : 0;
+      bEl.style.width = pct + '%';
+      // Use score color if we have a score, else keep fixed color
+      const sc = mainVal != null ? scoreFieldV2(key, mainVal) : null;
+      bEl.style.background = sc != null ? _toHex(scoreColor(sc)) : barColor;
+    }
   }
 
   // Row 2 metrics
@@ -7050,6 +7076,8 @@ function gistBuildPayload(){
     icons:      localStorage.getItem('ws2_icons')      || null,
     sync:       localStorage.getItem('ws2_sync')       || null,
     ai_active:  localStorage.getItem('ws2_ai_active')  || null,
+    ai:         localStorage.getItem('ws2_ai')         || null,
+    // ws2_wimgs excluded — base64 images, too large for Gist
   };
   return { version:3, pushed: new Date().toISOString(), days: Object.keys(clean).length, data: clean, settings };
 }
@@ -7080,6 +7108,7 @@ function gistApplyPayload(payload){
     if(s.icons)      localStorage.setItem('ws2_icons',      s.icons);
     if(s.sync)       localStorage.setItem('ws2_sync',       s.sync);
     if(s.ai_active)  localStorage.setItem('ws2_ai_active',  s.ai_active);
+    if(s.ai)         localStorage.setItem('ws2_ai',         s.ai);
     loadTargets(); loadProfile(); loadTheme(); loadStgState();
   }
   renderDashboard();
