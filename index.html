@@ -647,9 +647,9 @@ canvas{display:block}
 }
 .day-field-row:last-child{border-bottom:none}
 .day-field-ic{
-  width:30px;height:30px;border-radius:8px;
+  width:32px;height:32px;border-radius:8px;
   display:flex;align-items:center;justify-content:center;
-  font-size:14px;flex-shrink:0;
+  font-size:18px;flex-shrink:0;
 }
 .day-field-info{flex:1;min-width:0}
 .day-field-name{font-size:11px;font-weight:600;color:var(--t2)}
@@ -3459,7 +3459,7 @@ function renderDayDetail(ds){
         screen:'rgba(245,158,11,.12)',habits:'rgba(236,72,153,.12)'}[sec.id]||'var(--surface2)';
 
       html += `<div class="day-field-row">
-        <div class="day-field-ic" style="background:${catColor}">${SECTION_ICONS[sec.id]||'📊'}</div>
+        <div class="day-field-ic" style="background:${catColor}">${fieldIcons[f.key] ? renderFieldIcon(f.key) : (SECTION_ICONS[sec.id]||'📊')}</div>
         <div class="day-field-info">
           <div class="day-field-name">${f.label}</div>
           <div>
@@ -4074,7 +4074,7 @@ function ahCard(key, dates, sizeClass, opts={}){
   return `<div class="ah-card${isBig?' big':''} ${sizeClass}" onclick="openDrill('${key}')">
     <div class="ah-card-top">
       <div>
-        <div class="ah-card-label"><span style="font-size:18px;line-height:1;vertical-align:middle">${fieldIcons[key] ? renderFieldIcon(key) : (opts.icon || '')}</span>${fieldIcons[key]||opts.icon?' ':''}<span>${f.label}</span></div>
+        <div class="ah-card-label">${fieldIcons[key] ? '<span style="font-size:22px;line-height:1;display:block;margin-bottom:4px">'+renderFieldIcon(key)+'</span>' : (opts.icon ? '<span style="font-size:22px;line-height:1;display:block;margin-bottom:4px">'+opts.icon+'</span>' : '')}<span>${f.label}</span></div>
         <div style="display:flex;align-items:flex-end;gap:3px;margin-top:4px">
           <div class="ah-card-val" style="color:${dispVal!=null?col:'var(--t4)'}">${displayStr}</div>
           <div class="ah-card-unit">${f.unit}</div>
