@@ -1979,12 +1979,32 @@ function computeScore(date){
     const scores = fields.map(f=>scoreFieldV2(f.key,e[f.key])).filter(s=>s!=null);
     if(scores.length){ const sc=Math.round(scores.reduce((a,b)=>a+b,0)/scores.length); catScores[cat.id]=sc; const w=catW[cat.id]||5; totalS+=sc*w; totalW+=w; }
   });
-  // Workout multi-session bonus
-  const wTypes=[e.walk_distance,e.run_distance,e.cycle_distance,e.strength_training,e.yoga_duration,e.other_activity].filter(v=>v!=null&&v>0).length;
-  const workoutBonus = wTypes>=3?5:wTypes>=2?3:0;
-  const base = totalW>0 ? Math.round(totalS/totalW) : null;
+  // Workout scoring (out of 50 per activity):
+  // scoreWorkoutField returns 0–50. Sum them all — no cap during accumulation.
+  // wRawTotal > 100 → ELITE dark green. Display always capped at 100.
+  // Adding any workout can only increase the total, never decrease it.
+  const WACT_KEYS = ['walk_distance','run_distance','cycle_distance','strength_training','yoga_duration','other_activity'];
+  const wActScores50 = WACT_KEYS.map(k => {
+    const v = e[k]; if(v==null||v<=0) return 0;
+    const s = scoreWorkoutField(k, v);
+    return s != null ? s : 25; // no score fn → any logged value = 25/50
+  });
+  const wRawTotal = wActScores50.reduce((sum, s) => sum + s, 0); // each already out of 50
+  const wScore = Math.min(100, Math.round(wRawTotal));
+  const workoutElite = wRawTotal > 100;
+  catScores.workout = wScore;
+  const wTypes = WACT_KEYS.filter(k=>{ const v=e[k]; return v!=null&&v>0; }).length;
+  const wCompleted = wActScores50.filter(s=>s>0).length;
+  const workoutBonus = workoutElite ? 5 : wCompleted>=2 ? 3 : 0;
+  // Recalculate overall with updated workout score
+  let totalW2=0, totalS2=0;
+  CATS.forEach(cat=>{
+    const s = catScores[cat.id];
+    if(s!=null){ const w=catW[cat.id]||5; totalS2+=s*w; totalW2+=w; }
+  });
+  const base = totalW2>0 ? Math.round(totalS2/totalW2) : null;
   const overall = base!=null ? Math.min(100,base+workoutBonus) : null;
-  return {overall, catScores, workoutBonus, workoutTypes:wTypes};
+  return {overall, catScores, workoutBonus, workoutTypes:wTypes, workoutElite, wCompleted};
 }
 
 // ── PERIOD STATE ─────────────────────────────
@@ -2455,13 +2475,15 @@ function openPopup(key){
     const v = computeAllFields(getEntry(d))[key];
     if(v==null||v===0) return '';
     const pct = maxV2>0 ? Math.round((v/maxV2)*100) : 100;
-    const col = scoreColor(scoreFieldV2(key,v));
+    const elite = isElite(key, v);
+    const col = elite ? ELITE_COLOR_CSS : scoreColor(scoreFieldV2(key,v));
+    const badge = elite ? ' <span style="font-size:9px;background:#04785720;color:'+ELITE_COLOR_CSS+';border-radius:4px;padding:1px 4px;font-weight:700">⚡ELITE</span>' : '';
     return '<div style="display:flex;align-items:center;gap:10px;padding:5px 0;border-bottom:1px solid var(--border2)">'+
       '<div style="font-size:11px;color:var(--t3);font-family:var(--fm);min-width:70px;flex-shrink:0">'+d.slice(5)+'</div>'+
       '<div style="flex:1;height:4px;background:var(--border2);border-radius:4px;overflow:hidden">'+
         '<div style="width:'+pct+'%;height:100%;background:'+col+';border-radius:4px;transition:width .6s ease"></div>'+
       '</div>'+
-      '<div style="font-size:12px;font-weight:700;color:'+col+';min-width:56px;text-align:right;font-family:var(--fm)">'+fmtVal(v,key)+'</div>'+
+      '<div style="font-size:12px;font-weight:700;color:'+col+';min-width:56px;text-align:right;font-family:var(--fm)">'+fmtVal(v,key)+badge+'</div>'+
     '</div>';
   }).join('');
 
@@ -2469,16 +2491,18 @@ function openPopup(key){
   const allSorted = nonZero.slice().sort((a,b)=>b.v-a.v);
   function _makeRankList(items){
     return items.map((x,i)=>{
-      const col = scoreColor(scoreFieldV2(key,x.v));
+      const elite = isElite(key, x.v);
+      const col = elite ? ELITE_COLOR_CSS : scoreColor(scoreFieldV2(key,x.v));
       const maxV3 = allSorted[0]?.v || 1;
       const pct = Math.round((x.v/maxV3)*100);
+      const badge = elite ? '<span style="font-size:9px;background:#04785720;color:'+ELITE_COLOR_CSS+';border-radius:4px;padding:1px 4px;margin-left:4px;font-weight:700">⚡</span>' : '';
       return '<div style="display:flex;align-items:center;gap:10px;padding:5px 0;border-bottom:1px solid var(--border2)">'+
         '<div style="font-size:11px;font-weight:800;color:var(--t4);min-width:18px;text-align:center">'+(i+1)+'</div>'+
         '<div style="font-size:11px;color:var(--t3);font-family:var(--fm);min-width:70px;flex-shrink:0">'+x.date.slice(5)+'</div>'+
         '<div style="flex:1;height:4px;background:var(--border2);border-radius:4px;overflow:hidden">'+
           '<div style="width:'+pct+'%;height:100%;background:'+col+';border-radius:4px"></div>'+
         '</div>'+
-        '<div style="font-size:12px;font-weight:700;color:'+col+';min-width:56px;text-align:right;font-family:var(--fm)">'+fmtVal(x.v,key)+'</div>'+
+        '<div style="font-size:12px;font-weight:700;color:'+col+';min-width:56px;text-align:right;font-family:var(--fm)">'+fmtVal(x.v,key)+badge+'</div>'+
       '</div>';
     }).join('') || '<div style="padding:12px;color:var(--t3);font-size:12px">No data</div>';
   }
@@ -2601,7 +2625,7 @@ function renderDashboard(){
 
   // ── Score ──
   const scoreData = latest ? computeScore(latest) : {overall:null,catScores:{},workoutBonus:0,workoutTypes:0};
-  const {overall, catScores, workoutBonus, workoutTypes} = scoreData;
+  const {overall, catScores, workoutBonus, workoutTypes, workoutElite, wCompleted} = scoreData;
   const circ = 307.9;
   const fill = overall!=null ? circ*(1-overall/100) : circ;
   const grade = gradeFromScore(overall);
@@ -2613,12 +2637,22 @@ function renderDashboard(){
   const sg = document.getElementById('score-grade');
   sg.textContent=grade.label; sg.style.background=grade.bg; sg.style.color=grade.c;
   const bb=document.getElementById('workout-bonus-badge');
-  if(bb){ if(workoutBonus>0){ bb.textContent=`+${workoutBonus} 💪 ${workoutTypes} workouts`; bb.style.display='inline-block'; } else { bb.style.display='none'; } }
+  if(bb){
+    const {workoutElite:we, wCompleted:wc, workoutBonus:wb, workoutTypes:wt} = scoreData;
+    if(wb>0||wt>0){
+      if(we){ bb.innerHTML=`<span style="color:#047857;font-weight:800">⚡ ELITE — ${wc}+ activities completed!</span>`; }
+      else if(wc>=2){ bb.innerHTML=`<span>✅ ${wc} activities completed</span>`; }
+      else if(wc===1){ bb.innerHTML=`<span style="color:var(--warn,#F59E0B)">💪 ${wt} activity — complete 1 more for full score</span>`; }
+      else { bb.innerHTML=`<span>💪 ${wt} activities tracked</span>`; }
+      bb.style.display='inline-block';
+    } else { bb.style.display='none'; }
+  }
 
   // ── Category arcs ──
+  const {workoutElite:_wElite} = scoreData;
   document.getElementById('cats-grid').innerHTML = CATS.map(cat=>{
     const s = catScores[cat.id]??null;
-    const col = scoreColor(s);
+    const col = (cat.id==='workout' && _wElite) ? '#047857' : scoreColor(s);
     const r=22;
     const circumference = Math.PI*r;
     const offset = circumference*(1-(s??0)/100);
@@ -3721,6 +3755,7 @@ window.addEventListener('load', ()=>{
       <div class="mob-nav-item" onclick="mobNav('log')"><div class="mni-ic">✏️</div>Log Entry</div>
       <div class="mob-nav-item" onclick="mobNav('history')"><div class="mni-ic">📅</div>History</div>
       <div class="mob-nav-item" onclick="mobNav('ah-energy')"><div class="mni-ic">🔋</div>Energy</div>
+      <div class="mob-nav-item" onclick="mobNav('ah-activity')"><div class="mni-ic">🏃</div>Activity</div>
       <div class="mob-nav-item" onclick="mobNav('ah-workout')"><div class="mni-ic">💪</div>Workout</div>
       <div class="mob-nav-item" onclick="mobNav('ah-vitals')"><div class="mni-ic">❤️</div>Vitals</div>
       <div class="mob-nav-item" onclick="mobNav('ah-sleep')"><div class="mni-ic">🌙</div>Sleep</div>
@@ -3992,20 +4027,36 @@ function setAHSort(pageId, sort, btn){
 function ahScoreBanner(catId, dates){
   const cat = CATS.find(c => c.id === catId);
   if(!cat) return '';
+  const isWorkout = catId === 'workout';
   const fields = cat.sections.flatMap(s => M[s]||[]).filter(f => f.scored && !f.computed);
   const scores = [];
   fields.forEach(f => {
     const vals = dates.map(d => computeAllFields(getEntry(d))[f.key]).filter(v=>v!=null&&!isNaN(v));
     if(!vals.length) return;
-    const avg  = vals.reduce((a,b)=>a+b,0)/vals.length;
-    const sc   = scoreFieldV2(f.key, avg);
-    if(sc != null) scores.push({label:f.label, unit:f.unit, avg, sc, key:f.key});
+    const avg = vals.reduce((a,b)=>a+b,0)/vals.length;
+    if(isWorkout && isWorkoutScoredField(f.key)){
+      // score out of 50
+      const sc50 = scoreWorkoutField(f.key, avg);
+      if(sc50 != null) scores.push({label:f.label, unit:f.unit, avg, sc:sc50, maxSc:50, key:f.key});
+    } else {
+      const sc = scoreFieldV2(f.key, avg);
+      if(sc != null) scores.push({label:f.label, unit:f.unit, avg, sc, maxSc:100, key:f.key});
+    }
   });
-  const overall = scores.length ? Math.round(scores.reduce((a,b)=>a+b.sc,0)/scores.length) : null;
+  // For workout: overall = sum of /50 scores (raw, can exceed 100 = elite)
+  let overall, wElite = false;
+  if(isWorkout){
+    const wRaw = scores.filter(s=>s.maxSc===50).reduce((a,s)=>a+s.sc,0);
+    wElite = wRaw > 100;
+    overall = Math.min(100, Math.round(wRaw));
+  } else {
+    overall = scores.length ? Math.round(scores.reduce((a,b)=>a+b.sc,0)/scores.length) : null;
+  }
   if(overall == null) return '';
   const circ = 2*Math.PI*33;
-  const col  = scoreColor(overall);
+  const col  = wElite ? ELITE_COLOR_CSS : scoreColor(overall);
   const grade = gradeFromScore(overall);
+  const eliteBadge = wElite ? `<div style="font-size:10px;font-weight:700;color:${ELITE_COLOR_CSS};background:#04785715;border-radius:20px;padding:2px 8px;margin-top:4px">⚡ ELITE</div>` : '';
 
   return `<div class="ah-score-banner">
     <div class="ah-score-ring">
@@ -4023,13 +4074,17 @@ function ahScoreBanner(catId, dates){
       </div>
     </div>
     <div class="ah-score-breakdown">
+      ${eliteBadge}
       ${scores.map(s => {
-        const sc = scoreColor(s.sc);
+        const elite = s.maxSc===50 && wElite;
+        const sc = elite ? ELITE_COLOR_CSS : scoreColor(s.maxSc===50 ? Math.round(s.sc*2) : s.sc);
+        const barPct = Math.min(100, Math.round((s.sc/s.maxSc)*100));
+        const scoreLabel = s.maxSc===50 ? s.sc+'/50' : s.sc+'%';
         return `<div class="ah-score-field">
           <div class="ah-score-field-label">${s.label}</div>
           <div class="ah-score-field-val" style="color:${sc}">${fmtVal(s.avg,s.key)}<span style="font-size:9px;color:var(--t4);margin-left:2px">${s.unit}</span></div>
           <div class="ah-score-field-bar">
-            <div class="ah-score-field-fill" style="width:${s.sc}%;background:${sc}"></div>
+            <div class="ah-score-field-fill" style="width:${barPct}%;background:${sc}"></div>
           </div>
         </div>`;
       }).join('')}
@@ -4055,9 +4110,12 @@ function ahCard(key, dates, sizeClass, opts={}){
   const yrAvg   = yrVals.length ? yrVals.reduce((a,b)=>a+b,0)/yrVals.length : null;
   const yrTotal    = yrVals.length ? yrVals.reduce((a,b)=>a+b,0) : null;
   const rangeTotal = vals.length && dates.length > 1 ? vals.reduce((a,b)=>a+b,0) : null;
-  const sc    = dispVal != null ? scoreFieldV2(key, dispVal) : null;
+  // For workout-scored fields: score out of 50. Otherwise normal 0-100.
+  const isWF = isWorkoutScoredField(key);
+  const sc    = dispVal != null ? (isWF ? scoreWorkoutField(key, dispVal) : scoreFieldV2(key, dispVal)) : null;
   const tgtSc = sc;
-  const col   = scoreColor(tgtSc);
+  const eliteNow = isElite(key, dispVal); // elite target (user-set above-target threshold)
+  const col   = eliteNow ? ELITE_COLOR_CSS : scoreColor(isWF && sc!=null ? Math.round(sc*2) : tgtSc);
 
   const isBig = sizeClass.includes('ah-w3') || sizeClass.includes('ah-w4') || opts.big;
   const displayStr = dispVal != null ? fmtVal(dispVal, key) : '—';
@@ -4080,7 +4138,7 @@ function ahCard(key, dates, sizeClass, opts={}){
           <div class="ah-card-unit">${f.unit}</div>
         </div>
       </div>
-      ${tgtSc!=null?`<div class="ah-card-score-badge" style="background:${col}18;color:${col}">${tgtSc}%</div>`:''}
+      ${tgtSc!=null?(eliteNow?`<div class="ah-card-score-badge" style="background:#04785720;color:#047857;font-size:9px">⚡${isWF?tgtSc+'/50':tgtSc+'%'}</div>`:`<div class="ah-card-score-badge" style="background:${col}18;color:${col}">${isWF?tgtSc+'/50':tgtSc+'%'}</div>`):''}
     </div>
     <div class="ah-card-stats">
       <div class="ah-card-stat">
@@ -4096,7 +4154,7 @@ function ahCard(key, dates, sizeClass, opts={}){
       </div>`:''}
     </div>
     ${tgtSc!=null?`<div class="ah-card-bar">
-      <div class="ah-card-bar-fill" style="width:${tgtSc}%;background:${col}"></div>
+      <div class="ah-card-bar-fill" style="width:${isWF ? Math.min(100,Math.round((tgtSc||0)*2)) : Math.min(100,tgtSc||0)}%;background:${col}"></div>
     </div>`:''}
   </div>`;
 }
@@ -4171,13 +4229,15 @@ function openDrill(key){
     const v = computeAllFields(getEntry(d))[key];
     if(v==null||v===0) return '';
     const pct = maxV2>0 ? Math.round((v/maxV2)*100) : 100;
-    const col = scoreColor(scoreFieldV2(key,v));
+    const elite = isElite(key, v);
+    const col = elite ? ELITE_COLOR_CSS : scoreColor(scoreFieldV2(key,v));
+    const badge = elite ? ' <span style="font-size:9px;background:#04785720;color:'+ELITE_COLOR_CSS+';border-radius:4px;padding:1px 4px;font-weight:700">⚡ELITE</span>' : '';
     return '<div style="display:flex;align-items:center;gap:10px;padding:5px 0;border-bottom:1px solid var(--border2)">'+
       '<div style="font-size:11px;color:var(--t3);font-family:var(--fm);min-width:70px;flex-shrink:0">'+d.slice(5)+'</div>'+
       '<div style="flex:1;height:4px;background:var(--border2);border-radius:4px;overflow:hidden">'+
         '<div style="width:'+pct+'%;height:100%;background:'+col+';border-radius:4px;transition:width .6s ease"></div>'+
       '</div>'+
-      '<div style="font-size:12px;font-weight:700;color:'+col+';min-width:56px;text-align:right;font-family:var(--fm)">'+fmtVal(v,key)+'</div>'+
+      '<div style="font-size:12px;font-weight:700;color:'+col+';min-width:56px;text-align:right;font-family:var(--fm)">'+fmtVal(v,key)+badge+'</div>'+
     '</div>';
   }).join('');
 
@@ -4185,15 +4245,17 @@ function openDrill(key){
   const allSorted = nonZero.slice().sort((a,b)=>b.v-a.v);
   function _makeRankList(items){
     return items.map((x,i)=>{
-      const col = scoreColor(scoreFieldV2(key,x.v));
+      const elite = isElite(key, x.v);
+      const col = elite ? ELITE_COLOR_CSS : scoreColor(scoreFieldV2(key,x.v));
       const pct = Math.round((x.v/(allSorted[0]?.v||1))*100);
+      const badge = elite ? '<span style="font-size:9px;background:#04785720;color:'+ELITE_COLOR_CSS+';border-radius:4px;padding:1px 4px;margin-left:4px;font-weight:700">⚡</span>' : '';
       return '<div style="display:flex;align-items:center;gap:10px;padding:5px 0;border-bottom:1px solid var(--border2)">'+
         '<div style="font-size:11px;font-weight:800;color:var(--t4);min-width:18px;text-align:center">'+(i+1)+'</div>'+
         '<div style="font-size:11px;color:var(--t3);font-family:var(--fm);min-width:70px;flex-shrink:0">'+x.date.slice(5)+'</div>'+
         '<div style="flex:1;height:4px;background:var(--border2);border-radius:4px;overflow:hidden">'+
           '<div style="width:'+pct+'%;height:100%;background:'+col+';border-radius:4px"></div>'+
         '</div>'+
-        '<div style="font-size:12px;font-weight:700;color:'+col+';min-width:56px;text-align:right;font-family:var(--fm)">'+fmtVal(x.v,key)+'</div>'+
+        '<div style="font-size:12px;font-weight:700;color:'+col+';min-width:56px;text-align:right;font-family:var(--fm)">'+fmtVal(x.v,key)+badge+'</div>'+
       '</div>';
     }).join('') || '<div style="padding:12px;color:var(--t3);font-size:12px">No data</div>';
   }
@@ -5150,14 +5212,14 @@ document.addEventListener('DOMContentLoaded', ()=>{
 }
 .tgt-row {
   display:grid;
-  grid-template-columns:1fr 80px 80px 80px 80px;
+  grid-template-columns:1fr 80px 80px 80px 80px 80px;
   gap:8px; align-items:center;
   padding:7px 0; border-bottom:1px solid var(--border);
   font-size:12px;
 }
 @media(max-width:600px){
   .tgt-row { grid-template-columns:1fr 60px 60px; }
-  .tgt-row .tgt-hi, .tgt-row .tgt-w2 { display:none; }
+  .tgt-row .tgt-hi, .tgt-row .tgt-w2, .tgt-row .tgt-elite { display:none; }
 }
 .tgt-row:last-child { border-bottom:none; }
 .tgt-label { font-weight:500; color:var(--t2); }
@@ -5171,7 +5233,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
 .tgt-inp:focus { border-color:var(--accent); outline:none; }
 .tgt-hdr {
   display:grid;
-  grid-template-columns:1fr 80px 80px 80px 80px;
+  grid-template-columns:1fr 80px 80px 80px 80px 80px;
   gap:8px; padding:4px 0 8px;
   font-size:9px; font-weight:700; text-transform:uppercase;
   letter-spacing:.6px; color:var(--t4);
@@ -5494,6 +5556,7 @@ function renderStgTargets(){
       <span>Perfect Low<br><span style="font-weight:400;text-transform:none;letter-spacing:0">lo ✦</span></span>
       <span class="tgt-hi">Perfect High<br><span style="font-weight:400;text-transform:none;letter-spacing:0">hi ✦</span></span>
       <span class="tgt-w2">Worst High<br><span style="font-weight:400;text-transform:none;letter-spacing:0">w2</span></span>
+      <span class="tgt-elite" style="color:#047857;font-weight:700">Above Target<br><span style="font-weight:400;text-transform:none;letter-spacing:0">elite ⚡</span></span>
     </div>`;
 
   TARGET_SECTIONS.forEach(sec => {
@@ -5508,6 +5571,7 @@ function renderStgTargets(){
         <input class="tgt-inp" type="number" step="any" placeholder="—" value="${t.lo??''}" id="tlo-${key}" title="Perfect Low / Start">
         <input class="tgt-inp tgt-hi" type="number" step="any" placeholder="—" value="${t.hi??''}" id="thi-${key}" title="Perfect High / End">
         <input class="tgt-inp tgt-w2" type="number" step="any" placeholder="—" value="${t.w2??''}" id="tw2-${key}" title="Worst High">
+        ${isEliteField(key)?`<input class="tgt-inp tgt-elite" type="number" step="any" placeholder="—" value="${t.elite??''}" id="telite-${key}" title="Above Target (elite)" style="border-color:#04785740">`:'<span class="tgt-elite" style="opacity:.2;font-size:10px;text-align:center;color:var(--t4)">—</span>'}
       </div>`;
     });
   });
@@ -5523,6 +5587,7 @@ function renderStgTargets(){
         <input class="tgt-inp" type="number" step="any" placeholder="—" value="${t.lo??''}" id="tlo-${cf.key}">
         <input class="tgt-inp tgt-hi" type="number" step="any" placeholder="—" value="${t.hi??''}" id="thi-${cf.key}">
         <input class="tgt-inp tgt-w2" type="number" step="any" placeholder="—" value="${t.w2??''}" id="tw2-${cf.key}">
+        <input class="tgt-inp tgt-elite" type="number" step="any" placeholder="—" value="${t.elite??''}" id="telite-${cf.key}" title="Above Target (elite)" style="border-color:#04785740">
       </div>`;
     });
   }
@@ -5531,18 +5596,51 @@ function renderStgTargets(){
   sc.innerHTML = html;
 }
 
+// ── ELITE TARGET FIELDS ──────────────────────────────────────────────────
+// Fields that support an "Above Target" / elite level (positive-direction only)
+const ELITE_KEYS = new Set([
+  'active_calories','google_fit_points','steps','distance_foot','exercise_mins',
+  'standing_mins','stairs_climbed','walk_distance','run_distance','cycle_distance',
+  'strength_training','yoga_duration','other_activity','total_workout',
+  'walk_elevation','run_elevation','cycle_elevation',
+  'book_time','mindful_mins','daylight','hrv','cardio_fitness','cardio_recovery',
+  'water','protein','fiber','vitamin_d','vitamin_c',
+  'calcium','magnesium','potassium','iron','zinc',
+]);
+function isEliteField(key){ return ELITE_KEYS.has(key); }
+function isElite(key, val){
+  if(!isEliteField(key)||val==null) return false;
+  const t = targets[key]||DEFAULT_TARGETS[key]||{};
+  return t.elite!=null && val >= t.elite;
+}
+// Dark emerald for elite
+const ELITE_COLOR     = '#047857';
+const ELITE_COLOR_CSS = '#047857';
+
+// Workout fields scored out of 50 (not 100). Two full workouts = 100. 3+ = elite.
+const WORKOUT_SCORED_KEYS = new Set(['walk_distance','run_distance','cycle_distance','strength_training','yoga_duration','other_activity']);
+function scoreWorkoutField(key, val){
+  // Returns 0–50. Full score (50) when the field hits its target (scoreFieldV2 = 100).
+  const s = scoreFieldV2(key, val);
+  if(s == null) return null;
+  return Math.round(s * 0.5); // 0-100 → 0-50
+}
+function isWorkoutScoredField(key){ return WORKOUT_SCORED_KEYS.has(key); }
+
 function saveTargetsUI(){
   const allKeys = TARGET_SECTIONS.flatMap(s=>s.keys).concat(customFields.map(cf=>cf.key));
   allKeys.forEach(key => {
-    const w1 = document.getElementById('tw1-'+key)?.value;
-    const lo = document.getElementById('tlo-'+key)?.value;
-    const hi = document.getElementById('thi-'+key)?.value;
-    const w2 = document.getElementById('tw2-'+key)?.value;
+    const w1    = document.getElementById('tw1-'+key)?.value;
+    const lo    = document.getElementById('tlo-'+key)?.value;
+    const hi    = document.getElementById('thi-'+key)?.value;
+    const w2    = document.getElementById('tw2-'+key)?.value;
+    const elite = document.getElementById('telite-'+key)?.value;
     targets[key] = {
-      w1: w1!==''&&w1!=null ? parseFloat(w1) : null,
-      lo: lo!==''&&lo!=null ? parseFloat(lo) : null,
-      hi: hi!==''&&hi!=null ? parseFloat(hi) : null,
-      w2: w2!==''&&w2!=null ? parseFloat(w2) : null,
+      w1:    w1!==''&&w1!=null    ? parseFloat(w1)    : null,
+      lo:    lo!==''&&lo!=null    ? parseFloat(lo)    : null,
+      hi:    hi!==''&&hi!=null    ? parseFloat(hi)    : null,
+      w2:    w2!==''&&w2!=null    ? parseFloat(w2)    : null,
+      elite: elite!==''&&elite!=null ? parseFloat(elite) : null,
     };
   });
   saveTargets();
