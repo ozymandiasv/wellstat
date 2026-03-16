@@ -1332,6 +1332,7 @@ canvas{display:block}
           <div class="stg-nav" id="stg-nav">
             <div class="stg-nav-item on" onclick="showStgPanel('profile')" id="sni-profile">👤 Profile</div>
             <div class="stg-nav-item" onclick="showStgPanel('targets')" id="sni-targets">🎯 Targets</div>
+            <div class="stg-nav-item" onclick="showStgPanel('schedule')" id="sni-schedule">📅 Schedule</div>
             <div class="stg-nav-item" onclick="showStgPanel('paste')" id="sni-paste">📋 Quick Paste</div>
             <div class="stg-nav-item" onclick="showStgPanel('custom')" id="sni-custom">➕ Custom Fields</div>
             <div class="stg-nav-item" onclick="showStgPanel('looks')" id="sni-looks">🎨 Customise Looks</div>
@@ -1511,13 +1512,13 @@ vitamins:[
 ],
 screen:[
   {key:'book_time',      label:'Book',       unit:'min',bl:30,bh:null,bl2:5,bh2:null,scored:true},
-  {key:'movie_time',     label:'Movie',      unit:'min',scored:false},
+  {key:'movie_time',     label:'Movie',      unit:'min',bl:null,bh:90,bl2:null,bh2:180,scored:true},
   {key:'reddit_time',    label:'Reddit',     unit:'min',bl:null,bh:30,bl2:null,bh2:90,scored:true},
   {key:'twitter_time',   label:'Twitter/X',  unit:'min',bl:null,bh:20,bl2:null,bh2:60,scored:true},
   {key:'youtube_time',   label:'YouTube',    unit:'min',bl:null,bh:60,bl2:null,bh2:180,scored:true},
   {key:'mobile_time',    label:'Mobile',     unit:'min',bl:null,bh:90,bl2:null,bh2:240,scored:true},
-  {key:'tablet_time',    label:'Tablet',     unit:'min',scored:false},
-  {key:'laptop_time',    label:'Laptop',     unit:'min',scored:false},
+  {key:'tablet_time',    label:'Tablet',     unit:'min',bl:null,bh:60,bl2:null,bh2:180,scored:true},
+  {key:'laptop_time',    label:'Laptop',     unit:'min',bl:null,bh:240,bl2:null,bh2:480,scored:true},
   {key:'cognitive_time', label:'Cognitive',  unit:'min',scored:false,computed:true},
 ],
 habits:[
@@ -1970,13 +1971,19 @@ function renderLocalInsightsHtml(catId, dates){
 }
 
 function computeScore(date){
+  if(isRestDay && isRestDay(date)) return {overall:null, catScores:{}, workoutBonus:0, workoutTypes:0, workoutElite:false, wCompleted:0};
   const e = computeAllFields(getEntry(date));
   const catW = {energy:10,activity:12,workout:12,vitals:15,sleep:15,physique:15,nutrition:10,screen:5,habits:8};
   let totalW=0, totalS=0;
   const catScores = {};
   CATS.forEach(cat=>{
     const fields = cat.sections.flatMap(s=>M[s]||[]).filter(f=>f.scored&&!f.computed);
-    const scores = fields.map(f=>scoreFieldV2(f.key,e[f.key])).filter(s=>s!=null);
+    const scores = fields.map(f=>{
+      // Use date-aware scoring for schedule categories
+      if(typeof scoreFieldForDate === 'function' && SCHEDULE_CATS && SCHEDULE_CATS.has(f.key))
+        return scoreFieldForDate(f.key, e[f.key], date);
+      return scoreFieldV2(f.key, e[f.key]);
+    }).filter(s=>s!=null);
     if(scores.length){ const sc=Math.round(scores.reduce((a,b)=>a+b,0)/scores.length); catScores[cat.id]=sc; const w=catW[cat.id]||5; totalS+=sc*w; totalW+=w; }
   });
   // Workout scoring (out of 50 per activity):
@@ -2671,18 +2678,20 @@ function renderDashboard(){
   }).join('');
 
   // ── Activity rings ──
-  // Activity rings — use user targets if set, fall back to defaults
+  // Use DoW-scaled effective targets if available
+  const _rtMove = typeof getEffectiveTarget==='function' && latest ? getEffectiveTarget('active_calories',latest) : getTarget('active_calories');
+  const _rtSteps = typeof getEffectiveTarget==='function' && latest ? getEffectiveTarget('steps',latest) : getTarget('steps');
+  const _rtExer = typeof getEffectiveTarget==='function' && latest ? getEffectiveTarget('exercise_mins',latest) : getTarget('exercise_mins');
   const ringTargets = {
-    move:     (getTarget('active_calories')?.lo ?? 600),
-    steps:    (getTarget('steps')?.lo ?? 9000),
-    exercise: (getTarget('exercise_mins')?.lo ?? 45),
+    move:     (_rtMove?.lo ?? 600),
+    steps:    (_rtSteps?.lo ?? 9000),
+    exercise: (_rtExer?.lo ?? 45),
   };
   const ringVals = {move:dv('active_calories')||0,steps:dv('steps')||0,exercise:dv('exercise_mins')||0};
-  // Ring colors based on score (red→green) with fallback to brand colors
   const ringScores = {
-    move:     scoreFieldV2('active_calories', ringVals.move),
-    steps:    scoreFieldV2('steps', ringVals.steps),
-    exercise: scoreFieldV2('exercise_mins', ringVals.exercise),
+    move:     typeof scoreFieldForDate==='function' && latest ? scoreFieldForDate('active_calories',ringVals.move,latest) : scoreFieldV2('active_calories',ringVals.move),
+    steps:    typeof scoreFieldForDate==='function' && latest ? scoreFieldForDate('steps',ringVals.steps,latest) : scoreFieldV2('steps',ringVals.steps),
+    exercise: typeof scoreFieldForDate==='function' && latest ? scoreFieldForDate('exercise_mins',ringVals.exercise,latest) : scoreFieldV2('exercise_mins',ringVals.exercise),
   };
   const ringColors = {
     move:     ringRingColor('move',     ringScores.move,     ringVals.move/ringTargets.move),
@@ -2736,8 +2745,13 @@ function renderDashboard(){
     const isAvgOnly = AVG_ONLY.has(key);
 
     // Use user target if set, fall back to passed default
+    // Apply day-of-week % scaling if today's date is available
     const userTgt = getTarget(key);
-    const effectiveTarget = userTgt ? (userTgt.lo ?? userTgt.hi ?? target) : target;
+    const baseLo = userTgt ? (userTgt.lo ?? userTgt.hi ?? target) : target;
+    // Get effective (DoW-scaled) target for bar width
+    const etObj = (typeof getEffectiveTarget==='function' && latest)
+      ? getEffectiveTarget(key, latest) : userTgt;
+    const effectiveTarget = etObj ? (etObj.lo ?? etObj.hi ?? baseLo) : baseLo;
 
     // Main display val = latest if single, else period avg
     const mainVal = dv(key);
@@ -2766,13 +2780,16 @@ function renderDashboard(){
       }
     }
 
-    // Score bar — width from target, color from score (red→green)
+    // Score bar — width from effective (DoW-scaled) target, color from score
     if(bEl){
       const pct = (mainVal != null && effectiveTarget)
         ? Math.min(100, Math.round(mainVal / effectiveTarget * 100)) : 0;
       bEl.style.width = pct + '%';
-      // Use score color if we have a score, else keep fixed color
-      const sc = mainVal != null ? scoreFieldV2(key, mainVal) : null;
+      const sc = mainVal != null
+        ? (typeof scoreFieldForDate==='function' && latest
+            ? scoreFieldForDate(key, mainVal, latest)
+            : scoreFieldV2(key, mainVal))
+        : null;
       bEl.style.background = sc != null ? _toHex(scoreColor(sc)) : barColor;
     }
   }
@@ -2820,26 +2837,98 @@ function renderDashboard(){
   setEl('lbl-run',      single?'Latest':`${n}d Sum`);
 
   // ── Screen widget ──
-  const screenKeys=[
-    {key:'book_time',  label:'📚 Book',   color:'var(--good)'},
-    {key:'movie_time', label:'🎬 Movie',  color:'#6366F1'},
-    {key:'mobile_time',label:'📱 Mobile', color:'var(--warn)'},
-    {key:'youtube_time',label:'▶️ YouTube',color:'var(--danger)'},
-    {key:'reddit_time',label:'👾 Reddit', color:'#FF6B35'},
-    {key:'twitter_time',label:'𝕏 Twitter',color:'#1DA1F2'},
-    {key:'laptop_time',label:'💻 Laptop', color:'var(--ca)'},
-  ];
-  const maxScrn=Math.max(...screenKeys.map(sk=>dv(sk.key)||0),1);
-  document.getElementById('screen-bars').innerHTML=screenKeys.map(sk=>{
-    const v=dv(sk.key)||0;
-    const pctV=Math.round(v/maxScrn*100);
-    return v>0?`<div class="scrn-item">
+  // Each field has its own colour logic based on target type:
+  // Book (higher=better): green at target, dark green above elite, bar = pct of target
+  // Lower-is-better (YT/Reddit/Twitter/Mobile/Tablet/Laptop): green below target, red above, bar relative to worst threshold
+  // Movie (no score): blue below good threshold, red above bad threshold
+  const scrFields = allFields().filter(f=>f.key.endsWith('_time') || f.key==='cognitive_time');
+  const SCR_META = {
+    book_time:   {label:'📚 Book',    dir:'hi'},
+    movie_time:  {label:'🎬 Movie',   dir:'neutral', goodHi:90,  badLo:180},
+    youtube_time:{label:'▶️ YouTube', dir:'lo'},
+    reddit_time: {label:'👾 Reddit',  dir:'lo'},
+    twitter_time:{label:'𝕏 Twitter', dir:'lo'},
+    mobile_time: {label:'📱 Mobile',  dir:'lo'},
+    tablet_time: {label:'📱 Tablet',  dir:'lo'},
+    laptop_time: {label:'💻 Laptop',  dir:'lo'},
+    cognitive_time:{label:'🧠 Cognitive', dir:'hi'},
+  };
+
+  function scrBarInfo(key, val){
+    const t = getTarget(key);
+    const m = SCR_META[key];
+    if(!m) return {color:'var(--t3)', pct:50, label2:''};
+
+    if(m.dir === 'hi'){
+      // Book / Cognitive: higher is better
+      const lo = t?.lo ?? t?.bl ?? null;
+      const elite = t?.elite ?? null;
+      if(lo == null){ return {color:'var(--accent)', pct: Math.min(100,Math.round(val/60*100)), label2:''}; }
+      if(elite != null && val >= elite){
+        return {color:ELITE_COLOR_CSS, pct:100, label2:'⚡'};
+      }
+      if(val >= lo){
+        return {color:'var(--good)', pct:100, label2:'✓'};
+      }
+      const pct = Math.min(99, Math.round(val/lo*100));
+      return {color: pct>=60?'#65A30D':'var(--warn)', pct, label2:''};
+    }
+
+    if(m.dir === 'lo'){
+      // Lower is better: YouTube, Reddit, etc.
+      const hi = t?.hi ?? t?.bh ?? null;
+      const worst = t?.w2 ?? t?.bh2 ?? null;
+      if(hi == null){
+        // No target set — show neutral bar relative to 120min
+        const pct = Math.min(100, Math.round(val/120*100));
+        return {color:'var(--t3)', pct, label2:''};
+      }
+      if(val <= hi){
+        // Good — below target. Bar fills proportionally (full = at target)
+        const pct = Math.round(val/hi*100);
+        return {color:'var(--good)', pct, label2:'✓'};
+      }
+      // Over target — bad. Bar continues to fill beyond 100% visually capped
+      const ref = worst ?? hi*3;
+      const overPct = Math.min(100, Math.round((val-hi)/(ref-hi)*100));
+      const pct = Math.min(100, 60 + Math.round(overPct*0.4)); // 60-100% red zone
+      const color = val >= (worst??hi*2) ? '#7F1D1D' : 'var(--danger)';
+      return {color, pct:Math.min(100,pct), label2:'↑'};
+    }
+
+    if(m.dir === 'neutral'){
+      // Movie: good if low, bad if high, neutral in between
+      const goodHi = t?.lo ?? m.goodHi ?? 90;
+      const badLo  = t?.hi ?? m.badLo  ?? 180;
+      if(val <= goodHi){
+        const pct = Math.round(val/goodHi*100);
+        return {color:'#6366F1', pct, label2:''};  // blue = leisure ok
+      }
+      if(val >= badLo){
+        return {color:'var(--danger)', pct:100, label2:'↑'};
+      }
+      const pct = 40 + Math.round((val-goodHi)/(badLo-goodHi)*60);
+      return {color:'var(--warn)', pct, label2:''};
+    }
+
+    return {color:'var(--t3)', pct:50, label2:''};
+  }
+
+  const scrOrder = ['book_time','movie_time','youtube_time','reddit_time','twitter_time','mobile_time','tablet_time','laptop_time','cognitive_time'];
+  document.getElementById('screen-bars').innerHTML = scrOrder.map(key=>{
+    const v = dv(key)||0;
+    if(!v) return '';
+    const m = SCR_META[key];
+    if(!m) return '';
+    const {color, pct, label2} = scrBarInfo(key, v);
+    return `<div class="scrn-item">
       <div class="scrn-row">
-        <div class="scrn-name">${sk.label}</div>
-        <div class="scrn-val">${fmtTime(v)}</div>
+        <div class="scrn-name" style="color:${color}">${m.label}${label2?' <span style="font-size:9px;font-weight:800">'+label2+'</span>':''}</div>
+        <div class="scrn-val" style="color:${color};font-weight:700">${fmtTime(v)}</div>
       </div>
-      <div class="mbar"><div class="mbar-fill" style="background:${sk.color};width:${pctV}%"></div></div>
-    </div>`:''}).filter(Boolean).join('')||'<div style="color:var(--t4);font-size:12px;text-align:center;padding:20px 0">No screen data</div>';
+      <div class="mbar"><div class="mbar-fill" style="background:${color};width:${pct}%"></div></div>
+    </div>`;
+  }).filter(Boolean).join('') || '<div style="color:var(--t4);font-size:12px;text-align:center;padding:20px 0">No screen data</div>';
 
   // ── Row 4: Sleep ──
   const rem=entry.sleep_rem,core=entry.sleep_core,deep=entry.sleep_deep;
@@ -3110,6 +3199,24 @@ const LOG_SECTIONS = [
 let logSection = 'energy';
 let logDate    = new Date().toISOString().slice(0,10);
 
+// Get icon for a log section tab (checks fieldIcons for representative key)
+const LOG_SECTION_KEYS = {
+  energy:'active_calories', activity:'steps', walk:'walk_distance', run:'run_distance',
+  cycle:'cycle_distance', strength:'strength_training', vitals:'heart_rate',
+  sleep:'total_sleep', mindful:'mindful_mins', body:'weight', nutrition:'water',
+  minerals:'calcium', vitamins:'vitamin_d', screen:'book_time', habits:'alcohol',
+  movement:'walk_asymmetry'
+};
+function logSectionLabel(s){
+  const fk = LOG_SECTION_KEYS[s.id];
+  if(fk && fieldIcons && fieldIcons[fk]){
+    const parts = s.label.split(' '); parts[0]=''; // strip default emoji
+    const name = parts.join(' ').trim();
+    return '<span style="font-size:14px;vertical-align:middle">' + renderFieldIcon(fk) + '</span> ' + name;
+  }
+  return s.label;
+}
+
 function initLog(){
   // Date
   const di = document.getElementById('log-date');
@@ -3121,7 +3228,7 @@ function initLog(){
   // Tabs
   const tabs = document.getElementById('log-tabs');
   tabs.innerHTML = LOG_SECTIONS.map(s =>
-    `<div class="log-tab${s.id===logSection?' on':''}" onclick="switchLogSection('${s.id}')">${s.label}</div>`
+    `<div class="log-tab${s.id===logSection?' on':''}" onclick="switchLogSection('${s.id}')">${logSectionLabel(s)}</div>`
   ).join('');
 
   renderLogFields();
@@ -3130,11 +3237,11 @@ function initLog(){
 
 function switchLogSection(id){
   logSection = id;
-  document.querySelectorAll('.log-tab').forEach(t => t.classList.toggle('on', t.textContent.includes(LOG_SECTIONS.find(s=>s.id===id)?.label?.split(' ')[1]||'_')));
+  document.querySelectorAll('.log-tab').forEach(t => t.classList.toggle('on', t.getAttribute('onclick')?.includes("'" + id + "'")));
   // re-render tabs cleanly
   const tabs = document.getElementById('log-tabs');
   tabs.innerHTML = LOG_SECTIONS.map(s =>
-    `<div class="log-tab${s.id===logSection?' on':''}" onclick="switchLogSection('${s.id}')">${s.label}</div>`
+    `<div class="log-tab${s.id===logSection?' on':''}" onclick="switchLogSection('${s.id}')">${logSectionLabel(s)}</div>`
   ).join('');
   renderLogFields();
 }
@@ -3684,6 +3791,7 @@ window.addEventListener('load', ()=>{
   loadProfile();
   loadTheme();
   loadStgState();
+  loadSchedule();
   updateProfileInTopbar();
   // Seed sample data for visual testing
   if(!Object.keys(allData).length){
@@ -4863,6 +4971,7 @@ function buildStreakCalendar(rowDefs, nDays){
       for(let i=allHistDates.length-1; i>=0; i--){
         const d = allHistDates[i];
         if(d > lastLoggedDate) continue;
+        if(typeof isRestDay==='function' && isRestDay(d)) { curStreak++; continue; } // rest day = free pass
         const val = (allData[d]||{})[hd.key];
         const ok  = hd.done ? hd.done(val,d) : (val!=null&&val!==undefined&&habitDone(hd,val));
         if(ok) curStreak++; else break;
@@ -4872,8 +4981,9 @@ function buildStreakCalendar(rowDefs, nDays){
     // ── Longest streak + date ──
     let longestStreak=0, longestEnd='', runLen=0, runEnd='';
     allHistDates.forEach(d=>{
+      const rest = typeof isRestDay==='function' && isRestDay(d);
       const val=(allData[d]||{})[hd.key];
-      const ok = hd.done ? hd.done(val,d) : (val!=null&&val!==undefined&&habitDone(hd,val));
+      const ok = rest || (hd.done ? hd.done(val,d) : (val!=null&&val!==undefined&&habitDone(hd,val)));
       if(ok){ runLen++; runEnd=d; if(runLen>longestStreak){ longestStreak=runLen; longestEnd=d; } }
       else { runLen=0; }
     });
@@ -4887,10 +4997,11 @@ function buildStreakCalendar(rowDefs, nDays){
       const val   = entry[hd.key];
       const ok    = hd.done ? hd.done(val,d) : (val!=null&&val!==undefined&&habitDone(hd,val));
       const isLatest = d===lastLoggedDate;
+      const rest = typeof isRestDay==='function' && isRestDay(d);
 
       // Multi-count badge: for workout row count how many workout types logged
       let badge = '';
-      if(hd.multiCount){
+      if(!rest && hd.multiCount){
         const count = hd.multiCount(d);
         if(count>1) badge = `<div style="position:absolute;top:-1px;right:-1px;
           background:var(--accent);color:#fff;border-radius:6px;
@@ -4903,14 +5014,15 @@ function buildStreakCalendar(rowDefs, nDays){
         ? hd.done(val,d)  // _any uses done itself
         : (val!=null&&val!==undefined);
 
-      const bg = !has?'var(--border2)':ok?'var(--good)':'var(--danger)';
-      const title = has ? (hd.multiCount ? `${hd.multiCount(d)} workouts` : String(val)) : 'no data';
+      const bg = rest ? 'var(--border)' : (!has?'var(--border2)':ok?'var(--good)':'var(--danger)');
+      const title = rest ? '🛌 Rest day' : (has ? (hd.multiCount ? `${hd.multiCount(d)} workouts` : String(val)) : 'no data');
+      const restIcon = rest ? `<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:10px">🛌</div>` : '';
 
       return `<div style="width:${CELL}px;flex-shrink:0;padding:2px 1px;position:relative">
         <div title="${title}" style="width:${CELL-4}px;height:${CELL-4}px;border-radius:5px;
-          background:${bg};opacity:${has?0.9:0.15};position:relative;
+          background:${bg};opacity:${rest?0.5:(has?0.9:0.15)};position:relative;
           ${isLatest?'outline:2px solid var(--accent);outline-offset:1px;':''}">
-          ${badge}
+          ${rest ? restIcon : badge}
         </div>
       </div>`;
     }).join('');
@@ -4930,7 +5042,7 @@ function buildStreakCalendar(rowDefs, nDays){
     return `<div style="display:flex;align-items:center;margin-bottom:5px">
       <div style="width:${LW}px;flex-shrink:0;font-size:11px;color:var(--t2);
         white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding-right:8px">
-        ${hd.icon} ${hd.label}</div>
+        ${fieldIcons&&fieldIcons[hd.key]?renderFieldIcon(hd.key):hd.icon} ${hd.label}</div>
       <div style="overflow-x:auto;flex:1">
         <div style="display:flex;align-items:center;min-width:${CELL*nDays}px">${cells}</div>
       </div>
@@ -5375,6 +5487,7 @@ function renderStgPanel(id){
   const map = {
     profile: renderStgProfile,
     targets: renderStgTargets,
+    schedule: renderStgSchedule,
     paste:   renderStgPaste,
     custom:  renderStgCustom,
     looks:   renderStgLooks,
@@ -5388,6 +5501,7 @@ function renderStgPanel(id){
 
 function initSettings(){
   loadStgState();
+  loadSchedule();
   loadTempHabits();
   setTimeout(applyWidgetImages, 200);
   setTimeout(applyNavIcons, 200);
@@ -5672,6 +5786,156 @@ function resetTargets(){
   saveTargets();
   renderStgTargets();
   showToast('↩ Targets reset');
+}
+
+// ═══════════════════════════════════════════════
+// SCHEDULE — Day-of-week target % + Rest days
+// Applies to Energy, Activity, Workout categories only
+// ═══════════════════════════════════════════════
+const SCHEDULE_CATS = new Set([
+  'active_calories','resting_calories','google_fit_points',
+  'steps','distance_foot','exercise_mins','standing_mins','stairs_climbed',
+  'walk_distance','walk_elevation','walk_avg_pace','walk_best_pace',
+  'run_distance','run_elevation','run_cadence','run_avg_pace','run_best_pace','run_avg_power',
+  'cycle_distance','cycle_elevation','cycle_avg_pace','cycle_best_pace',
+  'strength_training','yoga_duration','other_activity','total_workout',
+]);
+
+let dowTargets = {0:100,1:100,2:100,3:100,4:100,5:100,6:100};
+let restDays   = {};
+
+function loadSchedule(){
+  try { dowTargets = Object.assign({0:100,1:100,2:100,3:100,4:100,5:100,6:100}, JSON.parse(localStorage.getItem('ws2_dow')||'{}')); } catch(e){}
+  try { restDays   = JSON.parse(localStorage.getItem('ws2_rest')||'{}'); } catch(e){ restDays={}; }
+}
+function saveSchedule(){
+  localStorage.setItem('ws2_dow',  JSON.stringify(dowTargets));
+  localStorage.setItem('ws2_rest', JSON.stringify(restDays));
+}
+function isRestDay(date){ return !!(restDays && restDays[date]); }
+
+// Returns target scaled by day-of-week %, or null on rest day
+function getEffectiveTarget(key, date){
+  const t = targets[key] || DEFAULT_TARGETS[key] || null;
+  if(!t || !date || !SCHEDULE_CATS.has(key)) return t;
+  if(isRestDay(date)) return null;
+  const dow = new Date(date+'T00:00:00').getDay();
+  const pct = (dowTargets[dow] != null ? dowTargets[dow] : 100) / 100;
+  if(pct === 1) return t;
+  const scale = v => v != null ? Math.round(v * pct * 10) / 10 : null;
+  return { w1:scale(t.w1), lo:scale(t.lo), hi:scale(t.hi), w2:scale(t.w2), elite:scale(t.elite) };
+}
+
+// Score a field against the effective (date-aware) target
+function scoreFieldForDate(key, val, date){
+  if(!date || !SCHEDULE_CATS.has(key)) return scoreFieldV2(key, val);
+  if(isRestDay(date)) return null;
+  const et = getEffectiveTarget(key, date);
+  if(!et) return null;
+  const {lo, hi, w1, w2} = et;
+  if(val==null||isNaN(val)) return null;
+  if(lo!=null&&hi==null){
+    if(val>=lo) return 100;
+    if(w1!=null&&val<=w1) return 0;
+    if(w1!=null) return Math.round((val-w1)/(lo-w1)*100);
+    return Math.min(100,Math.round(val/lo*100));
+  }
+  if(hi!=null&&lo==null){
+    if(val<=hi) return 100;
+    if(w2!=null&&val>=w2) return 0;
+    return 0;
+  }
+  if(lo!=null&&hi!=null){
+    if(val>=lo&&val<=hi) return 100;
+    if(val<lo){ if(w1!=null&&val<=w1) return 0; return w1!=null?Math.round((val-w1)/(lo-w1)*100):Math.min(100,Math.round(val/lo*100)); }
+    if(val>hi){ if(w2!=null&&val>=w2) return 0; return 0; }
+  }
+  return scoreFieldV2(key, val);
+}
+
+// ── Schedule Settings UI ─────────────────────
+const DOW_LABELS = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+
+// Schedule calendar state
+let schedCalYear  = new Date().getFullYear();
+let schedCalMonth = new Date().getMonth();
+
+function renderStgSchedule(){
+  const sc = document.getElementById('stg-content');
+  sc.innerHTML = '<div class="stg-panel on" id="sp-schedule">'
+    +'<div class="stg-panel-title">📅 Schedule</div>'
+    +'<div class="stg-panel-sub">Set reduced targets per day of the week, and mark rest/skip days. Affects Energy, Activity &amp; Workout only.</div>'
+    +'<div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);padding:14px;margin-bottom:16px">'
+    +'<div style="font-size:13px;font-weight:700;color:var(--t2);margin-bottom:6px">Day-of-week target %</div>'
+    +'<div style="font-size:11px;color:var(--t4);margin-bottom:12px">100% = normal. 50% on Sunday = all Energy/Activity/Workout targets halved that day.</div>'
+    +'<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:6px">'
+    +DOW_LABELS.map((lbl,i)=>'<div style="text-align:center">'
+      +'<div style="font-size:10px;font-weight:700;color:var(--t3);margin-bottom:4px">'+lbl+'</div>'
+      +'<input type="number" min="0" max="200" step="5" id="dow-pct-'+i+'" value="'+(dowTargets[i]!=null?dowTargets[i]:100)+'"'
+      +' style="width:100%;text-align:center;padding:6px 2px;border-radius:var(--rxs);background:var(--surface);border:1px solid var(--border2);color:var(--t1);font-size:13px;font-weight:700;font-family:var(--fm)">'
+      +'<div style="font-size:9px;color:var(--t4);margin-top:2px">%</div></div>').join('')
+    +'</div>'
+    +'<button class="stg-btn primary" style="margin-top:12px" onclick="saveDowTargets()">💾 Save Day Targets</button>'
+    +'</div>'
+    +'<div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);padding:14px">'
+    +'<div style="font-size:13px;font-weight:700;color:var(--t2);margin-bottom:4px">🛌 Rest / Skip Days</div>'
+    +'<div style="font-size:11px;color:var(--t4);margin-bottom:10px">Click a day to mark it as a rest day. Streaks unaffected, targets not scored.</div>'
+    +'<div id="sched-cal-wrap"></div>'
+    +'<button class="stg-btn" style="margin-top:10px" onclick="clearAllRestDays()">✕ Clear all rest days</button>'
+    +'</div>'
+    +"</div>";
+  renderSchedCal();
+}
+
+function renderSchedCal(){
+  const MONTHS_LBL = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  const today = new Date().toISOString().split('T')[0];
+  const firstDay = new Date(schedCalYear, schedCalMonth, 1).getDay();
+  const daysInMonth = new Date(schedCalYear, schedCalMonth+1, 0).getDate();
+  let cells = '';
+  DOW_LABELS.forEach(l=>{ cells += '<div style="text-align:center;font-size:9px;font-weight:700;color:var(--t4);padding-bottom:4px">'+l+'</div>'; });
+  for(let i=0;i<firstDay;i++) cells += '<div></div>';
+  for(let d=1;d<=daysInMonth;d++){
+    const ds = schedCalYear+'-'+String(schedCalMonth+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');
+    const isRest = !!restDays[ds];
+    const isToday = ds===today;
+    cells += '<button class="cal-day'+(isRest?' selected':'')+(isToday?' today':'')+'" id="rdcell-'+ds+'" onclick="toggleRestDay(\'' +ds+ '\')">'+(isRest?'🛌':d)+'</button>';
+  }
+  const wrap = document.getElementById('sched-cal-wrap');
+  if(wrap) wrap.innerHTML = '<div class="cal-nav" style="margin-bottom:10px">'
+    +'<button class="cal-nav-btn" onclick="schedCalPrev()">‹</button>'
+    +'<div class="cal-month">'+MONTHS_LBL[schedCalMonth]+' '+schedCalYear+'</div>'
+    +'<button class="cal-nav-btn" onclick="schedCalNext()">›</button>'
+    +'</div>'
+    +'<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px">'+cells+'</div>';
+}
+
+function schedCalPrev(){ schedCalMonth--; if(schedCalMonth<0){schedCalMonth=11;schedCalYear--;} renderSchedCal(); }
+function schedCalNext(){ schedCalMonth++; if(schedCalMonth>11){schedCalMonth=0;schedCalYear++;} renderSchedCal(); }
+
+
+function saveDowTargets(){
+  for(let i=0;i<7;i++){
+    const el = document.getElementById('dow-pct-'+i);
+    if(el) dowTargets[i] = Math.max(0,Math.min(200,parseFloat(el.value)||100));
+  }
+  saveSchedule();
+  showToast('✅ Day targets saved');
+}
+
+function toggleRestDay(date){
+  if(restDays[date]) delete restDays[date];
+  else restDays[date] = true;
+  saveSchedule();
+  renderSchedCal(); // re-render just the calendar grid
+}
+
+function clearAllRestDays(){
+  if(!confirm('Clear all rest days?')) return;
+  restDays = {};
+  saveSchedule();
+  renderStgSchedule();
+  showToast('✕ Rest days cleared');
 }
 
 // ═══════════════════════════════════════════════
@@ -7475,6 +7739,8 @@ function gistBuildPayload(){
     ai_active:  localStorage.getItem('ws2_ai_active')  || null,
     ai:         localStorage.getItem('ws2_ai')         || null,
     navicons:   localStorage.getItem('ws2_navicons')   || null,
+    dow:        localStorage.getItem('ws2_dow')         || null,
+    rest:       localStorage.getItem('ws2_rest')        || null,
     // ws2_wimgs: only sync URL-based images (not base64 uploads — too large)
     wimgs_urls: (() => {
       try {
@@ -7513,6 +7779,8 @@ function gistApplyPayload(payload){
     if(s.temphabits) localStorage.setItem('ws2_temphabits', s.temphabits);
     if(s.icons)      localStorage.setItem('ws2_icons',      s.icons);
     if(s.navicons)   localStorage.setItem('ws2_navicons',   s.navicons);
+    if(s.dow)        localStorage.setItem('ws2_dow',         s.dow);
+    if(s.rest)       localStorage.setItem('ws2_rest',        s.rest);
     if(s.sync)       localStorage.setItem('ws2_sync',       s.sync);
     if(s.ai_active)  localStorage.setItem('ws2_ai_active',  s.ai_active);
     if(s.ai)         localStorage.setItem('ws2_ai',         s.ai);
