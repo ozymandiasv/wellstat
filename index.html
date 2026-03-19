@@ -1795,23 +1795,23 @@ movement:[
 ],
 nutrition_macro:[
   {key:'water',             label:'Water',            unit:'L',    bl:2.5, bh:4,   bl2:1,   bh2:6,    scored:true},
-  {key:'dietary_calories',  label:'Dietary Calories', unit:'kcal', bl:1600,bh:2400,bl2:1000,bh2:3500, scored:false},
-  {key:'caffeine',          label:'Caffeine',         unit:'mg',   bl:null,bh:300, bl2:null,bh2:500,  scored:false},
+  {key:'dietary_calories',  label:'Dietary Calories', unit:'kcal', bl:1600,bh:2400,bl2:1000,bh2:3500, scored:true},
+  {key:'caffeine',          label:'Caffeine',         unit:'mg',   bl:null,bh:300, bl2:null,bh2:500,  scored:true},
   {key:'protein',           label:'Protein',          unit:'g',    bl:120, bh:null, bl2:40,  bh2:null, scored:true},
-  {key:'total_fats',          label:'Total Fats',       unit:'g',  bl:44,  bh:78,  bl2:20,  bh2:100, scored:false},
-  {key:'saturated_fats',      label:'Saturated Fats',   unit:'g',  bl:null,bh:20,  bl2:null,bh2:30,  scored:false},
-  {key:'monounsaturated_fats',label:'Mono Fats',        unit:'g',  bl:25,  bh:null,bl2:8,   bh2:null,scored:false},
-  {key:'polyunsaturated_fats',label:'Poly Fats',        unit:'g',  bl:11,  bh:null,bl2:4,   bh2:null,scored:false},
-  {key:'trans_fats',          label:'Trans Fats',       unit:'g',  bl:null,bh:2,   bl2:null,bh2:5,   scored:false},
-  {key:'carbohydrates',       label:'Carbs',            unit:'g',  bl:130, bh:325, bl2:50,  bh2:450, scored:false},
+  {key:'total_fats',        label:'Total Fats',       unit:'g',    bl:44,  bh:78,  bl2:20,  bh2:100,  scored:true},
+  {key:'saturated_fats',    label:'Saturated Fats',   unit:'g',    bl:null,bh:20,  bl2:null,bh2:30,   scored:true},
+  {key:'monounsaturated_fats',label:'Mono Fats',      unit:'g',    bl:25,  bh:null,bl2:8,   bh2:null, scored:false},
+  {key:'polyunsaturated_fats',label:'Poly Fats',      unit:'g',    bl:11,  bh:null,bl2:4,   bh2:null, scored:false},
+  {key:'trans_fats',        label:'Trans Fats',       unit:'g',    bl:null,bh:2,   bl2:null,bh2:5,    scored:true},
+  {key:'carbohydrates',     label:'Carbs',            unit:'g',    bl:130, bh:325, bl2:50,  bh2:450,  scored:true},
   {key:'fiber',             label:'Fiber',            unit:'g',    bl:25,  bh:null, bl2:10,  bh2:null, scored:true},
-  {key:'sugar',             label:'Sugar',            unit:'g',  bl:null,bh:50,  bl2:null,bh2:90,  scored:false},
-  {key:'added_sugar',       label:'Added Sugar',      unit:'g',  bl:null,bh:25,  bl2:null,bh2:50,  scored:false},
-  {key:'cholesterol',       label:'Cholesterol',      unit:'mg', bl:null,bh:300, bl2:null,bh2:500, scored:false},
+  {key:'sugar',             label:'Sugar',            unit:'g',    bl:null,bh:50,  bl2:null,bh2:90,   scored:true},
+  {key:'added_sugar',       label:'Added Sugar',      unit:'g',    bl:null,bh:25,  bl2:null,bh2:50,   scored:true},
+  {key:'cholesterol',       label:'Cholesterol',      unit:'mg',   bl:null,bh:300, bl2:null,bh2:500,  scored:false},
   {key:'net_energy_balance',label:'Net Energy',       unit:'kcal', scored:false, computed:true},
-  {key:'carb_ratio',        label:'Carb Ratio',       unit:'%',    bl:45,bh:65,  bl2:20,bh2:80, scored:false, computed:true},
-  {key:'fat_quality',       label:'Fat Quality',      unit:'%',    bl:70,bh:null,bl2:40,bh2:null,scored:false, computed:true},
-  {key:'fiber_density',     label:'Fiber Density',    unit:'g/1000',bl:14,bh:null,bl2:7,bh2:null,scored:false, computed:true},
+  {key:'carb_ratio',        label:'Carb Ratio',       unit:'%',    bl:45,bh:65,  bl2:20,bh2:80,  scored:false, computed:true},
+  {key:'fat_quality',       label:'Fat Quality',      unit:'%',    bl:70,bh:null,bl2:40,bh2:null,scored:true,  computed:true},
+  {key:'fiber_density',     label:'Fiber Density',    unit:'g/1000',bl:14,bh:null,bl2:7,bh2:null,scored:true,  computed:true},
   {key:'protein_cal_pct',   label:'Protein Cal %',    unit:'%',    bl:15,bh:35,  bl2:10,bh2:40, scored:false, computed:true},
   {key:'carb_cal_pct',      label:'Carb Cal %',       unit:'%',    bl:45,bh:65,  bl2:20,bh2:80, scored:false, computed:true},
   {key:'fat_cal_pct',       label:'Fat Cal %',        unit:'%',    bl:20,bh:35,  bl2:10,bh2:50, scored:false, computed:true},
@@ -3795,7 +3795,7 @@ const LOG_SECTIONS = [
   {id:'run',       label:'Run',       keys:['run_distance','run_elevation','run_avg_power','run_cadence','run_best_pace','run_avg_pace']},
   {id:'cycle',     label:'Cycle',     keys:['cycle_distance','cycle_elevation','cycle_best_pace','cycle_avg_pace']},
   {id:'strength',  label:'Strength',  keys:['strength_training','yoga_duration','other_activity']},
-  {id:'vitals',    label:'Vitals',    keys:['hr_high','hr_low','heart_rate','resting_hr','walking_hr','cardio_fitness','cardio_recovery','hrv','breath_high','breath_low','blood_oxygen_high','bp_systolic','bp_diastolic','blood_glucose']},
+  {id:'vitals',    label:'Vitals',    keys:['hr_low','hr_high','heart_rate','resting_hr','walking_hr','cardio_fitness','cardio_recovery','hrv','breath_low','breath_high','blood_oxygen_high','bp_systolic','bp_diastolic','blood_glucose']},
   {id:'mindful',   label:'Mindful',   keys:['surround_sound','daylight','mindful_mins','state_of_mind']},
   {id:'sleep',     label:'Sleep',     keys:['sleep_awake','sleep_rem','sleep_core','sleep_deep','asleep','total_sleep','sleep_score']},
   {id:'movement',  label:'Movement',  keys:['double_support_time','ground_contact_time','running_stride','vertical_oscillation','walk_asymmetry','walking_step_length']},
@@ -4124,6 +4124,43 @@ function toggleHabitCheck(key){
   const newVal = (cur!=null && parseFloat(cur)>=1) ? 0 : 1;
   onLogFieldChange(key, newVal);
   renderLogFields(); // re-render to update checkbox state
+}
+
+// ── Habit weekly schedule (rest days = streak free pass) ──
+let habitWeekSched = {};
+function loadHabitWeek(){
+  try { habitWeekSched = JSON.parse(localStorage.getItem('ws2_habit_week')||'{}'); } catch(e){ habitWeekSched={}; }
+}
+function saveHabitWeek(){
+  localStorage.setItem('ws2_habit_week', JSON.stringify(habitWeekSched));
+}
+function getHabitWeekDays(hKey){
+  return habitWeekSched[hKey] || {0:true,1:true,2:true,3:true,4:true,5:true,6:true};
+}
+function toggleHabitWeekDay(hKey, dow){
+  if(!habitWeekSched[hKey]) habitWeekSched[hKey]={0:true,1:true,2:true,3:true,4:true,5:true,6:true};
+  habitWeekSched[hKey][dow] = !habitWeekSched[hKey][dow];
+  saveHabitWeek();
+  renderAHHabits();
+}
+function isHabitDay(hKey, date){
+  const dow = new Date(date+'T00:00:00').getDay();
+  return !!getHabitWeekDays(hKey)[dow];
+}
+function buildHabitWeekRow(hKey, labelStr){
+  const DOW=['S','M','T','W','T','F','S'];
+  const sched = getHabitWeekDays(hKey);
+  return `<div style="display:flex;align-items:center;gap:5px;margin-top:6px;padding-top:6px;border-top:1px solid var(--border)">
+    <span style="font-size:9px;color:var(--t4);width:40px;flex-shrink:0">${labelStr}</span>
+    ${DOW.map((d,i)=>{
+      const on=!!sched[i];
+      return `<button onclick="toggleHabitWeekDay('${hKey}',${i})"
+        style="width:22px;height:22px;border-radius:5px;font-size:9px;font-weight:700;cursor:pointer;flex-shrink:0;
+        background:${on?'linear-gradient(135deg,var(--accent),var(--accent2))':'var(--surface3)'};
+        color:${on?'#fff':'var(--t4)'};border:${on?'none':'1px solid var(--border)'}">${d}</button>`;
+    }).join('')}
+    <span style="font-size:8px;color:var(--t4);margin-left:2px">off=rest</span>
+  </div>`;
 }
 
 function applySOM(val){
@@ -7658,26 +7695,31 @@ function buildHabitCalendar(){
 }
 
 // ── Per-habit compact tracker widget ─────────
-function buildHabitWidget(key, label, iconHtml, doneFunc, startDate, endDate){
+function buildHabitWidget(key, label, iconHtml, doneFunc, startDate, endDate, showWeekSched){
   const allD  = allDates().sort();
   const today = new Date().toISOString().split('T')[0];
 
   const activeDates = allD.filter(d => (!startDate||d>=startDate) && (!endDate||d<=endDate));
 
-  // Current streak
+  // Wrap doneFunc to treat non-scheduled days as null (free pass)
+  const wrappedDone = (val, date) => {
+    if(showWeekSched && !isHabitDay(key, date)) return null; // rest day
+    return doneFunc(val, date);
+  };
+
+  // Current streak — use wrappedDone so rest days count as free pass
   let streak = 0, longestStreak = 0, cur = 0;
   activeDates.forEach(d=>{
-    const ok = doneFunc((allData[d]||{})[key], d);
+    const ok = wrappedDone((allData[d]||{})[key], d);
     if(ok===true||ok===null){ cur++; } else { longestStreak=Math.max(longestStreak,cur); cur=0; }
   });
   longestStreak = Math.max(longestStreak, cur);
-  // streak from today backwards
   for(let i=activeDates.length-1;i>=0;i--){
-    const ok = doneFunc((allData[activeDates[i]]||{})[key], activeDates[i]);
+    const ok = wrappedDone((allData[activeDates[i]]||{})[key], activeDates[i]);
     if(ok===true||ok===null) streak++; else break;
   }
 
-  const doneCount = activeDates.filter(d=>doneFunc((allData[d]||{})[key],d)===true).length;
+  const doneCount = activeDates.filter(d=>wrappedDone((allData[d]||{})[key],d)===true).length;
   const loggedCount = activeDates.filter(d=>(allData[d]||{})[key]!=null).length;
   const pct = loggedCount ? Math.round(doneCount/loggedCount*100) : null;
 
@@ -7696,7 +7738,7 @@ function buildHabitWidget(key, label, iconHtml, doneFunc, startDate, endDate){
     `<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:3px">${week.map(d=>{
       if(!d) return `<div></div>`;
       const val = (allData[d]||{})[key];
-      const ok  = doneFunc(val,d);
+      const ok  = wrappedDone(val,d);
       const hasData = val!=null;
       const isToday = d===today;
       const day = parseInt(d.slice(8));
@@ -7749,6 +7791,7 @@ function buildHabitWidget(key, label, iconHtml, doneFunc, startDate, endDate){
         <div style="width:7px;height:7px;border-radius:2px;background:rgba(245,158,11,.5);margin-left:3px"></div><span style="font-size:7px;color:var(--t4)">skip</span>
       </div>
     </div>
+    ${showWeekSched ? buildHabitWeekRow(key, 'Schedule') : ''}
   </div>`;
 }
 
@@ -7854,8 +7897,8 @@ function renderAHHabits(){
 
   // Row 1: Stuff + Alcohol + Mindfulness + Reading (4 across)
   left += '<div class="ah-grid">';
-  left += buildHabitWidget('stuff_count','Stuff Count', _iconImg(ICON_URLS.habits,16), stuffDone, '', '');
-  left += buildHabitWidget('alcohol','Alcohol-Free',    _iconImg(ICON_URLS.alcohol,16), alcoholDone, '', '');
+  left += buildHabitWidget('stuff_count','Stuff Count', _iconImg(ICON_URLS.habits,16), stuffDone, '', '', true);
+  left += buildHabitWidget('alcohol','Alcohol-Free',    _iconImg(ICON_URLS.alcohol,16), alcoholDone, '', '', true);
   left += buildHabitWidget('mindful_mins','Mindfulness', _iconImg(ICON_URLS.mindful,16), mindfulDone, '', '');
   left += buildHabitWidget('book_time','Reading',        _iconImg(ICON_URLS.book,16), bookDone, '', '');
   // Temp habits in same row (up to 2 more)
@@ -8328,6 +8371,7 @@ function initSettings(){
   loadStgState();
   loadSchedule();
   loadTempHabits();
+  loadHabitWeek();
   setTimeout(applyWidgetImages, 200);
   setTimeout(applyNavIcons, 200);
   renderStgPanel(stgPanel);
@@ -10604,20 +10648,29 @@ function gistBuildPayload(){
     if(Object.keys(stripped).length > 0) clean[date] = stripped;
   });
   const settings = {
-    profile:    localStorage.getItem('ws2_profile')    || null,
-    targets:    localStorage.getItem('ws2_targets')    || null,
-    tgt_log:    localStorage.getItem('ws2_tgt_log')    || null,
-    theme:      localStorage.getItem('ws2_theme')      || null,
-    colors:     localStorage.getItem('ws2_colors')     || null,
-    cf:         localStorage.getItem('ws2_cf')         || null,
-    temphabits: localStorage.getItem('ws2_temphabits') || null,
-    icons:      localStorage.getItem('ws2_icons')      || null,
-    sync:       localStorage.getItem('ws2_sync')       || null,
-    ai_active:  localStorage.getItem('ws2_ai_active')  || null,
-    ai:         localStorage.getItem('ws2_ai')         || null,
-    navicons:   localStorage.getItem('ws2_navicons')   || null,
-    dow:        localStorage.getItem('ws2_dow')         || null,
-    rest:       localStorage.getItem('ws2_rest')        || null,
+    profile:       localStorage.getItem('ws2_profile')       || null,
+    targets:       localStorage.getItem('ws2_targets')       || null,
+    tgt_log:       localStorage.getItem('ws2_tgt_log')       || null,
+    theme:         localStorage.getItem('ws2_theme')         || null,
+    colors:        localStorage.getItem('ws2_colors')        || null,
+    cf:            localStorage.getItem('ws2_cf')            || null,
+    temphabits:    localStorage.getItem('ws2_temphabits')    || null,
+    icons:         localStorage.getItem('ws2_icons')         || null,
+    sync:          localStorage.getItem('ws2_sync')          || null,
+    navicons:      localStorage.getItem('ws2_navicons')      || null,
+    dow:           localStorage.getItem('ws2_dow')           || null,
+    rest:          localStorage.getItem('ws2_rest')          || null,
+    // Schedule & streak opt-outs
+    workout_opt:   localStorage.getItem('ws2_workout_opt')   || null,
+    workout_week:  localStorage.getItem('ws2_workout_week')  || null,
+    energy_opt:    localStorage.getItem('ws2_energy_opt')    || null,
+    activity_opt:  localStorage.getItem('ws2_activity_opt')  || null,
+    habit_week:    localStorage.getItem('ws2_habit_week')    || null,
+    // Theme preset overrides
+    theme_accent:  localStorage.getItem('ws2_theme_accent')  || null,
+    theme_accent2: localStorage.getItem('ws2_theme_accent2') || null,
+    theme_bg:      localStorage.getItem('ws2_theme_bg')      || null,
+    theme_grad:    localStorage.getItem('ws2_theme_grad')    || null,
     // ws2_wimgs: only sync URL-based images (not base64 uploads — too large)
     wimgs_urls: (() => {
       try {
@@ -10647,20 +10700,29 @@ function gistApplyPayload(payload){
   saveData();
   const s = payload.settings;
   if(s){
-    if(s.profile)    localStorage.setItem('ws2_profile',    s.profile);
-    if(s.targets)    localStorage.setItem('ws2_targets',    s.targets);
-    if(s.tgt_log)    localStorage.setItem('ws2_tgt_log',    s.tgt_log);
-    if(s.theme)      localStorage.setItem('ws2_theme',      s.theme);
-    if(s.colors)     localStorage.setItem('ws2_colors',     s.colors);
-    if(s.cf)         localStorage.setItem('ws2_cf',         s.cf);
-    if(s.temphabits) localStorage.setItem('ws2_temphabits', s.temphabits);
-    if(s.icons)      localStorage.setItem('ws2_icons',      s.icons);
-    if(s.navicons)   localStorage.setItem('ws2_navicons',   s.navicons);
-    if(s.dow)        localStorage.setItem('ws2_dow',         s.dow);
-    if(s.rest)       localStorage.setItem('ws2_rest',        s.rest);
-    if(s.sync)       localStorage.setItem('ws2_sync',       s.sync);
-    if(s.ai_active)  localStorage.setItem('ws2_ai_active',  s.ai_active);
-    if(s.ai)         localStorage.setItem('ws2_ai',         s.ai);
+    if(s.profile)       localStorage.setItem('ws2_profile',       s.profile);
+    if(s.targets)       localStorage.setItem('ws2_targets',       s.targets);
+    if(s.tgt_log)       localStorage.setItem('ws2_tgt_log',       s.tgt_log);
+    if(s.theme)         localStorage.setItem('ws2_theme',         s.theme);
+    if(s.colors)        localStorage.setItem('ws2_colors',        s.colors);
+    if(s.cf)            localStorage.setItem('ws2_cf',            s.cf);
+    if(s.temphabits)    localStorage.setItem('ws2_temphabits',    s.temphabits);
+    if(s.icons)         localStorage.setItem('ws2_icons',         s.icons);
+    if(s.navicons)      localStorage.setItem('ws2_navicons',      s.navicons);
+    if(s.dow)           localStorage.setItem('ws2_dow',           s.dow);
+    if(s.rest)          localStorage.setItem('ws2_rest',          s.rest);
+    if(s.sync)          localStorage.setItem('ws2_sync',          s.sync);
+    // Schedule & streak opt-outs
+    if(s.workout_opt)   localStorage.setItem('ws2_workout_opt',   s.workout_opt);
+    if(s.workout_week)  localStorage.setItem('ws2_workout_week',  s.workout_week);
+    if(s.energy_opt)    localStorage.setItem('ws2_energy_opt',    s.energy_opt);
+    if(s.activity_opt)  localStorage.setItem('ws2_activity_opt',  s.activity_opt);
+    if(s.habit_week)    localStorage.setItem('ws2_habit_week',    s.habit_week);
+    // Theme preset overrides
+    if(s.theme_accent)  localStorage.setItem('ws2_theme_accent',  s.theme_accent);
+    if(s.theme_accent2) localStorage.setItem('ws2_theme_accent2', s.theme_accent2);
+    if(s.theme_bg)      localStorage.setItem('ws2_theme_bg',      s.theme_bg);
+    if(s.theme_grad)    localStorage.setItem('ws2_theme_grad',    s.theme_grad);
     if(s.wimgs_urls){
       // Merge URL images — don't overwrite base64 uploads
       try {
