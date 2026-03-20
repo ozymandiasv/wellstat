@@ -843,6 +843,34 @@ canvas{display:block}
   .ah-w1,.ah-w2 { grid-column:span 1; }
   .ah-w3,.ah-w4 { grid-column:span 2; }
   .log-fields { grid-template-columns:repeat(2,1fr); }
+  .log-layout {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto auto 1fr;
+    height: calc(100vh - 60px);
+  }
+  .log-left-panel {
+    grid-column: 1;
+    display: flex !important;
+    flex-direction: row !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    padding: 6px 4px !important;
+    gap: 4px !important;
+    border-radius: var(--rs) !important;
+    max-height: 48px;
+    min-height: 48px;
+    scrollbar-width: none;
+  }
+  .log-left-panel::-webkit-scrollbar { display:none; }
+  .log-left-panel .log-sec-lbl { display: none; }
+  .log-left-panel .log-nav-item {
+    flex-shrink: 0;
+    white-space: nowrap;
+    padding: 5px 10px;
+    font-size: 11px;
+  }
+  .log-left-panel .lni-ic { display: none; }
+  .log-right-panel { min-height: 0; }
 }
 
 
@@ -1121,7 +1149,7 @@ canvas{display:block}
         <div class="card c1 click" onclick="openPopup('walk_distance')" id="w-dist">
           <div class="wm-top">
             <div class="clabel" style="display:flex;align-items:center;gap:5px">
-              🚶 Outdoor Walk
+              <span id="w-dist-ic">🚶</span> Outdoor Walk
             </div>
             
           </div>
@@ -1158,7 +1186,7 @@ canvas{display:block}
         <div class="card c1 click" onclick="openPopup('cycle_distance')" id="w-cycle">
           <div class="wm-top">
             <div class="clabel" style="display:flex;align-items:center;gap:5px">
-              🚴 Cycle
+              <span id="w-cycle-ic">🚴</span> Cycle
             </div>
             
           </div>
@@ -1195,7 +1223,7 @@ canvas{display:block}
         <div class="card c1 click" onclick="openPopup('run_distance')" id="w-run">
           <div class="wm-top">
             <div class="clabel" style="display:flex;align-items:center;gap:5px">
-              🏃 Run
+              <span id="w-run-ic">🏃</span> Run
             </div>
             
           </div>
@@ -1238,10 +1266,10 @@ canvas{display:block}
         </div>
 
         <!-- ══ ROW 4: Strength · Yoga · Mindful (same row as screen 2nd half) ══ -->
-        <div class="card c1 click" onclick="openPopup('strength_training')">
+        <div class="card c1 click" onclick="openPopup('strength_training')" id="w-str">
           <div class="wm-top">
             <div class="clabel" style="display:flex;align-items:center;gap:5px">
-              💪 Strength
+              <span id="w-str-ic">💪</span> Strength
             </div>
             
           </div>
@@ -1271,10 +1299,10 @@ canvas{display:block}
           </div>
         </div>
 
-        <div class="card c1 click" onclick="openPopup('yoga_duration')">
+        <div class="card c1 click" onclick="openPopup('yoga_duration')" id="w-yoga">
           <div class="wm-top">
             <div class="clabel" style="display:flex;align-items:center;gap:5px">
-              🧘 Yoga
+              <span id="w-yoga-ic">🧘</span> Yoga
             </div>
             
           </div>
@@ -1307,7 +1335,7 @@ canvas{display:block}
         <div class="card c1 click" onclick="openPopup('mindful_mins')" id="w-mindful">
           <div class="wm-top">
             <div class="clabel" style="display:flex;align-items:center;gap:5px">
-              🧘 Mindful
+              <span id="w-mindful-ic">🧘</span> Mindful
             </div>
             
           </div>
@@ -1340,7 +1368,7 @@ canvas{display:block}
         <!-- ══ ROW 5: Sleep · HR · Cardio · HRV ══ -->
         <div class="card c1 click" onclick="openPopup('total_sleep')" id="w-sleep">
           <div style="display:flex;align-items:center;justify-content:space-between">
-            <div class="clabel">🌙 Sleep</div>
+            <div class="clabel"><span id="w-sleep-ic">🌙</span> Sleep</div>
             <div class="cval-sm" id="v-sleep" style="color:var(--csl)">—</div>
           </div>
           <div class="sleep-bar" id="sleep-bar" style="margin-top:8px">
@@ -3303,15 +3331,17 @@ function renderDashboard(){
   // Lower-is-better (YT/Reddit/Twitter/Mobile/Tablet/Laptop): green below target, red above, bar relative to worst threshold
   // Movie (no score): blue below good threshold, red above bad threshold
   const scrFields = allFields().filter(f=>f.key.endsWith('_time') || f.key==='cognitive_time');
+  // SCR_META: use fieldIcons if user has customised a field icon, otherwise fall back to ICON_URLS
+  function scrIcon(key, fallback){ return _iconImg((fieldIcons && fieldIcons[key]) || fallback, 13)+' '; }
   const SCR_META = {
-    book_time:   {label:'<img src="'+ICON_URLS.book+'" width="13" height="13" style="vertical-align:middle;margin-right:3px"> Book',    dir:'hi'},
-    movie_time:  {label:'<img src="'+ICON_URLS.movie+'" width="13" height="13" style="vertical-align:middle;margin-right:3px"> Movie',   dir:'neutral', goodHi:90,  badLo:180},
-    youtube_time:{label:'<img src="'+ICON_URLS.youtube+'" width="13" height="13" style="vertical-align:middle;margin-right:3px"> YouTube', dir:'lo'},
-    reddit_time: {label:'<img src="'+ICON_URLS.reddit+'" width="13" height="13" style="vertical-align:middle;margin-right:3px"> Reddit',  dir:'lo'},
-    twitter_time:{label:'<img src="'+ICON_URLS.twitter+'" width="13" height="13" style="vertical-align:middle;margin-right:3px"> X',      dir:'lo'},
-    mobile_time: {label:'<img src="'+ICON_URLS.iphone+'" width="13" height="13" style="vertical-align:middle;margin-right:3px"> iPhone',  dir:'lo'},
-    tablet_time: {label:'<img src="'+ICON_URLS.ipad+'" width="13" height="13" style="vertical-align:middle;margin-right:3px"> iPad',     dir:'lo'},
-    laptop_time: {label:'<img src="'+ICON_URLS.mac+'" width="13" height="13" style="vertical-align:middle;margin-right:3px"> Mac',       dir:'lo'},
+    book_time:   {label:scrIcon('book_time',   ICON_URLS.book)   +'Book',    dir:'hi'},
+    movie_time:  {label:scrIcon('movie_time',  ICON_URLS.movie)  +'Movie',   dir:'neutral', goodHi:90, badLo:180},
+    youtube_time:{label:scrIcon('youtube_time',ICON_URLS.youtube)+'YouTube', dir:'lo'},
+    reddit_time: {label:scrIcon('reddit_time', ICON_URLS.reddit) +'Reddit',  dir:'lo'},
+    twitter_time:{label:scrIcon('twitter_time',ICON_URLS.twitter)+'X',       dir:'lo'},
+    mobile_time: {label:scrIcon('mobile_time', ICON_URLS.iphone) +'iPhone',  dir:'lo'},
+    tablet_time: {label:scrIcon('tablet_time', ICON_URLS.ipad)   +'iPad',    dir:'lo'},
+    laptop_time: {label:scrIcon('laptop_time', ICON_URLS.mac)    +'Mac',     dir:'lo'},
   };
 
   function scrBarInfo(key, val){
@@ -3821,21 +3851,22 @@ const LOG_SECTION_KEYS = {
 
 // Icon map for left panel nav — built lazily so ICON_URLS is available
 function getLogNavIcons(){
+  const nav = navIcons || {};
   return {
-    energy:    ICON_URLS.energy,
-    activity:  ICON_URLS.steps,
-    walk:      ICON_URLS.walk,
-    run:       ICON_URLS.run,
-    cycle:     ICON_URLS.cycle,
-    strength:  ICON_URLS.strength,
-    vitals:    ICON_URLS.heart,
-    mindful:   ICON_URLS.mindful,
-    sleep:     ICON_URLS.sleep,
-    movement:  ICON_URLS.movement,
-    nutrition: ICON_URLS.nutrition,
-    body:      ICON_URLS.body,
-    screen:    ICON_URLS.iphone,
-    habits:    ICON_URLS.habits,
+    energy:    nav['energy']    || ICON_URLS.energy,
+    activity:  nav['activity']  || ICON_URLS.steps,
+    walk:      nav['wm-walk']   || ICON_URLS.walk,
+    run:       nav['wm-run']    || ICON_URLS.run,
+    cycle:     nav['wm-cycle']  || ICON_URLS.cycle,
+    strength:  nav['wm-str']    || ICON_URLS.strength,
+    vitals:    nav['vitals']    || ICON_URLS.heart,
+    mindful:   nav['sleep']     || ICON_URLS.mindful,
+    sleep:     nav['sleep']     || ICON_URLS.sleep,
+    movement:  nav['movement']  || ICON_URLS.movement,
+    nutrition: nav['nutrition'] || ICON_URLS.nutrition,
+    body:      nav['physique']  || ICON_URLS.body,
+    screen:    nav['screen']    || ICON_URLS.iphone,
+    habits:    nav['habits']    || ICON_URLS.habits,
   };
 }
 
@@ -3851,21 +3882,21 @@ function renderLogLeftPanel(){
   movementFirst.forEach(id => {
     const s = LOG_SECTIONS.find(x=>x.id===id);
     if(!s) return;
-    const icon = LOG_NAV_ICONS[id] ? `<div class="lni-ic"><img src="${LOG_NAV_ICONS[id]}" width="16" height="16"></div>` : '';
+    const icon = LOG_NAV_ICONS[id] ? `<div class="lni-ic">${_iconImg(LOG_NAV_ICONS[id],16)}</div>` : '';
     html += `<div class="log-nav-item${logSection===id?' on':''}" onclick="switchLogSection('${id}')">${icon}${s.label}</div>`;
   });
   html += '<div class="log-sec-lbl" style="margin-top:4px">Health</div>';
   secondGroup.forEach(id => {
     const s = LOG_SECTIONS.find(x=>x.id===id);
     if(!s) return;
-    const icon = LOG_NAV_ICONS[id] ? `<div class="lni-ic"><img src="${LOG_NAV_ICONS[id]}" width="16" height="16"></div>` : '';
+    const icon = LOG_NAV_ICONS[id] ? `<div class="lni-ic">${_iconImg(LOG_NAV_ICONS[id],16)}</div>` : '';
     html += `<div class="log-nav-item${logSection===id?' on':''}" onclick="switchLogSection('${id}')">${icon}${s.label}</div>`;
   });
   html += '<div class="log-sec-lbl" style="margin-top:4px">Lifestyle</div>';
   thirdGroup.forEach(id => {
     const s = LOG_SECTIONS.find(x=>x.id===id);
     if(!s) return;
-    const icon = LOG_NAV_ICONS[id] ? `<div class="lni-ic"><img src="${LOG_NAV_ICONS[id]}" width="16" height="16"></div>` : '';
+    const icon = LOG_NAV_ICONS[id] ? `<div class="lni-ic">${_iconImg(LOG_NAV_ICONS[id],16)}</div>` : '';
     html += `<div class="log-nav-item${logSection===id?' on':''}" onclick="switchLogSection('${id}')">${icon}${s.label}</div>`;
   });
   panel.innerHTML = html;
@@ -4612,7 +4643,13 @@ const ICON_URLS = {
   brain:      '🧠',
 };
 
-function _iconImg(url, size){ return '<img src="'+url+'" width="'+(size||18)+'" height="'+(size||18)+'" style="object-fit:contain;vertical-align:middle;border-radius:2px" onerror="this.style.display=\'none\'">'; }
+function _iconImg(url, size){
+  if(!url) return '';
+  // If it's an emoji (not a URL), return a span so it renders properly
+  if(!String(url).startsWith('http'))
+    return '<span style="font-size:'+(size||18)+'px;line-height:1;vertical-align:middle">' + url + '</span>';
+  return '<img src="'+url+'" width="'+(size||18)+'" height="'+(size||18)+'" style="object-fit:contain;vertical-align:middle;border-radius:2px" onerror="this.style.display=\'none\'">';
+}
 
 const SECTION_ICONS = {
   energy:    _iconImg(ICON_URLS.energy),
@@ -4760,6 +4797,31 @@ const DEFAULT_FIELD_ICONS = {
   vitamin_b6: ICON_URLS.vitamins, biotin: ICON_URLS.vitamins,
   folate:     ICON_URLS.vitamins, vitamin_b12: ICON_URLS.vitamins,
   vitamin_k:  ICON_URLS.vitamins,
+  // Sleep scores / computed
+  sleep_score:        ICON_URLS.sleep,
+  // Computed / derived
+  cardio_load:        ICON_URLS.cardio,
+  recovery_index:     ICON_URLS.hrv,
+  total_calories:     ICON_URLS.calories,
+  total_distance:     ICON_URLS.walk,
+  total_workout:      ICON_URLS.strength,
+  total_screen:       ICON_URLS.iphone,
+  total_sleep:        ICON_URLS.sleep,
+  protein_per_kg:     ICON_URLS.protein,
+  hydration_score:    ICON_URLS.water,
+  step_pace:          ICON_URLS.steps,
+  cognitive_time:     ICON_URLS.brain,
+  // Run extras
+  run_cadence:        ICON_URLS.run,
+  run_avg_power:      ICON_URLS.run,
+  run_avg_pace:       ICON_URLS.run,
+  run_best_pace:      ICON_URLS.run,
+  run_elevation:      ICON_URLS.run,
+  // Cycle extras
+  cycle_best_pace:    ICON_URLS.cycle,
+  cycle_elevation:    ICON_URLS.cycle,
+  // google fit
+  google_fit_points:  ICON_URLS.exercise,
   // Screen — specific icons
   book_time:    ICON_URLS.book,
   movie_time:   ICON_URLS.movie,
@@ -5224,20 +5286,20 @@ window.addEventListener('load', ()=>{
       <button class="mob-nav-close-btn" onclick="closeMobNav()">✕</button>
     </div>
     <div class="mob-nav-grid">
-      <div class="mob-nav-item" onclick="mobNav('dashboard')"><div class="mni-ic">⚡</div>Dashboard</div>
-      <div class="mob-nav-item" onclick="mobNav('log')"><div class="mni-ic">✏️</div>Log Entry</div>
-      <div class="mob-nav-item" onclick="mobNav('history')"><div class="mni-ic">📅</div>History</div>
-      <div class="mob-nav-item" onclick="mobNav('ah-energy')"><div class="mni-ic">🔋</div>Energy</div>
-      <div class="mob-nav-item" onclick="mobNav('ah-activity')"><div class="mni-ic">🏃</div>Activity</div>
-      <div class="mob-nav-item" onclick="mobNav('ah-workout')"><div class="mni-ic">💪</div>Workout</div>
-      <div class="mob-nav-item" onclick="mobNav('ah-vitals')"><div class="mni-ic">❤️</div>Vitals</div>
-      <div class="mob-nav-item" onclick="mobNav('ah-sleep')"><div class="mni-ic">🌙</div>Sleep</div>
-      <div class="mob-nav-item" onclick="mobNav('ah-physique')"><div class="mni-ic">🏋️</div>Physique</div>
-      <div class="mob-nav-item" onclick="mobNav('ah-nutrition')"><div class="mni-ic">🥗</div>Nutrition</div>
-      <div class="mob-nav-item" onclick="mobNav('ah-screen')"><div class="mni-ic">📱</div>Screen</div>
-      <div class="mob-nav-item" onclick="mobNav('ah-habits')"><div class="mni-ic">•</div>Habit</div>
-      <div class="mob-nav-item" onclick="mobNav('paste')"><div class="mni-ic">•</div>Paste</div>
-      <div class="mob-nav-item" onclick="mobNav('settings')"><div class="mni-ic">•</div>Settings</div>
+      <div class="mob-nav-item" onclick="mobNav('dashboard')" id="mob-nav-dashboard"><div class="mni-ic">⚡</div>Dashboard</div>
+      <div class="mob-nav-item" onclick="mobNav('log')" id="mob-nav-log"><div class="mni-ic">✏️</div>Log Entry</div>
+      <div class="mob-nav-item" onclick="mobNav('history')" id="mob-nav-history"><div class="mni-ic">📅</div>History</div>
+      <div class="mob-nav-item" onclick="mobNav('ah-energy')" id="mob-nav-energy"><div class="mni-ic">🔋</div>Energy</div>
+      <div class="mob-nav-item" onclick="mobNav('ah-activity')" id="mob-nav-activity"><div class="mni-ic">🏃</div>Activity</div>
+      <div class="mob-nav-item" onclick="mobNav('ah-workout')" id="mob-nav-workout"><div class="mni-ic">💪</div>Workout</div>
+      <div class="mob-nav-item" onclick="mobNav('ah-vitals')" id="mob-nav-vitals"><div class="mni-ic">❤️</div>Vitals</div>
+      <div class="mob-nav-item" onclick="mobNav('ah-sleep')" id="mob-nav-sleep"><div class="mni-ic">🌙</div>Sleep</div>
+      <div class="mob-nav-item" onclick="mobNav('ah-physique')" id="mob-nav-physique"><div class="mni-ic">🏋️</div>Physique</div>
+      <div class="mob-nav-item" onclick="mobNav('ah-nutrition')" id="mob-nav-nutrition"><div class="mni-ic">🥗</div>Nutrition</div>
+      <div class="mob-nav-item" onclick="mobNav('ah-screen')" id="mob-nav-screen"><div class="mni-ic">📱</div>Screen</div>
+      <div class="mob-nav-item" onclick="mobNav('ah-habits')" id="mob-nav-habits"><div class="mni-ic">✅</div>Habit</div>
+      <div class="mob-nav-item" onclick="mobNav('paste')" id="mob-nav-paste"><div class="mni-ic">📋</div>Paste</div>
+      <div class="mob-nav-item" onclick="mobNav('settings')" id="mob-nav-settings"><div class="mni-ic">⚙️</div>Settings</div>
     </div>
   </div>
 </div>
@@ -6544,14 +6606,17 @@ function renderAHVitals(){
   left += `<div class="ah-grid">`;
   left += `<div class="ah-card ah-w3 big" onclick="openDrill('heart_rate')" style="cursor:pointer">
     <div class="ah-card-top">
-      <div>
-        <div class="ah-card-label">${_iconImg(ICON_URLS.heart,22)?'<span style="font-size:22px;line-height:1;display:block;margin-bottom:4px">'+_iconImg(ICON_URLS.heart,22)+'</span>':''}<span>Heart Rate</span></div>
+      <div style="flex:1;min-width:0">
+        <div class="ah-card-label"><span>Heart Rate</span></div>
         <div style="display:flex;align-items:flex-end;gap:3px;margin-top:4px">
           <div class="ah-card-val" style="color:${hrLatest?hrCol:'var(--t4)'}">${hrLatest?fmtVal(hrLatest,'heart_rate'):'—'}</div>
           <div class="ah-card-unit">bpm</div>
         </div>
       </div>
-      ${hrSc!=null?`<div class="ah-card-score-badge" style="background:${hrCol}18;color:${hrCol}">${hrSc}%</div>`:''}
+      <div style="display:flex;flex-direction:column;align-items:center;gap:4px;margin-left:8px;flex-shrink:0">
+        <div style="font-size:38px;line-height:1;opacity:.85">${_iconImg(ICON_URLS.heart,38)}</div>
+        ${hrSc!=null?`<div class="ah-card-score-badge" style="background:${hrCol}18;color:${hrCol}">${hrSc}%</div>`:''}
+      </div>
     </div>
     <div style="display:flex;gap:8px;margin-top:6px">
       <div style="flex:1;background:var(--surface2);border-radius:6px;padding:4px 6px;text-align:center">
@@ -6579,12 +6644,15 @@ function renderAHVitals(){
   const wh7d = rAvg('walking_hr',7), wh30d = rAvg('walking_hr',30);
   left += `<div class="ah-card ah-w3 big" onclick="openDrill('walking_hr')" style="cursor:pointer">
     <div class="ah-card-top">
-      <div>
-        <div class="ah-card-label"><span style="font-size:22px;line-height:1;display:block;margin-bottom:4px">${_iconImg(ICON_URLS.walk,22)}</span><span>Walking HR</span></div>
+      <div style="flex:1;min-width:0">
+        <div class="ah-card-label"><span>Walking HR</span></div>
         <div style="display:flex;align-items:flex-end;gap:3px;margin-top:4px">
           <div class="ah-card-val" style="color:${whLatest?'var(--ca)':'var(--t4)'}">${whLatest?fmt(whLatest):'—'}</div>
           <div class="ah-card-unit">bpm</div>
         </div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:4px;margin-left:8px;flex-shrink:0">
+        <div style="font-size:38px;line-height:1;opacity:.85">${_iconImg(ICON_URLS.walk,38)}</div>
       </div>
     </div>
     <div style="display:flex;gap:8px;margin-top:6px">
@@ -6807,17 +6875,22 @@ function buildStateOfMindCard(val, dates, sizeClass){
   }
 
   return `<div class="ah-card ${sizeClass} big" onclick="openDrill('state_of_mind')" style="cursor:pointer">
-    <div class="ah-card-top"><div>
-      <div class="ah-card-label"><span style="font-size:22px;line-height:1;display:block;margin-bottom:4px">${_iconImg(ICON_URLS.mindful,22)}</span><span>State of Mind</span></div>
-      <div style="display:flex;align-items:center;gap:12px;margin-top:6px">
-        <div>${crystalFlower(val)}</div>
-        <div>
-          <div style="font-size:14px;font-weight:700;color:${col};line-height:1.3">${label}</div>
-          <div style="font-size:10px;color:var(--t4);margin-top:4px">7D avg: <span style="color:var(--t2);font-weight:600">${avg7!=null?avg7:'—'}</span></div>
-          <div style="font-size:10px;color:var(--t4)">30D avg: <span style="color:var(--t2);font-weight:600">${avg30!=null?avg30:'—'}</span></div>
+    <div class="ah-card-top">
+      <div style="flex:1;min-width:0">
+        <div class="ah-card-label"><span>State of Mind</span></div>
+        <div style="display:flex;align-items:center;gap:12px;margin-top:6px">
+          <div>${crystalFlower(val)}</div>
+          <div>
+            <div style="font-size:14px;font-weight:700;color:${col};line-height:1.3">${label}</div>
+            <div style="font-size:10px;color:var(--t4);margin-top:4px">7D avg: <span style="color:var(--t2);font-weight:600">${avg7!=null?avg7:'—'}</span></div>
+            <div style="font-size:10px;color:var(--t4)">30D avg: <span style="color:var(--t2);font-weight:600">${avg30!=null?avg30:'—'}</span></div>
+          </div>
         </div>
       </div>
-    </div></div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:4px;margin-left:8px;flex-shrink:0">
+        <div style="font-size:38px;line-height:1;opacity:.85">${_iconImg(ICON_URLS.mindful,38)}</div>
+      </div>
+    </div>
   </div>`;
 }
 
@@ -9487,40 +9560,73 @@ function renderFieldIcon(key, size){
 
 // NAV ICONS — applies custom icons to sidebar, mobile nav, and dashboard card wm-ic badges
 const NAV_ICON_DEFS = [
-  {key:'dashboard',  label:'Dashboard',     sel:['#n-dashboard .nav-ic',    '.mob-nav-item[onclick*="dashboard"] .mni-ic']},
-  {key:'log',        label:'Log Entry',     sel:['#n-log .nav-ic',          '.mob-nav-item[onclick*="log"] .mni-ic']},
-  {key:'history',    label:'History',       sel:['#n-history .nav-ic',      '.mob-nav-item[onclick*="history"] .mni-ic']},
-  {key:'energy',     label:'Energy',        sel:['#n-ah-energy .nav-ic',    '.mob-nav-item[onclick*="energy"] .mni-ic']},
-  {key:'activity',   label:'Activity',      sel:['#n-ah-activity .nav-ic',  '.mob-nav-item[onclick*="activity"] .mni-ic']},
-  {key:'workout',    label:'Workout',       sel:['#n-ah-workout .nav-ic',   '.mob-nav-item[onclick*="workout"] .mni-ic']},
-  {key:'vitals',     label:'Vitals',        sel:['#n-ah-vitals .nav-ic',    '.mob-nav-item[onclick*="vitals"] .mni-ic']},
-  {key:'sleep',      label:'Sleep',         sel:['#n-ah-sleep .nav-ic',     '.mob-nav-item[onclick*="sleep"] .mni-ic']},
-  {key:'physique',   label:'Physique',      sel:['#n-ah-physique .nav-ic',  '.mob-nav-item[onclick*="physique"] .mni-ic']},
-  {key:'nutrition',  label:'Nutrition',     sel:['#n-ah-nutrition .nav-ic', '.mob-nav-item[onclick*="nutrition"] .mni-ic']},
-  {key:'screen',     label:'Screen',        sel:['#n-ah-screen .nav-ic',    '.mob-nav-item[onclick*="screen"] .mni-ic']},
-  {key:'habits',     label:'Habits',        sel:['#n-ah-habits .nav-ic',    '.mob-nav-item[onclick*="habits"] .mni-ic']},
-  {key:'settings',   label:'Settings',      sel:['#n-settings .nav-ic',     '.mob-nav-item[onclick*="settings"] .mni-ic']},
-  // Dashboard card wm-ic badges
+  // ── Sidebar + Mobile nav ──
+  {key:'dashboard',  label:'Dashboard',     sel:['#n-dashboard .nav-ic',    '#mob-nav-dashboard .mni-ic']},
+  {key:'log',        label:'Log Entry',     sel:['#n-log .nav-ic',          '#mob-nav-log .mni-ic']},
+  {key:'history',    label:'History',       sel:['#n-history .nav-ic',      '#mob-nav-history .mni-ic']},
+  {key:'energy',     label:'Energy',        sel:['#n-ah-energy .nav-ic',    '#mob-nav-energy .mni-ic']},
+  {key:'activity',   label:'Activity',      sel:['#n-ah-activity .nav-ic',  '#mob-nav-activity .mni-ic']},
+  {key:'workout',    label:'Workout',       sel:['#n-ah-workout .nav-ic',   '#mob-nav-workout .mni-ic']},
+  {key:'vitals',     label:'Vitals',        sel:['#n-ah-vitals .nav-ic',    '#mob-nav-vitals .mni-ic']},
+  {key:'sleep',      label:'Sleep & Mindful',sel:['#n-ah-sleep .nav-ic',    '#mob-nav-sleep .mni-ic']},
+  {key:'physique',   label:'Physique',      sel:['#n-ah-physique .nav-ic',  '#mob-nav-physique .mni-ic']},
+  {key:'nutrition',  label:'Nutrition',     sel:['#n-ah-nutrition .nav-ic', '#mob-nav-nutrition .mni-ic']},
+  {key:'screen',     label:'Screen',        sel:['#n-ah-screen .nav-ic',    '#mob-nav-screen .mni-ic']},
+  {key:'habits',     label:'Habits',        sel:['#n-ah-habits .nav-ic',    '#mob-nav-habits .mni-ic']},
+  {key:'paste',      label:'Grid Paste',    sel:['#n-paste .nav-ic',        '#mob-nav-paste .mni-ic']},
+  {key:'settings',   label:'Settings',      sel:['#n-settings .nav-ic',     '#mob-nav-settings .mni-ic']},
+  // ── Dashboard row 2: wm-ic badges ──
   {key:'wm-acal',    label:'Card: Active Cal',   sel:['#w-acal .wm-ic']},
   {key:'wm-steps',   label:'Card: Steps',        sel:['#w-steps .wm-ic']},
   {key:'wm-stand',   label:'Card: Standing',     sel:['#w-stand .wm-ic']},
   {key:'wm-exer',    label:'Card: Exercise',     sel:['#w-exer .wm-ic']},
+  // ── Dashboard row 3: card label icons ──
+  {key:'wm-walk',    label:'Card: Walk',         sel:['#w-dist-ic']},
+  {key:'wm-cycle',   label:'Card: Cycle',        sel:['#w-cycle-ic']},
+  {key:'wm-run',     label:'Card: Run',          sel:['#w-run-ic']},
+  // ── Dashboard row 4: card label icons ──
+  {key:'wm-str',     label:'Card: Strength',     sel:['#w-str-ic']},
+  {key:'wm-yoga',    label:'Card: Yoga',         sel:['#w-yoga-ic']},
+  {key:'wm-mindful-ic', label:'Card: Mindful',   sel:['#w-mindful-ic']},
+  // ── Dashboard row 5: wm-ic badges ──
   {key:'wm-hr',      label:'Card: Heart Rate',   sel:['#w-hr .wm-ic']},
   {key:'wm-cardio',  label:'Card: Cardio',       sel:['#w-cardio .wm-ic']},
-  {key:'wm-mindful', label:'Card: Mindful',      sel:['#w-mindful .wm-ic']},
   {key:'wm-hrv',     label:'Card: HRV',          sel:['#w-hrv .wm-ic']},
+  {key:'wm-sleep',   label:'Card: Sleep',        sel:['#w-sleep-ic']},
+  // ── Screen widget bar icons (via fieldIcons) ──
+  {key:'fi-book_time',    label:'Screen: Book',     fi:'book_time'},
+  {key:'fi-movie_time',   label:'Screen: Movie',    fi:'movie_time'},
+  {key:'fi-youtube_time', label:'Screen: YouTube',  fi:'youtube_time'},
+  {key:'fi-reddit_time',  label:'Screen: Reddit',   fi:'reddit_time'},
+  {key:'fi-twitter_time', label:'Screen: Twitter/X',fi:'twitter_time'},
+  {key:'fi-mobile_time',  label:'Screen: Mobile',   fi:'mobile_time'},
+  {key:'fi-tablet_time',  label:'Screen: Tablet',   fi:'tablet_time'},
+  {key:'fi-laptop_time',  label:'Screen: Laptop',   fi:'laptop_time'},
 ];
 
 function applyNavIcons(){
   NAV_ICON_DEFS.forEach(function(def){
     if(!navIcons[def.key]) return;
     var val = navIcons[def.key];
+    // fi: entries update fieldIcons (used by screen widget SCR_META)
+    if(def.fi){
+      if(!fieldIcons) fieldIcons = {};
+      fieldIcons[def.fi] = val;
+      return;
+    }
+    if(!def.sel) return;
     def.sel.forEach(function(selector){
       var el = document.querySelector(selector);
       if(!el) return;
+      var isWmIc  = el.classList.contains('wm-ic');
+      var isMniIc = el.classList.contains('mni-ic');
+      var isNavIc = el.classList.contains('nav-ic');
+      var imgSize = isWmIc ? 22 : isMniIc ? 28 : isNavIc ? 22 : 18;
+      var emSz    = isWmIc ? '22px' : isMniIc ? '28px' : isNavIc ? '20px' : '16px';
       if(val.startsWith('http')){
-        el.innerHTML = '<img src="'+val+'" style="height:26px;width:26px;object-fit:contain;vertical-align:middle;border-radius:3px" onerror="this.style.display=\'none\'">';
+        el.innerHTML = '<img src="'+val+'" style="height:'+imgSize+'px;width:'+imgSize+'px;object-fit:contain;vertical-align:middle;border-radius:3px" onerror="this.style.display=\'none\'">';
       } else {
+        el.style.fontSize = emSz;
         el.textContent = val;
       }
     });
@@ -9571,7 +9677,10 @@ function saveNavIcon(){
   if(!key||!val){ showToast('Pick a nav item and enter emoji or URL'); return; }
   navIcons[key] = val;
   saveStgState(); applyNavIcons();
-  showToast('Nav icon saved');
+  // If it's a field icon entry, also refresh the dashboard screen widget
+  var def = NAV_ICON_DEFS.find(function(d){ return d.key===key; });
+  if(def && def.fi){ saveStgState(); if(typeof renderDashboard==='function') renderDashboard(); }
+  showToast('Icon saved');
 }
 
 function removeNavIcon(){
@@ -10674,7 +10783,7 @@ function gistApplyPayload(payload){
         localStorage.setItem('ws2_wimgs', JSON.stringify(existing));
       } catch(e){}
     }
-    loadTargets(); loadProfile(); loadTheme(); loadStgState();
+    loadTargets(); loadProfile(); loadTheme(); loadStgState(); loadSchedule();
     setTimeout(applyNavIcons, 100);
     setTimeout(applyWidgetImages, 100);
   }
