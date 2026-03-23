@@ -843,34 +843,6 @@ canvas{display:block}
   .ah-w1,.ah-w2 { grid-column:span 1; }
   .ah-w3,.ah-w4 { grid-column:span 2; }
   .log-fields { grid-template-columns:repeat(2,1fr); }
-  .log-layout {
-    grid-template-columns: 1fr;
-    grid-template-rows: auto auto auto 1fr;
-    height: calc(100vh - 60px);
-  }
-  .log-left-panel {
-    grid-column: 1;
-    display: flex !important;
-    flex-direction: row !important;
-    overflow-x: auto !important;
-    overflow-y: hidden !important;
-    padding: 6px 4px !important;
-    gap: 4px !important;
-    border-radius: var(--rs) !important;
-    max-height: 48px;
-    min-height: 48px;
-    scrollbar-width: none;
-  }
-  .log-left-panel::-webkit-scrollbar { display:none; }
-  .log-left-panel .log-sec-lbl { display: none; }
-  .log-left-panel .log-nav-item {
-    flex-shrink: 0;
-    white-space: nowrap;
-    padding: 5px 10px;
-    font-size: 11px;
-  }
-  .log-left-panel .lni-ic { display: none; }
-  .log-right-panel { min-height: 0; }
 }
 
 
@@ -899,7 +871,7 @@ canvas{display:block}
 <!-- ══ SIDEBAR ══════════════════════════════════ -->
 <aside class="sb" id="sb">
   <div class="sb-hdr">
-    <div class="sb-logo">💪</div>
+    <div class="sb-logo"><img src="https://cdn-icons-png.flaticon.com/512/2936/2936886.png" width="20" height="20"></div>
     <div>
       <div class="sb-wordmark">WellStat</div>
       <div class="sb-tagline">Health OS</div>
@@ -907,22 +879,22 @@ canvas{display:block}
   </div>
   <div class="sb-body">
     <div class="sb-lbl">Overview</div>
-    <div class="nav on" onclick="showPage('dashboard')" id="n-dashboard"><div class="nav-ic">⚡</div>Dashboard</div>
-    <div class="nav" onclick="showPage('log')" id="n-log"><div class="nav-ic">✏️</div>Log Entry</div>
-    <div class="nav" onclick="showPage('history')" id="n-history"><div class="nav-ic">📅</div>History</div>
+    <div class="nav on" onclick="showPage('dashboard')" id="n-dashboard"><div class="nav-ic"><img src="https://cdn-icons-png.flaticon.com/512/9168/9168779.png" width="22" height="22"></div>Dashboard</div>
+    <div class="nav" onclick="showPage('log')" id="n-log"><div class="nav-ic"><img src="https://cdn-icons-png.flaticon.com/512/1250/1250615.png" width="22" height="22"></div>Log Entry</div>
+    <div class="nav" onclick="showPage('history')" id="n-history"><div class="nav-ic"><img src="https://cdn-icons-png.flaticon.com/512/2693/2693507.png" width="22" height="22"></div>History</div>
     <div class="sb-lbl" style="margin-top:6px">Health Data</div>
-    <div class="nav" onclick="showPage('ah-energy')" id="n-ah-energy"><div class="nav-ic">🔋</div>Energy</div>
-    <div class="nav" onclick="showPage('ah-activity')" id="n-ah-activity"><div class="nav-ic">🏃</div>Activity</div>
-    <div class="nav" onclick="showPage('ah-workout')" id="n-ah-workout"><div class="nav-ic">💪</div>Workout</div>
-    <div class="nav" onclick="showPage('ah-vitals')" id="n-ah-vitals"><div class="nav-ic">❤️</div>Vitals</div>
-    <div class="nav" onclick="showPage('ah-sleep')" id="n-ah-sleep"><div class="nav-ic">🌙</div>Sleep &amp; Mindful</div>
-    <div class="nav" onclick="showPage('ah-physique')" id="n-ah-physique"><div class="nav-ic">🏋️</div>Physique</div>
-    <div class="nav" onclick="showPage('ah-nutrition')" id="n-ah-nutrition"><div class="nav-ic">🥗</div>Nutrition</div>
-    <div class="nav" onclick="showPage('ah-screen')" id="n-ah-screen"><div class="nav-ic">📱</div>Screen</div>
-    <div class="nav" onclick="showPage('ah-habits')" id="n-ah-habits"><div class="nav-ic">✅</div>Habit</div>
+    <div class="nav" onclick="showPage('ah-energy')" id="n-ah-energy"><div class="nav-ic"><img src="https://cdn-icons-png.flaticon.com/512/2933/2933245.png" width="22" height="22"></div>Energy</div>
+    <div class="nav" onclick="showPage('ah-activity')" id="n-ah-activity"><div class="nav-ic"><img src="https://cdn-icons-png.flaticon.com/512/2897/2897843.png" width="22" height="22"></div>Activity</div>
+    <div class="nav" onclick="showPage('ah-workout')" id="n-ah-workout"><div class="nav-ic"><img src="https://cdn-icons-png.flaticon.com/512/2936/2936886.png" width="22" height="22"></div>Workout</div>
+    <div class="nav" onclick="showPage('ah-vitals')" id="n-ah-vitals"><div class="nav-ic"><img src="https://cdn-icons-png.flaticon.com/512/2583/2583434.png" width="22" height="22"></div>Vitals</div>
+    <div class="nav" onclick="showPage('ah-sleep')" id="n-ah-sleep"><div class="nav-ic"><img src="https://cdn-icons-png.flaticon.com/512/1993/1993815.png" width="22" height="22"></div>Sleep &amp; Mindful</div>
+    <div class="nav" onclick="showPage('ah-physique')" id="n-ah-physique"><div class="nav-ic"><img src="https://cdn-icons-png.flaticon.com/512/921/921051.png" width="22" height="22"></div>Physique</div>
+    <div class="nav" onclick="showPage('ah-nutrition')" id="n-ah-nutrition"><div class="nav-ic"><img src="https://cdn-icons-png.flaticon.com/512/2515/2515183.png" width="22" height="22"></div>Nutrition</div>
+    <div class="nav" onclick="showPage('ah-screen')" id="n-ah-screen"><div class="nav-ic"><img src="https://cdn-icons-png.flaticon.com/512/2991/2991148.png" width="22" height="22"></div>Screen</div>
+    <div class="nav" onclick="showPage('ah-habits')" id="n-ah-habits"><div class="nav-ic"><img src="https://cdn-icons-png.flaticon.com/512/1378/1378644.png" width="22" height="22"></div>Habit</div>
     <div class="sb-lbl" style="margin-top:6px">Tools</div>
-    <div class="nav" onclick="showPage('paste')" id="n-paste"><div class="nav-ic">📋</div>Grid Paste</div>
-    <div class="nav" onclick="showPage('settings')" id="n-settings"><div class="nav-ic">⚙️</div>Settings</div>
+    <div class="nav" onclick="showPage('paste')" id="n-paste"><div class="nav-ic"><img src="https://cdn-icons-png.flaticon.com/512/1585/1585484.png" width="22" height="22"></div>Grid Paste</div>
+    <div class="nav" onclick="showPage('settings')" id="n-settings"><div class="nav-ic"><img src="https://cdn-icons-png.flaticon.com/512/3524/3524659.png" width="22" height="22"></div>Settings</div>
   </div>
   <div class="sb-ft">
     <div class="sync-pill" id="sync-pill" onclick="showPage('settings');setTimeout(()=>showStgPanel('sync'),120)">
@@ -930,7 +902,7 @@ canvas{display:block}
       <span id="sync-pill-txt">Sheets sync</span>
     </div>
     <button class="theme-btn" onclick="toggleTheme()">
-      <span id="th-ic">🌙</span><span id="th-lbl">Dark mode</span>
+      <span id="th-ic"><img src="https://cdn-icons-png.flaticon.com/512/1993/1993815.png" width="14" height="14" style="vertical-align:middle"></span><span id="th-lbl">Dark mode</span>
     </button>
   </div>
 </aside>
@@ -943,12 +915,12 @@ canvas{display:block}
       <div class="pg-sub" id="pg-sub">Your health at a glance</div>
     </div>
     <div class="tb-right">
-      <div id="tb-profile" style="cursor:pointer;font-size:13px;font-weight:600;color:var(--t3);min-width:28px;text-align:center" onclick="showPage('settings');setTimeout(()=>showStgPanel('profile'),100)" title="Profile">🧑</div>
-      <div class="tb-btn mob-menu-btn" onclick="openMobNav()" title="Menu" style="display:none">☰</div>
-      <div class="tb-btn" onclick="triggerSync()" title="Sheets Sync">☁️</div>
-      <div class="tb-btn" onclick="topbarGistRefresh()" title="Refresh from GitHub" id="tb-gist-btn">🐙</div>
-      <div class="tb-btn" onclick="showPage('settings');setTimeout(()=>showStgPanel('data'),100)" title="Export">📦</div>
-      <div class="tb-btn" onclick="showPage('log')" title="Log Entry">✏️</div>
+      <div id="tb-profile" style="cursor:pointer;font-size:13px;font-weight:600;color:var(--t3);min-width:28px;text-align:center" onclick="showPage('settings');setTimeout(()=>showStgPanel('profile'),100)" title="Profile"><img src="https://cdn-icons-png.flaticon.com/512/1077/1077114.png" width="22" height="22"></div>
+      <div class="tb-btn mob-menu-btn" onclick="openMobNav()" title="Menu" style="display:none"><img src="https://cdn-icons-png.flaticon.com/512/3524/3524659.png" width="18" height="18"></div>
+      <div class="tb-btn" onclick="triggerSync()" title="Sheets Sync"><img src="https://cdn-icons-png.flaticon.com/512/2344/2344938.png" width="18" height="18"></div>
+      <div class="tb-btn" onclick="topbarGistRefresh()" title="Refresh from GitHub" id="tb-gist-btn"><img src="https://cdn-icons-png.flaticon.com/512/2111/2111432.png" width="18" height="18"></div>
+      <div class="tb-btn" onclick="showPage('settings');setTimeout(()=>showStgPanel('data'),100)" title="Export"><img src="https://cdn-icons-png.flaticon.com/512/724/724933.png" width="18" height="18"></div>
+      <div class="tb-btn" onclick="showPage('log')" title="Log Entry"><img src="https://cdn-icons-png.flaticon.com/512/1250/1250615.png" width="18" height="18"></div>
     </div>
   </div>
   <div class="content" id="content">
@@ -974,7 +946,7 @@ canvas{display:block}
 
       <!-- Dashboard Welcome -->
       <div id="dash-welcome" style="margin-bottom:14px;padding:14px 18px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r);display:flex;align-items:center;gap:14px">
-        <div id="dw-avatar" style="width:44px;height:44px;border-radius:50%;background:var(--surface2);border:2px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0">🧑</div>
+        <div id="dw-avatar" style="width:44px;height:44px;border-radius:50%;background:var(--surface2);border:2px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0"><img src="https://cdn-icons-png.flaticon.com/512/1077/1077114.png" width="26" height="26"></div>
         <div style="flex:1;min-width:0">
           <div id="dw-greeting" style="font-family:var(--fd);font-size:18px;font-weight:800;color:var(--t1)">Welcome!</div>
           <div id="dw-date" style="font-size:12px;color:var(--t3);margin-top:1px"></div>
@@ -1042,7 +1014,7 @@ canvas{display:block}
         <div class="card w-metric c1 click" onclick="openPopup('active_calories')" id="w-acal">
           <div class="wm-top">
             <div class="clabel">Active Cal</div>
-            <div class="wm-ic" style="background:rgba(255,59,92,.12)">🔥</div>
+            <div class="wm-ic" style="background:rgba(255,59,92,.12)"><img src="https://cdn-icons-png.flaticon.com/512/785/785116.png" width="22" height="22"></div>
           </div>
           <div class="wm-bot">
             <div style="display:flex;align-items:flex-end;gap:3px">
@@ -1070,7 +1042,7 @@ canvas{display:block}
         <div class="card w-metric c1 click" onclick="openPopup('steps')" id="w-steps">
           <div class="wm-top">
             <div class="clabel">Steps</div>
-            <div class="wm-ic" style="background:rgba(255,204,0,.12)">👟</div>
+            <div class="wm-ic" style="background:rgba(255,204,0,.12)"><img src="https://cdn-icons-png.flaticon.com/512/1822/1822905.png" width="22" height="22"></div>
           </div>
           <div class="wm-bot">
             <div class="cval" id="v-steps">—</div>
@@ -1094,7 +1066,7 @@ canvas{display:block}
         <div class="card w-metric c1 click" onclick="openPopup('standing_mins')" id="w-stand">
           <div class="wm-top">
             <div class="clabel">Standing</div>
-            <div class="wm-ic" style="background:rgba(59,130,246,.12)">🧍</div>
+            <div class="wm-ic" style="background:rgba(59,130,246,.12)"><img src="https://cdn-icons-png.flaticon.com/512/3050/3050540.png" width="22" height="22"></div>
           </div>
           <div class="wm-bot">
             <div style="display:flex;align-items:flex-end;gap:3px">
@@ -1121,7 +1093,7 @@ canvas{display:block}
         <div class="card w-metric c1 click" onclick="openPopup('exercise_mins')" id="w-exer">
           <div class="wm-top">
             <div class="clabel">Exercise</div>
-            <div class="wm-ic" style="background:rgba(52,199,89,.12)">⚡</div>
+            <div class="wm-ic" style="background:rgba(52,199,89,.12)"><img src="https://cdn-icons-png.flaticon.com/512/9168/9168779.png" width="22" height="22"></div>
           </div>
           <div class="wm-bot">
             <div style="display:flex;align-items:flex-end;gap:3px">
@@ -1149,9 +1121,9 @@ canvas{display:block}
         <div class="card c1 click" onclick="openPopup('walk_distance')" id="w-dist">
           <div class="wm-top">
             <div class="clabel" style="display:flex;align-items:center;gap:5px">
-              <span id="w-dist-ic">🚶</span> Outdoor Walk
+              <img src="https://cdn-icons-png.flaticon.com/512/4144/4144901.png" width="14" height="14"> Outdoor Walk
             </div>
-            
+            <img src="https://cdn-icons-png.flaticon.com/512/4144/4144901.png" width="32" height="32" style="border-radius:9px;opacity:.7">
           </div>
           <div>
             <div style="display:flex;align-items:flex-end;gap:3px;margin-top:4px">
@@ -1186,9 +1158,9 @@ canvas{display:block}
         <div class="card c1 click" onclick="openPopup('cycle_distance')" id="w-cycle">
           <div class="wm-top">
             <div class="clabel" style="display:flex;align-items:center;gap:5px">
-              <span id="w-cycle-ic">🚴</span> Cycle
+              <img src="https://cdn-icons-png.flaticon.com/512/2972/2972185.png" width="14" height="14"> Cycle
             </div>
-            
+            <img src="https://cdn-icons-png.flaticon.com/512/2972/2972185.png" width="32" height="32" style="border-radius:9px;opacity:.7">
           </div>
           <div>
             <div style="display:flex;align-items:flex-end;gap:3px;margin-top:4px">
@@ -1223,9 +1195,9 @@ canvas{display:block}
         <div class="card c1 click" onclick="openPopup('run_distance')" id="w-run">
           <div class="wm-top">
             <div class="clabel" style="display:flex;align-items:center;gap:5px">
-              <span id="w-run-ic">🏃</span> Run
+              <img src="https://cdn-icons-png.flaticon.com/512/2897/2897843.png" width="14" height="14"> Run
             </div>
-            
+            <img src="https://cdn-icons-png.flaticon.com/512/2897/2897843.png" width="32" height="32" style="border-radius:9px;opacity:.7">
           </div>
           <div>
             <div style="display:flex;align-items:flex-end;gap:3px;margin-top:4px">
@@ -1260,18 +1232,19 @@ canvas{display:block}
         <!-- Screen widget — r2 spanning rows 3+4, col 4 -->
         <div class="card w-screen c1 r2" id="w-screen" style="min-height:0">
           <div class="clabel" style="display:flex;align-items:center;gap:5px">
-            📱 Screen & 📚 Book
+            <img src="https://cdn-icons-png.flaticon.com/512/2991/2991148.png" width="13" height="13"> Screen &amp;
+            <img src="https://cdn-icons-png.flaticon.com/512/2232/2232688.png" width="13" height="13"> Book
           </div>
           <div id="screen-bars" style="margin-top:8px"></div>
         </div>
 
         <!-- ══ ROW 4: Strength · Yoga · Mindful (same row as screen 2nd half) ══ -->
-        <div class="card c1 click" onclick="openPopup('strength_training')" id="w-str">
+        <div class="card c1 click" onclick="openPopup('strength_training')">
           <div class="wm-top">
             <div class="clabel" style="display:flex;align-items:center;gap:5px">
-              <span id="w-str-ic">💪</span> Strength
+              <img src="https://cdn-icons-png.flaticon.com/512/2936/2936886.png" width="14" height="14"> Strength
             </div>
-            
+            <img src="https://cdn-icons-png.flaticon.com/512/2936/2936886.png" width="32" height="32" style="border-radius:9px;opacity:.7">
           </div>
           <div class="wm-bot">
             <div style="display:flex;align-items:flex-end;gap:3px">
@@ -1299,12 +1272,12 @@ canvas{display:block}
           </div>
         </div>
 
-        <div class="card c1 click" onclick="openPopup('yoga_duration')" id="w-yoga">
+        <div class="card c1 click" onclick="openPopup('yoga_duration')">
           <div class="wm-top">
             <div class="clabel" style="display:flex;align-items:center;gap:5px">
-              <span id="w-yoga-ic">🧘</span> Yoga
+              <img src="https://cdn-icons-png.flaticon.com/512/3048/3048127.png" width="14" height="14"> Yoga
             </div>
-            
+            <img src="https://cdn-icons-png.flaticon.com/512/3048/3048127.png" width="32" height="32" style="border-radius:9px;opacity:.7">
           </div>
           <div class="wm-bot">
             <div style="display:flex;align-items:flex-end;gap:3px">
@@ -1335,9 +1308,9 @@ canvas{display:block}
         <div class="card c1 click" onclick="openPopup('mindful_mins')" id="w-mindful">
           <div class="wm-top">
             <div class="clabel" style="display:flex;align-items:center;gap:5px">
-              <span id="w-mindful-ic">🧘</span> Mindful
+              <img src="https://cdn-icons-png.flaticon.com/512/3004/3004458.png" width="14" height="14"> Mindful
             </div>
-            
+            <img src="https://cdn-icons-png.flaticon.com/512/3004/3004458.png" width="32" height="32" style="border-radius:9px;opacity:.7">
           </div>
           <div class="wm-bot">
             <div style="display:flex;align-items:flex-end;gap:3px">
@@ -1368,7 +1341,7 @@ canvas{display:block}
         <!-- ══ ROW 5: Sleep · HR · Cardio · HRV ══ -->
         <div class="card c1 click" onclick="openPopup('total_sleep')" id="w-sleep">
           <div style="display:flex;align-items:center;justify-content:space-between">
-            <div class="clabel"><span id="w-sleep-ic">🌙</span> Sleep</div>
+            <div class="clabel" style="display:flex;align-items:center;gap:5px"><img src="https://cdn-icons-png.flaticon.com/512/1993/1993815.png" width="13" height="13"> Sleep</div>
             <div class="cval-sm" id="v-sleep" style="color:var(--csl)">—</div>
           </div>
           <div class="sleep-bar" id="sleep-bar" style="margin-top:8px">
@@ -1389,7 +1362,7 @@ canvas{display:block}
         <div class="card c1 click" onclick="openPopup('heart_rate')" id="w-hr">
           <div class="wm-top">
             <div class="clabel">Heart Rate</div>
-            <div class="wm-ic" style="background:rgba(239,68,68,.12)">❤️</div>
+            <div class="wm-ic" style="background:rgba(239,68,68,.12)"><img src="https://cdn-icons-png.flaticon.com/512/2583/2583434.png" width="22" height="22"></div>
           </div>
           <div class="wm-bot">
             <div style="display:flex;align-items:flex-end;gap:3px">
@@ -1416,7 +1389,7 @@ canvas{display:block}
         <div class="card c1 click" onclick="openPopup('cardio_fitness')" id="w-cardio">
           <div class="wm-top">
             <div class="clabel">Cardio VO₂</div>
-            <div class="wm-ic" style="background:rgba(59,130,246,.12)">🫀</div>
+            <div class="wm-ic" style="background:rgba(59,130,246,.12)"><img src="https://cdn-icons-png.flaticon.com/512/2515/2515283.png" width="22" height="22"></div>
           </div>
           <div class="wm-bot">
             <div style="display:flex;align-items:flex-end;gap:3px">
@@ -1433,7 +1406,7 @@ canvas{display:block}
         <div class="card c1 click" onclick="openPopup('hrv')" id="w-hrv">
           <div class="wm-top">
             <div class="clabel">HRV</div>
-            <div class="wm-ic" style="background:rgba(99,102,241,.12)">📡</div>
+            <div class="wm-ic" style="background:rgba(99,102,241,.12)"><img src="https://cdn-icons-png.flaticon.com/512/2779/2779775.png" width="22" height="22"></div>
           </div>
           <div class="wm-bot">
             <div style="display:flex;align-items:flex-end;gap:3px">
@@ -1456,12 +1429,12 @@ canvas{display:block}
         <!-- ══ Smart Insights ══ -->
         <div class="card w-insights c4" id="w-insights">
           <div class="ins-hdr">
-            <span style="font-size:19px">🧠</span>
+            <span style="font-size:19px"><img src="https://cdn-icons-png.flaticon.com/512/2103/2103658.png" width="20" height="20" style="vertical-align:middle"></span>
             <div class="ins-title">Health Insights</div>
             <span id="ins-date" style="font-size:11px;color:var(--t3);margin-left:auto"></span>
           </div>
           <div id="ins-body">
-            <div class="ins-item"><span class="ins-ic">💡</span><span style="color:var(--t3)">Log today's data to see insights.</span></div>
+            <div class="ins-item"><span class="ins-ic"><img src="https://cdn-icons-png.flaticon.com/512/3176/3176350.png" width="15" height="15" style="vertical-align:middle;margin-right:0px"></span><span style="color:var(--t3)">Log today's data to see insights.</span></div>
           </div>
         </div>
 
@@ -1482,8 +1455,8 @@ canvas{display:block}
             </div>
           </div>
           <div class="log-hdr-right">
-            <button class="log-save-btn" onclick="saveLogEntry()">💾 Save</button>
-            <button class="log-del-btn" onclick="deleteLogEntry()">🗑</button>
+            <button class="log-save-btn" onclick="saveLogEntry()"><img src="https://cdn-icons-png.flaticon.com/512/2734/2734428.png" width="14" height="14" style="vertical-align:middle;margin-right:4px"> Save</button>
+            <button class="log-del-btn" onclick="deleteLogEntry()"><img src="https://cdn-icons-png.flaticon.com/512/3221/3221929.png" width="14" height="14" style="vertical-align:middle"></button>
           </div>
         </div>
         <!-- Left nav panel -->
@@ -1545,7 +1518,7 @@ canvas{display:block}
         <div class="hist-nutr-panel" id="hist-nutr-panel">
           <div class="nf-wrap" id="hist-nf-wrap">
             <div class="nf-no-data">
-              <span style="font-size:32px;opacity:.3">🥗</span>
+              <img src="https://cdn-icons-png.flaticon.com/512/2515/2515183.png" width="32" height="32" style="opacity:.3">
               <span>Select a date to see nutrition facts</span>
             </div>
           </div>
@@ -1553,7 +1526,7 @@ canvas{display:block}
         <!-- Day detail panel -->
         <div class="day-panel" id="day-panel">
           <div class="day-empty">
-            <div style="font-size:42px">📅</div>
+            <div style="font-size:42px"><img src="https://cdn-icons-png.flaticon.com/512/2693/2693507.png" width="42" height="42"></div>
             <div style="font-family:var(--fd);font-size:16px;font-weight:600;color:var(--t3);margin-top:8px">Select a date</div>
             <div style="font-size:12px;color:var(--t4);margin-top:4px">Click any highlighted date to view data</div>
           </div>
@@ -1602,14 +1575,14 @@ canvas{display:block}
 
       <!-- Mobile-only: settings unavailable message + sync -->
       <div id="stg-mobile-msg" style="display:none;flex-direction:column;align-items:center;text-align:center;padding:32px 20px">
-        <div style="font-size:48px;margin-bottom:12px">🖥️</div>
+        <div style="font-size:48px;margin-bottom:12px"><img src="https://cdn-icons-png.flaticon.com/512/1229/1229657.png" width="48" height="48" style="vertical-align:middle"></div>
         <div style="font-family:var(--fd);font-size:20px;font-weight:800;color:var(--t1);margin-bottom:8px">Settings on Desktop</div>
         <div style="font-size:13px;color:var(--t3);line-height:1.7;max-width:260px;margin-bottom:28px">
           Full settings are available on the desktop version. Open this file in a desktop browser to configure targets, appearance, and more.
         </div>
         <!-- Sync panel inlined for mobile -->
         <div style="width:100%;max-width:400px;text-align:left;background:var(--surface2);border:1px solid var(--border);border-radius:var(--rm);padding:18px">
-          <div style="font-family:var(--fd);font-size:15px;font-weight:800;color:var(--t1);margin-bottom:4px">☁️ Sheets Sync</div>
+          <div style="font-family:var(--fd);font-size:15px;font-weight:800;color:var(--t1);margin-bottom:4px"><img src="https://cdn-icons-png.flaticon.com/512/2344/2344938.png" width="14" height="14" style="vertical-align:middle;margin-right:0px"> Sheets Sync</div>
           <div style="font-size:12px;color:var(--t3);margin-bottom:14px">Pull your data from Google Sheets on mobile</div>
           <div id="stg-mobile-sync-content">
             <div style="font-size:11px;font-weight:700;color:var(--t3);margin-bottom:4px">Webhook URL</div>
@@ -1617,7 +1590,7 @@ canvas{display:block}
             <div style="font-size:11px;font-weight:700;color:var(--t3);margin-bottom:4px">Secret Key</div>
             <input id="mob-sync-secret" class="stg-input" style="width:100%;margin-bottom:14px;box-sizing:border-box" placeholder="your-secret" type="password" value="">
             <div style="display:flex;gap:8px;flex-wrap:wrap">
-              <button class="stg-btn primary" onclick="mobSyncSave()">💾 Save</button>
+              <button class="stg-btn primary" onclick="mobSyncSave()"><img src="https://cdn-icons-png.flaticon.com/512/2734/2734428.png" width="13" height="13" style="vertical-align:middle;margin-right:3px"> Save</button>
               <button class="stg-btn" onclick="mobSyncPull()">⬇ Pull from Sheets</button>
               <button class="stg-btn" onclick="mobSyncPush()">⬆ Push to Sheets</button>
             </div>
@@ -1627,7 +1600,7 @@ canvas{display:block}
 
         <!-- GitHub Gist sync panel for mobile -->
         <div style="width:100%;max-width:400px;text-align:left;background:var(--surface2);border:1px solid var(--border);border-radius:var(--rm);padding:18px;margin-top:14px">
-          <div style="font-family:var(--fd);font-size:15px;font-weight:800;color:var(--t1);margin-bottom:4px">🐙 GitHub Sync</div>
+          <div style="font-family:var(--fd);font-size:15px;font-weight:800;color:var(--t1);margin-bottom:4px"><img src="https://cdn-icons-png.flaticon.com/512/2111/2111432.png" width="14" height="14" style="vertical-align:middle;margin-right:0px"> GitHub Sync</div>
           <div style="font-size:12px;color:var(--t3);margin-bottom:14px">Sync via GitHub Gist — free, no Google needed. Same Gist ID + token across all devices.</div>
           <div id="stg-mobile-gist-content">
             <div style="font-size:11px;font-weight:700;color:var(--t3);margin-bottom:4px">Gist ID</div>
@@ -1635,10 +1608,10 @@ canvas{display:block}
             <div style="font-size:11px;font-weight:700;color:var(--t3);margin-bottom:4px">GitHub Token</div>
             <input id="mob-gist-token" class="stg-input" style="width:100%;margin-bottom:14px;box-sizing:border-box;font-family:var(--fm);font-size:12px" placeholder="ghp_xxxxxxxxxxxx" type="password" value="">
             <div style="display:flex;gap:8px;flex-wrap:wrap">
-              <button class="stg-btn primary" onclick="mobGistSave()">💾 Save</button>
+              <button class="stg-btn primary" onclick="mobGistSave()"><img src="https://cdn-icons-png.flaticon.com/512/2734/2734428.png" width="13" height="13" style="vertical-align:middle;margin-right:3px"> Save</button>
               <button class="stg-btn" onclick="mobGistPull()">⬇ Pull</button>
               <button class="stg-btn" onclick="mobGistPush()">⬆ Push</button>
-              <button class="stg-btn" onclick="mobGistPing()">🔌 Test</button>
+              <button class="stg-btn" onclick="mobGistPing()"><img src="https://cdn-icons-png.flaticon.com/512/3524/3524659.png" width="13" height="13" style="vertical-align:middle;margin-right:3px">Test</button>
             </div>
             <div id="mob-gist-status" style="font-size:12px;color:var(--good);margin-top:10px"></div>
           </div>
@@ -1646,9 +1619,9 @@ canvas{display:block}
 
         <!-- Danger zone for mobile -->
         <div style="width:100%;max-width:400px;text-align:left;background:rgba(239,68,68,.06);border:1px solid rgba(239,68,68,.25);border-radius:var(--rm);padding:18px;margin-top:14px">
-          <div style="font-family:var(--fd);font-size:15px;font-weight:800;color:var(--danger);margin-bottom:4px">🗑 Danger Zone</div>
+          <div style="font-family:var(--fd);font-size:15px;font-weight:800;color:var(--danger);margin-bottom:4px"><img src="https://cdn-icons-png.flaticon.com/512/3221/3221929.png" width="14" height="14" style="vertical-align:middle;margin-right:4px">Danger Zone</div>
           <div style="font-size:12px;color:var(--t3);margin-bottom:14px;line-height:1.6">Delete all local data on this device. Useful if you're seeing stale cached data — delete here then Pull from GitHub to reload fresh.</div>
-          <button class="stg-btn danger" style="width:100%" onclick="mobDeleteAllData()">🗑 Delete All Data on This Device</button>
+          <button class="stg-btn danger" style="width:100%" onclick="mobDeleteAllData()"><img src='https://cdn-icons-png.flaticon.com/512/3221/3221929.png' width='13' height='13' style='vertical-align:middle;margin-right:3px'> Delete All Data on This Device</button>
         </div>
       </div>
 
@@ -1656,15 +1629,16 @@ canvas{display:block}
       <div id="stg-desktop-layout">
         <div class="stg-layout">
           <div class="stg-nav" id="stg-nav">
-            <div class="stg-nav-item on" onclick="showStgPanel('profile')" id="sni-profile">👤 Profile</div>
-            <div class="stg-nav-item" onclick="showStgPanel('targets')" id="sni-targets">🎯 Targets</div>
-            <div class="stg-nav-item" onclick="showStgPanel('schedule')" id="sni-schedule">📅 Schedule</div>
-            <div class="stg-nav-item" onclick="showStgPanel('paste')" id="sni-paste">📋 Quick Paste</div>
-            <div class="stg-nav-item" onclick="showStgPanel('custom')" id="sni-custom">➕ Custom Fields</div>
-            <div class="stg-nav-item" onclick="showStgPanel('looks')" id="sni-looks">🎨 Customise Looks</div>
-            <div class="stg-nav-item" onclick="showStgPanel('data')" id="sni-data">📦 Data</div>
-            <div class="stg-nav-item" onclick="showStgPanel('sync')" id="sni-sync">☁️ Sheets Sync</div>
-            <div class="stg-nav-item" onclick="showStgPanel('gist')" id="sni-gist">🐙 GitHub Sync</div>
+            <div class="stg-nav-item on" onclick="showStgPanel('profile')" id="sni-profile"><img src="https://cdn-icons-png.flaticon.com/512/1077/1077114.png" width="14" height="14" style="vertical-align:middle;margin-right:5px"> Profile</div>
+            <div class="stg-nav-item" onclick="showStgPanel('targets')" id="sni-targets"><img src="https://cdn-icons-png.flaticon.com/512/2247/2247878.png" width="14" height="14" style="vertical-align:middle;margin-right:5px"> Targets</div>
+            <div class="stg-nav-item" onclick="showStgPanel('schedule')" id="sni-schedule"><img src="https://cdn-icons-png.flaticon.com/512/2693/2693507.png" width="14" height="14" style="vertical-align:middle;margin-right:5px"> Schedule</div>
+            <div class="stg-nav-item" onclick="showStgPanel('paste')" id="sni-paste"><img src="https://cdn-icons-png.flaticon.com/512/1585/1585484.png" width="14" height="14" style="vertical-align:middle;margin-right:5px"> Quick Paste</div>
+            <div class="stg-nav-item" onclick="showStgPanel('healthimport')" id="sni-healthimport">🍎 Health Import</div>
+            <div class="stg-nav-item" onclick="showStgPanel('custom')" id="sni-custom"><img src="https://cdn-icons-png.flaticon.com/512/1237/1237946.png" width="14" height="14" style="vertical-align:middle;margin-right:5px"> Custom Fields</div>
+            <div class="stg-nav-item" onclick="showStgPanel('looks')" id="sni-looks"><img src="https://cdn-icons-png.flaticon.com/512/1048/1048955.png" width="14" height="14" style="vertical-align:middle;margin-right:5px"> Customise Looks</div>
+            <div class="stg-nav-item" onclick="showStgPanel('data')" id="sni-data"><img src="https://cdn-icons-png.flaticon.com/512/724/724933.png" width="14" height="14" style="vertical-align:middle;margin-right:5px"> Data</div>
+            <div class="stg-nav-item" onclick="showStgPanel('sync')" id="sni-sync"><img src="https://cdn-icons-png.flaticon.com/512/2344/2344938.png" width="14" height="14" style="vertical-align:middle;margin-right:5px"> Sheets Sync</div>
+            <div class="stg-nav-item" onclick="showStgPanel('gist')" id="sni-gist"><img src="https://cdn-icons-png.flaticon.com/512/2111/2111432.png" width="14" height="14" style="vertical-align:middle;margin-right:5px"> GitHub Sync</div>
 
           </div>
           <div class="stg-content" id="stg-content">
@@ -1912,15 +1886,15 @@ function allFields(){
 
 // ── CATEGORY CONFIG ──────────────────────────
 const CATS = [
-  {id:'energy',    label:'Energy',   color:'var(--ce)', icon:'🔋', sections:['energy']},
-  {id:'activity',  label:'Activity', color:'var(--ca)', icon:'🏃', sections:['activity']},
-  {id:'workout',   label:'Workout',  color:'var(--cw)', icon:'💪', sections:['workout_walk','workout_run','workout_cycle','workout_strength','workout_yoga','workout_other']},
-  {id:'vitals',    label:'Vitals',   color:'var(--cv)', icon:'❤️', sections:['vitals']},
-  {id:'sleep',     label:'Sleep',    color:'var(--csl)',icon:'🌙', sections:['sleep','mindful']},
-  {id:'physique',  label:'Physique', color:'var(--cb)', icon:'🏋️', sections:['body','movement']},
-  {id:'nutrition', label:'Nutrition',color:'var(--cn)', icon:'🥗', sections:['nutrition_macro','minerals','vitamins']},
-  {id:'screen',    label:'Screen',   color:'var(--csc)',icon:'📱', sections:['screen']},
-  {id:'habits',    label:'Habit',    color:'var(--ch)', icon:'✅', sections:['habits']},
+  {id:'energy',    label:'Energy',   color:'var(--ce)', icon:'https://cdn-icons-png.flaticon.com/512/2933/2933245.png', sections:['energy']},
+  {id:'activity',  label:'Activity', color:'var(--ca)', icon:'https://cdn-icons-png.flaticon.com/512/2897/2897843.png', sections:['activity']},
+  {id:'workout',   label:'Workout',  color:'var(--cw)', icon:'https://cdn-icons-png.flaticon.com/512/2936/2936886.png', sections:['workout_walk','workout_run','workout_cycle','workout_strength','workout_yoga','workout_other']},
+  {id:'vitals',    label:'Vitals',   color:'var(--cv)', icon:'https://cdn-icons-png.flaticon.com/512/2583/2583434.png', sections:['vitals']},
+  {id:'sleep',     label:'Sleep',    color:'var(--csl)',icon:'https://cdn-icons-png.flaticon.com/512/1993/1993815.png', sections:['sleep','mindful']},
+  {id:'physique',  label:'Physique', color:'var(--cb)', icon:'https://cdn-icons-png.flaticon.com/512/921/921051.png', sections:['body','movement']},
+  {id:'nutrition', label:'Nutrition',color:'var(--cn)', icon:'https://cdn-icons-png.flaticon.com/512/2515/2515183.png', sections:['nutrition_macro','minerals','vitamins']},
+  {id:'screen',    label:'Screen',   color:'var(--csc)',icon:'https://cdn-icons-png.flaticon.com/512/2991/2991148.png', sections:['screen']},
+  {id:'habits',    label:'Habit',    color:'var(--ch)', icon:'https://cdn-icons-png.flaticon.com/512/1378/1378644.png', sections:['habits']},
 ];
 
 // ── DATA STORE ───────────────────────────────
@@ -2318,7 +2292,7 @@ function renderLocalInsightsHtml(catId, dates){
   const colors = {good:'var(--good)',warn:'#F59E0B',info:'var(--accent)'};
   const bgs    = {good:'rgba(34,197,94,.08)',warn:'rgba(245,158,11,.08)',info:'rgba(99,102,241,.08)'};
   return `<div class="ah-insights">
-    <div class="ah-insights-title">💡 Insights</div>
+    <div class="ah-insights-title"><img src="https://cdn-icons-png.flaticon.com/512/3176/3176350.png" width="13" height="13" style="vertical-align:middle;margin-right:0px"> Insights</div>
     ${ins.map(i=>`<div class="ah-insight-item" style="border-left:3px solid ${colors[i.type]||colors.info};background:${bgs[i.type]||bgs.info}">${i.text}</div>`).join('')}
   </div>`;
 }
@@ -2507,14 +2481,14 @@ function loadThemePreset(){
 function toggleTheme(){
   const dark = document.documentElement.getAttribute('data-theme')==='dark';
   document.documentElement.setAttribute('data-theme', dark?'light':'dark');
-  document.getElementById('th-ic').innerHTML  = dark?'🌙':'☀️';
+  document.getElementById('th-ic').innerHTML  = dark?'<img src="https://cdn-icons-png.flaticon.com/512/1993/1993815.png" width="14" height="14" style="vertical-align:middle">':'<img src="https://cdn-icons-png.flaticon.com/512/869/869869.png" width="14" height="14" style="vertical-align:middle">';
   document.getElementById('th-lbl').textContent = dark?'Dark mode':'Light mode';
   localStorage.setItem('ws2_theme', dark?'light':'dark');
 }
 function loadTheme(){
   const t = localStorage.getItem('ws2_theme')||'light';
   document.documentElement.setAttribute('data-theme',t);
-  document.getElementById('th-ic').innerHTML  = t==='dark'?'☀️':'🌙';
+  document.getElementById('th-ic').innerHTML  = t==='dark'?'<img src="https://cdn-icons-png.flaticon.com/512/869/869869.png" width="14" height="14" style="vertical-align:middle">':'<img src="https://cdn-icons-png.flaticon.com/512/1993/1993815.png" width="14" height="14" style="vertical-align:middle">';
   document.getElementById('th-lbl').textContent = t==='dark'?'Light mode':'Dark mode';
   loadThemePreset();
 }
@@ -2949,7 +2923,7 @@ function openPopup(key){
     // ── Day tabs: Last 30 / Top 5 / Bottom 5 ──
     '<div style="display:flex;gap:6px;margin-bottom:10px" id="pop-tab-row">'+
       '<button class="pop-tab on" onclick="popShowTab(\'recent\')">Recent</button>'+
-      '<button class="pop-tab" onclick="popShowTab(\'top5\')">🏆 Top 5</button>'+
+      '<button class="pop-tab" onclick="popShowTab(\'top5\')"><img src="https://cdn-icons-png.flaticon.com/512/2583/2583319.png" width="13" height="13" style="vertical-align:middle;margin-right:0px"> Top 5</button>'+
       '<button class="pop-tab" onclick="popShowTab(\'bottom5\')">↓ Bottom 5</button>'+
     '</div>'+
     '<div id="pop-tab-recent" style="max-height:220px;overflow-y:auto">'+dayListHtml+'</div>'+
@@ -3066,9 +3040,9 @@ function renderDashboard(){
     const {workoutElite:we, wCompleted:wc, workoutBonus:wb, workoutTypes:wt} = scoreData;
     if(wb>0||wt>0){
       if(we){ bb.innerHTML=`<span style="color:#047857;font-weight:800">🏆 ELITE — ${wc}+ activities completed!</span>`; }
-      else if(wc>=2){ bb.innerHTML=`<span>✅ ${wc} activities completed</span>`; }
-      else if(wc===1){ bb.innerHTML=`<span style="color:var(--warn,#F59E0B)">💪 ${wt} activity — complete 1 more for full score</span>`; }
-      else { bb.innerHTML=`<span>💪 ${wt} activities tracked</span>`; }
+      else if(wc>=2){ bb.innerHTML=`<span><img src="https://cdn-icons-png.flaticon.com/512/1378/1378644.png" width="13" height="13" style="vertical-align:middle;margin-right:3px">${wc} activities completed</span>`; }
+      else if(wc===1){ bb.innerHTML=`<span style="color:var(--warn,#F59E0B)"><img src="https://cdn-icons-png.flaticon.com/512/2936/2936886.png" width="13" height="13" style="vertical-align:middle;margin-right:3px">${wt} activity — complete 1 more for full score</span>`; }
+      else { bb.innerHTML=`<span><img src="https://cdn-icons-png.flaticon.com/512/2936/2936886.png" width="13" height="13" style="vertical-align:middle;margin-right:3px">${wt} activities tracked</span>`; }
       bb.style.display='inline-block';
     } else { bb.style.display='none'; }
   }
@@ -3331,17 +3305,15 @@ function renderDashboard(){
   // Lower-is-better (YT/Reddit/Twitter/Mobile/Tablet/Laptop): green below target, red above, bar relative to worst threshold
   // Movie (no score): blue below good threshold, red above bad threshold
   const scrFields = allFields().filter(f=>f.key.endsWith('_time') || f.key==='cognitive_time');
-  // SCR_META: use fieldIcons if user has customised a field icon, otherwise fall back to ICON_URLS
-  function scrIcon(key, fallback){ return _iconImg((fieldIcons && fieldIcons[key]) || fallback, 13)+' '; }
   const SCR_META = {
-    book_time:   {label:scrIcon('book_time',   ICON_URLS.book)   +'Book',    dir:'hi'},
-    movie_time:  {label:scrIcon('movie_time',  ICON_URLS.movie)  +'Movie',   dir:'neutral', goodHi:90, badLo:180},
-    youtube_time:{label:scrIcon('youtube_time',ICON_URLS.youtube)+'YouTube', dir:'lo'},
-    reddit_time: {label:scrIcon('reddit_time', ICON_URLS.reddit) +'Reddit',  dir:'lo'},
-    twitter_time:{label:scrIcon('twitter_time',ICON_URLS.twitter)+'X',       dir:'lo'},
-    mobile_time: {label:scrIcon('mobile_time', ICON_URLS.iphone) +'iPhone',  dir:'lo'},
-    tablet_time: {label:scrIcon('tablet_time', ICON_URLS.ipad)   +'iPad',    dir:'lo'},
-    laptop_time: {label:scrIcon('laptop_time', ICON_URLS.mac)    +'Mac',     dir:'lo'},
+    book_time:   {label:'<img src="'+ICON_URLS.book+'" width="13" height="13" style="vertical-align:middle;margin-right:3px"> Book',    dir:'hi'},
+    movie_time:  {label:'<img src="'+ICON_URLS.movie+'" width="13" height="13" style="vertical-align:middle;margin-right:3px"> Movie',   dir:'neutral', goodHi:90,  badLo:180},
+    youtube_time:{label:'<img src="'+ICON_URLS.youtube+'" width="13" height="13" style="vertical-align:middle;margin-right:3px"> YouTube', dir:'lo'},
+    reddit_time: {label:'<img src="'+ICON_URLS.reddit+'" width="13" height="13" style="vertical-align:middle;margin-right:3px"> Reddit',  dir:'lo'},
+    twitter_time:{label:'<img src="'+ICON_URLS.twitter+'" width="13" height="13" style="vertical-align:middle;margin-right:3px"> X',      dir:'lo'},
+    mobile_time: {label:'<img src="'+ICON_URLS.iphone+'" width="13" height="13" style="vertical-align:middle;margin-right:3px"> iPhone',  dir:'lo'},
+    tablet_time: {label:'<img src="'+ICON_URLS.ipad+'" width="13" height="13" style="vertical-align:middle;margin-right:3px"> iPad',     dir:'lo'},
+    laptop_time: {label:'<img src="'+ICON_URLS.mac+'" width="13" height="13" style="vertical-align:middle;margin-right:3px"> Mac',       dir:'lo'},
   };
 
   function scrBarInfo(key, val){
@@ -3795,23 +3767,23 @@ function computeAllFields(e){
 // COMPUTED FIELD DEFINITIONS (for display)
 // ═══════════════════════════════════════════════
 const COMPUTED_DEFS = [
-  {key:'total_calories',    label:'Total Calories',   unit:'kcal', icon:'🔥',     color:'var(--ce)'},
-  {key:'net_energy_balance',label:'Energy Balance',   unit:'kcal', icon:'🔋',   color:'var(--ca)',
+  {key:'total_calories',    label:'Total Calories',   unit:'kcal', icon:'https://cdn-icons-png.flaticon.com/512/785/785116.png',     color:'var(--ce)'},
+  {key:'net_energy_balance',label:'Energy Balance',   unit:'kcal', icon:'https://cdn-icons-png.flaticon.com/512/2933/2933245.png',   color:'var(--ca)',
     sub: v => v > 0 ? 'Surplus' : v < 0 ? 'Deficit' : 'Balanced'},
-  {key:'total_sleep',       label:'Total Sleep',      unit:'min',  icon:'🌙',   color:'var(--csl)'},
-  {key:'cognitive_time',    label:'Cognitive Time',   unit:'min',  icon:'🧠',   color:'var(--accent2)'},
-  {key:'total_distance',    label:'Total Distance',   unit:'km',   icon:'🏃',   color:'var(--ca)'},
-  {key:'sleep_efficiency',  label:'Sleep Efficiency', unit:'%',    icon:'🌙',   color:'var(--csl)'},
-  {key:'deep_sleep_pct',    label:'Deep Sleep',       unit:'%',    icon:'🌙',   color:'#1B4F6E'},
-  {key:'active_ratio',      label:'Active Ratio',     unit:'%',    icon:'⚡',   color:'var(--move)'},
-  {key:'total_workout',     label:'Workout Time',     unit:'min',  icon:'💪',   color:'var(--cw)'},
-  {key:'total_screen',      label:'Total Screen',     unit:'min',  icon:'📱',   color:'var(--csc)',
+  {key:'total_sleep',       label:'Total Sleep',      unit:'min',  icon:'https://cdn-icons-png.flaticon.com/512/1993/1993815.png',   color:'var(--csl)'},
+  {key:'cognitive_time',    label:'Cognitive Time',   unit:'min',  icon:'https://cdn-icons-png.flaticon.com/512/2103/2103658.png',   color:'var(--accent2)'},
+  {key:'total_distance',    label:'Total Distance',   unit:'km',   icon:'https://cdn-icons-png.flaticon.com/512/2897/2897843.png',   color:'var(--ca)'},
+  {key:'sleep_efficiency',  label:'Sleep Efficiency', unit:'%',    icon:'https://cdn-icons-png.flaticon.com/512/1993/1993815.png',   color:'var(--csl)'},
+  {key:'deep_sleep_pct',    label:'Deep Sleep',       unit:'%',    icon:'https://cdn-icons-png.flaticon.com/512/1993/1993815.png',   color:'#1B4F6E'},
+  {key:'active_ratio',      label:'Active Ratio',     unit:'%',    icon:'https://cdn-icons-png.flaticon.com/512/9168/9168779.png',   color:'var(--move)'},
+  {key:'total_workout',     label:'Workout Time',     unit:'min',  icon:'https://cdn-icons-png.flaticon.com/512/2936/2936886.png',   color:'var(--cw)'},
+  {key:'total_screen',      label:'Total Screen',     unit:'min',  icon:'https://cdn-icons-png.flaticon.com/512/2991/2991148.png',   color:'var(--csc)',
     sub: ()=>'Mobile + Laptop + Tablet'},
-  {key:'protein_per_kg',    label:'Protein/kg',       unit:'g/kg', icon:'🥩',   color:'var(--cn)'},
-  {key:'hydration_score',   label:'Hydration Score',  unit:'%',    icon:'💧',     color:'var(--ca)'},
-  {key:'cardio_load',       label:'Cardio Load',      unit:'',     icon:'🫀',   color:'var(--cv)'},
-  {key:'recovery_index',    label:'Recovery Index',   unit:'',     icon:'📡',   color:'var(--good)'},
-  {key:'step_pace',         label:'Stride Length',    unit:'cm',   icon:'👟',   color:'var(--steps-c)'},
+  {key:'protein_per_kg',    label:'Protein/kg',       unit:'g/kg', icon:'https://cdn-icons-png.flaticon.com/512/2553/2553651.png',   color:'var(--cn)'},
+  {key:'hydration_score',   label:'Hydration Score',  unit:'%',    icon:'https://cdn-icons-png.flaticon.com/512/824/824239.png',     color:'var(--ca)'},
+  {key:'cardio_load',       label:'Cardio Load',      unit:'',     icon:'https://cdn-icons-png.flaticon.com/512/2515/2515283.png',   color:'var(--cv)'},
+  {key:'recovery_index',    label:'Recovery Index',   unit:'',     icon:'https://cdn-icons-png.flaticon.com/512/2779/2779775.png',   color:'var(--good)'},
+  {key:'step_pace',         label:'Stride Length',    unit:'cm',   icon:'https://cdn-icons-png.flaticon.com/512/1822/1822905.png',   color:'var(--steps-c)'},
 ];
 
 // ═══════════════════════════════════════════════
@@ -3851,22 +3823,21 @@ const LOG_SECTION_KEYS = {
 
 // Icon map for left panel nav — built lazily so ICON_URLS is available
 function getLogNavIcons(){
-  const nav = navIcons || {};
   return {
-    energy:    nav['energy']    || ICON_URLS.energy,
-    activity:  nav['activity']  || ICON_URLS.steps,
-    walk:      nav['wm-walk']   || ICON_URLS.walk,
-    run:       nav['wm-run']    || ICON_URLS.run,
-    cycle:     nav['wm-cycle']  || ICON_URLS.cycle,
-    strength:  nav['wm-str']    || ICON_URLS.strength,
-    vitals:    nav['vitals']    || ICON_URLS.heart,
-    mindful:   nav['sleep']     || ICON_URLS.mindful,
-    sleep:     nav['sleep']     || ICON_URLS.sleep,
-    movement:  nav['movement']  || ICON_URLS.movement,
-    nutrition: nav['nutrition'] || ICON_URLS.nutrition,
-    body:      nav['physique']  || ICON_URLS.body,
-    screen:    nav['screen']    || ICON_URLS.iphone,
-    habits:    nav['habits']    || ICON_URLS.habits,
+    energy:    ICON_URLS.energy,
+    activity:  ICON_URLS.steps,
+    walk:      ICON_URLS.walk,
+    run:       ICON_URLS.run,
+    cycle:     ICON_URLS.cycle,
+    strength:  ICON_URLS.strength,
+    vitals:    ICON_URLS.heart,
+    mindful:   ICON_URLS.mindful,
+    sleep:     ICON_URLS.sleep,
+    movement:  ICON_URLS.movement,
+    nutrition: ICON_URLS.nutrition,
+    body:      ICON_URLS.body,
+    screen:    ICON_URLS.iphone,
+    habits:    ICON_URLS.habits,
   };
 }
 
@@ -3882,21 +3853,21 @@ function renderLogLeftPanel(){
   movementFirst.forEach(id => {
     const s = LOG_SECTIONS.find(x=>x.id===id);
     if(!s) return;
-    const icon = LOG_NAV_ICONS[id] ? `<div class="lni-ic">${_iconImg(LOG_NAV_ICONS[id],16)}</div>` : '';
+    const icon = LOG_NAV_ICONS[id] ? `<div class="lni-ic"><img src="${LOG_NAV_ICONS[id]}" width="16" height="16"></div>` : '';
     html += `<div class="log-nav-item${logSection===id?' on':''}" onclick="switchLogSection('${id}')">${icon}${s.label}</div>`;
   });
   html += '<div class="log-sec-lbl" style="margin-top:4px">Health</div>';
   secondGroup.forEach(id => {
     const s = LOG_SECTIONS.find(x=>x.id===id);
     if(!s) return;
-    const icon = LOG_NAV_ICONS[id] ? `<div class="lni-ic">${_iconImg(LOG_NAV_ICONS[id],16)}</div>` : '';
+    const icon = LOG_NAV_ICONS[id] ? `<div class="lni-ic"><img src="${LOG_NAV_ICONS[id]}" width="16" height="16"></div>` : '';
     html += `<div class="log-nav-item${logSection===id?' on':''}" onclick="switchLogSection('${id}')">${icon}${s.label}</div>`;
   });
   html += '<div class="log-sec-lbl" style="margin-top:4px">Lifestyle</div>';
   thirdGroup.forEach(id => {
     const s = LOG_SECTIONS.find(x=>x.id===id);
     if(!s) return;
-    const icon = LOG_NAV_ICONS[id] ? `<div class="lni-ic">${_iconImg(LOG_NAV_ICONS[id],16)}</div>` : '';
+    const icon = LOG_NAV_ICONS[id] ? `<div class="lni-ic"><img src="${LOG_NAV_ICONS[id]}" width="16" height="16"></div>` : '';
     html += `<div class="log-nav-item${logSection===id?' on':''}" onclick="switchLogSection('${id}')">${icon}${s.label}</div>`;
   });
   panel.innerHTML = html;
@@ -4131,7 +4102,7 @@ function renderLogFields(){
   if(logSection === 'body'){
     const hrNote = document.createElement('div');
     hrNote.style.cssText = 'grid-column:1/-1;padding:10px 14px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);margin-top:4px;font-size:12px;color:var(--t3)';
-    hrNote.innerHTML = '<strong style="color:var(--t1)">💡 Tip:</strong> Fields like Weight, Body Fat, etc. show a <em>↑prev</em> button when empty — tap to copy the previous logged value.';
+    hrNote.innerHTML = '<img src="https://cdn-icons-png.flaticon.com/512/595/595067.png" width="13" height="13" style="vertical-align:middle;margin-right:3px"><strong style="color:var(--t1)">Tip:</strong> Fields like Weight, Body Fat, etc. show a <em>↑prev</em> button when empty — tap to copy the previous logged value.';
     grid.appendChild(hrNote);
   }
 
@@ -4519,7 +4490,7 @@ function renderNutritionLabel(entry, nfWrap, titleStr){
     return `<div class="nf-row ${indentClass} ${boldClass}"><span>${label} <span style="font-weight:400">${disp}${unit}</span></span>${dv!=null?`<span class="nf-dv ${dvClass}">${dv}%</span>`:''}</div>`;
   }
   const hasMacro=['total_fats','saturated_fats','trans_fats','cholesterol','sodium','carbohydrates','fiber','sugar','added_sugar','protein','dietary_calories','water','caffeine'].some(k=>entry[k]!=null&&!isNaN(entry[k]));
-  if(!hasMacro){ nfWrap.innerHTML=`<div class="nf-no-data"><span style="font-size:32px;opacity:.3">🥗</span><span>No nutrition data</span></div>`; return; }
+  if(!hasMacro){ nfWrap.innerHTML=`<div class="nf-no-data"><img src="https://cdn-icons-png.flaticon.com/512/2515/2515183.png" width="32" height="32" style="opacity:.3"><span>No nutrition data</span></div>`; return; }
   const vtLabels={vitamin_d:'Vit D',vitamin_c:'Vit C',vitamin_a:'Vit A',vitamin_e:'Vit E',vitamin_k:'Vit K',thiamin:'B1',riboflavin:'B2',niacin:'B3',pantothenic_acid:'B5',vitamin_b6:'B6',biotin:'B7',folate:'B9',vitamin_b12:'B12'};
   const vtRow=(key)=>{ const v=entry[key]; if(!v) return ''; const f=fields.find(x=>x.key===key); const dv=dvPct(key,v); const dvClass=dv!=null?(dv<=5?'':dv>=20?'nf-dv-good':''):''; return `<div class="nf-row-mini"><span>${vtLabels[key]||key}</span><span class="nf-dv ${dvClass}">${dv!=null?dv+'%':fmtNum(v,1)+(f?f.unit:'')}</span></div>`; };
   const minerRow=(key)=>{ const v=entry[key]; if(!v) return ''; const f=fields.find(x=>x.key===key); const dv=dvPct(key,v); const dvClass=dv!=null?(dv<=5?'':dv>=20?'nf-dv-good':''):''; return `<div class="nf-row-mini"><span>${f?f.label:key}</span><span class="nf-dv ${dvClass}">${dv!=null?dv+'%':fmtNum(v,1)+(f?f.unit:'')}</span></div>`; };
@@ -4589,67 +4560,61 @@ function calSelectDay(ds){
 // ── ICON URLS ──────────────────────────────────
 const ICON_URLS = {
   // Activities
-  walk:       '🚶',
-  run:        '🏃',
-  cycle:      '🚴',
-  strength:   '💪',
-  yoga:       '🧘',
-  mindful:    '🧘',
+  walk:       'https://cdn-icons-png.flaticon.com/512/4144/4144901.png',
+  run:        'https://cdn-icons-png.flaticon.com/512/2897/2897843.png',
+  cycle:      'https://cdn-icons-png.flaticon.com/512/2972/2972185.png',
+  strength:   'https://cdn-icons-png.flaticon.com/512/2936/2936886.png',
+  yoga:       'https://cdn-icons-png.flaticon.com/512/3048/3048127.png',
+  mindful:    'https://cdn-icons-png.flaticon.com/512/3004/3004458.png',
   // Vitals
-  heart:      '❤️',
-  hrv:        '📡',
-  cardio:     '🫀',
-  bp:         '🩺',
-  oxygen:     '🫁',
-  glucose:    '🩸',
-  breath:     '🫁',
-  fitness:    '🫀',
+  heart:      'https://cdn-icons-png.flaticon.com/512/2583/2583434.png',
+  hrv:        'https://cdn-icons-png.flaticon.com/512/2779/2779775.png',
+  cardio:     'https://cdn-icons-png.flaticon.com/512/2515/2515283.png',
+  bp:         'https://cdn-icons-png.flaticon.com/512/2966/2966327.png',
+  oxygen:     'https://cdn-icons-png.flaticon.com/512/2966/2966374.png',
+  glucose:    'https://cdn-icons-png.flaticon.com/512/2781/2781285.png',
+  breath:     'https://cdn-icons-png.flaticon.com/512/2966/2966374.png',
+  fitness:    'https://cdn-icons-png.flaticon.com/512/2515/2515283.png',
   // Energy/Activity
-  calories:   '🔥',
-  steps:      '👟',
-  standing:   '🧍',
-  exercise:   '⚡',
+  calories:   'https://cdn-icons-png.flaticon.com/512/785/785116.png',
+  steps:      'https://cdn-icons-png.flaticon.com/512/1822/1822905.png',
+  standing:   'https://cdn-icons-png.flaticon.com/512/3050/3050540.png',
+  exercise:   'https://cdn-icons-png.flaticon.com/512/9168/9168779.png',
   // Sleep
-  sleep:      '🌙',
-  moon:       '🌙',
+  sleep:      'https://cdn-icons-png.flaticon.com/512/1993/1993815.png',
+  moon:       'https://cdn-icons-png.flaticon.com/512/1993/1993815.png',
   // Nutrition
-  nutrition:  '🥗',
-  water:      '💧',
-  protein:    '🥩',
-  vitamins:   '💊',
-  minerals:   '⚗️',
+  nutrition:  'https://cdn-icons-png.flaticon.com/512/2515/2515183.png',
+  water:      'https://cdn-icons-png.flaticon.com/512/824/824239.png',
+  protein:    'https://cdn-icons-png.flaticon.com/512/2553/2553651.png',
+  vitamins:   'https://cdn-icons-png.flaticon.com/512/2781/2781450.png',
+  minerals:   'https://cdn-icons-png.flaticon.com/512/4359/4359979.png',
   // Body
-  weight:     '⚖️',
-  body:       '🏋️',
+  weight:     'https://cdn-icons-png.flaticon.com/512/2583/2583344.png',
+  body:       'https://cdn-icons-png.flaticon.com/512/921/921051.png',
   // Screen — specific brands
-  iphone:     '📱',
-  ipad:       '📱',
-  mac:        '💻',
-  youtube:    '▶️',
-  reddit:     '👾',
-  twitter:    '𝕏',
-  movie:      '🎬',
-  book:       '📚',
+  iphone:     'https://cdn-icons-png.flaticon.com/512/2991/2991148.png',
+  ipad:       'https://cdn-icons-png.flaticon.com/512/2345/2345168.png',
+  mac:        'https://cdn-icons-png.flaticon.com/512/1229/1229657.png',
+  youtube:    'https://cdn-icons-png.flaticon.com/512/1384/1384060.png',
+  reddit:     'https://cdn-icons-png.flaticon.com/512/2111/2111589.png',
+  twitter:    'https://cdn-icons-png.flaticon.com/512/5969/5969020.png',
+  movie:      'https://cdn-icons-png.flaticon.com/512/2809/2809486.png',
+  book:       'https://cdn-icons-png.flaticon.com/512/2232/2232688.png',
   // Habits
-  habits:     '✅',
-  alcohol:    '🍷',
-  daylight:   '☀️',
-  sound:      '🔊',
+  habits:     'https://cdn-icons-png.flaticon.com/512/1378/1378644.png',
+  alcohol:    'https://cdn-icons-png.flaticon.com/512/2405/2405479.png',
+  daylight:   'https://cdn-icons-png.flaticon.com/512/869/869869.png',
+  sound:      'https://cdn-icons-png.flaticon.com/512/727/727253.png',
   // Energy
-  energy:     '🔋',
+  energy:     'https://cdn-icons-png.flaticon.com/512/2933/2933245.png',
   // Movement
-  movement:   '🦵',
+  movement:   'https://cdn-icons-png.flaticon.com/512/4144/4144901.png',
   // Brain
-  brain:      '🧠',
+  brain:      'https://cdn-icons-png.flaticon.com/512/2103/2103658.png',
 };
 
-function _iconImg(url, size){
-  if(!url) return '';
-  // If it's an emoji (not a URL), return a span so it renders properly
-  if(!String(url).startsWith('http'))
-    return '<span style="font-size:'+(size||18)+'px;line-height:1;vertical-align:middle">' + url + '</span>';
-  return '<img src="'+url+'" width="'+(size||18)+'" height="'+(size||18)+'" style="object-fit:contain;vertical-align:middle;border-radius:2px" onerror="this.style.display=\'none\'">';
-}
+function _iconImg(url, size){ return '<img src="'+url+'" width="'+(size||18)+'" height="'+(size||18)+'" style="object-fit:contain;vertical-align:middle;border-radius:2px" onerror="this.style.display=\'none\'">'; }
 
 const SECTION_ICONS = {
   energy:    _iconImg(ICON_URLS.energy),
@@ -4797,31 +4762,6 @@ const DEFAULT_FIELD_ICONS = {
   vitamin_b6: ICON_URLS.vitamins, biotin: ICON_URLS.vitamins,
   folate:     ICON_URLS.vitamins, vitamin_b12: ICON_URLS.vitamins,
   vitamin_k:  ICON_URLS.vitamins,
-  // Sleep scores / computed
-  sleep_score:        ICON_URLS.sleep,
-  // Computed / derived
-  cardio_load:        ICON_URLS.cardio,
-  recovery_index:     ICON_URLS.hrv,
-  total_calories:     ICON_URLS.calories,
-  total_distance:     ICON_URLS.walk,
-  total_workout:      ICON_URLS.strength,
-  total_screen:       ICON_URLS.iphone,
-  total_sleep:        ICON_URLS.sleep,
-  protein_per_kg:     ICON_URLS.protein,
-  hydration_score:    ICON_URLS.water,
-  step_pace:          ICON_URLS.steps,
-  cognitive_time:     ICON_URLS.brain,
-  // Run extras
-  run_cadence:        ICON_URLS.run,
-  run_avg_power:      ICON_URLS.run,
-  run_avg_pace:       ICON_URLS.run,
-  run_best_pace:      ICON_URLS.run,
-  run_elevation:      ICON_URLS.run,
-  // Cycle extras
-  cycle_best_pace:    ICON_URLS.cycle,
-  cycle_elevation:    ICON_URLS.cycle,
-  // google fit
-  google_fit_points:  ICON_URLS.exercise,
   // Screen — specific icons
   book_time:    ICON_URLS.book,
   movie_time:   ICON_URLS.movie,
@@ -4898,7 +4838,7 @@ function renderDayDetail(ds){
   const hasVitamins = nutKeys.vitamins.some(k => entry[k]!=null && !isNaN(entry[k]));
 
   if(!hasMacro && !hasMinerals && !hasVitamins){
-    nfWrap.innerHTML = `<div class="nf-no-data"><span style="font-size:32px;opacity:.3">🥗</span><span>No nutrition data for ${ds}</span></div>`;
+    nfWrap.innerHTML = `<div class="nf-no-data"><img src="https://cdn-icons-png.flaticon.com/512/2515/2515183.png" width="32" height="32" style="opacity:.3"><span>No nutrition data for ${ds}</span></div>`;
   } else {
     const vtLabels = {vitamin_d:'Vit D',vitamin_c:'Vit C',vitamin_a:'Vit A',
       vitamin_e:'Vit E',vitamin_k:'Vit K',thiamin:'B1',riboflavin:'B2',
@@ -4988,7 +4928,7 @@ function renderDayDetail(ds){
         <span style="font-size:16px;font-weight:800">${overall}</span>
         <span style="font-size:10px;opacity:.8">/ 100 · ${grade.label}</span>
       </div>` : ''}
-      <button class="day-edit-btn" onclick="editDay('${ds}')">✏️ Edit</button>
+      <button class="day-edit-btn" onclick="editDay('${ds}')"><img src="https://cdn-icons-png.flaticon.com/512/1250/1250615.png" width="12" height="12" style="vertical-align:middle;margin-right:3px"> Edit</button>
     </div>
   </div>`;
 
@@ -5045,7 +4985,7 @@ function renderDayDetail(ds){
   });
 
   const hasAnyData = html.includes('day-field-row') || html.includes('day-score');
-  panel.innerHTML = html || `<div class="day-empty"><div><span style="font-size:40px">📅</span></div><div style="color:var(--t4);font-size:13px;margin-top:8px">No data for this date</div></div>`;
+  panel.innerHTML = html || `<div class="day-empty"><div><img src="https://cdn-icons-png.flaticon.com/512/2693/2693507.png" width="40" height="40"></div><div style="color:var(--t4);font-size:13px;margin-top:8px">No data for this date</div></div>`;
 }
 
 function editDay(ds){
@@ -5067,7 +5007,7 @@ function histDelSelected(){
   saveData();
   calSelected = null;
   renderCal();
-  document.getElementById('day-panel').innerHTML = '<div class="day-empty"><div style="font-size:42px">📅</div><div style="font-family:var(--fd);font-size:16px;font-weight:600;color:var(--t3);margin-top:8px">Select a date</div></div>';
+  document.getElementById('day-panel').innerHTML = '<div class="day-empty"><div style="font-size:42px"><img src="https://cdn-icons-png.flaticon.com/512/2693/2693507.png" width="40" height="40" style="vertical-align:middle;margin-right:0px"></div><div style="font-family:var(--fd);font-size:16px;font-weight:600;color:var(--t3);margin-top:8px">Select a date</div></div>';
   showToast('Deleted');
 }
 
@@ -5078,7 +5018,7 @@ function histDelAll(){
   saveData();
   calSelected = null;
   renderCal();
-  document.getElementById('day-panel').innerHTML = '<div class="day-empty"><div style="font-size:42px">📅</div></div>';
+  document.getElementById('day-panel').innerHTML = '<div class="day-empty"><div style="font-size:42px"><img src="https://cdn-icons-png.flaticon.com/512/2693/2693507.png" width="40" height="40" style="vertical-align:middle;margin-right:0px"></div></div>';
   showToast('All data deleted');
 }
 
@@ -5107,7 +5047,7 @@ function initPastePage(){
       <button class="stg-btn" onclick="sheetGoNext();initPastePage()" style="padding:5px 12px;font-size:16px;line-height:1">›</button>
       <div style="width:1px;height:20px;background:var(--border2);margin:0 2px"></div>
       <button class="stg-btn" onclick="pasteDownloadTemplate()">⬇ CSV</button>
-      <button class="stg-btn primary" onclick="sheetSaveAll()">💾 Save All</button>
+      <button class="stg-btn primary" onclick="sheetSaveAll()"><img src="https://cdn-icons-png.flaticon.com/512/2734/2734428.png" width="13" height="13" style="vertical-align:middle;margin-right:3px"> Save All</button>
     </div>
     <div id="paste-grid-result" style="width:100%;font-size:12px;color:var(--good);display:none"></div>
   </div>
@@ -5178,7 +5118,7 @@ function runInsights(){ renderSmartInsights(); }
 
 function renderSmartInsights(){
   const latest = allDates().slice(-1)[0];
-  if(!latest){ document.getElementById('ins-body').innerHTML='<div class="ins-item"><span class="ins-ic">📊</span><span style="color:var(--t3)">No data logged yet.</span></div>'; return; }
+  if(!latest){ document.getElementById('ins-body').innerHTML='<div class="ins-item"><span class="ins-ic"><img src="https://cdn-icons-png.flaticon.com/512/724/724715.png" width="15" height="15" style="vertical-align:middle;margin-right:0px"></span><span style="color:var(--t3)">No data logged yet.</span></div>'; return; }
   const dates7 = allDates().slice(-7);
   const ins = [];
 
@@ -5192,7 +5132,7 @@ function renderSmartInsights(){
   const el = document.getElementById('ins-body');
   const dateEl = document.getElementById('ins-date');
   if(dateEl) dateEl.textContent = latest;
-  if(!ins.length){ el.innerHTML='<div class="ins-item"><span class="ins-ic">✏️</span><span style="color:var(--t3)">Log more data to see insights.</span></div>'; return; }
+  if(!ins.length){ el.innerHTML='<div class="ins-item"><span class="ins-ic"><img src="https://cdn-icons-png.flaticon.com/512/1250/1250615.png" width="15" height="15" style="vertical-align:middle;margin-right:0px"></span><span style="color:var(--t3)">Log more data to see insights.</span></div>'; return; }
   const colors = {good:'var(--good)',warn:'#F59E0B',info:'var(--accent)'};
   const bgs    = {good:'rgba(34,197,94,.08)',warn:'rgba(245,158,11,.08)',info:'rgba(99,102,241,.08)'};
   el.innerHTML = ins.map(i=>`<div class="ins-item" style="border-left:3px solid ${colors[i.type]||colors.info};background:${bgs[i.type]||bgs.info};padding:7px 10px;border-radius:0 6px 6px 0;margin-bottom:5px;font-size:12px;line-height:1.45">${i.text}</div>`).join('');
@@ -5282,24 +5222,24 @@ window.addEventListener('load', ()=>{
 <div class="mob-nav-overlay" id="mob-nav-overlay" onclick="if(event.target===this)closeMobNav()">
   <div class="mob-nav-sheet">
     <div class="mob-nav-close">
-      <div class="mob-nav-close-title">💪 WellStat</div>
+      <div class="mob-nav-close-title"><img src="https://cdn-icons-png.flaticon.com/512/2936/2936886.png" width="18" height="18" style="vertical-align:middle;margin-right:4px">WellStat</div>
       <button class="mob-nav-close-btn" onclick="closeMobNav()">✕</button>
     </div>
     <div class="mob-nav-grid">
-      <div class="mob-nav-item" onclick="mobNav('dashboard')" id="mob-nav-dashboard"><div class="mni-ic">⚡</div>Dashboard</div>
-      <div class="mob-nav-item" onclick="mobNav('log')" id="mob-nav-log"><div class="mni-ic">✏️</div>Log Entry</div>
-      <div class="mob-nav-item" onclick="mobNav('history')" id="mob-nav-history"><div class="mni-ic">📅</div>History</div>
-      <div class="mob-nav-item" onclick="mobNav('ah-energy')" id="mob-nav-energy"><div class="mni-ic">🔋</div>Energy</div>
-      <div class="mob-nav-item" onclick="mobNav('ah-activity')" id="mob-nav-activity"><div class="mni-ic">🏃</div>Activity</div>
-      <div class="mob-nav-item" onclick="mobNav('ah-workout')" id="mob-nav-workout"><div class="mni-ic">💪</div>Workout</div>
-      <div class="mob-nav-item" onclick="mobNav('ah-vitals')" id="mob-nav-vitals"><div class="mni-ic">❤️</div>Vitals</div>
-      <div class="mob-nav-item" onclick="mobNav('ah-sleep')" id="mob-nav-sleep"><div class="mni-ic">🌙</div>Sleep</div>
-      <div class="mob-nav-item" onclick="mobNav('ah-physique')" id="mob-nav-physique"><div class="mni-ic">🏋️</div>Physique</div>
-      <div class="mob-nav-item" onclick="mobNav('ah-nutrition')" id="mob-nav-nutrition"><div class="mni-ic">🥗</div>Nutrition</div>
-      <div class="mob-nav-item" onclick="mobNav('ah-screen')" id="mob-nav-screen"><div class="mni-ic">📱</div>Screen</div>
-      <div class="mob-nav-item" onclick="mobNav('ah-habits')" id="mob-nav-habits"><div class="mni-ic">✅</div>Habit</div>
-      <div class="mob-nav-item" onclick="mobNav('paste')" id="mob-nav-paste"><div class="mni-ic">📋</div>Paste</div>
-      <div class="mob-nav-item" onclick="mobNav('settings')" id="mob-nav-settings"><div class="mni-ic">⚙️</div>Settings</div>
+      <div class="mob-nav-item" onclick="mobNav('dashboard')"><div class="mni-ic"><img src="https://cdn-icons-png.flaticon.com/512/9168/9168779.png" width="28" height="28"></div>Dashboard</div>
+      <div class="mob-nav-item" onclick="mobNav('log')"><div class="mni-ic"><img src="https://cdn-icons-png.flaticon.com/512/1250/1250615.png" width="28" height="28"></div>Log Entry</div>
+      <div class="mob-nav-item" onclick="mobNav('history')"><div class="mni-ic"><img src="https://cdn-icons-png.flaticon.com/512/2693/2693507.png" width="28" height="28"></div>History</div>
+      <div class="mob-nav-item" onclick="mobNav('ah-energy')"><div class="mni-ic"><img src="https://cdn-icons-png.flaticon.com/512/2933/2933245.png" width="28" height="28"></div>Energy</div>
+      <div class="mob-nav-item" onclick="mobNav('ah-activity')"><div class="mni-ic"><img src="https://cdn-icons-png.flaticon.com/512/2897/2897843.png" width="28" height="28"></div>Activity</div>
+      <div class="mob-nav-item" onclick="mobNav('ah-workout')"><div class="mni-ic"><img src="https://cdn-icons-png.flaticon.com/512/2936/2936886.png" width="28" height="28"></div>Workout</div>
+      <div class="mob-nav-item" onclick="mobNav('ah-vitals')"><div class="mni-ic"><img src="https://cdn-icons-png.flaticon.com/512/2583/2583434.png" width="28" height="28"></div>Vitals</div>
+      <div class="mob-nav-item" onclick="mobNav('ah-sleep')"><div class="mni-ic"><img src="https://cdn-icons-png.flaticon.com/512/1993/1993815.png" width="28" height="28"></div>Sleep</div>
+      <div class="mob-nav-item" onclick="mobNav('ah-physique')"><div class="mni-ic"><img src="https://cdn-icons-png.flaticon.com/512/921/921051.png" width="28" height="28"></div>Physique</div>
+      <div class="mob-nav-item" onclick="mobNav('ah-nutrition')"><div class="mni-ic"><img src="https://cdn-icons-png.flaticon.com/512/2515/2515183.png" width="28" height="28"></div>Nutrition</div>
+      <div class="mob-nav-item" onclick="mobNav('ah-screen')"><div class="mni-ic"><img src="https://cdn-icons-png.flaticon.com/512/2991/2991148.png" width="28" height="28"></div>Screen</div>
+      <div class="mob-nav-item" onclick="mobNav('ah-habits')"><div class="mni-ic"><img src="https://cdn-icons-png.flaticon.com/512/1378/1378644.png" width="28" height="28"></div>Habit</div>
+      <div class="mob-nav-item" onclick="mobNav('paste')"><div class="mni-ic"><img src="https://cdn-icons-png.flaticon.com/512/1585/1585484.png" width="28" height="28"></div>Paste</div>
+      <div class="mob-nav-item" onclick="mobNav('settings')"><div class="mni-ic"><img src="https://cdn-icons-png.flaticon.com/512/3524/3524659.png" width="28" height="28"></div>Settings</div>
     </div>
   </div>
 </div>
@@ -5685,17 +5625,14 @@ function ahCard(key, dates, sizeClass, opts={}){
 
   return `<div class="ah-card${isBig?' big':''} ${sizeClass}" onclick="openDrill('${key}')">
     <div class="ah-card-top">
-      <div style="flex:1;min-width:0">
-        <div class="ah-card-label"><span>${f.label}</span></div>
+      <div>
+        <div class="ah-card-label">${fieldIcons[key] ? '<span style="font-size:22px;line-height:1;display:block;margin-bottom:4px">'+renderFieldIcon(key)+'</span>' : (opts.icon ? '<span style="font-size:22px;line-height:1;display:block;margin-bottom:4px">'+opts.icon+'</span>' : '')}<span>${f.label}</span></div>
         <div style="display:flex;align-items:flex-end;gap:3px;margin-top:4px">
           <div class="ah-card-val" style="color:${displayColor}">${displayStr}</div>
           <div class="ah-card-unit">${f.unit}${lastVal!=null?'<span style="font-size:8px;color:var(--t4);margin-left:3px">latest</span>':''}</div>
         </div>
       </div>
-      <div style="display:flex;flex-direction:column;align-items:center;gap:4px;margin-left:8px;flex-shrink:0">
-        <div style="font-size:38px;line-height:1;opacity:.85">${fieldIcons[key] ? renderFieldIcon(key,38) : (opts.icon || '')}</div>
-        ${tgtSc!=null?(eliteNow?`<div class="ah-card-score-badge" style="background:#04785720;color:#047857;font-size:9px">⚡${isWF?tgtSc+'/50':tgtSc+'%'}</div>`:`<div class="ah-card-score-badge" style="background:${col}18;color:${col}">${isWF?tgtSc+'/50':tgtSc+'%'}</div>`):''}
-      </div>
+      ${tgtSc!=null?(eliteNow?`<div class="ah-card-score-badge" style="background:#04785720;color:#047857;font-size:9px">⚡${isWF?tgtSc+'/50':tgtSc+'%'}</div>`:`<div class="ah-card-score-badge" style="background:${col}18;color:${col}">${isWF?tgtSc+'/50':tgtSc+'%'}</div>`):''}
     </div>
     <div class="ah-card-stats">
       ${sum7d!=null ? `
@@ -5849,7 +5786,7 @@ function openDrill(key){
     '</div>'+
     '<div style="display:flex;gap:6px;margin-bottom:10px">'+
       '<button class="pop-tab on" onclick="popShowTab(\'recent\')">Recent</button>'+
-      '<button class="pop-tab" onclick="popShowTab(\'top5\')">🏆 Top 5</button>'+
+      '<button class="pop-tab" onclick="popShowTab(\'top5\')"><img src="https://cdn-icons-png.flaticon.com/512/2583/2583319.png" width="13" height="13" style="vertical-align:middle;margin-right:0px"> Top 5</button>'+
       '<button class="pop-tab" onclick="popShowTab(\'bottom5\')">↓ Bottom 5</button>'+
     '</div>'+
     '<div id="pop-tab-recent" style="max-height:220px;overflow-y:auto">'+recentHtml+'</div>'+
@@ -6606,17 +6543,14 @@ function renderAHVitals(){
   left += `<div class="ah-grid">`;
   left += `<div class="ah-card ah-w3 big" onclick="openDrill('heart_rate')" style="cursor:pointer">
     <div class="ah-card-top">
-      <div style="flex:1;min-width:0">
-        <div class="ah-card-label"><span>Heart Rate</span></div>
+      <div>
+        <div class="ah-card-label">${_iconImg(ICON_URLS.heart,22)?'<span style="font-size:22px;line-height:1;display:block;margin-bottom:4px">'+_iconImg(ICON_URLS.heart,22)+'</span>':''}<span>Heart Rate</span></div>
         <div style="display:flex;align-items:flex-end;gap:3px;margin-top:4px">
           <div class="ah-card-val" style="color:${hrLatest?hrCol:'var(--t4)'}">${hrLatest?fmtVal(hrLatest,'heart_rate'):'—'}</div>
           <div class="ah-card-unit">bpm</div>
         </div>
       </div>
-      <div style="display:flex;flex-direction:column;align-items:center;gap:4px;margin-left:8px;flex-shrink:0">
-        <div style="font-size:38px;line-height:1;opacity:.85">${_iconImg(ICON_URLS.heart,38)}</div>
-        ${hrSc!=null?`<div class="ah-card-score-badge" style="background:${hrCol}18;color:${hrCol}">${hrSc}%</div>`:''}
-      </div>
+      ${hrSc!=null?`<div class="ah-card-score-badge" style="background:${hrCol}18;color:${hrCol}">${hrSc}%</div>`:''}
     </div>
     <div style="display:flex;gap:8px;margin-top:6px">
       <div style="flex:1;background:var(--surface2);border-radius:6px;padding:4px 6px;text-align:center">
@@ -6644,15 +6578,12 @@ function renderAHVitals(){
   const wh7d = rAvg('walking_hr',7), wh30d = rAvg('walking_hr',30);
   left += `<div class="ah-card ah-w3 big" onclick="openDrill('walking_hr')" style="cursor:pointer">
     <div class="ah-card-top">
-      <div style="flex:1;min-width:0">
-        <div class="ah-card-label"><span>Walking HR</span></div>
+      <div>
+        <div class="ah-card-label"><span style="font-size:22px;line-height:1;display:block;margin-bottom:4px">${_iconImg(ICON_URLS.walk,22)}</span><span>Walking HR</span></div>
         <div style="display:flex;align-items:flex-end;gap:3px;margin-top:4px">
           <div class="ah-card-val" style="color:${whLatest?'var(--ca)':'var(--t4)'}">${whLatest?fmt(whLatest):'—'}</div>
           <div class="ah-card-unit">bpm</div>
         </div>
-      </div>
-      <div style="display:flex;flex-direction:column;align-items:center;gap:4px;margin-left:8px;flex-shrink:0">
-        <div style="font-size:38px;line-height:1;opacity:.85">${_iconImg(ICON_URLS.walk,38)}</div>
       </div>
     </div>
     <div style="display:flex;gap:8px;margin-top:6px">
@@ -6875,22 +6806,17 @@ function buildStateOfMindCard(val, dates, sizeClass){
   }
 
   return `<div class="ah-card ${sizeClass} big" onclick="openDrill('state_of_mind')" style="cursor:pointer">
-    <div class="ah-card-top">
-      <div style="flex:1;min-width:0">
-        <div class="ah-card-label"><span>State of Mind</span></div>
-        <div style="display:flex;align-items:center;gap:12px;margin-top:6px">
-          <div>${crystalFlower(val)}</div>
-          <div>
-            <div style="font-size:14px;font-weight:700;color:${col};line-height:1.3">${label}</div>
-            <div style="font-size:10px;color:var(--t4);margin-top:4px">7D avg: <span style="color:var(--t2);font-weight:600">${avg7!=null?avg7:'—'}</span></div>
-            <div style="font-size:10px;color:var(--t4)">30D avg: <span style="color:var(--t2);font-weight:600">${avg30!=null?avg30:'—'}</span></div>
-          </div>
+    <div class="ah-card-top"><div>
+      <div class="ah-card-label"><span style="font-size:22px;line-height:1;display:block;margin-bottom:4px">${_iconImg(ICON_URLS.mindful,22)}</span><span>State of Mind</span></div>
+      <div style="display:flex;align-items:center;gap:12px;margin-top:6px">
+        <div>${crystalFlower(val)}</div>
+        <div>
+          <div style="font-size:14px;font-weight:700;color:${col};line-height:1.3">${label}</div>
+          <div style="font-size:10px;color:var(--t4);margin-top:4px">7D avg: <span style="color:var(--t2);font-weight:600">${avg7!=null?avg7:'—'}</span></div>
+          <div style="font-size:10px;color:var(--t4)">30D avg: <span style="color:var(--t2);font-weight:600">${avg30!=null?avg30:'—'}</span></div>
         </div>
       </div>
-      <div style="display:flex;flex-direction:column;align-items:center;gap:4px;margin-left:8px;flex-shrink:0">
-        <div style="font-size:38px;line-height:1;opacity:.85">${_iconImg(ICON_URLS.mindful,38)}</div>
-      </div>
-    </div>
+    </div></div>
   </div>`;
 }
 
@@ -7720,15 +7646,15 @@ function buildStreakCalendar(rowDefs, nDays){
 
 function buildHabitCalendar(){
   return buildStreakCalendar([
-    {key:'alcohol',       label:'Alcohol-free', icon:'🍷',
+    {key:'alcohol',       label:'Alcohol-free', icon:'<img src="https://cdn-icons-png.flaticon.com/512/2405/2405479.png" width="16" height="16" style="vertical-align:middle;margin-right:0px">',
       done:(val)=>{ const t=getTarget('alcohol'); return val!=null&&val<=(t?.hi??0); }},
-    {key:'daylight',      label:'Daylight',      icon:'☀️',
+    {key:'daylight',      label:'Daylight',      icon:'<img src="https://cdn-icons-png.flaticon.com/512/869/869869.png" width="16" height="16" style="vertical-align:middle;margin-right:0px">',
       done:(val)=>{ const t=getTarget('daylight'); return val!=null&&val>=(t?.lo??10); }},
-    {key:'mindful_mins',  label:'Mindfulness',   icon:'🧘',
+    {key:'mindful_mins',  label:'Mindfulness',   icon:'<img src="https://cdn-icons-png.flaticon.com/512/3004/3004458.png" width="16" height="16" style="vertical-align:middle;margin-right:0px">',
       done:(val)=>{ const t=getTarget('mindful_mins'); return val!=null&&val>=(t?.lo??5); }},
     {key:'surround_sound',label:'Low Noise',     icon:'🔇',
       done:(val)=>{ const t=getTarget('surround_sound'); return val!=null&&val<=(t?.hi??55); }},
-    ...(tempHabits.map(h=>({key:h.key, label:h.label, icon:'✅',
+    ...(tempHabits.map(h=>({key:h.key, label:h.label, icon:'<img src="https://cdn-icons-png.flaticon.com/512/1378/1378644.png" width="16" height="16" style="vertical-align:middle;margin-right:0px">',
       done:(val)=>val!=null&&val>=1})))
   ], 30);
 }
@@ -8390,6 +8316,7 @@ function renderStgPanel(id){
     targets: renderStgTargets,
     schedule: renderStgSchedule,
     paste:   renderStgPaste,
+    healthimport: renderStgHealthImport,
     custom:  renderStgCustom,
     looks:   renderStgLooks,
     data:    renderStgData,
@@ -8437,7 +8364,7 @@ function renderStgProfile(){
       <div>
         <div style="font-family:var(--fd);font-size:18px;font-weight:800;color:var(--t1)">${p.name||'Your Name'}</div>
         <div style="font-size:12px;color:var(--t3);margin-top:2px">${p.dob?`Age ${getAge(p.dob)}`:'—'} ${p.height_cm?`· ${heightFt}\'${heightIn}" (${heightCm}cm)`:''}</div>
-        <button class="stg-btn primary" style="margin-top:8px;font-size:11px;padding:5px 12px" onclick="saveProfileUI()">💾 Save</button>
+        <button class="stg-btn primary" style="margin-top:8px;font-size:11px;padding:5px 12px" onclick="saveProfileUI()"><img src="https://cdn-icons-png.flaticon.com/512/2734/2734428.png" width="13" height="13" style="vertical-align:middle;margin-right:3px"> Save</button>
       </div>
     </div>
     <div class="stg-row"><div class="stg-row-label">Full Name</div><input class="stg-input wide" id="pf-name" value="${p.name||''}" placeholder="Your name"></div>
@@ -8472,7 +8399,7 @@ function renderStgProfile(){
       </select>
     </div>
     <div style="margin-top:14px;display:flex;gap:8px">
-      <button class="stg-btn primary" onclick="saveProfileUI()">💾 Save Profile</button>
+      <button class="stg-btn primary" onclick="saveProfileUI()"><img src="https://cdn-icons-png.flaticon.com/512/2734/2734428.png" width="13" height="13" style="vertical-align:middle;margin-right:3px"> Save Profile</button>
     </div>
   </div>`;
 }
@@ -8560,7 +8487,7 @@ const TARGET_SECTIONS = [
 function renderStgTargets(){
   const sc = document.getElementById('stg-content');
   let html = `<div class="stg-panel on" id="sp-targets">
-    <div class="stg-panel-title">🎯Targets</div>
+    <div class="stg-panel-title"><img src="https://cdn-icons-png.flaticon.com/512/2247/2247878.png" width="16" height="16" style="vertical-align:middle;margin-right:3px">Targets</div>
     <div class="stg-panel-sub">Set your personal goals. Each metric uses up to 4 values: Worst Low → Perfect Low → Perfect High → Worst High. Leave blank to skip.</div>
     <div style="display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--surface2);border-radius:var(--rs);border:1px solid var(--border);margin-bottom:12px">
       <div style="font-size:12px;color:var(--t3);font-weight:600">Apply targets from:</div>
@@ -8568,8 +8495,8 @@ function renderStgTargets(){
       <div style="font-size:11px;color:var(--t4);flex:1">Leave blank to apply to all future entries</div>
     </div>
     <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap">
-      <button class="stg-btn primary" onclick="saveTargetsUI()">💾 Save Targets</button>
-      <button class="stg-btn primary" onclick="saveTargetsFromDate()">📅Save From Date</button>
+      <button class="stg-btn primary" onclick="saveTargetsUI()"><img src="https://cdn-icons-png.flaticon.com/512/2734/2734428.png" width="13" height="13" style="vertical-align:middle;margin-right:3px"> Save Targets</button>
+      <button class="stg-btn primary" onclick="saveTargetsFromDate()"><img src="https://cdn-icons-png.flaticon.com/512/2693/2693507.png" width="13" height="13" style="vertical-align:middle;margin-right:3px">Save From Date</button>
       <button class="stg-btn" onclick="resetTargets()">↩ Reset to defaults</button>
     </div>
     <div class="tgt-hdr">
@@ -8600,7 +8527,7 @@ function renderStgTargets(){
 
   // Custom fields targets
   if(customFields.length){
-    html += `<div class="tgt-section-title">➕Custom Fields</div>`;
+    html += `<div class="tgt-section-title"><img src="https://cdn-icons-png.flaticon.com/512/1237/1237946.png" width="16" height="16" style="vertical-align:middle;margin-right:3px">Custom Fields</div>`;
     customFields.forEach(cf => {
       const t = targets[cf.key] || {};
       html += `<div class="tgt-row">
@@ -8790,7 +8717,7 @@ let schedCalMonth = new Date().getMonth();
 function renderStgSchedule(){
   const sc = document.getElementById('stg-content');
   sc.innerHTML = '<div class="stg-panel on" id="sp-schedule">'
-    +'<div class="stg-panel-title">📅Schedule</div>'
+    +'<div class="stg-panel-title"><img src="https://cdn-icons-png.flaticon.com/512/2693/2693507.png" width="16" height="16" style="vertical-align:middle;margin-right:3px">Schedule</div>'
     +'<div class="stg-panel-sub">Set reduced targets per day of the week, and mark rest/skip days. Affects Energy, Activity &amp; Workout only.</div>'
     +'<div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);padding:14px;margin-bottom:16px">'
     +'<div style="font-size:13px;font-weight:700;color:var(--t2);margin-bottom:6px">Day-of-week target %</div>'
@@ -8802,7 +8729,7 @@ function renderStgSchedule(){
       +' style="width:100%;text-align:center;padding:6px 2px;border-radius:var(--rxs);background:var(--surface);border:1px solid var(--border2);color:var(--t1);font-size:13px;font-weight:700;font-family:var(--fm)">'
       +'<div style="font-size:9px;color:var(--t4);margin-top:2px">%</div></div>').join('')
     +'</div>'
-    +'<button class="stg-btn primary" style="margin-top:12px" onclick="saveDowTargets()">💾 Save Day Targets</button>'
+    +'<button class="stg-btn primary" style="margin-top:12px" onclick="saveDowTargets()"><img src="https://cdn-icons-png.flaticon.com/512/2734/2734428.png" width="13" height="13" style="vertical-align:middle;margin-right:3px"> Save Day Targets</button>'
     +'</div>'
     +'<div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);padding:14px">'
     +'<div style="font-size:13px;font-weight:700;color:var(--t2);margin-bottom:4px">🛌 Rest / Skip Days</div>'
@@ -8951,6 +8878,267 @@ function sheetGoMonth(val){
   renderSheet();
 }
 
+// ═══════════════════════════════════════════════════════════
+// HEALTH IMPORT — parse raw Health Export CSV text into WellStat
+// ═══════════════════════════════════════════════════════════
+
+function renderStgHealthImport(){
+  const sc = document.getElementById('stg-content');
+  sc.innerHTML = `
+    <div class="stg-panel on" id="sp-healthimport">
+      <div class="stg-panel-title">🍎 Health Import</div>
+      <div class="stg-panel-sub">Paste the raw text from your Health Export app. WellStat will parse and save automatically.</div>
+      <textarea id="hi-raw" placeholder="Paste your Health Export text here..." style="width:100%;height:260px;margin:12px 0;padding:10px;border-radius:var(--rs);border:1px solid var(--border2);background:var(--surface2);color:var(--t1);font-size:12px;font-family:var(--fm);resize:vertical;box-sizing:border-box"></textarea>
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+        <button class="stg-btn primary" onclick="healthImportRun()" style="font-size:14px;padding:8px 20px">⬇ Parse &amp; Import</button>
+        <button class="stg-btn" onclick="document.getElementById('hi-raw').value=''">Clear</button>
+      </div>
+      <div id="hi-log" style="margin-top:14px;font-size:12px;font-family:var(--fm);color:var(--t2);white-space:pre-wrap;line-height:1.7"></div>
+    </div>`;
+}
+
+function healthImportRun(){
+  const raw = (document.getElementById('hi-raw')||{}).value || '';
+  if(!raw.trim()){ showToast('Paste your export text first'); return; }
+  const log = document.getElementById('hi-log');
+  log.textContent = 'Parsing...';
+
+  try {
+    const result = parseHealthExport(raw);
+    const date   = result.date;
+    const entry  = result.entry;
+
+    if(!date){ log.textContent = '❌ Could not detect date.\nMake sure your export starts with a date like "22 Mar 2026 at 4:18 PM"'; return; }
+
+    const fieldCount = Object.keys(entry).length;
+    if(fieldCount === 0){ log.textContent = '❌ No fields parsed. Check the export format.'; return; }
+
+    // Save into allData
+    if(!allData[date]) allData[date] = {};
+    // Existing manual entries win — health fills blanks
+    Object.keys(entry).forEach(k => {
+      if(allData[date][k] == null || allData[date][k] === '') allData[date][k] = entry[k];
+    });
+    saveData();
+    renderDashboard();
+
+    let lines = ['✅ Imported ' + date + ' — ' + fieldCount + ' fields:', ''];
+    Object.keys(entry).sort().forEach(k => {
+      const f = allFields().find(f=>f.key===k);
+      const label = f ? f.label : k;
+      lines.push('  ' + label + ': ' + entry[k] + (f&&f.unit?' '+f.unit:''));
+    });
+    log.textContent = lines.join('\n');
+    showToast('✅ Imported ' + fieldCount + ' fields for ' + date);
+
+  } catch(err) {
+    log.textContent = '❌ Error: ' + err.message;
+  }
+}
+
+function parseHealthExport(raw){
+  const entry = {};
+
+  // Detect date from export timestamp e.g. "22 Mar 2026 at 4:18 PM"
+  const MONTHS = {Jan:'01',Feb:'02',Mar:'03',Apr:'04',May:'05',Jun:'06',
+                  Jul:'07',Aug:'08',Sep:'09',Oct:'10',Nov:'11',Dec:'12'};
+  const tsMatch = raw.match(/(\d{1,2})\s+(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s+(\d{4})/);
+  let date = null;
+  if(tsMatch){
+    const dd = tsMatch[1].padStart(2,'0');
+    const mm = MONTHS[tsMatch[2]];
+    const yy = tsMatch[3];
+    // Export timestamp is today — we want yesterday (the day being synced)
+    const d = new Date(yy+'-'+mm+'-'+dd+'T12:00:00Z');
+    d.setUTCDate(d.getUTCDate()-1);
+    date = d.toISOString().slice(0,10);
+  }
+
+  const ACTIVITY_MAP = {
+    'walking':'walk','hiking':'walk','outdoor walk':'walk',
+    'running':'run','outdoor run':'run',
+    'cycling':'cycle','outdoor cycle':'cycle',
+    'traditional strength training':'strength','functional strength training':'strength','core training':'strength',
+    'yoga':'yoga','pilates':'yoga',
+    'hiit':'other','swimming':'other','elliptical':'other','rowing':'other','dance':'other','other':'other'
+  };
+
+  // Accumulators
+  let hrSamples=[],hrvSamples=[],spo2Samples=[],respSamples=[],soundSamples=[];
+  let walkAsym=[],walkDouble=[],walkSpeed=[],walkStep=[];
+  let sleepREM=0,sleepCore=0,sleepDeep=0,sleepAwake=0,sleepLeg=0;
+  let daylightMin=0,mindfulMin=0;
+  let wkWalkDist=0,wkWalkElev=0,wkWalkSpeedSum=0,wkWalkSpeedN=0;
+  let wkRunDist=0,wkRunElev=0,wkRunSpeedSum=0,wkRunSpeedN=0;
+  let wkCycleDist=0,wkCycleElev=0,wkCycleSpeedSum=0,wkCycleSpeedN=0;
+  let wkStrength=0,wkYoga=0,wkOther=0;
+
+  const blocks = raw.split(';');
+
+  blocks.forEach(block => {
+    block = block.trim();
+    if(block.length < 5) return;
+
+    const lines = block.split('\n').map(l=>l.trim()).filter(l=>l.length>0);
+    let headerIdx = -1;
+    for(let i=0;i<lines.length;i++){
+      if(lines[i].startsWith('Date,') || lines[i].startsWith(' Date,')){
+        headerIdx = i; break;
+      }
+    }
+    if(headerIdx === -1) return;
+
+    const hCols  = csvSplit(lines[headerIdx].trim());
+    const metric = hCols[1] ? hCols[1].trim() : '';
+    if(!metric) return;
+
+    const dataRows = lines.slice(headerIdx+1).filter(l=>/^\d{4}-\d{2}-\d{2}/.test(l));
+    if(!dataRows.length) return;
+
+    const fv = r => { const v=parseFloat(csvSplit(r)[1]); return isNaN(v)?null:v; };
+
+    // ── WORKOUT block (multi-column) ──
+    if(metric==='Active energy burned(kcal)' && hCols.length > 3){
+      dataRows.forEach(row => {
+        const c  = csvSplit(row);
+        const act = (c[2]||'').toLowerCase().trim();
+        const type = ACTIVITY_MAP[act]||'other';
+        const durM = (parseFloat(c[4])||0)/60;
+        const dist = parseFloat(c[3])||0;
+        const elev = parseFloat(c[5])||0;
+        const spd  = parseFloat(c[18])||0;
+        if(type==='walk'){
+          wkWalkDist+=dist; wkWalkElev+=elev;
+          if(dist>0&&durM>0){wkWalkSpeedSum+=dist/(durM/60);wkWalkSpeedN++;}
+        } else if(type==='run'){
+          wkRunDist+=dist; wkRunElev+=elev;
+          if(spd>0){wkRunSpeedSum+=spd;wkRunSpeedN++;}
+          else if(dist>0&&durM>0){wkRunSpeedSum+=dist/(durM/60);wkRunSpeedN++;}
+        } else if(type==='cycle'){
+          wkCycleDist+=dist; wkCycleElev+=elev;
+          if(dist>0&&durM>0){wkCycleSpeedSum+=dist/(durM/60);wkCycleSpeedN++;}
+        } else if(type==='strength'){ wkStrength+=durM; }
+        else if(type==='yoga')      { wkYoga+=durM; }
+        else                        { wkOther+=durM; }
+      });
+      return;
+    }
+
+    // ── SINGLE VALUE ──
+    const SINGLE = {
+      'Active energy burned(kcal)':           {key:'active_calories',  fn:v=>Math.round(v)},
+      'Basal energy burned(kcal)':            {key:'resting_calories', fn:v=>Math.round(v)},
+      'Stand time(min)':                      {key:'standing_mins',    fn:v=>Math.round(v)},
+      'Exercise time(min)':                   {key:'exercise_mins',    fn:v=>Math.round(v)},
+      'Step count(count)':                    {key:'steps',            fn:v=>Math.round(v)},
+      'Distance walking / running(km)':       {key:'distance_foot',    fn:v=>Math.round(v*100)/100},
+      'Flights climbed(count)':               {key:'stairs_climbed',   fn:v=>Math.round(v)},
+      'VO2 Max(mL/min·kg)':                   {key:'cardio_fitness',   fn:v=>Math.round(v*10)/10},
+      'Resting heart rate(count/min)':        {key:'resting_hr',       fn:v=>Math.round(v)},
+      'Walking heart rate average(count/min)':{key:'walking_hr',       fn:v=>Math.round(v)},
+      'State of Mind(Valence)':               {key:'state_of_mind',    fn:v=>Math.round(v)},
+    };
+
+    // ── HEART RATE — single = avg, many = raw for min/max ──
+    if(metric==='Heart rate(count/min)'){
+      if(dataRows.length===1){ const v=fv(dataRows[0]); if(v!=null) entry.heart_rate=Math.round(v*10)/10; }
+      else dataRows.forEach(r=>{const v=fv(r);if(v!=null&&v>30&&v<220)hrSamples.push(v);});
+      return;
+    }
+
+    if(SINGLE[metric]){
+      const v=fv(dataRows[0]); if(v!=null) entry[SINGLE[metric].key]=SINGLE[metric].fn(v);
+      return;
+    }
+
+    // ── TIME SERIES ──
+    const pushAll = (arr) => dataRows.forEach(r=>{const v=fv(r);if(v!=null)arr.push(v);});
+    if(metric==='Heart rate variability (SDNN)(ms)')    { pushAll(hrvSamples);  return; }
+    if(metric==='Oxygen saturation(%)')                 { pushAll(spo2Samples); return; }
+    if(metric==='Respiratory Rate(count/min)')          { pushAll(respSamples); return; }
+    if(metric==='Environmental sound levels(dBASPL)')   { pushAll(soundSamples);return; }
+    if(metric==='Walking asymmetry percentage(%)')      { pushAll(walkAsym);    return; }
+    if(metric==='Walking double support percentage(%)'){ pushAll(walkDouble);   return; }
+    if(metric==='Walking speed(km/hr)')                 { pushAll(walkSpeed);   return; }
+    if(metric==='Walking step length(cm)')              { pushAll(walkStep);    return; }
+
+    // ── SLEEP DURATION (hours) ──
+    const sumHrs = (acc) => { dataRows.forEach(r=>{const v=fv(r);if(v!=null)acc+=v;}); return acc; };
+    if(metric==='Time REM(hr)')   { dataRows.forEach(r=>{const v=fv(r);if(v)sleepREM+=v;});   return; }
+    if(metric==='Time core(hr)')  { dataRows.forEach(r=>{const v=fv(r);if(v)sleepCore+=v;});  return; }
+    if(metric==='Time deep(hr)')  { dataRows.forEach(r=>{const v=fv(r);if(v)sleepDeep+=v;});  return; }
+    if(metric==='Time awake(hr)') { dataRows.forEach(r=>{const v=fv(r);if(v)sleepAwake+=v;}); return; }
+    if(metric==='Time asleep(hr)'){ dataRows.forEach(r=>{const v=fv(r);if(v)sleepLeg+=v;});   return; }
+    if(metric==='Time in daylight(min)'){ dataRows.forEach(r=>{const v=fv(r);if(v)daylightMin+=v;}); return; }
+    if(metric==='Mindfulness(min)')     { dataRows.forEach(r=>{const v=fv(r);if(v)mindfulMin+=v;});  return; }
+  });
+
+  // ── Finalise aggregations ──
+  const avg = arr => arr.length ? arr.reduce((a,b)=>a+b,0)/arr.length : null;
+  const r0  = v => Math.round(v);
+  const r1  = v => Math.round(v*10)/10;
+  const r2  = v => Math.round(v*100)/100;
+
+  if(hrSamples.length){
+    entry.hr_low  = r0(Math.min(...hrSamples));
+    entry.hr_high = r0(Math.max(...hrSamples));
+    if(!entry.heart_rate) entry.heart_rate = r1(avg(hrSamples));
+  }
+  if(hrvSamples.length)   entry.hrv              = r1(avg(hrvSamples));
+  if(spo2Samples.length){
+    const s = avg(spo2Samples);
+    entry.blood_oxygen_high = r1(s < 2 ? s*100 : s);
+  }
+  if(respSamples.length){
+    entry.breath_low  = r1(Math.min(...respSamples));
+    entry.breath_high = r1(Math.max(...respSamples));
+  }
+  if(soundSamples.length) entry.surround_sound      = r1(avg(soundSamples));
+  if(walkAsym.length){    const a=avg(walkAsym);    entry.walk_asymmetry     = r1(a<1?a*100:a); }
+  if(walkDouble.length){  const a=avg(walkDouble);  entry.double_support_time= r1(a<1?a*100:a); }
+  if(walkSpeed.length){   const s=avg(walkSpeed);   if(s>0) entry.walk_avg_pace = r2(60/s); }
+  if(walkStep.length)     entry.walking_step_length = r1(avg(walkStep));
+
+  if(sleepREM   > 0) entry.sleep_rem   = r0(sleepREM*60);
+  if(sleepCore  > 0) entry.sleep_core  = r0(sleepCore*60);
+  if(sleepDeep  > 0) entry.sleep_deep  = r0(sleepDeep*60);
+  if(sleepAwake > 0) entry.sleep_awake = r0(sleepAwake*60);
+  if(sleepLeg   > 0) entry.asleep      = r0(sleepLeg*60);
+  const slTotal = sleepREM+sleepCore+sleepDeep+sleepAwake+sleepLeg;
+  if(slTotal    > 0) entry.total_sleep = r0(slTotal*60);
+
+  if(daylightMin > 0) entry.daylight     = r1(daylightMin);
+  if(mindfulMin  > 0) entry.mindful_mins = r1(mindfulMin);
+
+  if(wkWalkDist  > 0) entry.walk_distance   = r2(wkWalkDist);
+  if(wkWalkElev  > 0) entry.walk_elevation  = r0(wkWalkElev);
+  if(wkWalkSpeedN> 0) entry.walk_avg_pace   = r2(60/(wkWalkSpeedSum/wkWalkSpeedN));
+  if(wkRunDist   > 0) entry.run_distance    = r2(wkRunDist);
+  if(wkRunElev   > 0) entry.run_elevation   = r0(wkRunElev);
+  if(wkRunSpeedN > 0) entry.run_avg_pace    = r2(60/(wkRunSpeedSum/wkRunSpeedN));
+  if(wkCycleDist > 0) entry.cycle_distance  = r2(wkCycleDist);
+  if(wkCycleElev > 0) entry.cycle_elevation = r0(wkCycleElev);
+  if(wkCycleSpeedN>0) entry.cycle_avg_pace  = r1(wkCycleSpeedSum/wkCycleSpeedN);
+  if(wkStrength  > 0) entry.strength_training= r1(wkStrength);
+  if(wkYoga      > 0) entry.yoga_duration    = r1(wkYoga);
+  if(wkOther     > 0) entry.other_activity   = r1(wkOther);
+
+  return { date, entry };
+}
+
+// CSV line splitter (handles quoted fields)
+function csvSplit(line){
+  const result=[]; let cur='', inQ=false;
+  for(let i=0;i<line.length;i++){
+    const ch=line[i];
+    if(ch==='"'){ inQ=!inQ; }
+    else if(ch===','&&!inQ){ result.push(cur.trim()); cur=''; }
+    else { cur+=ch; }
+  }
+  result.push(cur.trim());
+  return result;
+}
+
 function renderStgPaste(){
   const sc = document.getElementById('stg-content');
   sc.innerHTML = `<div class="stg-panel on" id="sp-paste" style="padding:0;display:flex;flex-direction:column;height:calc(100vh - 120px)">
@@ -8966,7 +9154,7 @@ function renderStgPaste(){
           <button class="stg-btn" onclick="sheetGoNext()" style="padding:5px 12px;font-size:16px;line-height:1">›</button>
           <div style="width:1px;height:20px;background:var(--border2);margin:0 2px"></div>
           <button class="stg-btn" onclick="pasteDownloadTemplate()">⬇ CSV</button>
-          <button class="stg-btn primary" onclick="sheetSaveAll()" id="sheet-save-btn">💾 Save All</button>
+          <button class="stg-btn primary" onclick="sheetSaveAll()" id="sheet-save-btn"><img src="https://cdn-icons-png.flaticon.com/512/2734/2734428.png" width="13" height="13" style="vertical-align:middle;margin-right:3px"> Save All</button>
         </div>
       </div>
       <div id="sheet-msg" style="display:none;margin-top:8px;font-size:12px;color:var(--good)"></div>
@@ -9188,7 +9376,7 @@ function renderStgCustom(){
   const catOptions = CATS.map(c=>`<option value="${c.id}">${c.icon} ${c.label}</option>`).join('');
 
   sc.innerHTML = `<div class="stg-panel on" id="sp-custom">
-    <div class="stg-panel-title">➕Custom Fields</div>
+    <div class="stg-panel-title"><img src="https://cdn-icons-png.flaticon.com/512/1237/1237946.png" width="16" height="16" style="vertical-align:middle;margin-right:3px">Custom Fields</div>
     <div class="stg-panel-sub">Add your own metrics and assign them to a health category.</div>
 
     <!-- Add new -->
@@ -9225,7 +9413,7 @@ function renderStgCustom(){
             <div class="cf-name">${cf.label}</div>
             <div class="cf-meta">${cf.unit} · ${CATS.find(c=>c.id===cf.category)?.label||cf.category} · ${cf.scored?'Scored':'Not scored'}</div>
           </div>
-          <button class="cf-del" onclick="deleteCustomField(${i})">🗑</button>
+          <button class="cf-del" onclick="deleteCustomField(${i})"><img src="https://cdn-icons-png.flaticon.com/512/3221/3221929.png" width="13" height="13" style="vertical-align:middle;margin-right:0px"></button>
         </div>`).join('') : '<div style="color:var(--t4);font-size:13px;text-align:center;padding:20px">No custom fields yet</div>'}
     </div>
   </div>`;
@@ -9550,83 +9738,49 @@ function removeWidgetImage(widgetId, e){
 }
 
 // Returns an <img> tag if the icon is a URL, otherwise the emoji/text itself
-function renderFieldIcon(key, size){
+function renderFieldIcon(key){
   var v = fieldIcons[key];
   if(!v) return '';
-  var s = size || 18;
-  if(v.startsWith('http')) return '<img src="'+v+'" style="height:'+s+'px;width:'+s+'px;object-fit:contain;vertical-align:middle;border-radius:2px" onerror="this.style.display=\'none\'">';
+  if(v.startsWith('http')) return '<img src="'+v+'" style="height:18px;width:18px;object-fit:contain;vertical-align:middle;border-radius:2px" onerror="this.style.display=\'none\'">';
   return v;
 }
 
 // NAV ICONS — applies custom icons to sidebar, mobile nav, and dashboard card wm-ic badges
 const NAV_ICON_DEFS = [
-  // ── Sidebar + Mobile nav ──
-  {key:'dashboard',  label:'Dashboard',     sel:['#n-dashboard .nav-ic',    '#mob-nav-dashboard .mni-ic']},
-  {key:'log',        label:'Log Entry',     sel:['#n-log .nav-ic',          '#mob-nav-log .mni-ic']},
-  {key:'history',    label:'History',       sel:['#n-history .nav-ic',      '#mob-nav-history .mni-ic']},
-  {key:'energy',     label:'Energy',        sel:['#n-ah-energy .nav-ic',    '#mob-nav-energy .mni-ic']},
-  {key:'activity',   label:'Activity',      sel:['#n-ah-activity .nav-ic',  '#mob-nav-activity .mni-ic']},
-  {key:'workout',    label:'Workout',       sel:['#n-ah-workout .nav-ic',   '#mob-nav-workout .mni-ic']},
-  {key:'vitals',     label:'Vitals',        sel:['#n-ah-vitals .nav-ic',    '#mob-nav-vitals .mni-ic']},
-  {key:'sleep',      label:'Sleep & Mindful',sel:['#n-ah-sleep .nav-ic',    '#mob-nav-sleep .mni-ic']},
-  {key:'physique',   label:'Physique',      sel:['#n-ah-physique .nav-ic',  '#mob-nav-physique .mni-ic']},
-  {key:'nutrition',  label:'Nutrition',     sel:['#n-ah-nutrition .nav-ic', '#mob-nav-nutrition .mni-ic']},
-  {key:'screen',     label:'Screen',        sel:['#n-ah-screen .nav-ic',    '#mob-nav-screen .mni-ic']},
-  {key:'habits',     label:'Habits',        sel:['#n-ah-habits .nav-ic',    '#mob-nav-habits .mni-ic']},
-  {key:'paste',      label:'Grid Paste',    sel:['#n-paste .nav-ic',        '#mob-nav-paste .mni-ic']},
-  {key:'settings',   label:'Settings',      sel:['#n-settings .nav-ic',     '#mob-nav-settings .mni-ic']},
-  // ── Dashboard row 2: wm-ic badges ──
+  {key:'dashboard',  label:'Dashboard',     sel:['#n-dashboard .nav-ic',    '.mob-nav-item[onclick*="dashboard"] .mni-ic']},
+  {key:'log',        label:'Log Entry',     sel:['#n-log .nav-ic',          '.mob-nav-item[onclick*="log"] .mni-ic']},
+  {key:'history',    label:'History',       sel:['#n-history .nav-ic',      '.mob-nav-item[onclick*="history"] .mni-ic']},
+  {key:'energy',     label:'Energy',        sel:['#n-ah-energy .nav-ic',    '.mob-nav-item[onclick*="energy"] .mni-ic']},
+  {key:'activity',   label:'Activity',      sel:['#n-ah-activity .nav-ic',  '.mob-nav-item[onclick*="activity"] .mni-ic']},
+  {key:'workout',    label:'Workout',       sel:['#n-ah-workout .nav-ic',   '.mob-nav-item[onclick*="workout"] .mni-ic']},
+  {key:'vitals',     label:'Vitals',        sel:['#n-ah-vitals .nav-ic',    '.mob-nav-item[onclick*="vitals"] .mni-ic']},
+  {key:'sleep',      label:'Sleep',         sel:['#n-ah-sleep .nav-ic',     '.mob-nav-item[onclick*="sleep"] .mni-ic']},
+  {key:'physique',   label:'Physique',      sel:['#n-ah-physique .nav-ic',  '.mob-nav-item[onclick*="physique"] .mni-ic']},
+  {key:'nutrition',  label:'Nutrition',     sel:['#n-ah-nutrition .nav-ic', '.mob-nav-item[onclick*="nutrition"] .mni-ic']},
+  {key:'screen',     label:'Screen',        sel:['#n-ah-screen .nav-ic',    '.mob-nav-item[onclick*="screen"] .mni-ic']},
+  {key:'habits',     label:'Habits',        sel:['#n-ah-habits .nav-ic',    '.mob-nav-item[onclick*="habits"] .mni-ic']},
+  {key:'settings',   label:'Settings',      sel:['#n-settings .nav-ic',     '.mob-nav-item[onclick*="settings"] .mni-ic']},
+  // Dashboard card wm-ic badges
   {key:'wm-acal',    label:'Card: Active Cal',   sel:['#w-acal .wm-ic']},
   {key:'wm-steps',   label:'Card: Steps',        sel:['#w-steps .wm-ic']},
   {key:'wm-stand',   label:'Card: Standing',     sel:['#w-stand .wm-ic']},
   {key:'wm-exer',    label:'Card: Exercise',     sel:['#w-exer .wm-ic']},
-  // ── Dashboard row 3: card label icons ──
-  {key:'wm-walk',    label:'Card: Walk',         sel:['#w-dist-ic']},
-  {key:'wm-cycle',   label:'Card: Cycle',        sel:['#w-cycle-ic']},
-  {key:'wm-run',     label:'Card: Run',          sel:['#w-run-ic']},
-  // ── Dashboard row 4: card label icons ──
-  {key:'wm-str',     label:'Card: Strength',     sel:['#w-str-ic']},
-  {key:'wm-yoga',    label:'Card: Yoga',         sel:['#w-yoga-ic']},
-  {key:'wm-mindful-ic', label:'Card: Mindful',   sel:['#w-mindful-ic']},
-  // ── Dashboard row 5: wm-ic badges ──
   {key:'wm-hr',      label:'Card: Heart Rate',   sel:['#w-hr .wm-ic']},
   {key:'wm-cardio',  label:'Card: Cardio',       sel:['#w-cardio .wm-ic']},
+  {key:'wm-mindful', label:'Card: Mindful',      sel:['#w-mindful .wm-ic']},
   {key:'wm-hrv',     label:'Card: HRV',          sel:['#w-hrv .wm-ic']},
-  {key:'wm-sleep',   label:'Card: Sleep',        sel:['#w-sleep-ic']},
-  // ── Screen widget bar icons (via fieldIcons) ──
-  {key:'fi-book_time',    label:'Screen: Book',     fi:'book_time'},
-  {key:'fi-movie_time',   label:'Screen: Movie',    fi:'movie_time'},
-  {key:'fi-youtube_time', label:'Screen: YouTube',  fi:'youtube_time'},
-  {key:'fi-reddit_time',  label:'Screen: Reddit',   fi:'reddit_time'},
-  {key:'fi-twitter_time', label:'Screen: Twitter/X',fi:'twitter_time'},
-  {key:'fi-mobile_time',  label:'Screen: Mobile',   fi:'mobile_time'},
-  {key:'fi-tablet_time',  label:'Screen: Tablet',   fi:'tablet_time'},
-  {key:'fi-laptop_time',  label:'Screen: Laptop',   fi:'laptop_time'},
 ];
 
 function applyNavIcons(){
   NAV_ICON_DEFS.forEach(function(def){
     if(!navIcons[def.key]) return;
     var val = navIcons[def.key];
-    // fi: entries update fieldIcons (used by screen widget SCR_META)
-    if(def.fi){
-      if(!fieldIcons) fieldIcons = {};
-      fieldIcons[def.fi] = val;
-      return;
-    }
-    if(!def.sel) return;
     def.sel.forEach(function(selector){
       var el = document.querySelector(selector);
       if(!el) return;
-      var isWmIc  = el.classList.contains('wm-ic');
-      var isMniIc = el.classList.contains('mni-ic');
-      var isNavIc = el.classList.contains('nav-ic');
-      var imgSize = isWmIc ? 22 : isMniIc ? 28 : isNavIc ? 22 : 18;
-      var emSz    = isWmIc ? '22px' : isMniIc ? '28px' : isNavIc ? '20px' : '16px';
       if(val.startsWith('http')){
-        el.innerHTML = '<img src="'+val+'" style="height:'+imgSize+'px;width:'+imgSize+'px;object-fit:contain;vertical-align:middle;border-radius:3px" onerror="this.style.display=\'none\'">';
+        el.innerHTML = '<img src="'+val+'" style="height:26px;width:26px;object-fit:contain;vertical-align:middle;border-radius:3px" onerror="this.style.display=\'none\'">';
       } else {
-        el.style.fontSize = emSz;
         el.textContent = val;
       }
     });
@@ -9677,10 +9831,7 @@ function saveNavIcon(){
   if(!key||!val){ showToast('Pick a nav item and enter emoji or URL'); return; }
   navIcons[key] = val;
   saveStgState(); applyNavIcons();
-  // If it's a field icon entry, also refresh the dashboard screen widget
-  var def = NAV_ICON_DEFS.find(function(d){ return d.key===key; });
-  if(def && def.fi){ saveStgState(); if(typeof renderDashboard==='function') renderDashboard(); }
-  showToast('Icon saved');
+  showToast('Nav icon saved');
 }
 
 function removeNavIcon(){
@@ -9801,7 +9952,7 @@ function renderStgData(){
   const allD = allDates();
   const lastExport = localStorage.getItem('ws2_last_export') || null;
   sc.innerHTML = `<div class="stg-panel on" id="sp-data">
-    <div class="stg-panel-title">📦Data Management</div>
+    <div class="stg-panel-title"><img src="https://cdn-icons-png.flaticon.com/512/724/724933.png" width="16" height="16" style="vertical-align:middle;margin-right:3px">Data Management</div>
     <div class="stg-panel-sub">Export, import, and manage your health data.</div>
 
     <!-- ── CROSS-DEVICE SYNC ── -->
@@ -9821,7 +9972,7 @@ function renderStgData(){
 
       <div style="margin-top:10px;display:flex;gap:16px;flex-wrap:wrap">
         <div style="font-size:11px;color:var(--t4)">
-          📅${allD.length} days of data
+          <img src="https://cdn-icons-png.flaticon.com/512/2693/2693507.png" width="12" height="12" style="vertical-align:middle;margin-right:2px">${allD.length} days of data
         </div>
         ${lastExport ? `<div style="font-size:11px;color:var(--t4)">Last export: ${lastExport}</div>` : ''}
       </div>
@@ -9885,7 +10036,7 @@ function renderStgData(){
         <div class="stg-row-label" style="color:var(--danger)">Delete All Data</div>
         <div class="stg-row-sub">Permanently removes all ${allD.length} days of data</div>
       </div>
-      <button class="stg-btn danger" onclick="deleteAllData()">🗑 Delete All</button>
+      <button class="stg-btn danger" onclick="deleteAllData()"><img src='https://cdn-icons-png.flaticon.com/512/3221/3221929.png' width='13' height='13' style='vertical-align:middle;margin-right:3px'> Delete All</button>
     </div>
   </div>`;
 }
@@ -10133,7 +10284,7 @@ function renderStgSync(){
   const connected = !!(syncConfig.url && syncConfig.secret);
 
   sc.innerHTML = `<div class="stg-panel on" id="sp-sync">
-    <div class="stg-panel-title">☁️Google Sheets Sync</div>
+    <div class="stg-panel-title"><img src="https://cdn-icons-png.flaticon.com/512/2344/2344938.png" width="16" height="16" style="vertical-align:middle;margin-right:3px">Google Sheets Sync</div>
     <div class="stg-panel-sub">Two-way sync with Google Sheets via Apps Script. Your data stays in your sheet.</div>
 
     <div class="sync-status-bar">
@@ -10151,11 +10302,11 @@ function renderStgSync(){
       <input class="stg-input wide" type="password" id="sync-secret" value="${syncConfig.secret||''}" placeholder="your_secret_key" style="width:200px">
     </div>
     <div style="display:flex;gap:8px;margin:12px 0;flex-wrap:wrap">
-      <button class="stg-btn primary" onclick="saveSyncConfig()">💾 Save Config</button>
-      <button class="stg-btn" onclick="testSyncConnection()">⚙️Test Connection</button>
-      <button class="stg-btn primary" onclick="doSync('push')">☁️Push to Sheets</button>
+      <button class="stg-btn primary" onclick="saveSyncConfig()"><img src="https://cdn-icons-png.flaticon.com/512/2734/2734428.png" width="13" height="13" style="vertical-align:middle;margin-right:3px"> Save Config</button>
+      <button class="stg-btn" onclick="testSyncConnection()"><img src="https://cdn-icons-png.flaticon.com/512/3524/3524659.png" width="13" height="13" style="vertical-align:middle;margin-right:3px">Test Connection</button>
+      <button class="stg-btn primary" onclick="doSync('push')"><img src="https://cdn-icons-png.flaticon.com/512/2344/2344938.png" width="13" height="13" style="vertical-align:middle;margin-right:3px">Push to Sheets</button>
       <button class="stg-btn" onclick="doSync('pull')">⬇ Pull from Sheets</button>
-      <button class="stg-btn" onclick="copySyncScript()">📋Copy Apps Script</button>
+      <button class="stg-btn" onclick="copySyncScript()"><img src="https://cdn-icons-png.flaticon.com/512/1585/1585484.png" width="13" height="13" style="vertical-align:middle;margin-right:3px">Copy Apps Script</button>
     </div>
 
     <div class="stg-divider"></div>
@@ -10620,7 +10771,7 @@ function renderStgGist(){
   const allD = allDates();
 
   sc.innerHTML = `<div class="stg-panel on" id="sp-gist">
-    <div class="stg-panel-title">🐙GitHub Gist Sync</div>
+    <div class="stg-panel-title"><img src="https://cdn-icons-png.flaticon.com/512/2111/2111432.png" width="16" height="16" style="vertical-align:middle;margin-right:3px">GitHub Gist Sync</div>
     <div class="stg-panel-sub">Free, permanent sync via GitHub Gist. No Google account needed. Your data is stored as a private JSON file on GitHub.</div>
 
     <div class="sync-status-bar">
@@ -10650,8 +10801,8 @@ function renderStgGist(){
       <input class="stg-input wide" id="gist-token-inp" type="password" value="${gistConfig.token||''}" placeholder="ghp_xxxxxxxxxxxx" style="width:240px;font-family:var(--fm);font-size:12px">
     </div>
     <div class="stg-row" style="margin-top:4px">
-      <button class="stg-btn primary" onclick="saveGistSettings()">💾 Save</button>
-      ${connected?`<button class="stg-btn" onclick="gistPing()">⚙️Test</button>`:''}
+      <button class="stg-btn primary" onclick="saveGistSettings()"><img src="https://cdn-icons-png.flaticon.com/512/2734/2734428.png" width="13" height="13" style="vertical-align:middle;margin-right:3px"> Save</button>
+      ${connected?`<button class="stg-btn" onclick="gistPing()"><img src="https://cdn-icons-png.flaticon.com/512/3524/3524659.png" width="13" height="13" style="vertical-align:middle;margin-right:3px">Test</button>`:''}
     </div>
 
     ${connected?`
@@ -10783,7 +10934,7 @@ function gistApplyPayload(payload){
         localStorage.setItem('ws2_wimgs', JSON.stringify(existing));
       } catch(e){}
     }
-    loadTargets(); loadProfile(); loadTheme(); loadStgState(); loadSchedule();
+    loadTargets(); loadProfile(); loadTheme(); loadStgState();
     setTimeout(applyNavIcons, 100);
     setTimeout(applyWidgetImages, 100);
   }
