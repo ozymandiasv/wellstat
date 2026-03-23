@@ -8991,10 +8991,14 @@ function parseHealthExport(raw){
     const dd = tsMatch[1].padStart(2,'0');
     const mm = MONTHS[tsMatch[2]];
     const yy = tsMatch[3];
-    // Export timestamp is today — we want yesterday (the day being synced)
-    const d = new Date(yy+'-'+mm+'-'+dd+'T12:00:00Z');
-    d.setUTCDate(d.getUTCDate()-1);
-    date = d.toISOString().slice(0,10);
+    // Use the export timestamp date directly — manual paste = same day
+    date = yy+'-'+mm+'-'+dd;
+  }
+
+  // Fallback: read date directly from first data row if timestamp not found
+  if(!date){
+    const rowMatch = raw.match(/(\d{4}-\d{2}-\d{2})/);
+    if(rowMatch) date = rowMatch[1];
   }
 
   const ACTIVITY_MAP = {
