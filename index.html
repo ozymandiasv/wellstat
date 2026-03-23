@@ -8897,6 +8897,31 @@ function renderStgHealthImport(){
     </div>`;
 }
 
+// Fields that don't change daily — carry forward from most recent previous entry
+const CARRY_FORWARD_KEYS = [
+  'weight','bmi','body_fat_ratio','muscle_rate','body_water','bone_mass',
+  'visceral_fat','subcutaneous_fat','protein_mass','muscle_mass','lean_body_mass','waist_size',
+  'cardio_fitness','cardio_recovery',
+  'bp_systolic','bp_diastolic','blood_glucose',
+  'blood_oxygen_high',
+];
+
+function getCarryForwardValues(date){
+  // Find most recent previous date that has any of these fields
+  const prevDates = allDates().filter(d => d < date).sort().reverse();
+  const carried = {};
+  CARRY_FORWARD_KEYS.forEach(key => {
+    for(let i = 0; i < prevDates.length; i++){
+      const v = (allData[prevDates[i]] || {})[key];
+      if(v != null && v !== ''){
+        carried[key] = v;
+        break;
+      }
+    }
+  });
+  return carried;
+}
+
 function healthImportRun(){
   const raw = (document.getElementById('hi-raw')||{}).value || '';
   if(!raw.trim()){ showToast('Paste your export text first'); return; }
@@ -8913,23 +8938,41 @@ function healthImportRun(){
     const fieldCount = Object.keys(entry).length;
     if(fieldCount === 0){ log.textContent = '❌ No fields parsed. Check the export format.'; return; }
 
-    // Save into allData
+    // Carry forward fields not in today's export from most recent previous entry
+    const carried = getCarryForwardValues(date);
+    const carriedKeys = [];
+    Object.keys(carried).forEach(k => {
+      if(entry[k] == null) { entry[k] = carried[k]; carriedKeys.push(k); }
+    });
+
+    // Save into allData — existing manual entries win, health fills blanks
     if(!allData[date]) allData[date] = {};
-    // Existing manual entries win — health fills blanks
     Object.keys(entry).forEach(k => {
       if(allData[date][k] == null || allData[date][k] === '') allData[date][k] = entry[k];
     });
     saveData();
     renderDashboard();
 
-    let lines = ['✅ Imported ' + date + ' — ' + fieldCount + ' fields:', ''];
+    // Build log
+    const totalFields = Object.keys(entry).length;
+    let lines = ['✅ Imported ' + date + ' — ' + totalFields + ' fields:', ''];
     Object.keys(entry).sort().forEach(k => {
       const f = allFields().find(f=>f.key===k);
       const label = f ? f.label : k;
-      lines.push('  ' + label + ': ' + entry[k] + (f&&f.unit?' '+f.unit:''));
+      const flag  = carriedKeys.includes(k) ? ' ↩ carried forward' : '';
+      lines.push('  ' + label + ': ' + entry[k] + (f&&f.unit?' '+f.unit:'') + flag);
     });
     log.textContent = lines.join('\n');
-    showToast('✅ Imported ' + fieldCount + ' fields for ' + date);
+    showToast('✅ Imported ' + totalFields + ' fields for ' + date);
+
+    // Auto-push to Gist if configured
+    try {
+      const gc = JSON.parse(localStorage.getItem('ws2_gist') || '{}');
+      if(gc.gistId && gc.token){
+        log.textContent += '\n\nPushing to Gist...';
+        gistPush();
+      }
+    } catch(e) {}
 
   } catch(err) {
     log.textContent = '❌ Error: ' + err.message;
