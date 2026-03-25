@@ -843,6 +843,75 @@ canvas{display:block}
   .ah-w1,.ah-w2 { grid-column:span 1; }
   .ah-w3,.ah-w4 { grid-column:span 2; }
   .log-fields { grid-template-columns:repeat(2,1fr); }
+
+  /* ── LOG ENTRY MOBILE FIX ── */
+  .log-layout {
+    display:flex;
+    flex-direction:column;
+    height:auto;
+    gap:0;
+  }
+  .log-hdr {
+    padding:8px 0 10px;
+    gap:8px;
+  }
+  .log-hdr-left {
+    flex-wrap:nowrap;
+    gap:6px;
+  }
+  .log-date-inp {
+    font-size:12px;
+    padding:6px 10px;
+  }
+  .log-nav-btn {
+    padding:5px 9px;
+    font-size:11px;
+  }
+  .log-save-btn {
+    padding:6px 14px;
+    font-size:12px;
+  }
+  /* Hide left category panel on mobile — use a scrollable tab strip instead */
+  .log-left-panel {
+    display:flex;
+    flex-direction:row;
+    overflow-x:auto;
+    overflow-y:hidden;
+    height:auto!important;
+    max-height:none!important;
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:var(--rs);
+    padding:6px 6px;
+    margin-bottom:8px;
+    gap:4px;
+    flex-shrink:0;
+    scrollbar-width:none;
+    -webkit-overflow-scrolling:touch;
+  }
+  .log-left-panel::-webkit-scrollbar { display:none; }
+  .log-left-panel .log-sec-lbl { display:none; }
+  .log-nav-item {
+    flex-direction:row;
+    white-space:nowrap;
+    flex-shrink:0;
+    padding:6px 10px;
+    font-size:11px;
+    border-radius:20px;
+  }
+  .log-nav-item .lni-ic {
+    width:20px;
+    height:20px;
+    font-size:12px;
+  }
+  .log-right-panel {
+    flex:1;
+    min-height:60vh;
+    overflow:visible;
+  }
+  .log-fields-scroll {
+    overflow:visible;
+  }
 }
 
 
@@ -1632,7 +1701,7 @@ canvas{display:block}
             <div class="stg-nav-item on" onclick="showStgPanel('profile')" id="sni-profile"><img src="https://cdn-icons-png.flaticon.com/512/1077/1077114.png" width="14" height="14" style="vertical-align:middle;margin-right:5px"> Profile</div>
             <div class="stg-nav-item" onclick="showStgPanel('targets')" id="sni-targets"><img src="https://cdn-icons-png.flaticon.com/512/2247/2247878.png" width="14" height="14" style="vertical-align:middle;margin-right:5px"> Targets</div>
             <div class="stg-nav-item" onclick="showStgPanel('schedule')" id="sni-schedule"><img src="https://cdn-icons-png.flaticon.com/512/2693/2693507.png" width="14" height="14" style="vertical-align:middle;margin-right:5px"> Schedule</div>
-            <div class="stg-nav-item" onclick="showStgPanel('paste')" id="sni-paste"><img src="https://cdn-icons-png.flaticon.com/512/1585/1585484.png" width="14" height="14" style="vertical-align:middle;margin-right:5px"> Quick Paste</div>
+
             <div class="stg-nav-item" onclick="showStgPanel('healthimport')" id="sni-healthimport">🍎 Health Import</div>
             <div class="stg-nav-item" onclick="showStgPanel('custom')" id="sni-custom"><img src="https://cdn-icons-png.flaticon.com/512/1237/1237946.png" width="14" height="14" style="vertical-align:middle;margin-right:5px"> Custom Fields</div>
             <div class="stg-nav-item" onclick="showStgPanel('looks')" id="sni-looks"><img src="https://cdn-icons-png.flaticon.com/512/1048/1048955.png" width="14" height="14" style="vertical-align:middle;margin-right:5px"> Customise Looks</div>
@@ -2327,6 +2396,24 @@ function computeScore(date){
   const wScore = Math.min(100, Math.round(wRawTotal));
   const workoutElite = wRawTotal > 100;
   catScores.workout = wScore;
+
+  // ── Sleep duration cap: if total_sleep < 5h (300min), cap sleep category score ──
+  // This prevents a high Apple sleep_score (e.g. 94) from inflating the score
+  // when actual sleep duration is severely short (e.g. 4h37m).
+  if(catScores.sleep != null){
+    const tsMins = e['total_sleep']; // stored in minutes
+    if(tsMins != null && tsMins > 0){
+      // Below 4h (240min) → cap at 20. Scale linearly up to 6h (360min).
+      const VERY_BAD = 240, ADEQUATE = 360;
+      if(tsMins < ADEQUATE){
+        const durationCap = tsMins <= VERY_BAD
+          ? 20
+          : Math.round(20 + (tsMins - VERY_BAD) / (ADEQUATE - VERY_BAD) * 60); // 20→80
+        catScores.sleep = Math.min(catScores.sleep, durationCap);
+      }
+    }
+  }
+
   const wTypes = WACT_KEYS.filter(k=>{ const v=e[k]; return v!=null&&v>0; }).length;
   const wCompleted = wActScores50.filter(s=>s>0).length;
   const workoutBonus = workoutElite ? 5 : wCompleted>=2 ? 3 : 0;
@@ -5958,20 +6045,16 @@ function energyOptCalNext(){ energyOptCalMonth++; if(energyOptCalMonth>11){energ
 
 function energyOptCellClick(date){
   const cur = getEnergyOptPct(date);
-  // 4-step cycle: 100 → 0 (skip) → 25 → 50 → 75 → 100
   const cycle = [100, 0, 25, 50, 75];
-  const idx = cycle.indexOf(cur);
-  const next = cycle[(idx + 1) % cycle.length];
-  setEnergyOptDay(date, next);
-  // Re-render the full Energy page so streak calendar reflects new opt-out
-  renderAHEnergy();
+  setEnergyOptDay(date, cycle[(cycle.indexOf(cur)+1)%cycle.length]);
+  renderEnergyOptCalendar();   // refresh old page-based cal if present
+  renderStgEnergyOptCal();     // refresh settings cal
   renderDashboard();
 }
 
 function clearAllEnergyOpts(){
   energyOptDays = {};
   saveSchedule();
-  renderAHEnergy();
   renderDashboard();
   showToast('Energy opt-outs cleared');
 }
@@ -6001,6 +6084,7 @@ function renderAHEnergy(){
 
   // Streak calendar (streak counts day if actual/adjusted target met proportionally)
   left += ahSectionTitle(_iconImg(ICON_URLS.calories,16),'Active Cal Streak — Last 30 Days');
+  left += '<div style="font-size:10px;color:var(--t4);margin-bottom:6px;margin-top:-6px">Opt-out: <button onclick="showPage(\'settings\');setTimeout(()=>{showStgPanel(\'schedule\');schedShowTab(\'energy\');},120)" style="background:none;border:none;color:var(--accent);font-size:10px;cursor:pointer;padding:0;font-family:var(--fb);text-decoration:underline">Settings → Schedule → Energy Opt</button></div>';
   left += buildStreakCalendar([
     {key:'active_calories', label:'Active Cal Goal', icon:_iconImg(ICON_URLS.calories,16),
       done:(val, date)=>{
@@ -6024,31 +6108,165 @@ function renderAHEnergy(){
     },
   ], 30);
 
-  // ── RIGHT PANEL — Opt-Out Calendar ──────────
-  const right = `
-    <div style="font-size:12px;font-weight:700;color:var(--t1);margin-bottom:4px;display:flex;align-items:center;gap:6px">
-      ${_iconImg(ICON_URLS.energy,14)} Energy Opt-Out
-    </div>
-    <div style="font-size:10px;color:var(--t3);margin-bottom:10px;line-height:1.5">Tap any day to cycle its credit. Streak continues when proportional target is met.</div>
-    <div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:10px">
-      <span style="font-size:9px;padding:2px 7px;border-radius:8px;background:rgba(239,68,68,.15);color:var(--danger);font-weight:700">✕ Skip</span>
-      <span style="font-size:9px;padding:2px 7px;border-radius:8px;background:rgba(245,158,11,.15);color:var(--warn);font-weight:700">25%</span>
-      <span style="font-size:9px;padding:2px 7px;border-radius:8px;background:rgba(245,158,11,.12);color:var(--warn);font-weight:600">50%</span>
-      <span style="font-size:9px;padding:2px 7px;border-radius:8px;background:rgba(245,158,11,.09);color:var(--warn);font-weight:500">75%</span>
-      <span style="font-size:9px;padding:2px 7px;border-radius:8px;background:var(--surface2);color:var(--t3)">100% Normal</span>
-    </div>
-    <div id="energy-opt-cal-wrap"></div>
-    <button onclick="clearAllEnergyOpts()" style="margin-top:10px;width:100%;padding:6px;border-radius:var(--rs);background:var(--surface2);border:1px solid var(--border);color:var(--t4);font-size:11px;cursor:pointer;font-family:var(--fb)">Reset all opt-outs</button>
-    <div style="margin-top:14px;border-top:1px solid var(--border);padding-top:12px">${renderLocalInsightsHtml('energy', dates)}</div>`;
+  // ── RIGHT PANEL — Energy Analytics ──────────
+  const eDates14 = dates.slice(-14);
+  const activeCals  = dates.map(d=>parseFloat((allData[d]||{}).active_calories)||0);
+  const restingCals = dates.map(d=>parseFloat((allData[d]||{}).resting_calories)||0);
+  const netBalances = dates.map(d=>{ const e=computeAllFields(getEntry(d)); return e.net_energy_balance??null; });
+  const avgActive  = activeCals.filter(v=>v>0).length ? Math.round(activeCals.filter(v=>v>0).reduce((a,b)=>a+b,0)/activeCals.filter(v=>v>0).length) : null;
+  const avgResting = restingCals.filter(v=>v>0).length ? Math.round(restingCals.filter(v=>v>0).reduce((a,b)=>a+b,0)/restingCals.filter(v=>v>0).length) : null;
+  const avgNet     = netBalances.filter(v=>v!=null).length ? Math.round(netBalances.filter(v=>v!=null).reduce((a,b)=>a+b,0)/netBalances.filter(v=>v!=null).length) : null;
 
-  // Assemble two-panel layout
-  const html = `<div class="ah-energy-layout">
-    <div class="ah-energy-left">${left}</div>
-    <div class="ah-energy-right">${right}</div>
-  </div>`;
+  // ── Calorie Donut ──────────────────────────────
+  let calDonut = '';
+  if(avgActive!=null && avgResting!=null){
+    const total = avgActive + avgResting;
+    const actPct = Math.round(avgActive/total*100);
+    const cx=55, cy=55, r=44, ir=28;
+    function buildArc(startPct, endPct, col){
+      const s = startPct/100*2*Math.PI - Math.PI/2;
+      const e = endPct/100*2*Math.PI   - Math.PI/2;
+      const sweep = e - s;
+      if(sweep < 0.01) return '';
+      const x1=cx+r*Math.cos(s), y1=cy+r*Math.sin(s);
+      const x2=cx+r*Math.cos(e), y2=cy+r*Math.sin(e);
+      const ix1=cx+ir*Math.cos(s), iy1=cy+ir*Math.sin(s);
+      const ix2=cx+ir*Math.cos(e), iy2=cy+ir*Math.sin(e);
+      const lg = sweep > Math.PI ? 1 : 0;
+      return '<path d="M'+x1.toFixed(1)+','+y1.toFixed(1)+' A'+r+','+r+' 0 '+lg+',1 '+x2.toFixed(1)+','+y2.toFixed(1)+' L'+ix2.toFixed(1)+','+iy2.toFixed(1)+' A'+ir+','+ir+' 0 '+lg+',0 '+ix1.toFixed(1)+','+iy1.toFixed(1)+' Z" fill="'+col+'" opacity="0.9"/>';
+    }
+    const netCol = avgNet!=null&&avgNet>=0 ? 'var(--good)' : 'var(--danger)';
+    const netDisp = avgNet!=null ? ((avgNet>=0?'+':'')+avgNet) : '\u2014';
+    calDonut = '<div style="margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid var(--border)">'
+      +'<div style="font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">'+_iconImg(ICON_URLS.calories,12)+' Calorie Split (avg)</div>'
+      +'<div style="display:flex;align-items:center;gap:14px">'
+        +'<div style="flex-shrink:0">'
+          +'<svg width="110" height="110" viewBox="0 0 110 110">'
+            +buildArc(0, actPct, '#FF6B35')
+            +buildArc(actPct, 100, '#3B82F6')
+            +'<circle cx="55" cy="55" r="26" fill="var(--solidbg)"/>'
+            +'<text x="55" y="52" text-anchor="middle" font-size="10" font-weight="800" fill="var(--t1)" font-family="var(--fd)">'+Math.round(total)+'</text>'
+            +'<text x="55" y="62" text-anchor="middle" font-size="7" fill="var(--t3)">kcal</text>'
+          +'</svg>'
+        +'</div>'
+        +'<div style="flex:1;display:flex;flex-direction:column;gap:6px">'
+          +'<div style="display:flex;align-items:center;gap:6px">'
+            +'<div style="width:9px;height:9px;border-radius:50%;background:#FF6B35;flex-shrink:0"></div>'
+            +'<span style="font-size:10px;color:var(--t3);flex:1">Active</span>'
+            +'<span style="font-size:13px;font-weight:800;color:#FF6B35;font-family:var(--fd)">'+avgActive+'</span>'
+          +'</div>'
+          +'<div style="display:flex;align-items:center;gap:6px">'
+            +'<div style="width:9px;height:9px;border-radius:50%;background:#3B82F6;flex-shrink:0"></div>'
+            +'<span style="font-size:10px;color:var(--t3);flex:1">Resting</span>'
+            +'<span style="font-size:13px;font-weight:800;color:#3B82F6;font-family:var(--fd)">'+avgResting+'</span>'
+          +'</div>'
+          +'<div style="display:flex;align-items:center;gap:6px">'
+            +'<div style="width:9px;height:9px;border-radius:50%;background:'+netCol+';flex-shrink:0"></div>'
+            +'<span style="font-size:10px;color:var(--t3);flex:1">Net Balance</span>'
+            +'<span style="font-size:13px;font-weight:800;color:'+netCol+';font-family:var(--fd)">'+netDisp+'</span>'
+          +'</div>'
+        +'</div>'
+      +'</div>'
+    +'</div>';
+  }
+
+  // ── Activity Consistency ───────────────────────
+  const acTgt = getTarget ? ((getTarget('active_calories')||{}).lo||300) : 300;
+  const consistDays = activeCals.filter(v=>v>=acTgt).length;
+  const consistPct  = dates.length ? Math.round(consistDays/dates.length*100) : 0;
+  const consistCol  = consistPct>=80?'var(--good)':consistPct>=60?'var(--accent)':consistPct>=40?'var(--warn)':'var(--danger)';
+  const consistBar  = '<div style="margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid var(--border)">'
+    +'<div style="font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">\uD83C\uDFAF Activity Consistency</div>'
+    +'<div style="display:flex;align-items:center;gap:10px">'
+      +'<div style="flex:1">'
+        +'<div style="height:8px;background:var(--border2);border-radius:10px;overflow:hidden;margin-bottom:5px">'
+          +'<div style="height:100%;background:'+consistCol+';width:'+consistPct+'%;border-radius:10px;transition:width .6s ease"></div>'
+        +'</div>'
+        +'<div style="font-size:10px;color:var(--t3)">'+consistDays+' of '+dates.length+' days \u2265 '+acTgt+' cal</div>'
+      +'</div>'
+      +'<div style="font-family:var(--fd);font-size:22px;font-weight:900;color:'+consistCol+'">'+consistPct+'%</div>'
+    +'</div>'
+  +'</div>';
+
+  // ── Fit Point Correlation ──────────────────────
+  const fpCorrPts = dates.map(d=>({fp:parseFloat((allData[d]||{}).google_fit_points)||0, ac:parseFloat((allData[d]||{}).active_calories)||0})).filter(p=>p.fp>0&&p.ac>0);
+  let fpCorr = '';
+  if(fpCorrPts.length>=3){
+    const maxFp=Math.max(...fpCorrPts.map(p=>p.fp),1), maxAc=Math.max(...fpCorrPts.map(p=>p.ac),1);
+    const W=220, H=70, PAD=8;
+    const dots = fpCorrPts.slice(-14).map(p=>{
+      const x=PAD+(p.fp/maxFp)*(W-PAD*2), y=H-PAD-(p.ac/maxAc)*(H-PAD*2);
+      return '<circle cx="'+x.toFixed(1)+'" cy="'+y.toFixed(1)+'" r="3" fill="var(--accent)" opacity="0.7"/>';
+    }).join('');
+    const n=fpCorrPts.length, sx=fpCorrPts.reduce((s,p)=>s+p.fp,0), sy=fpCorrPts.reduce((s,p)=>s+p.ac,0);
+    const mx=sx/n, my=sy/n;
+    const num=fpCorrPts.reduce((s,p)=>s+(p.fp-mx)*(p.ac-my),0);
+    const den=fpCorrPts.reduce((s,p)=>s+(p.fp-mx)**2,0)||1;
+    const m=num/den, b=my-m*mx;
+    const tx1=PAD, ty1=H-PAD-(Math.max(0,Math.min(maxAc,b))/maxAc)*(H-PAD*2);
+    const tx2=PAD+(W-PAD*2), ty2=H-PAD-(Math.max(0,Math.min(maxAc,m*maxFp+b))/maxAc)*(H-PAD*2);
+    const rc=Math.sqrt((num*num)/(den*(fpCorrPts.reduce((s,p)=>s+(p.ac-my)**2,0)||1)));
+    const rcCol = rc>0.6?'var(--good)':rc>0.3?'var(--accent)':'var(--t3)';
+    const rcLbl = rc>0.6?'Strong link':'Weak link';
+    fpCorr = '<div style="margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid var(--border)">'
+      +'<div style="font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">\uD83D\uDCCA Fit Points vs Active Cal</div>'
+      +'<svg width="100%" viewBox="0 0 '+W+' '+H+'" style="overflow:visible">'
+        +'<line x1="'+PAD+'" y1="'+PAD+'" x2="'+PAD+'" y2="'+(H-PAD)+'" stroke="var(--border)" stroke-width="1"/>'
+        +'<line x1="'+PAD+'" y1="'+(H-PAD)+'" x2="'+(W-PAD)+'" y2="'+(H-PAD)+'" stroke="var(--border)" stroke-width="1"/>'
+        +'<line x1="'+tx1.toFixed(1)+'" y1="'+ty1.toFixed(1)+'" x2="'+tx2.toFixed(1)+'" y2="'+ty2.toFixed(1)+'" stroke="var(--accent)" stroke-width="1.5" stroke-dasharray="3,3" opacity="0.5"/>'
+        +dots
+        +'<text x="'+PAD+'" y="'+(PAD-2)+'" font-size="7" fill="var(--t4)">Active Cal</text>'
+        +'<text x="'+(W-PAD)+'" y="'+(H-1)+'" font-size="7" fill="var(--t4)" text-anchor="end">Fit Pts</text>'
+      +'</svg>'
+      +'<div style="font-size:10px;color:var(--t3);margin-top:4px">Correlation r = <strong style="color:'+rcCol+'">'+rc.toFixed(2)+'</strong> \u00B7 '+rcLbl+' between fit points &amp; burn</div>'
+    +'</div>';
+  }
+
+  // ── Metabolic Shift ────────────────────────────
+  const avg7ac  = (() => { const vs=allDates().slice(-7).map(d=>parseFloat((allData[d]||{}).active_calories)||0).filter(v=>v>0);  return vs.length?Math.round(vs.reduce((a,b)=>a+b,0)/vs.length):null; })();
+  const avg30ac = (() => { const vs=allDates().slice(-30).map(d=>parseFloat((allData[d]||{}).active_calories)||0).filter(v=>v>0); return vs.length?Math.round(vs.reduce((a,b)=>a+b,0)/vs.length):null; })();
+  let metShift = '';
+  if(avg7ac!=null && avg30ac!=null){
+    const diff=avg7ac-avg30ac, shiftPct=Math.round(diff/avg30ac*100);
+    const arrow=diff>0?'\u2191':'\u2193', shiftCol=diff>0?'var(--good)':'var(--danger)';
+    metShift = '<div style="margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid var(--border)">'
+      +'<div style="font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">\uD83D\uDCC8 Metabolic Shift</div>'
+      +'<div style="display:flex;gap:8px">'
+        +'<div style="flex:1;background:var(--surface2);border-radius:var(--rs);padding:8px;text-align:center">'
+          +'<div style="font-size:9px;color:var(--t4);margin-bottom:2px">7D Avg</div>'
+          +'<div style="font-size:16px;font-weight:800;color:var(--t1);font-family:var(--fd)">'+avg7ac+'</div>'
+          +'<div style="font-size:8px;color:var(--t4)">kcal</div>'
+        +'</div>'
+        +'<div style="flex:1;background:var(--surface2);border-radius:var(--rs);padding:8px;text-align:center">'
+          +'<div style="font-size:9px;color:var(--t4);margin-bottom:2px">30D Avg</div>'
+          +'<div style="font-size:16px;font-weight:800;color:var(--t1);font-family:var(--fd)">'+avg30ac+'</div>'
+          +'<div style="font-size:8px;color:var(--t4)">kcal</div>'
+        +'</div>'
+        +'<div style="flex:1;background:var(--surface2);border-radius:var(--rs);padding:8px;text-align:center">'
+          +'<div style="font-size:9px;color:var(--t4);margin-bottom:2px">Shift</div>'
+          +'<div style="font-size:16px;font-weight:800;color:'+shiftCol+';font-family:var(--fd)">'+arrow+Math.abs(shiftPct)+'%</div>'
+          +'<div style="font-size:8px;color:var(--t4)">'+(diff>0?'+':'')+diff+' kcal</div>'
+        +'</div>'
+      +'</div>'
+    +'</div>';
+  }
+
+  const right = '<div style="font-size:12px;font-weight:700;color:var(--t1);margin-bottom:12px;display:flex;align-items:center;gap:6px">'
+    +_iconImg(ICON_URLS.energy,14)+' Energy Analytics'
+    +'</div>'
+    +calDonut
+    +consistBar
+    +fpCorr
+    +metShift
+    +'<div style="border-top:1px solid var(--border);padding-top:12px">'+renderLocalInsightsHtml('energy', dates)+'</div>';
+
+  const html = '<div class="ah-energy-layout">'
+    +'<div class="ah-energy-left">'+left+'</div>'
+    +'<div class="ah-energy-right">'+right+'</div>'
+    +'</div>';
 
   document.getElementById('ah-energy-content').innerHTML = html;
-  requestAnimationFrame(renderEnergyOptCalendar);
+  // Note: opt-out calendar moved to Settings > Schedule > Energy Opt
 }
 
 // ── ACTIVITY ─────────────────────────────────
@@ -6099,17 +6317,15 @@ function activityOptCalNext(){ activityOptCalMonth++; if(activityOptCalMonth>11)
 function activityOptCellClick(date){
   const cur = getActivityOptPct(date);
   const cycle = [100, 0, 25, 50, 75];
-  const idx = cycle.indexOf(cur);
-  const next = cycle[(idx + 1) % cycle.length];
-  setActivityOptDay(date, next);
-  renderAHActivity(); // re-render full page so streak updates
+  setActivityOptDay(date, cycle[(cycle.indexOf(cur)+1)%cycle.length]);
+  renderActivityOptCalendar();  // refresh old page-based cal if present
+  renderStgActivityOptCal();    // refresh settings cal
   renderDashboard();
 }
 
 function clearAllActivityOpts(){
   activityOptDays = {};
   saveSchedule();
-  renderAHActivity();
   renderDashboard();
   showToast('Activity opt-outs cleared');
 }
@@ -6151,6 +6367,7 @@ function renderAHActivity(){
 
   // Streak with activity opt-out logic
   left += ahSectionTitle(_iconImg(ICON_URLS.steps,16),'Activity Streak — Last 30 Days');
+  left += '<div style="font-size:10px;color:var(--t4);margin-bottom:6px;margin-top:-6px">Opt-out: <button onclick="showPage(\'settings\');setTimeout(()=>{showStgPanel(\'schedule\');schedShowTab(\'activity\');},120)" style="background:none;border:none;color:var(--accent);font-size:10px;cursor:pointer;padding:0;font-family:var(--fb);text-decoration:underline">Settings → Schedule → Activity Opt</button></div>';
   left += buildStreakCalendar([
     {key:'steps', label:'Steps Goal', icon:_iconImg(ICON_URLS.steps,16),
       done:(val, date)=>{
@@ -6181,22 +6398,88 @@ function renderAHActivity(){
     },
   ], 30);
 
-  // ── RIGHT PANEL — Opt-Out Calendar ──────────
+  // ── RIGHT PANEL — Activity Analytics ─────────
+  const stepsTarget = getTarget ? (getTarget('steps')?.lo || 10000) : 10000;
+  const exTarget    = getTarget ? (getTarget('exercise_mins')?.lo || 45) : 45;
+  const stairsTarget= getTarget ? (getTarget('stairs_climbed')?.lo || 10) : 10;
+  const standTarget = getTarget ? (getTarget('standing_mins')?.lo || 120) : 120;
+
+  // 30D averages
+  const allD30 = allDates().slice(-30);
+  function avg30(key){ const vs=allD30.map(d=>parseFloat((allData[d]||{})[key])||0).filter(v=>v>0); return vs.length?Math.round(vs.reduce((a,b)=>a+b,0)/vs.length):null; }
+  const avg30steps  = avg30('steps');
+  const avg30ex     = avg30('exercise_mins');
+  const avg30stairs = avg30('stairs_climbed');
+  const avg30stand  = avg30('standing_mins');
+
+  // 7D averages for trend comparison
+  const allD7 = allDates().slice(-7);
+  function avg7(key){ const vs=allD7.map(d=>parseFloat((allData[d]||{})[key])||0).filter(v=>v>0); return vs.length?Math.round(vs.reduce((a,b)=>a+b,0)/vs.length):null; }
+  const avg7steps  = avg7('steps');
+  const avg7ex     = avg7('exercise_mins');
+  const avg7stairs = avg7('stairs_climbed');
+  const avg7stand  = avg7('standing_mins');
+
+  function intensityRow(label, avg7v, avg30v, tgt, unit){
+    if(avg7v==null && avg30v==null) return '';
+    const diff = avg7v!=null&&avg30v!=null ? avg7v-avg30v : null;
+    const pct  = diff!=null&&avg30v>0 ? Math.round(diff/avg30v*100) : null;
+    const arrow= diff==null?'':diff>0?'↑':'↓';
+    const col  = diff==null?'var(--t3)':diff>0?'var(--good)':'var(--danger)';
+    const tgtBar = tgt&&avg7v!=null ? Math.min(100,Math.round(avg7v/tgt*100)) : null;
+    const tgtCol = tgtBar==null?'var(--border2)':tgtBar>=100?'var(--good)':tgtBar>=75?'var(--accent)':tgtBar>=50?'var(--warn)':'var(--danger)';
+    return '<div style="margin-bottom:8px;padding:8px 10px;background:var(--surface2);border-radius:var(--rs)">' +
+      '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">' +
+        '<span style="font-size:10px;font-weight:700;color:var(--t2)">' + label + '</span>' +
+        (pct!=null ? '<span style="font-size:10px;font-weight:700;color:' + col + '">' + arrow + Math.abs(pct) + '% vs 30D</span>' : '') +
+      '</div>' +
+      '<div style="display:flex;justify-content:space-between;font-size:10px;color:var(--t3);margin-bottom:4px">' +
+        '<span>7D avg: <strong style="color:var(--t1)">' + (avg7v!=null?avg7v.toLocaleString()+''+unit:'—') + '</strong></span>' +
+        '<span>30D avg: <strong style="color:var(--t1)">' + (avg30v!=null?avg30v.toLocaleString()+''+unit:'—') + '</strong></span>' +
+      '</div>' +
+      (tgtBar!=null ? '<div style="height:4px;background:var(--border2);border-radius:4px;overflow:hidden"><div style="height:100%;background:' + tgtCol + ';width:' + tgtBar + '%;border-radius:4px"></div></div>' : '') +
+    '</div>';
+  }
+
+  // Sedentary vs Active Gap
+  const sedVsAct = (() => {
+    const d = allDates().slice(-14);
+    const sedMin  = d.map(dt=>{ const e=(allData[dt]||{}); const sc=(parseFloat(e.mobile_time)||0)+(parseFloat(e.laptop_time)||0)+(parseFloat(e.tablet_time)||0); return sc; }).filter(v=>v>0);
+    const actMin  = d.map(dt=>parseFloat((allData[dt]||{}).exercise_mins)||0).filter(v=>v>0);
+    const avgSed  = sedMin.length ? Math.round(sedMin.reduce((a,b)=>a+b,0)/sedMin.length) : null;
+    const avgActv = actMin.length ? Math.round(actMin.reduce((a,b)=>a+b,0)/actMin.length) : null;
+    return {avgSed, avgActv};
+  })();
+
+  let sedGapHtml = '';
+  if(sedVsAct.avgSed!=null || sedVsAct.avgActv!=null){
+    const total = (sedVsAct.avgSed||0)+(sedVsAct.avgActv||0)||1;
+    const actPct= sedVsAct.avgActv ? Math.round(sedVsAct.avgActv/total*100) : 0;
+    sedGapHtml = '<div style="margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid var(--border)">' +
+      '<div style="font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">📊 Sedentary vs Active Gap</div>' +
+      '<div style="display:flex;height:12px;border-radius:6px;overflow:hidden;margin-bottom:6px">' +
+        '<div style="background:var(--good);width:' + actPct + '%;border-radius:6px 0 0 6px;transition:width .5s"></div>' +
+        '<div style="background:var(--border2);flex:1;border-radius:0 6px 6px 0"></div>' +
+      '</div>' +
+      '<div style="display:flex;justify-content:space-between;font-size:10px">' +
+        '<span style="color:var(--good)">Active: ' + (sedVsAct.avgActv!=null?sedVsAct.avgActv+'min':'—') + '</span>' +
+        '<span style="color:var(--t3)">Screen: ' + (sedVsAct.avgSed!=null?sedVsAct.avgSed+'min':'—') + '</span>' +
+      '</div>' +
+    '</div>';
+  }
+
   const right = `
-    <div style="font-size:12px;font-weight:700;color:var(--t1);margin-bottom:4px;display:flex;align-items:center;gap:6px">
-      ${_iconImg(ICON_URLS.steps,14)} Activity Opt-Out
+    <div style="font-size:12px;font-weight:700;color:var(--t1);margin-bottom:12px;display:flex;align-items:center;gap:6px">
+      ${_iconImg(ICON_URLS.steps,14)} Intensity Comparison
     </div>
-    <div style="font-size:10px;color:var(--t3);margin-bottom:10px;line-height:1.5">Tap a day to set credit. Streak continues when proportional target is met.</div>
-    <div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:10px">
-      <span style="font-size:9px;padding:2px 7px;border-radius:8px;background:rgba(239,68,68,.15);color:var(--danger);font-weight:700">✕ Skip</span>
-      <span style="font-size:9px;padding:2px 7px;border-radius:8px;background:rgba(245,158,11,.15);color:var(--warn);font-weight:700">25%</span>
-      <span style="font-size:9px;padding:2px 7px;border-radius:8px;background:rgba(245,158,11,.12);color:var(--warn);font-weight:600">50%</span>
-      <span style="font-size:9px;padding:2px 7px;border-radius:8px;background:rgba(245,158,11,.09);color:var(--warn);font-weight:500">75%</span>
-      <span style="font-size:9px;padding:2px 7px;border-radius:8px;background:var(--surface2);color:var(--t3)">100% Normal</span>
+    <div style="margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid var(--border)">
+      ${intensityRow('🦶 Steps', avg7steps, avg30steps, stepsTarget, '')}
+      ${intensityRow('🏃 Exercise', avg7ex, avg30ex, exTarget, 'min')}
+      ${intensityRow('🪜 Stairs', avg7stairs, avg30stairs, stairsTarget, '')}
+      ${intensityRow('🧍 Standing', avg7stand, avg30stand, standTarget, 'min')}
     </div>
-    <div id="activity-opt-cal-wrap"></div>
-    <button onclick="clearAllActivityOpts()" style="margin-top:10px;width:100%;padding:6px;border-radius:var(--rs);background:var(--surface2);border:1px solid var(--border);color:var(--t4);font-size:11px;cursor:pointer;font-family:var(--fb)">Reset all opt-outs</button>
-    <div style="margin-top:14px;border-top:1px solid var(--border);padding-top:12px">${renderLocalInsightsHtml('activity', dates)}</div>`;
+    ${sedGapHtml}
+    <div style="border-top:1px solid var(--border);padding-top:12px">${renderLocalInsightsHtml('activity', dates)}</div>`;
 
   const html = `<div class="ah-energy-layout">
     <div class="ah-energy-left">${left}</div>
@@ -6204,7 +6487,7 @@ function renderAHActivity(){
   </div>`;
 
   document.getElementById('ah-activity-content').innerHTML = html;
-  requestAnimationFrame(renderActivityOptCalendar);
+  // Note: opt-out calendar moved to Settings > Schedule > Activity Opt
 }
 
 // ── WORKOUT ──────────────────────────────────
@@ -6230,6 +6513,12 @@ function loadWorkoutOpts(){
 function saveWorkoutOpts(){
   localStorage.setItem('ws2_workout_opt',  JSON.stringify(workoutOptDays));
   localStorage.setItem('ws2_workout_week', JSON.stringify(workoutWeekSched));
+}
+function _refreshWeekPlan(){
+  // Re-render the schedule page without closing the panel (prevents dropdown close)
+  if(typeof _schedTab !== 'undefined' && _schedTab === 'week'){
+    renderStgSchedule();
+  }
 }
 function getWorkoutOptPct(exKey, date){
   return (workoutOptDays[exKey] && workoutOptDays[exKey][date] != null) ? workoutOptDays[exKey][date] : 100;
@@ -6285,7 +6574,7 @@ function workoutOptCalPrev(){workoutOptCalMonth--;if(workoutOptCalMonth<0){worko
 function workoutOptCalNext(){workoutOptCalMonth++;if(workoutOptCalMonth>11){workoutOptCalMonth=0;workoutOptCalYear++;}renderWorkoutOptCalendar();}
 
 function workoutOptDayClick(date){
-  const panel=document.getElementById('workout-day-panel');
+  const panel=document.getElementById('stg-workout-day-panel')||document.getElementById('workout-day-panel');
   if(!panel) return;
   const cycle=[100,0,25,50,75];
   let html=`<div style="font-size:11px;font-weight:700;color:var(--t2);margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid var(--border)">${date}</div>`;
@@ -6297,16 +6586,18 @@ function workoutOptDayClick(date){
       <button onclick="workoutExOptClick('${ex.key}','${date}')" style="font-size:10px;font-weight:700;padding:2px 10px;border-radius:8px;border:1px solid var(--border);background:var(--surface2);color:${color};cursor:pointer">${pct===0?'Skip':pct<100?pct+'%':'Normal'}</button>
     </div>`;
   });
-  html+=`<button onclick="document.getElementById('workout-day-panel').style.display='none'" style="margin-top:8px;width:100%;font-size:10px;color:var(--t4);background:none;border:none;cursor:pointer">Close</button>`;
+  const _panelId = document.getElementById('stg-workout-day-panel') ? 'stg-workout-day-panel' : 'workout-day-panel';
+  html+=`<button onclick="document.getElementById('${_panelId}').style.display='none'" style="margin-top:8px;width:100%;font-size:10px;color:var(--t4);background:none;border:none;cursor:pointer">Close</button>`;
   panel.innerHTML=html; panel.style.display='block';
 }
 function workoutExOptClick(exKey,date){
   const cur=getWorkoutOptPct(exKey,date);
   const cycle=[100,0,25,50,75];
   setWorkoutOptDay(exKey,date,cycle[(cycle.indexOf(cur)+1)%cycle.length]);
-  workoutOptDayClick(date);
-  renderWorkoutOptCalendar();
-  renderAHWorkout();
+  workoutOptDayClick(date);            // re-render day panel
+  renderWorkoutOptCalendar();          // refresh old page-cal if present
+  renderStgWorkoutOptCal();            // refresh settings cal
+  renderDashboard();
 }
 
 function buildWorkoutWeekTab(){
@@ -6477,26 +6768,129 @@ function renderAHWorkout(){
 
   // ── COLLAPSIBLE STREAK ────────────────────────
   left+=ahSectionTitle(_iconImg(ICON_URLS.strength,16),'Streak');
+  left+='<div style="font-size:10px;color:var(--t4);margin-bottom:6px;margin-top:-6px">Opt-out & weekly plan: <button onclick="showPage(\'settings\');setTimeout(()=>{showStgPanel(\'schedule\');schedShowTab(\'workout\');},120)" style="background:none;border:none;color:var(--accent);font-size:10px;cursor:pointer;padding:0;font-family:var(--fb);text-decoration:underline">Settings → Schedule</button></div>';
   left+=buildWorkoutStreakSection();
 
-  // ── WEEKLY SCHEDULE ───────────────────────────
-  left+=buildWorkoutWeekTab();
+  // ── RIGHT PANEL — Workout Analytics ──────────
+  // Completion donut: how many activity types completed today / in period
+  const WACT_KEYS_PANEL = ['walk_distance','run_distance','cycle_distance','strength_training','yoga_duration','other_activity'];
+  const WACT_ICONS_PANEL = ['🚶','🏃','🚴','💪','🧘','⚡'];
+  const WACT_LABELS_PANEL= ['Walk','Run','Cycle','Strength','Yoga','Other'];
+  const WACT_COLORS_PANEL= ['#3B82F6','#10B981','#F59E0B','#8B5CF6','#EC4899','#06B6D4'];
 
-  // ── RIGHT PANEL ───────────────────────────────
+  // Latest day completion
+  const latestD = dates[dates.length-1]||null;
+  const latestEntry = latestD ? (allData[latestD]||{}) : {};
+  const completedKeys = WACT_KEYS_PANEL.filter(k=>parseFloat(latestEntry[k]||0)>0);
+  const nCompleted = completedKeys.length;
+  const nTotal = WACT_KEYS_PANEL.length;
+
+  // Donut: each completed slice = equal share, grey = remaining
+  let donutPaths = '';
+  {
+    const cx=55,cy=55,r=44,ir=30;
+    const nSlices = Math.max(nCompleted,1);
+    const sliceAngle = 2*Math.PI/nSlices;
+    let ang = -Math.PI/2;
+    if(nCompleted===0){
+      donutPaths = '<circle cx="55" cy="55" r="44" fill="#E5E7EB" opacity="0.5"/><circle cx="55" cy="55" r="30" fill="var(--solidbg)"/>';
+    } else {
+      completedKeys.forEach((k,i)=>{
+        const col = WACT_COLORS_PANEL[WACT_KEYS_PANEL.indexOf(k)];
+        const sweep = sliceAngle;
+        const x1=cx+r*Math.cos(ang), y1=cy+r*Math.sin(ang);
+        const x2=cx+r*Math.cos(ang+sweep), y2=cy+r*Math.sin(ang+sweep);
+        const ix1=cx+ir*Math.cos(ang), iy1=cy+ir*Math.sin(ang);
+        const ix2=cx+ir*Math.cos(ang+sweep), iy2=cy+ir*Math.sin(ang+sweep);
+        const lg = sweep>Math.PI?1:0;
+        const gap=0.04;
+        const ga=ang+gap, ge=ang+sweep-gap;
+        const gx1=cx+r*Math.cos(ga), gy1=cy+r*Math.sin(ga);
+        const gx2=cx+r*Math.cos(ge), gy2=cy+r*Math.sin(ge);
+        const gix1=cx+ir*Math.cos(ga), giy1=cy+ir*Math.sin(ga);
+        const gix2=cx+ir*Math.cos(ge), giy2=cy+ir*Math.sin(ge);
+        donutPaths += '<path d="M'+gx1.toFixed(1)+','+gy1.toFixed(1)+' A'+r+','+r+' 0 '+lg+',1 '+gx2.toFixed(1)+','+gy2.toFixed(1)+' L'+gix2.toFixed(1)+','+giy2.toFixed(1)+' A'+ir+','+ir+' 0 '+lg+',0 '+gix1.toFixed(1)+','+giy1.toFixed(1)+' Z" fill="'+col+'" opacity="0.9"/>';
+        ang+=sweep;
+      });
+    }
+  }
+  const donutComment = nCompleted===0?'No activity logged today':nCompleted===1?'Good start — add more variety':nCompleted===2?'Goal reached — 2 activities complete! 🎯':nCompleted>=3?'Outstanding — '+nCompleted+' activities today! 🔥':'';
+  const donutLabel = nCompleted>=2?'100':''+Math.round(nCompleted/2*100);
+
+  // 30D avg for performance gap
+  function wkAvg30(key){ const vs=allDates().slice(-30).map(d=>parseFloat((allData[d]||{})[key])||0).filter(v=>v>0); return vs.length?vs.reduce((a,b)=>a+b,0)/vs.length:null; }
+  const perfGap = WACT_KEYS_PANEL.map((k,i)=>{
+    const todayV = parseFloat(latestEntry[k]||0)||0;
+    const avg30v = wkAvg30(k);
+    const label30 = WACT_LABELS_PANEL[i];
+    let status = 'Off/Rest';
+    if(todayV>0 && avg30v!=null){
+      const ratio = todayV/avg30v;
+      status = ratio>=1.1?'Above avg 🔥':ratio>=0.9?'Normal ✓':ratio>=0.5?'Light session':'Recovery';
+    } else if(todayV>0) status='Active ✓';
+    const col = status.includes('Above')?'var(--good)':status.includes('Normal')||status.includes('Active')?'var(--accent)':status.includes('Light')?'var(--warn)':'var(--t4)';
+    return {key:k, icon:WACT_ICONS_PANEL[i], label:label30, col:WACT_COLORS_PANEL[i], todayV, avg30v, status, colStatus:col};
+  }).filter(p=>p.todayV>0||p.avg30v!=null);
+
   const right=`
-    <div style="font-size:12px;font-weight:700;color:var(--t1);margin-bottom:4px;display:flex;align-items:center;gap:6px">
-      ${_iconImg(ICON_URLS.strength,14)} Workout Opt-Out
+    <div style="font-size:12px;font-weight:700;color:var(--t1);margin-bottom:12px;display:flex;align-items:center;gap:6px">
+      ${_iconImg(ICON_URLS.strength,14)} Workout Analytics
     </div>
-    <div style="font-size:10px;color:var(--t3);margin-bottom:10px;line-height:1.5">Tap a day to set per-exercise credit.</div>
-    <div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:10px">
-      <span style="font-size:9px;padding:2px 7px;border-radius:8px;background:rgba(239,68,68,.15);color:var(--danger);font-weight:700">✕ Skip</span>
-      <span style="font-size:9px;padding:2px 7px;border-radius:8px;background:rgba(245,158,11,.15);color:var(--warn);font-weight:700">Partial</span>
-      <span style="font-size:9px;padding:2px 7px;border-radius:8px;background:var(--surface2);color:var(--t3)">Normal</span>
+
+    <!-- Completion Donut -->
+    <div style="margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid var(--border)">
+      <div style="font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">Today's Completion</div>
+      <div style="display:flex;align-items:center;gap:14px">
+        <div style="flex-shrink:0;position:relative">
+          <svg width="110" height="110" viewBox="0 0 110 110">
+            ${donutPaths}
+            <circle cx="55" cy="55" r="28" fill="var(--solidbg)"/>
+            <text x="55" y="51" text-anchor="middle" font-size="14" font-weight="900" fill="var(--t1)" font-family="var(--fd)">${donutLabel}</text>
+            <text x="55" y="62" text-anchor="middle" font-size="8" fill="var(--t3)">${nCompleted>=2?'score':nCompleted+'/2'}</text>
+          </svg>
+        </div>
+        <div style="flex:1;display:flex;flex-direction:column;gap:5px">
+          ${WACT_KEYS_PANEL.map((k,i)=>{
+            const done=parseFloat(latestEntry[k]||0)>0;
+            const val=parseFloat(latestEntry[k]||0);
+            const dispVal=val>0?(k.includes('distance')?fmtNum(val,1)+'km':fmtTime(val)):'—';
+            return '<div style="display:flex;align-items:center;gap:5px;opacity:'+(done?1:0.35)+'">'+
+              '<div style="width:8px;height:8px;border-radius:50%;background:'+WACT_COLORS_PANEL[i]+';flex-shrink:0"></div>'+
+              '<span style="font-size:10px;color:var(--t3);flex:1">'+WACT_ICONS_PANEL[i]+' '+WACT_LABELS_PANEL[i]+'</span>'+
+              '<span style="font-size:10px;font-weight:700;color:var(--t1)">'+dispVal+'</span>'+
+            '</div>';
+          }).join('')}
+        </div>
+      </div>
+      <div style="margin-top:8px;padding:6px 10px;background:${nCompleted>=2?'rgba(16,185,129,.1)':nCompleted>=1?'rgba(59,130,246,.08)':'var(--surface2)'};border-radius:var(--rs);font-size:10px;font-weight:600;color:${nCompleted>=2?'var(--good)':nCompleted>=1?'var(--accent)':'var(--t4)'};text-align:center">
+        ${donutComment||'Log activities above to track completion'}
+      </div>
     </div>
-    <div id="workout-opt-cal-wrap"></div>
-    <div id="workout-day-panel" style="display:none;margin-top:10px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);padding:10px 12px"></div>
-    <button onclick="workoutOptDays={};saveWorkoutOpts();renderAHWorkout()" style="margin-top:10px;width:100%;padding:6px;border-radius:var(--rs);background:var(--surface2);border:1px solid var(--border);color:var(--t4);font-size:11px;cursor:pointer;font-family:var(--fb)">Reset all opt-outs</button>
-    <div style="margin-top:14px;border-top:1px solid var(--border);padding-top:12px">${renderLocalInsightsHtml('workout',dates)}</div>`;
+
+    <!-- Performance Gap -->
+    <div style="margin-bottom:14px">
+      <div style="font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">Performance Gap (vs 30D avg)</div>
+      <div style="display:flex;flex-direction:column;gap:5px">
+        ${perfGap.slice(0,5).map(p=>{
+          const todayDisp=p.todayV>0?(p.key.includes('distance')?fmtNum(p.todayV,1)+'km':fmtTime(p.todayV)):'—';
+          const avgDisp=p.avg30v!=null?(p.key.includes('distance')?fmtNum(p.avg30v,1)+'km':fmtTime(Math.round(p.avg30v))):'—';
+          return '<div style="padding:7px 10px;background:var(--surface2);border-radius:var(--rs);border-left:3px solid '+p.col+'">'+
+            '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:2px">'+
+              '<span style="font-size:10px;font-weight:700;color:var(--t2)">'+p.icon+' '+p.label+'</span>'+
+              '<span style="font-size:9px;font-weight:700;color:'+p.colStatus+'">'+p.status+'</span>'+
+            '</div>'+
+            '<div style="display:flex;justify-content:space-between;font-size:9px;color:var(--t4)">'+
+              '<span>Today: <strong style="color:var(--t1)">'+todayDisp+'</strong></span>'+
+              '<span>30D avg: <strong style="color:var(--t3)">'+avgDisp+'</strong></span>'+
+            '</div>'+
+          '</div>';
+        }).join('')}
+        ${perfGap.length===0?'<div style="font-size:11px;color:var(--t4);text-align:center;padding:12px">No workout data in period</div>':''}
+      </div>
+      ${perfGap.some(p=>p.status==='Recovery'||p.status==='Off/Rest')?'<div style="margin-top:8px;padding:7px 10px;background:rgba(245,158,11,.1);border-radius:var(--rs);font-size:10px;color:var(--warn)">💡 Low movement day — Yoga or light activity can maintain metabolic rate</div>':''}
+    </div>
+
+    <div style="border-top:1px solid var(--border);padding-top:12px">${renderLocalInsightsHtml('workout',dates)}</div>`;
 
   const html=`<div class="ah-energy-layout">
     <div class="ah-energy-left">${left}</div>
@@ -6504,7 +6898,7 @@ function renderAHWorkout(){
   </div>`;
 
   document.getElementById('ah-workout-content').innerHTML=html;
-  requestAnimationFrame(renderWorkoutOptCalendar);
+  // Note: opt-out calendar moved to Settings > Schedule > Workout Opt
 }
 function renderAHVitals(){
   const pageId = 'vitals';
@@ -7382,7 +7776,6 @@ function buildPhysiqueRightPanel(allD, w, fat, mus, wat, bon, prt, bAge, dates){
               <div style="width:9px;height:9px;border-radius:50%;background:${s.col};flex-shrink:0"></div>
               <span style="font-size:10px;color:var(--t3);width:46px">${s.lbl}</span>
               <span style="font-size:12px;font-weight:800;color:var(--t1);font-family:var(--fd)">${fmt(s.kg,1)}<span style="font-size:9px;font-weight:400;color:var(--t4)">kg</span></span>
-              <span style="font-size:10px;color:${s.col};font-weight:700;margin-left:auto">${s.pct}</span>
             </div>`).join('')}
         </div>
       </div>
@@ -7591,29 +7984,44 @@ function buildStreakCalendar(rowDefs, nDays){
         : (val!=null&&val!==undefined);
 
       const isOptOut = (ok === null); // null = opt-out free pass
-      const bg = rest ? 'var(--border)' : isOptOut ? 'var(--warn)' : (!has?'var(--border2)':ok?'var(--good)':'var(--danger)');
-      const opacity = rest ? 0.5 : isOptOut ? 0.4 : (has ? 0.9 : 0.15);
+      // Visual style: filled pill for success, ring for opt-out, faint for miss, bed for rest
+      let cellStyle = '', cellContent = badge;
+      if(rest){
+        cellStyle = 'background:var(--surface2);border:1px solid var(--border);opacity:0.5;';
+        cellContent = '<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:11px">🛌</div>';
+      } else if(isOptOut){
+        cellStyle = 'background:transparent;border:2px dashed var(--warn);opacity:0.7;';
+        cellContent = '<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:900;color:var(--warn)">~</div>';
+      } else if(!has){
+        cellStyle = 'background:var(--border2);opacity:0.18;';
+      } else if(ok){
+        // Gradient fill for success
+        cellStyle = 'background:linear-gradient(135deg,var(--good),#059669);box-shadow:0 1px 4px rgba(16,185,129,.35);';
+      } else {
+        cellStyle = 'background:var(--danger);opacity:0.55;';
+      }
       const title = rest ? 'Rest day' : isOptOut ? 'Opt-out (free pass)' : (has ? (hd.multiCount ? `${hd.multiCount(d)} workouts` : String(val)) : 'no data');
-      const restIcon = rest ? `<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:10px">🛌</div>` : '';
-      const optIcon = isOptOut ? `<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:800;color:rgba(255,255,255,.9)">~</div>` : '';
 
-      return `<div style="width:${CELL}px;flex-shrink:0;padding:2px 1px;position:relative">
-        <div title="${title}" style="width:${CELL-4}px;height:${CELL-4}px;border-radius:5px;
-          background:${bg};opacity:${opacity};position:relative;
+      return `<div style="width:${CELL}px;flex-shrink:0;padding:1px;position:relative">
+        <div title="${title}" style="width:${CELL-2}px;height:${CELL-2}px;border-radius:6px;
+          ${cellStyle}position:relative;
           ${isLatest?'outline:2px solid var(--accent);outline-offset:1px;':''}">
-          ${rest ? restIcon : isOptOut ? optIcon : badge}
+          ${cellContent}
         </div>
       </div>`;
     }).join('');
 
     // ── Streak stat panel ──
+    const streakCol = curStreak>=30?'#047857':curStreak>=14?'var(--good)':curStreak>=7?'var(--accent)':curStreak>=3?'var(--warn)':'var(--t4)';
+    const streakFire = curStreak>=7?'🔥 ':'';
     const statPanel = `
       <div style="width:${SW}px;flex-shrink:0;padding-left:10px;display:flex;flex-direction:column;gap:2px;justify-content:center">
-        <div style="display:flex;align-items:baseline;gap:4px">
-          <span style="font-size:18px;font-weight:900;color:var(--accent);line-height:1">${curStreak}</span>
-          <span style="font-size:11px;color:var(--t3)">day streak</span>
+        <div style="display:flex;align-items:baseline;gap:3px">
+          <span style="font-size:10px">${streakFire}</span>
+          <span style="font-size:20px;font-weight:900;color:${streakCol};line-height:1;font-family:var(--fd)">${curStreak}</span>
+          <span style="font-size:10px;color:var(--t3)">day${curStreak!==1?'s':''}</span>
         </div>
-        <div style="font-size:10px;color:var(--t4);line-height:1.3">
+        <div style="font-size:9px;color:var(--t4);line-height:1.3">
           Best: <span style="color:var(--t2);font-weight:600">${longestLabel}</span>
         </div>
       </div>`;
@@ -8315,6 +8723,7 @@ function renderStgPanel(id){
     profile: renderStgProfile,
     targets: renderStgTargets,
     schedule: renderStgSchedule,
+    paste: ()=>{},  // Quick Paste removed from settings nav
     paste:   renderStgPaste,
     healthimport: renderStgHealthImport,
     custom:  renderStgCustom,
@@ -8466,21 +8875,21 @@ function updateProfileInTopbar(){
 // 1. TARGETS
 // ═══════════════════════════════════════════════
 const TARGET_SECTIONS = [
-  {label:'🔋 Energy',       keys:['active_calories','resting_calories','google_fit_points']},
-  {label:'🏃 Activity',     keys:['steps','distance_foot','exercise_mins','standing_mins','stairs_climbed']},
-  {label:'🚶 Walk',         keys:['walk_distance','walk_elevation']},
-  {label:'🏃 Run',          keys:['run_distance','run_elevation','run_cadence']},
-  {label:'🚴 Cycle',        keys:['cycle_distance','cycle_elevation']},
-  {label:'💪 Strength',     keys:['strength_training','yoga_duration','other_activity']},
-  {label:'❤️ Vitals',       keys:['resting_hr','cardio_fitness','cardio_recovery','hrv','blood_oxygen_high','bp_systolic','bp_diastolic']},
-  {label:'🌙 Sleep',        keys:['total_sleep','sleep_rem','sleep_core','sleep_deep','sleep_awake','sleep_score']},
-  {label:'🧘 Mindful',      keys:['daylight','mindful_mins','surround_sound']},
-  {label:'⚖️ Body',         keys:['bmi','body_fat_ratio','muscle_rate','waist_size','visceral_fat']},
-  {label:'🥗 Nutrition',    keys:['water','protein','fiber','dietary_calories','caffeine','carbohydrates','total_fats','saturated_fats','sugar','added_sugar','cholesterol']},
+  {label:'🔋 Energy',       keys:['active_calories','resting_calories','google_fit_points','total_calories','net_energy_balance']},
+  {label:'🏃 Activity',     keys:['steps','distance_foot','exercise_mins','standing_mins','stairs_climbed','total_distance','stand_hours','total_activity_mins']},
+  {label:'🚶 Walk',         keys:['walk_distance','walk_elevation','walk_avg_pace','walk_best_pace','walk_spm']},
+  {label:'🏃 Run',          keys:['run_distance','run_elevation','run_cadence','run_avg_pace','run_best_pace','run_avg_power']},
+  {label:'🚴 Cycle',        keys:['cycle_distance','cycle_elevation','cycle_avg_pace','cycle_best_pace']},
+  {label:'💪 Strength',     keys:['strength_training','yoga_duration','other_activity','total_workout']},
+  {label:'❤️ Vitals',       keys:['heart_rate','hr_high','hr_low','resting_hr','walking_hr','cardio_fitness','cardio_recovery','hrv','blood_oxygen_high','bp_systolic','bp_diastolic','blood_glucose','breath_high','breath_low']},
+  {label:'🌙 Sleep',        keys:['total_sleep','sleep_rem','sleep_core','sleep_deep','sleep_awake','sleep_score','asleep','sleep_recovery','sleep_debt']},
+  {label:'🧘 Mindful',      keys:['daylight','mindful_mins','surround_sound','state_of_mind']},
+  {label:'⚖️ Body',         keys:['weight','bmi','body_fat_ratio','muscle_rate','body_water','bone_mass','visceral_fat','subcutaneous_fat','protein_mass','muscle_mass','lean_body_mass','waist_size']},
+  {label:'🥗 Nutrition',    keys:['water','protein','fiber','dietary_calories','caffeine','carbohydrates','total_fats','saturated_fats','monounsaturated_fats','polyunsaturated_fats','trans_fats','sugar','added_sugar','cholesterol']},
   {label:'⚗️ Minerals',     keys:['calcium','magnesium','potassium','sodium','iron','zinc','phosphorus','iodine','selenium','chromium','copper','manganese','molybdenum','chloride']},
   {label:'💊 Vitamins',     keys:['vitamin_d','vitamin_c','vitamin_a','vitamin_e','vitamin_b12','folate','vitamin_b6','thiamin','riboflavin','niacin','pantothenic_acid','biotin','vitamin_k']},
-  {label:'📱 Screen',       keys:['mobile_time','youtube_time','reddit_time','twitter_time','laptop_time','tablet_time','movie_time','book_time']},
-  {label:'✅ Habit',       keys:['stuff_count','alcohol']},
+  {label:'📱 Screen',       keys:['mobile_time','youtube_time','reddit_time','twitter_time','laptop_time','tablet_time','movie_time','book_time','total_screen']},
+  {label:'✅ Habit',        keys:['stuff_count','alcohol']},
   {label:'🦵 Movement',     keys:['double_support_time','ground_contact_time','running_stride','vertical_oscillation','walk_asymmetry','walking_step_length']},
 ];
 
@@ -8714,31 +9123,236 @@ const DOW_LABELS = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
 let schedCalYear  = new Date().getFullYear();
 let schedCalMonth = new Date().getMonth();
 
+// Schedule tab state
+let _schedTab = 'dow';
+function schedShowTab(t){ _schedTab=t; renderStgSchedule(); }
+
 function renderStgSchedule(){
   const sc = document.getElementById('stg-content');
+  const tabs = [
+    {id:'dow',      label:'Day Targets'},
+    {id:'rest',     label:'🛌 Rest Days'},
+    {id:'energy',   label:'⚡ Energy Opt'},
+    {id:'activity', label:'🏃 Activity Opt'},
+    {id:'workout',  label:'💪 Workout Opt'},
+    {id:'week',     label:'📅 Weekly Plan'},
+  ];
+  const tabBar = '<div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:16px;border-bottom:1px solid var(--border);padding-bottom:10px">'
+    + tabs.map(t=>'<button onclick="schedShowTab(\''+t.id+'\')" style="padding:5px 12px;border-radius:20px;font-size:11px;font-weight:600;cursor:pointer;border:1px solid var(--border);font-family:var(--fb);transition:all .15s;background:'
+      +(_schedTab===t.id?'var(--accent)':'var(--surface2)')
+      +';color:'+(_schedTab===t.id?'#fff':'var(--t3)')+'">'+t.label+'</button>').join('')
+    +'</div>';
+
+  let body = '';
+
+  if(_schedTab==='dow'){
+    body += '<div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);padding:14px">'
+      +'<div style="font-size:13px;font-weight:700;color:var(--t2);margin-bottom:6px">Day-of-week Target %</div>'
+      +'<div style="font-size:11px;color:var(--t4);margin-bottom:12px">100% = normal. 50% on Sunday = all Energy/Activity/Workout targets halved that day.</div>'
+      +'<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:6px">'
+      +DOW_LABELS.map((lbl,i)=>'<div style="text-align:center">'
+        +'<div style="font-size:10px;font-weight:700;color:var(--t3);margin-bottom:4px">'+lbl+'</div>'
+        +'<input type="number" min="0" max="200" step="5" id="dow-pct-'+i+'" value="'+(dowTargets[i]!=null?dowTargets[i]:100)+'"'
+        +' style="width:100%;text-align:center;padding:6px 2px;border-radius:var(--rxs);background:var(--surface);border:1px solid var(--border2);color:var(--t1);font-size:13px;font-weight:700;font-family:var(--fm)">'
+        +'<div style="font-size:9px;color:var(--t4);margin-top:2px">%</div></div>').join('')
+      +'</div>'
+      +'<button class="stg-btn primary" style="margin-top:12px" onclick="saveDowTargets()"><img src="https://cdn-icons-png.flaticon.com/512/2734/2734428.png" width="13" height="13" style="vertical-align:middle;margin-right:3px"> Save Day Targets</button>'
+      +'</div>';
+  }
+
+  if(_schedTab==='rest'){
+    body += '<div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);padding:14px">'
+      +'<div style="font-size:13px;font-weight:700;color:var(--t2);margin-bottom:4px">🛌 Rest / Skip Days</div>'
+      +'<div style="font-size:11px;color:var(--t4);margin-bottom:10px">Click a day to mark it as a rest day. Streaks unaffected, targets not scored.</div>'
+      +'<div id="sched-cal-wrap" style="max-width:340px"></div>'
+      +'<button class="stg-btn" style="margin-top:10px" onclick="clearAllRestDays()">✕ Clear all rest days</button>'
+      +'</div>';
+  }
+
+  if(_schedTab==='energy'){
+    body += '<div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);padding:14px">'
+      +'<div style="font-size:13px;font-weight:700;color:var(--t2);margin-bottom:4px">⚡ Energy Opt-Out</div>'
+      +'<div style="font-size:11px;color:var(--t4);margin-bottom:8px">Tap a day to cycle its credit. Streak continues when proportional target met.</div>'
+      +'<div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:10px">'
+      +'<span style="font-size:9px;padding:2px 7px;border-radius:8px;background:rgba(239,68,68,.15);color:var(--danger);font-weight:700">✕ Skip</span>'
+      +'<span style="font-size:9px;padding:2px 7px;border-radius:8px;background:rgba(245,158,11,.15);color:var(--warn);font-weight:700">25%</span>'
+      +'<span style="font-size:9px;padding:2px 7px;border-radius:8px;background:rgba(245,158,11,.12);color:var(--warn);font-weight:600">50%</span>'
+      +'<span style="font-size:9px;padding:2px 7px;border-radius:8px;background:rgba(245,158,11,.09);color:var(--warn);font-weight:500">75%</span>'
+      +'<span style="font-size:9px;padding:2px 7px;border-radius:8px;background:var(--surface2);color:var(--t3)">100% Normal</span>'
+      +'</div>'
+      +'<div id="stg-energy-opt-cal" style="max-width:340px"></div>'
+      +'<button class="stg-btn" style="margin-top:10px" onclick="clearAllEnergyOpts();schedShowTab(\'energy\')">✕ Clear energy opt-outs</button>'
+      +'</div>';
+  }
+
+  if(_schedTab==='activity'){
+    body += '<div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);padding:14px">'
+      +'<div style="font-size:13px;font-weight:700;color:var(--t2);margin-bottom:4px">🏃 Activity Opt-Out</div>'
+      +'<div style="font-size:11px;color:var(--t4);margin-bottom:8px">Tap a day to cycle its credit. Streak continues when proportional target met.</div>'
+      +'<div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:10px">'
+      +'<span style="font-size:9px;padding:2px 7px;border-radius:8px;background:rgba(239,68,68,.15);color:var(--danger);font-weight:700">✕ Skip</span>'
+      +'<span style="font-size:9px;padding:2px 7px;border-radius:8px;background:rgba(245,158,11,.15);color:var(--warn);font-weight:700">25%</span>'
+      +'<span style="font-size:9px;padding:2px 7px;border-radius:8px;background:rgba(245,158,11,.12);color:var(--warn);font-weight:600">50%</span>'
+      +'<span style="font-size:9px;padding:2px 7px;border-radius:8px;background:rgba(245,158,11,.09);color:var(--warn);font-weight:500">75%</span>'
+      +'<span style="font-size:9px;padding:2px 7px;border-radius:8px;background:var(--surface2);color:var(--t3)">100% Normal</span>'
+      +'</div>'
+      +'<div id="stg-activity-opt-cal" style="max-width:340px"></div>'
+      +'<button class="stg-btn" style="margin-top:10px" onclick="clearAllActivityOpts();schedShowTab(\'activity\')">✕ Clear activity opt-outs</button>'
+      +'</div>';
+  }
+
+  if(_schedTab==='workout'){
+    body += '<div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);padding:14px">'
+      +'<div style="font-size:13px;font-weight:700;color:var(--t2);margin-bottom:4px">💪 Workout Opt-Out</div>'
+      +'<div style="font-size:11px;color:var(--t4);margin-bottom:8px">Tap a day to set per-exercise credit.</div>'
+      +'<div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:10px">'
+      +'<span style="font-size:9px;padding:2px 7px;border-radius:8px;background:rgba(239,68,68,.15);color:var(--danger);font-weight:700">✕ Skip</span>'
+      +'<span style="font-size:9px;padding:2px 7px;border-radius:8px;background:rgba(245,158,11,.15);color:var(--warn);font-weight:700">Partial</span>'
+      +'<span style="font-size:9px;padding:2px 7px;border-radius:8px;background:var(--surface2);color:var(--t3)">Normal</span>'
+      +'</div>'
+      +'<div id="stg-workout-opt-cal" style="max-width:340px"></div>'
+      +'<div id="stg-workout-day-panel" style="display:none;margin-top:10px;background:var(--surface);border:1px solid var(--border);border-radius:var(--rs);padding:10px 12px"></div>'
+      +'<button class="stg-btn" style="margin-top:10px" onclick="workoutOptDays={};saveWorkoutOpts();schedShowTab(\'workout\')">✕ Reset workout opt-outs</button>'
+      +'</div>';
+  }
+
+  if(_schedTab==='week'){
+    // Weekly schedule: which days each exercise is scheduled
+    let weekHtml = '<div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);padding:14px">'
+      +'<div style="font-size:13px;font-weight:700;color:var(--t2);margin-bottom:4px">📅 Weekly Exercise Plan</div>'
+      +'<div style="font-size:11px;color:var(--t4);margin-bottom:12px">Toggle which days each exercise is scheduled. Off days = free pass for that exercise streak.</div>';
+    WORKOUT_EXERCISES.forEach(ex=>{
+      const sched=getWorkoutWeekDays(ex.key);
+      weekHtml+='<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;padding:8px 10px;background:var(--surface);border-radius:var(--rs);border:1px solid var(--border)">'
+        +'<span style="width:70px;font-size:11px;font-weight:600;color:var(--t2);flex-shrink:0">'+_iconImg(ICON_URLS[ex.icon],13)+' '+ex.label+'</span>'
+        +'<div style="display:flex;gap:3px;flex:1">'
+        +DOW_LABELS_SHORT.map((d,i)=>{
+          const on=!!sched[i];
+          return '<button onclick="toggleWorkoutWeekDay(\''+ex.key+'\','+i+');_refreshWeekPlan()" style="flex:1;padding:4px 2px;border-radius:5px;font-size:9px;font-weight:700;cursor:pointer;font-family:var(--fb);'
+            +'background:'+(on?'linear-gradient(135deg,var(--accent),var(--accent2))':'var(--surface2)')
+            +';color:'+(on?'#fff':'var(--t4)')
+            +';border:'+(on?'none':'1px solid var(--border)')+'">'+d+'</button>';
+        }).join('')
+        +'</div>'
+        +'</div>';
+    });
+    weekHtml += '</div>';
+    body += weekHtml;
+  }
+
   sc.innerHTML = '<div class="stg-panel on" id="sp-schedule">'
     +'<div class="stg-panel-title"><img src="https://cdn-icons-png.flaticon.com/512/2693/2693507.png" width="16" height="16" style="vertical-align:middle;margin-right:3px">Schedule</div>'
-    +'<div class="stg-panel-sub">Set reduced targets per day of the week, and mark rest/skip days. Affects Energy, Activity &amp; Workout only.</div>'
-    +'<div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);padding:14px;margin-bottom:16px">'
-    +'<div style="font-size:13px;font-weight:700;color:var(--t2);margin-bottom:6px">Day-of-week target %</div>'
-    +'<div style="font-size:11px;color:var(--t4);margin-bottom:12px">100% = normal. 50% on Sunday = all Energy/Activity/Workout targets halved that day.</div>'
-    +'<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:6px">'
-    +DOW_LABELS.map((lbl,i)=>'<div style="text-align:center">'
-      +'<div style="font-size:10px;font-weight:700;color:var(--t3);margin-bottom:4px">'+lbl+'</div>'
-      +'<input type="number" min="0" max="200" step="5" id="dow-pct-'+i+'" value="'+(dowTargets[i]!=null?dowTargets[i]:100)+'"'
-      +' style="width:100%;text-align:center;padding:6px 2px;border-radius:var(--rxs);background:var(--surface);border:1px solid var(--border2);color:var(--t1);font-size:13px;font-weight:700;font-family:var(--fm)">'
-      +'<div style="font-size:9px;color:var(--t4);margin-top:2px">%</div></div>').join('')
+    +'<div class="stg-panel-sub">Day targets, rest days, opt-outs and weekly exercise plan.</div>'
+    + tabBar + body
+    +'</div>';
+
+  // After render, populate calendars
+  if(_schedTab==='rest') renderSchedCal();
+  if(_schedTab==='energy') renderStgEnergyOptCal();
+  if(_schedTab==='activity') renderStgActivityOptCal();
+  if(_schedTab==='workout') renderStgWorkoutOptCal();
+}
+
+// ── Compact opt-out calendar renderers for Settings ─────────
+function _renderOptCal(wrapId, yearRef, monthRef, getPct, onCellClick, prevFn, nextFn){
+  const wrap = document.getElementById(wrapId);
+  if(!wrap) return;
+  const MLBL = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const DOW  = ['Su','Mo','Tu','We','Th','Fr','Sa'];
+  const today = new Date().toISOString().split('T')[0];
+  const firstDay = new Date(yearRef, monthRef, 1).getDay();
+  const daysInMonth = new Date(yearRef, monthRef+1, 0).getDate();
+  let cells = DOW.map(d=>'<div style="text-align:center;font-size:9px;font-weight:700;color:var(--t3);padding-bottom:3px">'+d+'</div>').join('');
+  for(let i=0;i<firstDay;i++) cells += '<div></div>';
+  for(let d=1;d<=daysInMonth;d++){
+    const ds = yearRef+'-'+String(monthRef+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');
+    const pct = getPct(ds);
+    const hasData = !!(allData[ds] && Object.keys(allData[ds]).length);
+    const isSkip=pct===0, isPartial=pct>0&&pct<100, isToday=ds===today;
+    let bg='transparent', color=hasData?'var(--t1)':'var(--t3)', border='none', fw=hasData?'600':'400';
+    if(isSkip){ bg='rgba(239,68,68,.18)'; color='var(--danger)'; border='1px solid rgba(239,68,68,.35)'; fw='700'; }
+    else if(isPartial){ bg='rgba(245,158,11,.15)'; color='var(--warn)'; border='1px solid rgba(245,158,11,.3)'; fw='700'; }
+    if(isToday){ border='2px solid var(--accent)'; color=isSkip?'var(--danger)':isPartial?'var(--warn)':'var(--accent)'; }
+    const label=isSkip?'✕':isPartial?pct+'%':d;
+    const fs=isPartial?'8':'10';
+    cells += '<button onclick="'+onCellClick+'(\''+ds+'\')" style="aspect-ratio:1;display:flex;align-items:center;justify-content:center;font-size:'+fs+'px;font-weight:'+fw+';border-radius:5px;cursor:pointer;background:'+bg+';color:'+color+';border:'+border+';width:100%;font-family:var(--fb);transition:all .12s;line-height:1" title="'+ds+'">'+label+'</button>';
+  }
+  wrap.innerHTML = '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">'
+    +'<button onclick="'+prevFn+'()" style="width:24px;height:24px;border-radius:6px;background:var(--surface);border:1px solid var(--border);color:var(--t3);font-size:13px;cursor:pointer">‹</button>'
+    +'<span style="font-family:var(--fd);font-size:12px;font-weight:700;color:var(--t1)">'+MLBL[monthRef]+' '+yearRef+'</span>'
+    +'<button onclick="'+nextFn+'()" style="width:24px;height:24px;border-radius:6px;background:var(--surface);border:1px solid var(--border);color:var(--t3);font-size:13px;cursor:pointer">›</button>'
     +'</div>'
-    +'<button class="stg-btn primary" style="margin-top:12px" onclick="saveDowTargets()"><img src="https://cdn-icons-png.flaticon.com/512/2734/2734428.png" width="13" height="13" style="vertical-align:middle;margin-right:3px"> Save Day Targets</button>'
+    +'<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:2px">'+cells+'</div>';
+}
+
+let stgEnergyCalYear=new Date().getFullYear(), stgEnergyCalMonth=new Date().getMonth();
+function renderStgEnergyOptCal(){ _renderOptCal('stg-energy-opt-cal',stgEnergyCalYear,stgEnergyCalMonth,getEnergyOptPct,'stgEnergyOptClick','stgEnergyCalPrev','stgEnergyCalNext'); }
+function stgEnergyCalPrev(){ stgEnergyCalMonth--; if(stgEnergyCalMonth<0){stgEnergyCalMonth=11;stgEnergyCalYear--;} renderStgEnergyOptCal(); }
+function stgEnergyCalNext(){ stgEnergyCalMonth++; if(stgEnergyCalMonth>11){stgEnergyCalMonth=0;stgEnergyCalYear++;} renderStgEnergyOptCal(); }
+function stgEnergyOptClick(date){ const cur=getEnergyOptPct(date); const cycle=[100,0,25,50,75]; const idx=cycle.indexOf(cur); setEnergyOptDay(date,cycle[(idx+1)%cycle.length]); renderStgEnergyOptCal(); renderDashboard(); }
+
+let stgActivityCalYear=new Date().getFullYear(), stgActivityCalMonth=new Date().getMonth();
+function renderStgActivityOptCal(){ _renderOptCal('stg-activity-opt-cal',stgActivityCalYear,stgActivityCalMonth,getActivityOptPct,'stgActivityOptClick','stgActivityCalPrev','stgActivityCalNext'); }
+function stgActivityCalPrev(){ stgActivityCalMonth--; if(stgActivityCalMonth<0){stgActivityCalMonth=11;stgActivityCalYear--;} renderStgActivityOptCal(); }
+function stgActivityCalNext(){ stgActivityCalMonth++; if(stgActivityCalMonth>11){stgActivityCalMonth=0;stgActivityCalYear++;} renderStgActivityOptCal(); }
+function stgActivityOptClick(date){ const cur=getActivityOptPct(date); const cycle=[100,0,25,50,75]; const idx=cycle.indexOf(cur); setActivityOptDay(date,cycle[(idx+1)%cycle.length]); renderStgActivityOptCal(); renderDashboard(); }
+
+let stgWorkoutCalYear=new Date().getFullYear(), stgWorkoutCalMonth=new Date().getMonth();
+function renderStgWorkoutOptCal(){
+  const wrap=document.getElementById('stg-workout-opt-cal'); if(!wrap) return;
+  const MLBL=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const DOW=['Su','Mo','Tu','We','Th','Fr','Sa'];
+  const today=new Date().toISOString().split('T')[0];
+  const firstDay=new Date(stgWorkoutCalYear,stgWorkoutCalMonth,1).getDay();
+  const daysInMonth=new Date(stgWorkoutCalYear,stgWorkoutCalMonth+1,0).getDate();
+  let cells=DOW.map(d=>'<div style="text-align:center;font-size:9px;font-weight:700;color:var(--t3);padding-bottom:3px">'+d+'</div>').join('');
+  for(let i=0;i<firstDay;i++) cells+='<div></div>';
+  for(let d=1;d<=daysInMonth;d++){
+    const ds=stgWorkoutCalYear+'-'+String(stgWorkoutCalMonth+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');
+    const hasData=!!(allData[ds]&&Object.keys(allData[ds]).length);
+    const isToday=ds===today;
+    // Check if any workout is skipped
+    const anySkip=WORKOUT_EXERCISES.some(ex=>getWorkoutOptPct(ex.key,ds)===0);
+    const anyPartial=WORKOUT_EXERCISES.some(ex=>{ const p=getWorkoutOptPct(ex.key,ds); return p>0&&p<100; });
+    let bg='transparent',color=hasData?'var(--t1)':'var(--t3)',border='none',fw=hasData?'600':'400';
+    if(anySkip){ bg='rgba(239,68,68,.15)'; color='var(--danger)'; border='1px solid rgba(239,68,68,.3)'; fw='700'; }
+    else if(anyPartial){ bg='rgba(245,158,11,.12)'; color='var(--warn)'; border='1px solid rgba(245,158,11,.25)'; fw='700'; }
+    if(isToday){ border='2px solid var(--accent)'; }
+    cells+='<button onclick="stgWorkoutDayClick(\''+ds+'\')" style="aspect-ratio:1;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:'+fw+';border-radius:5px;cursor:pointer;background:'+bg+';color:'+color+';border:'+border+';width:100%;font-family:var(--fb);transition:all .12s" title="'+ds+'">'+d+'</button>';
+  }
+  wrap.innerHTML='<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">'
+    +'<button onclick="stgWorkoutCalPrev()" style="width:24px;height:24px;border-radius:6px;background:var(--surface);border:1px solid var(--border);color:var(--t3);font-size:13px;cursor:pointer">‹</button>'
+    +'<span style="font-family:var(--fd);font-size:12px;font-weight:700;color:var(--t1)">'+MLBL[stgWorkoutCalMonth]+' '+stgWorkoutCalYear+'</span>'
+    +'<button onclick="stgWorkoutCalNext()" style="width:24px;height:24px;border-radius:6px;background:var(--surface);border:1px solid var(--border);color:var(--t3);font-size:13px;cursor:pointer">›</button>'
     +'</div>'
-    +'<div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);padding:14px">'
-    +'<div style="font-size:13px;font-weight:700;color:var(--t2);margin-bottom:4px">🛌 Rest / Skip Days</div>'
-    +'<div style="font-size:11px;color:var(--t4);margin-bottom:10px">Click a day to mark it as a rest day. Streaks unaffected, targets not scored.</div>'
-    +'<div id="sched-cal-wrap"></div>'
-    +'<button class="stg-btn" style="margin-top:10px" onclick="clearAllRestDays()">✕ Clear all rest days</button>'
-    +'</div>'
-    +"</div>";
-  renderSchedCal();
+    +'<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:2px">'+cells+'</div>';
+}
+function stgWorkoutCalPrev(){ stgWorkoutCalMonth--; if(stgWorkoutCalMonth<0){stgWorkoutCalMonth=11;stgWorkoutCalYear--;} renderStgWorkoutOptCal(); }
+function stgWorkoutCalNext(){ stgWorkoutCalMonth++; if(stgWorkoutCalMonth>11){stgWorkoutCalMonth=0;stgWorkoutCalYear++;} renderStgWorkoutOptCal(); }
+function stgWorkoutDayClick(date){
+  // Show a per-exercise panel in the stg-workout-day-panel div
+  const panel=document.getElementById('stg-workout-day-panel');
+  if(!panel){ return; }
+  panel.style.display='block';
+  const rows=WORKOUT_EXERCISES.map(ex=>{
+    const pct=getWorkoutOptPct(ex.key,date);
+    const opts=[100,75,50,25,0];
+    return '<div style="display:flex;align-items:center;gap:6px;margin-bottom:6px">'
+      +'<span style="width:60px;font-size:10px;font-weight:600;color:var(--t2);flex-shrink:0">'+_iconImg(ICON_URLS[ex.icon],12)+' '+ex.label+'</span>'
+      +'<div style="display:flex;gap:3px;flex:1">'
+      +opts.map(o=>{
+        const labels={100:'Full',75:'75%',50:'50%',25:'25%',0:'Skip'};
+        const active=pct===o;
+        return '<button onclick="setWorkoutOptDay(\''+ex.key+'\',\''+date+'\','+o+');stgWorkoutDayClick(\''+date+'\')" style="flex:1;padding:3px 1px;border-radius:4px;font-size:8px;font-weight:700;cursor:pointer;font-family:var(--fb);'
+          +'background:'+(active?'var(--accent)':'var(--surface)')
+          +';color:'+(active?'#fff':'var(--t3)')
+          +';border:'+(active?'none':'1px solid var(--border)')+'">'+labels[o]+'</button>';
+      }).join('')
+      +'</div>'
+      +'</div>';
+  }).join('');
+  panel.innerHTML='<div style="font-size:10px;font-weight:700;color:var(--t2);margin-bottom:8px">'+date+'</div>'+rows;
+  renderStgWorkoutOptCal();
 }
 
 function renderSchedCal(){
@@ -9532,19 +10146,43 @@ function renderStgLooks(){
     iconChipsHTML = '<div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:10px">';
     Object.keys(fieldIcons).forEach(k => {
       const f = allFields().find(f=>f.key===k);
-      if(f) iconChipsHTML += '<span style="display:inline-flex;align-items:center;gap:4px;background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:3px 10px;font-size:12px">'+renderFieldIcon(k)+' <span style="color:var(--t2)">'+f.label+'</span><button onclick="removeFieldIcon(\''+k+'\',event)" style="background:none;border:none;color:var(--t4);cursor:pointer;font-size:11px;padding:0 0 0 4px">x</button></span>';
+      const label = f ? f.label : k;
+      iconChipsHTML += '<span style="display:inline-flex;align-items:center;gap:4px;background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:3px 10px;font-size:12px">'+renderFieldIcon(k)+' <span style="color:var(--t2)">'+label+'</span><button onclick="removeFieldIcon(\''+k+'\',event)" style="background:none;border:none;color:var(--t4);cursor:pointer;font-size:11px;padding:0 0 0 4px">×</button></span>';
     });
     iconChipsHTML += '</div>';
   }
+
+  // Build SOM icon chips
+  const SOM_MOODS_LOOKS = [
+    {key:'very_unpleasant',label:'😞 Very Unpleasant'},
+    {key:'unpleasant',     label:'😕 Unpleasant'},
+    {key:'neutral',        label:'😐 Neutral'},
+    {key:'pleasant',       label:'🙂 Pleasant'},
+    {key:'very_pleasant',  label:'😄 Very Pleasant'},
+  ];
+  const somImgsNow = loadSomImgs ? loadSomImgs() : {};
+  let somChipsHTML = '<div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:6px">';
+  SOM_MOODS_LOOKS.forEach(m=>{
+    const hasImg = !!somImgsNow[m.key];
+    somChipsHTML += '<span style="display:inline-flex;align-items:center;gap:4px;background:var(--surface);border:1px solid '+(hasImg?'var(--accent)':'var(--border)')+';border-radius:20px;padding:3px 10px;font-size:12px">'
+      +(hasImg?'<img src="'+somImgsNow[m.key]+'" style="height:16px;width:16px;object-fit:cover;border-radius:50%;vertical-align:middle">':'')
+      +' <span style="color:var(--t2)">'+m.label+'</span>'
+      +(hasImg?'<button onclick="somImgRemoveLooks(\''+m.key+'\')" style="background:none;border:none;color:var(--t4);cursor:pointer;font-size:11px;padding:0 0 0 4px">×</button>':'')
+      +'</span>';
+  });
+  somChipsHTML += '</div>';
 
   // Widget selector options
   const widgetNames = ['Score','Active Cal','Steps','Sleep','Heart Rate','Distance','Rings','Screen','Cardio','HRV'];
   let wimgOpts = '';
   widgetNames.forEach(w => { wimgOpts += '<option value="'+w+'">'+(widgetImages[w]?'[img] ':'')+w+'</option>'; });
 
-  // Icon field options
+  // Icon field options — show clean label with [custom] flag, not raw URL
   let iconOpts = '';
-  allFields().forEach(f => { iconOpts += '<option value="'+f.key+'">'+(fieldIcons[f.key]?fieldIcons[f.key]+' ':'')+f.label+'</option>'; });
+  allFields().forEach(f => {
+    const hasIcon = !!fieldIcons[f.key];
+    iconOpts += '<option value="'+f.key+'">'+(hasIcon?'[✓] ':'')+f.label+'</option>';
+  });
 
   sc.innerHTML =
     '<div class="stg-panel on" id="sp-looks">' +
@@ -9585,6 +10223,27 @@ function renderStgLooks(){
     colorsHTML +
 
     '<div class="stg-divider"></div>' +
+    '<div style="font-size:13px;font-weight:700;color:var(--t2);margin-bottom:4px">🧠 State of Mind Photo</div>' +
+    '<div style="font-size:12px;color:var(--t3);margin-bottom:12px">Choose a photo for each mood state. Shown in the Sleep &amp; Mindful section.</div>' +
+    '<div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);padding:14px;margin-bottom:14px">' +
+      '<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px">' +
+        [['very_unpleasant','😞 Very Unpleasant','#8B5CF6'],['unpleasant','😕 Unpleasant','#6366F1'],['neutral','😐 Neutral','#3B82F6'],['pleasant','🙂 Pleasant','#F59E0B'],['very_pleasant','😄 Very Pleasant','#10B981']].map(([k,lbl,c])=>`
+          <button onclick="somImgSelect('${k}')" id="som-btn-${k}" style="flex:1;min-width:80px;padding:8px 6px;border-radius:var(--rs);cursor:pointer;font-size:10px;font-weight:700;text-align:center;
+            background:${(() => { try { const si=JSON.parse(localStorage.getItem('ws2_som_imgs')||'{}'); return si[k]?c+'25':'var(--surface)'; } catch(e){ return 'var(--surface)'; } })()};
+            color:var(--t2);border:1px solid var(--border);transition:all .15s">${lbl}</button>`).join('') +
+      '</div>' +
+      '<div style="font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px" id="som-sel-label">Select a mood above</div>' +
+      '<div style="display:flex;gap:8px;margin-bottom:10px">' +
+        '<input id="som-img-url" class="stg-input" placeholder="https://... paste image URL" style="flex:1" oninput="somImgPreview()">' +
+        '<button class="stg-btn primary" onclick="somImgSave()">Set</button>' +
+        '<button class="stg-btn danger" onclick="somImgRemove()">Remove</button>' +
+      '</div>' +
+      '<div id="som-img-preview" style="border-radius:var(--rs);overflow:hidden;background:var(--surface3);min-height:100px;display:flex;align-items:center;justify-content:center">' +
+        '<span id="som-img-ph" style="font-size:12px;color:var(--t4)">Select a mood state to see/change its photo</span>' +
+      '</div>' +
+    '</div>' +
+
+    '<div class="stg-divider"></div>' +
     '<div style="font-size:13px;font-weight:700;color:var(--t2);margin-bottom:4px">Widget Images</div>' +
     '<div style="font-size:12px;color:var(--t3);margin-bottom:12px">Pick a widget, paste a URL, preview and save.</div>' +
     '<div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);padding:14px">' +
@@ -9604,8 +10263,8 @@ function renderStgLooks(){
 
     '<div class="stg-divider"></div>' +
     '<div style="font-size:13px;font-weight:700;color:var(--t2);margin-bottom:4px">Icon Management</div>' +
-    '<div style="font-size:12px;color:var(--t3);margin-bottom:12px">Pick a field, paste an image URL or type an emoji, preview and save.</div>' +
-    '<div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);padding:14px">' +
+    '<div style="font-size:12px;color:var(--t3);margin-bottom:12px">Pick a field, paste an image URL or type an emoji, preview and save. Field names with [✓] already have a custom icon.</div>' +
+    '<div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);padding:14px;margin-bottom:10px">' +
       '<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:10px">' +
         '<select class="stg-select" id="icon-field-sel" style="flex:1;min-width:140px" onchange="iconSelChange()">' + iconOpts + '</select>' +
         '<button class="stg-btn danger" onclick="removeSelectedFieldIcon()">Remove</button>' +
@@ -9619,6 +10278,11 @@ function renderStgLooks(){
       '</div>' +
       '<div id="icon-inline-status" style="font-size:11px;color:var(--t4);margin-top:4px;min-height:16px"></div>' +
       iconChipsHTML +
+    '</div>' +
+    '<div style="font-size:13px;font-weight:700;color:var(--t2);margin-bottom:4px">🧠 State of Mind Photos</div>' +
+    '<div style="font-size:12px;color:var(--t3);margin-bottom:8px">Set a photo for each mood. Shown in Sleep & Mindful section. Go to <em>State of Mind Photo</em> section below to edit.</div>' +
+    '<div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);padding:14px;margin-bottom:10px">' +
+      somChipsHTML +
     '</div>' +
 
     '<div class="stg-divider"></div>' +
@@ -9702,6 +10366,99 @@ function resetLookColors(){
 }
 
 // wimgSelChange: when dropdown changes, load current URL into input + show preview
+// ── State of Mind image management ────────────────
+let _somSelKey = null;
+const SOM_LABELS = {
+  very_unpleasant:'😞 Very Unpleasant',
+  unpleasant:'😕 Unpleasant',
+  neutral:'😐 Neutral',
+  pleasant:'🙂 Pleasant',
+  very_pleasant:'😄 Very Pleasant',
+};
+function loadSomImgs(){ try { return JSON.parse(localStorage.getItem('ws2_som_imgs')||'{}'); } catch(e){ return {}; } }
+function saveSomImgs(obj){ localStorage.setItem('ws2_som_imgs', JSON.stringify(obj)); }
+
+function somImgSelect(key){
+  _somSelKey = key;
+  const lbl = document.getElementById('som-sel-label');
+  if(lbl) lbl.textContent = 'Photo for: ' + SOM_LABELS[key];
+  // Update button styles
+  Object.keys(SOM_LABELS).forEach(k => {
+    const btn = document.getElementById('som-btn-'+k);
+    if(!btn) return;
+    const imgs = loadSomImgs();
+    const colors = {very_unpleasant:'#8B5CF6',unpleasant:'#6366F1',neutral:'#3B82F6',pleasant:'#F59E0B',very_pleasant:'#10B981'};
+    const c = colors[k];
+    btn.style.background = (k===key) ? (c+'40') : (imgs[k] ? c+'25' : 'var(--surface)');
+    btn.style.borderColor = (k===key) ? c : 'var(--border)';
+    btn.style.color = (k===key) ? c : 'var(--t2)';
+  });
+  // Show current image
+  const imgs = loadSomImgs();
+  const inp = document.getElementById('som-img-url');
+  if(inp) inp.value = imgs[key] || '';
+  somImgPreview();
+}
+
+function somImgPreview(){
+  const url = (document.getElementById('som-img-url')||{}).value?.trim() || '';
+  const box = document.getElementById('som-img-preview');
+  const ph  = document.getElementById('som-img-ph');
+  if(!box) return;
+  const old = document.getElementById('som-img-built');
+  if(old) old.remove();
+  if(!url || !url.startsWith('http')){
+    if(ph){ ph.style.display='flex'; ph.textContent = _somSelKey ? 'Paste a URL above' : 'Select a mood state to see/change its photo'; }
+    return;
+  }
+  if(ph) ph.style.display='none';
+  const img = document.createElement('img');
+  img.id='som-img-built';
+  img.style.cssText='width:100%;max-height:180px;object-fit:cover;display:block';
+  img.onerror=()=>{ img.remove(); if(ph){ ph.style.display='flex'; ph.textContent='Could not load — check URL'; ph.style.color='var(--danger)'; } };
+  img.src=url;
+  box.appendChild(img);
+}
+
+function somImgSave(){
+  if(!_somSelKey){ showToast('Select a mood state first'); return; }
+  const url = (document.getElementById('som-img-url')||{}).value?.trim();
+  if(!url){ showToast('Paste a URL first'); return; }
+  const imgs = loadSomImgs();
+  imgs[_somSelKey] = url;
+  saveSomImgs(imgs);
+  showToast('✅ Photo set for ' + SOM_LABELS[_somSelKey]);
+  somImgSelect(_somSelKey);
+}
+
+function somImgRemove(){
+  if(!_somSelKey){ showToast('Select a mood state first'); return; }
+  const imgs = loadSomImgs();
+  delete imgs[_somSelKey];
+  saveSomImgs(imgs);
+  const inp = document.getElementById('som-img-url');
+  if(inp) inp.value = '';
+  showToast('Photo removed for ' + SOM_LABELS[_somSelKey]);
+  somImgSelect(_somSelKey);
+}
+function somImgRemoveLooks(key){
+  const imgs = loadSomImgs();
+  delete imgs[key];
+  saveSomImgs(imgs);
+  showToast('Photo removed for ' + (SOM_LABELS[key]||key));
+  if(typeof renderStgLooks==='function') renderStgLooks();
+}
+
+function getSomImgForValue(val){
+  if(val == null) return null;
+  const imgs = loadSomImgs();
+  if(val >= 80) return imgs['very_pleasant'] || null;
+  if(val >= 30) return imgs['pleasant'] || null;
+  if(val > -30) return imgs['neutral'] || null;
+  if(val > -80) return imgs['unpleasant'] || null;
+  return imgs['very_unpleasant'] || null;
+}
+
 function wimgSelChange(){
   var sel = document.getElementById('wimg-widget-sel');
   if(!sel) return;
@@ -10929,6 +11686,10 @@ function gistBuildPayload(){
     navicons:   localStorage.getItem('ws2_navicons')   || null,
     dow:        localStorage.getItem('ws2_dow')         || null,
     rest:       localStorage.getItem('ws2_rest')        || null,
+    energy_opt: localStorage.getItem('ws2_energy_opt')  || null,
+    activity_opt: localStorage.getItem('ws2_activity_opt') || null,
+    workout_opt: localStorage.getItem('ws2_workout_opt') || null,
+    workout_week: localStorage.getItem('ws2_workout_week') || null,
     // ws2_wimgs: only sync URL-based images (not base64 uploads — too large)
     wimgs_urls: (() => {
       try {
@@ -10969,6 +11730,10 @@ function gistApplyPayload(payload){
     if(s.navicons)   localStorage.setItem('ws2_navicons',   s.navicons);
     if(s.dow)        localStorage.setItem('ws2_dow',         s.dow);
     if(s.rest)       localStorage.setItem('ws2_rest',        s.rest);
+    if(s.energy_opt)   localStorage.setItem('ws2_energy_opt',   s.energy_opt);
+    if(s.activity_opt) localStorage.setItem('ws2_activity_opt', s.activity_opt);
+    if(s.workout_opt)  localStorage.setItem('ws2_workout_opt',  s.workout_opt);
+    if(s.workout_week) localStorage.setItem('ws2_workout_week', s.workout_week);
     if(s.sync)       localStorage.setItem('ws2_sync',       s.sync);
     if(s.ai_active)  localStorage.setItem('ws2_ai_active',  s.ai_active);
     if(s.ai)         localStorage.setItem('ws2_ai',         s.ai);
