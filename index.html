@@ -159,7 +159,7 @@ input,select{font-family:var(--fb);outline:none}
 .main{flex:1;overflow:hidden;display:flex;flex-direction:column}
 .topbar{
   padding:12px 22px;display:flex;align-items:center;
-  justify-content:space-between;flex-shrink:0;
+  justify-content:space-between;flex-shrink:0;gap:10px;
 }
 .pg-title{font-family:var(--fd);font-size:21px;font-weight:800;color:var(--t1);letter-spacing:-.4px}
 .pg-sub{font-size:11px;color:var(--t3);margin-top:1px}
@@ -172,6 +172,15 @@ input,select{font-family:var(--fb);outline:none}
   transition:all .15s;backdrop-filter:blur(10px);
 }
 .tb-btn:hover{background:var(--solidbg);box-shadow:var(--sh)}
+.tb-labeled-btn{
+  display:flex;flex-direction:column;align-items:center;gap:2px;
+  padding:4px 6px;border-radius:var(--rs);cursor:pointer;
+  background:var(--surface);border:1px solid var(--border);
+  transition:all .15s;backdrop-filter:blur(10px);
+}
+.tb-labeled-btn:hover{background:var(--solidbg);box-shadow:var(--sh)}
+.tb-btn-ic{font-size:16px;line-height:1}
+.tb-btn-lbl{font-size:8px;font-weight:600;color:var(--t4);text-transform:uppercase;letter-spacing:.3px;white-space:nowrap}
 .content{
   flex:1;overflow-y:auto;overflow-x:hidden;
   box-sizing:border-box;width:100%;
@@ -185,7 +194,7 @@ input,select{font-family:var(--fb);outline:none}
 /* Energy page two-panel layout */
 .ah-energy-layout{
   display:grid;
-  grid-template-columns:1fr 300px;
+  grid-template-columns:1fr 320px;
   gap:16px;
   align-items:start;
 }
@@ -195,10 +204,13 @@ input,select{font-family:var(--fb);outline:none}
   backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
   border:1px solid var(--border);border-radius:var(--r);
   padding:14px;position:sticky;top:0;
+  max-height:calc(100vh - 120px);
+  overflow-y:auto;
+  -webkit-overflow-scrolling:touch;
 }
 @media(max-width:900px){
   .ah-energy-layout{grid-template-columns:1fr}
-  .ah-energy-right{position:static}
+  .ah-energy-right{position:static;max-height:none}
 }
 
 /* ── PERIOD BAR ──────────────────────────────── */
@@ -469,7 +481,10 @@ canvas{display:block}
   .cunit{font-size:10px}
   .csub{font-size:10px}
   .content{padding:0 10px 90px;box-sizing:border-box;}
-  .topbar{padding:10px 12px}
+  .topbar{padding:10px 12px;gap:8px}
+  .tb-labeled-btn .tb-btn-lbl{display:none}
+  .tb-labeled-btn{padding:5px;border-radius:8px}
+  .tb-btn-ic{font-size:18px}
   .pbar{padding:4px 0 10px;gap:3px;overflow-x:auto;flex-wrap:nowrap}
   .pbtn{padding:4px 10px;font-size:11px;white-space:nowrap;flex-shrink:0}
   .ins-item{font-size:11px;word-break:break-word;overflow-wrap:anywhere}
@@ -843,75 +858,6 @@ canvas{display:block}
   .ah-w1,.ah-w2 { grid-column:span 1; }
   .ah-w3,.ah-w4 { grid-column:span 2; }
   .log-fields { grid-template-columns:repeat(2,1fr); }
-
-  /* ── LOG ENTRY MOBILE FIX ── */
-  .log-layout {
-    display:flex;
-    flex-direction:column;
-    height:auto;
-    gap:0;
-  }
-  .log-hdr {
-    padding:8px 0 10px;
-    gap:8px;
-  }
-  .log-hdr-left {
-    flex-wrap:nowrap;
-    gap:6px;
-  }
-  .log-date-inp {
-    font-size:12px;
-    padding:6px 10px;
-  }
-  .log-nav-btn {
-    padding:5px 9px;
-    font-size:11px;
-  }
-  .log-save-btn {
-    padding:6px 14px;
-    font-size:12px;
-  }
-  /* Hide left category panel on mobile — use a scrollable tab strip instead */
-  .log-left-panel {
-    display:flex;
-    flex-direction:row;
-    overflow-x:auto;
-    overflow-y:hidden;
-    height:auto!important;
-    max-height:none!important;
-    background:var(--surface);
-    border:1px solid var(--border);
-    border-radius:var(--rs);
-    padding:6px 6px;
-    margin-bottom:8px;
-    gap:4px;
-    flex-shrink:0;
-    scrollbar-width:none;
-    -webkit-overflow-scrolling:touch;
-  }
-  .log-left-panel::-webkit-scrollbar { display:none; }
-  .log-left-panel .log-sec-lbl { display:none; }
-  .log-nav-item {
-    flex-direction:row;
-    white-space:nowrap;
-    flex-shrink:0;
-    padding:6px 10px;
-    font-size:11px;
-    border-radius:20px;
-  }
-  .log-nav-item .lni-ic {
-    width:20px;
-    height:20px;
-    font-size:12px;
-  }
-  .log-right-panel {
-    flex:1;
-    min-height:60vh;
-    overflow:visible;
-  }
-  .log-fields-scroll {
-    overflow:visible;
-  }
 }
 
 
@@ -979,17 +925,32 @@ canvas{display:block}
 <!-- ══ MAIN ══════════════════════════════════════ -->
 <main class="main">
   <div class="topbar">
-    <div>
+    <div class="tb-btn mob-menu-btn" onclick="openMobNav()" title="Menu" style="display:none;font-size:20px;font-weight:700;line-height:1">☰</div>
+    <div style="flex:1;min-width:0">
       <div class="pg-title" id="pg-title">Dashboard</div>
       <div class="pg-sub" id="pg-sub">Your health at a glance</div>
     </div>
     <div class="tb-right">
-      <div id="tb-profile" style="cursor:pointer;font-size:13px;font-weight:600;color:var(--t3);min-width:28px;text-align:center" onclick="showPage('settings');setTimeout(()=>showStgPanel('profile'),100)" title="Profile"><img src="https://cdn-icons-png.flaticon.com/512/1077/1077114.png" width="22" height="22"></div>
-      <div class="tb-btn mob-menu-btn" onclick="openMobNav()" title="Menu" style="display:none"><img src="https://cdn-icons-png.flaticon.com/512/3524/3524659.png" width="18" height="18"></div>
-      <div class="tb-btn" onclick="triggerSync()" title="Sheets Sync"><img src="https://cdn-icons-png.flaticon.com/512/2344/2344938.png" width="18" height="18"></div>
-      <div class="tb-btn" onclick="topbarGistRefresh()" title="Refresh from GitHub" id="tb-gist-btn"><img src="https://cdn-icons-png.flaticon.com/512/2111/2111432.png" width="18" height="18"></div>
-      <div class="tb-btn" onclick="showPage('settings');setTimeout(()=>showStgPanel('data'),100)" title="Export"><img src="https://cdn-icons-png.flaticon.com/512/724/724933.png" width="18" height="18"></div>
-      <div class="tb-btn" onclick="showPage('log')" title="Log Entry"><img src="https://cdn-icons-png.flaticon.com/512/1250/1250615.png" width="18" height="18"></div>
+      <div class="tb-labeled-btn" onclick="showPage('log')" title="Log Entry">
+        <div class="tb-btn-ic">✏️</div>
+        <div class="tb-btn-lbl">Log</div>
+      </div>
+      <div class="tb-labeled-btn" onclick="triggerSync()" title="Sheets Sync">
+        <div class="tb-btn-ic">☁️</div>
+        <div class="tb-btn-lbl">Sheets</div>
+      </div>
+      <div class="tb-labeled-btn" onclick="topbarGistRefresh()" title="Pull from GitHub Gist" id="tb-gist-btn">
+        <div class="tb-btn-ic">🐙</div>
+        <div class="tb-btn-lbl">Gist</div>
+      </div>
+      <div class="tb-labeled-btn" onclick="showPage('settings');setTimeout(()=>showStgPanel('data'),100)" title="Export Data">
+        <div class="tb-btn-ic">📦</div>
+        <div class="tb-btn-lbl">Export</div>
+      </div>
+      <div id="tb-profile" class="tb-labeled-btn" onclick="showPage('settings');setTimeout(()=>showStgPanel('profile'),100)" title="Profile">
+        <div class="tb-btn-ic" id="tb-profile-ic">🧑</div>
+        <div class="tb-btn-lbl">Profile</div>
+      </div>
     </div>
   </div>
   <div class="content" id="content">
@@ -1524,8 +1485,9 @@ canvas{display:block}
             </div>
           </div>
           <div class="log-hdr-right">
-            <button class="log-save-btn" onclick="saveLogEntry()"><img src="https://cdn-icons-png.flaticon.com/512/2734/2734428.png" width="14" height="14" style="vertical-align:middle;margin-right:4px"> Save</button>
-            <button class="log-del-btn" onclick="deleteLogEntry()"><img src="https://cdn-icons-png.flaticon.com/512/3221/3221929.png" width="14" height="14" style="vertical-align:middle"></button>
+            <button class="stg-btn" onclick="switchLogSection('healthimport')" style="font-size:12px;padding:5px 11px;height:auto">🍎 Import</button>
+            <button class="log-save-btn" onclick="saveLogEntry()">💾 Save</button>
+            <button class="log-del-btn" onclick="deleteLogEntry()">🗑</button>
           </div>
         </div>
         <!-- Left nav panel -->
@@ -1701,8 +1663,7 @@ canvas{display:block}
             <div class="stg-nav-item on" onclick="showStgPanel('profile')" id="sni-profile"><img src="https://cdn-icons-png.flaticon.com/512/1077/1077114.png" width="14" height="14" style="vertical-align:middle;margin-right:5px"> Profile</div>
             <div class="stg-nav-item" onclick="showStgPanel('targets')" id="sni-targets"><img src="https://cdn-icons-png.flaticon.com/512/2247/2247878.png" width="14" height="14" style="vertical-align:middle;margin-right:5px"> Targets</div>
             <div class="stg-nav-item" onclick="showStgPanel('schedule')" id="sni-schedule"><img src="https://cdn-icons-png.flaticon.com/512/2693/2693507.png" width="14" height="14" style="vertical-align:middle;margin-right:5px"> Schedule</div>
-
-            <div class="stg-nav-item" onclick="showStgPanel('healthimport')" id="sni-healthimport">🍎 Health Import</div>
+            <div class="stg-nav-item" onclick="showStgPanel('paste')" id="sni-paste"><img src="https://cdn-icons-png.flaticon.com/512/1585/1585484.png" width="14" height="14" style="vertical-align:middle;margin-right:5px"> Quick Paste</div>
             <div class="stg-nav-item" onclick="showStgPanel('custom')" id="sni-custom"><img src="https://cdn-icons-png.flaticon.com/512/1237/1237946.png" width="14" height="14" style="vertical-align:middle;margin-right:5px"> Custom Fields</div>
             <div class="stg-nav-item" onclick="showStgPanel('looks')" id="sni-looks"><img src="https://cdn-icons-png.flaticon.com/512/1048/1048955.png" width="14" height="14" style="vertical-align:middle;margin-right:5px"> Customise Looks</div>
             <div class="stg-nav-item" onclick="showStgPanel('data')" id="sni-data"><img src="https://cdn-icons-png.flaticon.com/512/724/724933.png" width="14" height="14" style="vertical-align:middle;margin-right:5px"> Data</div>
@@ -1853,6 +1814,7 @@ body:[
   {key:'waist_size',        label:'Waist',            unit:'cm',   bl:null,bh:90,  bl2:null,bh2:100,  scored:true},
   {key:'muscle_efficiency', label:'Muscle Efficiency',unit:'%',    bl:40,  bh:null, bl2:25,  bh2:null, scored:false, computed:true},
   {key:'body_age',          label:'Body Age',         unit:'yrs',  scored:false, computed:true},
+  {key:'bmr',               label:'BMR',              unit:'kcal', bl:1400,bh:2200,bl2:1000,bh2:3000, scored:false, computed:true},
 ],
 movement:[
   {key:'double_support_time',  label:'Double Support',  unit:'%',   bl:null,bh:22, bl2:null,bh2:30,  scored:true},
@@ -2251,6 +2213,16 @@ function generateLocalInsights(catId, dates){
       const diff = wtAvg7-wtAvg30;
       if(Math.abs(diff)>0.5) ins.push({type:diff<0?'good':'info', text:'⚖️ Weight '+(diff<0?'down':'up')+' ~'+fmtNum(Math.abs(diff),1)+'kg vs 30-day avg. '+(diff<0?'Tracking in right direction.':'Monitor trend.')});
     }
+    // BMR insight
+    const bmrVal = v('bmr') || (()=>{
+      const _entry = computeAllFields(getEntry(latestDate()));
+      return _entry && _entry.bmr ? _entry.bmr : 0;
+    })();
+    if(bmrVal > 0){
+      if(bmrVal < 1400) ins.push({type:'info', text:'🔥 BMR '+Math.round(bmrVal)+' kcal/day — lower than average. Ensure you\'re eating at or above BMR to support organ function.'});
+      else if(bmrVal <= 1800) ins.push({type:'good', text:'🔥 BMR '+Math.round(bmrVal)+' kcal/day — typical range. This is your minimum calorie need at complete rest.'});
+      else ins.push({type:'good', text:'🔥 BMR '+Math.round(bmrVal)+' kcal/day — above average, likely due to higher muscle mass. Supports a higher total daily energy expenditure.'});
+    }
   }
 
   if(catId==='nutrition'){
@@ -2396,24 +2368,6 @@ function computeScore(date){
   const wScore = Math.min(100, Math.round(wRawTotal));
   const workoutElite = wRawTotal > 100;
   catScores.workout = wScore;
-
-  // ── Sleep duration cap: if total_sleep < 5h (300min), cap sleep category score ──
-  // This prevents a high Apple sleep_score (e.g. 94) from inflating the score
-  // when actual sleep duration is severely short (e.g. 4h37m).
-  if(catScores.sleep != null){
-    const tsMins = e['total_sleep']; // stored in minutes
-    if(tsMins != null && tsMins > 0){
-      // Below 4h (240min) → cap at 20. Scale linearly up to 6h (360min).
-      const VERY_BAD = 240, ADEQUATE = 360;
-      if(tsMins < ADEQUATE){
-        const durationCap = tsMins <= VERY_BAD
-          ? 20
-          : Math.round(20 + (tsMins - VERY_BAD) / (ADEQUATE - VERY_BAD) * 60); // 20→80
-        catScores.sleep = Math.min(catScores.sleep, durationCap);
-      }
-    }
-  }
-
   const wTypes = WACT_KEYS.filter(k=>{ const v=e[k]; return v!=null&&v>0; }).length;
   const wCompleted = wActScores50.filter(s=>s>0).length;
   const workoutBonus = workoutElite ? 5 : wCompleted>=2 ? 3 : 0;
@@ -2909,7 +2863,7 @@ function openPopup(key){
     'hrr','fitness_age','relative_effort','vo2_efficiency','walking_strain','autonomic_balance','recovery_readiness','breath_avg',
     'sleep_recovery','sleep_fragmentation','mental_recovery','physical_recovery','sleep_debt','state_of_mind',
     'sleep_efficiency','deep_sleep_pct','sleep_score',
-    'muscle_efficiency','body_age','movement_score',
+    'muscle_efficiency','body_age','movement_score','bmr',
     'carb_ratio','fat_quality','fiber_density','protein_cal_pct','carb_cal_pct','fat_cal_pct',
     'protein_per_kg','hydration_score']);
   const hasSum = !AVG_ONLY.has(key);
@@ -3721,6 +3675,22 @@ function computeAllFields(e){
   if(r.sleep_awake != null && r.total_sleep > 0)
     r.sleep_fragmentation = Math.round(r.sleep_awake / r.total_sleep * 100 * 10) / 10;
 
+  // 10c2. Computed Sleep Score — always override Apple's score
+  // Criteria: total_sleep (40%), deep (20%), REM (20%), core (10%), awake penalty (10%)
+  if(r.total_sleep > 0){
+    // Total sleep: 0→0, 240→40%, 420→80%, 480→100% of component
+    const tsScore  = Math.min(100, Math.round(r.total_sleep / 480 * 100));
+    // Deep: target 60-120 min → 100
+    const deepScore= r.sleep_deep  > 0 ? Math.min(100, Math.round(r.sleep_deep  / 90  * 100)) : 0;
+    // REM:  target 90-150 min → 100
+    const remScore = r.sleep_rem   > 0 ? Math.min(100, Math.round(r.sleep_rem   / 120 * 100)) : 0;
+    // Core: target 210-300 min → 100
+    const coreScore= r.sleep_core  > 0 ? Math.min(100, Math.round(r.sleep_core  / 210 * 100)) : 50; // no data = neutral
+    // Awake penalty: 0 awake = 100, 60+ min awake = 0
+    const awkScore = r.sleep_awake != null ? Math.max(0, Math.round((1 - r.sleep_awake/60)*100)) : 100;
+    r.sleep_score = Math.round(tsScore*0.4 + deepScore*0.2 + remScore*0.2 + coreScore*0.1 + awkScore*0.1);
+  }
+
   // 10d. Mental Recovery % = REM ÷ Total Sleep × 100 (brain recovery)
   if(r.sleep_rem > 0 && r.total_sleep > 0)
     r.mental_recovery = Math.round(r.sleep_rem / r.total_sleep * 100);
@@ -3836,6 +3806,20 @@ function computeAllFields(e){
     r.body_age = Math.max(18, Math.round(_ageB + offset));
   }
 
+  // 24b. BMR — Mifflin-St Jeor formula (uses today's weight OR profile weight)
+  {
+    const _wt  = r.weight || null;
+    const _ht  = (typeof userProfile !== 'undefined' && userProfile.height_cm) ? userProfile.height_cm : null;
+    const _age = (typeof userProfile !== 'undefined' && userProfile.dob)
+      ? Math.floor((Date.now() - new Date(userProfile.dob).getTime()) / (365.25*24*3600*1000)) : null;
+    const _sex = (typeof userProfile !== 'undefined' && userProfile.sex) ? userProfile.sex : null;
+    if(_wt && _ht && _age && _sex && _sex !== 'other'){
+      // Mifflin-St Jeor: 10×weight(kg) + 6.25×height(cm) − 5×age + s
+      const s = _sex === 'male' ? 5 : -161;
+      r.bmr = Math.round(10 * _wt + 6.25 * _ht - 5 * _age + s);
+    }
+  }
+
   // 25. Movement Score — composite of movement quality fields (lower-is-better fields inverted)
   const _mvScores = [];
   if(r.double_support_time != null){ const s=r.double_support_time<=22?100:r.double_support_time<=30?Math.round((30-r.double_support_time)/8*100):0; _mvScores.push(s); }
@@ -3871,6 +3855,8 @@ const COMPUTED_DEFS = [
   {key:'cardio_load',       label:'Cardio Load',      unit:'',     icon:'https://cdn-icons-png.flaticon.com/512/2515/2515283.png',   color:'var(--cv)'},
   {key:'recovery_index',    label:'Recovery Index',   unit:'',     icon:'https://cdn-icons-png.flaticon.com/512/2779/2779775.png',   color:'var(--good)'},
   {key:'step_pace',         label:'Stride Length',    unit:'cm',   icon:'https://cdn-icons-png.flaticon.com/512/1822/1822905.png',   color:'var(--steps-c)'},
+  {key:'bmr',               label:'BMR',              unit:'kcal', icon:'https://cdn-icons-png.flaticon.com/512/2936/2936886.png',   color:'var(--ce)',
+    sub: ()=>'Basal Metabolic Rate'},
 ];
 
 // ═══════════════════════════════════════════════
@@ -3892,7 +3878,7 @@ const LOG_SECTIONS = [
     'calcium','chloride','iron','magnesium','phosphorus','potassium','sodium','zinc','chromium','copper','iodine','manganese','molybdenum','selenium',
     'vitamin_a','vitamin_e','vitamin_d','vitamin_c','thiamin','riboflavin','niacin','pantothenic_acid','vitamin_b6','biotin','folate','vitamin_b12','vitamin_k'
   ]},
-  {id:'body',      label:'Body',      keys:['weight','bmi','body_fat_ratio','muscle_rate','body_water','bone_mass','visceral_fat','subcutaneous_fat','protein_mass','muscle_mass','lean_body_mass','waist_size']},
+  {id:'body',      label:'Body',      keys:['weight','bmi','body_fat_ratio','muscle_rate','body_water','bone_mass','visceral_fat','subcutaneous_fat','protein_mass','muscle_mass','lean_body_mass','waist_size','bmr']},
   {id:'screen',    label:'Screen',    keys:['book_time','movie_time','reddit_time','twitter_time','youtube_time','mobile_time','tablet_time','laptop_time']},
   {id:'habits',    label:'Habits',    keys:['stuff_count','alcohol']},
 ];
@@ -3960,6 +3946,23 @@ function renderLogLeftPanel(){
   panel.innerHTML = html;
 }
 
+function showHealthImportPanel(){
+  // Show the health import UI inline in the log right panel
+  const scroll = document.getElementById('log-fields');
+  if(!scroll) return;
+  const prev = scroll.innerHTML;
+  scroll.innerHTML = `<div style="padding:12px">
+    <div style="font-size:13px;font-weight:700;color:var(--t1);margin-bottom:4px">🍎 Health Import</div>
+    <div style="font-size:12px;color:var(--t3);margin-bottom:10px">Paste raw export text — WellStat parses and fills today's log.</div>
+    <textarea id="hi-raw" placeholder="Paste Health Export text here..." style="width:100%;height:220px;padding:10px;border-radius:var(--rs);border:1px solid var(--border2);background:var(--surface2);color:var(--t1);font-size:11px;font-family:var(--fm);resize:vertical;box-sizing:border-box"></textarea>
+    <div style="display:flex;gap:8px;margin-top:8px;align-items:center">
+      <button class="log-save-btn" style="font-size:13px;padding:8px 18px" onclick="healthImportRun();renderLogFields()">⬇ Parse &amp; Import</button>
+      <button class="stg-btn" onclick="renderLogFields()">← Back</button>
+    </div>
+    <div id="hi-log" style="margin-top:10px;font-size:11px;font-family:var(--fm);color:var(--t2);white-space:pre-wrap;line-height:1.6;max-height:200px;overflow-y:auto"></div>
+  </div>`;
+}
+
 function initLog(){
   // Date
   const di = document.getElementById('log-date');
@@ -3974,6 +3977,10 @@ function initLog(){
 }
 
 function switchLogSection(id){
+  if(id === 'healthimport'){
+    showHealthImportPanel();
+    return;
+  }
   logSection = id;
   renderLogLeftPanel();
   renderLogFields();
@@ -4004,7 +4011,7 @@ function renderLogFields(){
 
     const carryoverKeys = ['weight','bmi','body_fat_ratio','muscle_rate','body_water','bone_mass',
       'visceral_fat','subcutaneous_fat','protein_mass','muscle_mass','lean_body_mass','waist_size',
-      'double_support_time','walk_asymmetry','walking_step_length'];
+      'double_support_time','walk_asymmetry','walking_step_length','bmr'];
     let copyBtn = '';
     if(carryoverKeys.includes(key) && val === ''){
       const prevDates = allDates().filter(d => d < logDate).sort().reverse();
@@ -4187,9 +4194,32 @@ function renderLogFields(){
 
   // Body tip
   if(logSection === 'body'){
+    const bodyPasteDiv = document.createElement('div');
+    bodyPasteDiv.style.cssText = 'grid-column:1/-1;background:var(--surface2);border:1px solid var(--accent);border-radius:var(--rs);padding:10px 12px;margin-bottom:8px';
+    bodyPasteDiv.innerHTML = `<div style="font-size:10px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">⚡ Quick paste — weight, bmi, body fat, muscle, water, bone, waist</div>
+      <div style="display:flex;gap:8px">
+        <input id="body-paste-inp" style="flex:1;padding:7px 10px;border-radius:var(--rxs);background:var(--surface);border:1px solid var(--border2);color:var(--t1);font-size:12px;font-family:var(--fm)" placeholder="Paste tab-separated values from smart scale export">
+        <button class="log-save-btn" style="font-size:12px;padding:6px 14px" onclick="applyBodyPaste()">Apply</button>
+      </div>`;
+    grid.insertBefore(bodyPasteDiv, grid.firstChild);
     const hrNote = document.createElement('div');
-    hrNote.style.cssText = 'grid-column:1/-1;padding:10px 14px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);margin-top:4px;font-size:12px;color:var(--t3)';
-    hrNote.innerHTML = '<img src="https://cdn-icons-png.flaticon.com/512/595/595067.png" width="13" height="13" style="vertical-align:middle;margin-right:3px"><strong style="color:var(--t1)">Tip:</strong> Fields like Weight, Body Fat, etc. show a <em>↑prev</em> button when empty — tap to copy the previous logged value.';
+    hrNote.style.cssText = 'grid-column:1/-1;padding:8px 14px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);margin-top:4px;font-size:11px;color:var(--t3)';
+    hrNote.innerHTML = '💡 <strong style="color:var(--t1)">Tip:</strong> Fields like Weight, Body Fat, etc. show a <em>↑prev</em> button when empty — tap to copy the previous logged value.';
+    // BMR profile hint
+    const _p = (typeof userProfile !== 'undefined') ? userProfile : {};
+    const _hasBMRProfile = _p.height_cm && _p.dob && _p.sex && _p.sex !== 'other';
+    const bmrNote = document.createElement('div');
+    bmrNote.style.cssText = 'grid-column:1/-1;padding:8px 14px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);margin-top:4px;font-size:11px;color:var(--t3)';
+    if(_hasBMRProfile){
+      const _wt = (getEntry(logDate)||{}).weight;
+      const _age = Math.floor((Date.now() - new Date(_p.dob).getTime()) / (365.25*24*3600*1000));
+      const _s = _p.sex === 'male' ? 5 : -161;
+      const _bmrEst = _wt ? Math.round(10*_wt + 6.25*_p.height_cm - 5*_age + _s) : null;
+      bmrNote.innerHTML = '🔥 <strong style="color:var(--t1)">BMR</strong> is auto-computed from your weight + profile (Mifflin-St Jeor).' + (_bmrEst ? ' Estimated today: <strong style="color:var(--accent)">'+_bmrEst+' kcal</strong>.' : ' Log today\'s weight to see your BMR.');
+    } else {
+      bmrNote.innerHTML = '🔥 <strong style="color:var(--t1)">BMR</strong> is auto-computed — set your <strong>Height, Date of Birth & Biological Sex</strong> in <a href="#" onclick="showPage(\'settings\')" style="color:var(--accent)">Settings → Profile</a> to enable it.';
+    }
+    grid.appendChild(bmrNote);
     grid.appendChild(hrNote);
   }
 
@@ -4324,6 +4354,51 @@ function updateComputedBanner(){
   }
 }
 
+
+function applyBodyPaste(){
+  const inp = document.getElementById('body-paste-inp');
+  if(!inp) return;
+  const raw = inp.value.trim();
+  if(!raw){ showToast('Paste tab-separated body data first'); return; }
+  const vals = raw.split('\t').map(v=>v.trim());
+  const BODY_KEYS = ['weight','bmi','body_fat_ratio','muscle_rate','body_water','bone_mass','visceral_fat','subcutaneous_fat','protein_mass','muscle_mass','lean_body_mass','waist_size'];
+  let count = 0;
+  vals.forEach((v,i) => {
+    if(i >= BODY_KEYS.length) return;
+    const n = parseFloat(v);
+    if(!isNaN(n) && n > 0){
+      onLogFieldChange(BODY_KEYS[i], n);
+      const el = document.getElementById('lf-'+BODY_KEYS[i]);
+      if(el) el.value = n;
+      count++;
+    }
+  });
+  if(count > 0){ inp.value=''; showToast('✅ Applied '+count+' body values'); }
+  else showToast('No valid numbers found in paste');
+}
+
+function applyBodyPaste(){
+  const inp = document.getElementById('body-paste-inp');
+  if(!inp || !inp.value.trim()) return;
+  const BODY_ORDER = ['weight','bmi','body_fat_ratio','muscle_rate','body_water','bone_mass','visceral_fat','waist_size'];
+  const vals = inp.value.trim().split(/\t|,/);
+  const entry = getEntry(logDate) || {};
+  let count = 0;
+  vals.forEach((v,i) => {
+    const key = BODY_ORDER[i];
+    if(!key) return;
+    const n = parseFloat(v.trim());
+    if(!isNaN(n) && n > 0){
+      entry[key] = n;
+      const el = document.getElementById('lf-'+key);
+      if(el) el.value = n;
+      onLogFieldChange(key, n);
+      count++;
+    }
+  });
+  inp.value = '';
+  showToast('⚖️ Applied ' + count + ' body fields');
+}
 
 function applyNutritionPaste(sectionId){
   const inp = document.getElementById('nutrition-paste-inp');
@@ -4787,6 +4862,7 @@ const DEFAULT_FIELD_ICONS = {
   sleep_awake:        ICON_URLS.sleep,
   muscle_efficiency:  ICON_URLS.strength,
   body_age:           ICON_URLS.body,
+  bmr:                ICON_URLS.energy,
   movement_score:     ICON_URLS.movement,
   sleep_recovery:     ICON_URLS.sleep,
   sleep_fragmentation:ICON_URLS.sleep,
@@ -5782,7 +5858,7 @@ function openDrill(key){
     'hrr','fitness_age','relative_effort','vo2_efficiency','walking_strain','autonomic_balance','recovery_readiness','breath_avg',
     'sleep_recovery','sleep_fragmentation','mental_recovery','physical_recovery','sleep_debt','state_of_mind',
     'sleep_efficiency','deep_sleep_pct','sleep_score',
-    'muscle_efficiency','body_age','movement_score',
+    'muscle_efficiency','body_age','movement_score','bmr',
     'carb_ratio','fat_quality','fiber_density','protein_cal_pct','carb_cal_pct','fat_cal_pct',
     'protein_per_kg','hydration_score']);
   const hasSum = !AVG_ONLY.has(key);
@@ -6029,7 +6105,7 @@ function renderEnergyOptCalendar(){
       title="${ds}: ${isSkip?'Skip — not counted':isPartial?pct+'% credit':'Normal (tap to change)'}">${label}</button>`;
   }
 
-  const wrap = document.getElementById('energy-opt-cal-wrap');
+  const wrap = document.getElementById('sched-energy-cal-wrap') || document.getElementById('energy-opt-cal-wrap');
   if(!wrap) return;
   wrap.innerHTML =
     `<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
@@ -6046,15 +6122,18 @@ function energyOptCalNext(){ energyOptCalMonth++; if(energyOptCalMonth>11){energ
 function energyOptCellClick(date){
   const cur = getEnergyOptPct(date);
   const cycle = [100, 0, 25, 50, 75];
-  setEnergyOptDay(date, cycle[(cycle.indexOf(cur)+1)%cycle.length]);
-  renderEnergyOptCalendar();   // refresh old page-based cal if present
-  renderStgEnergyOptCal();     // refresh settings cal
+  const idx = cycle.indexOf(cur);
+  const next = cycle[(idx + 1) % cycle.length];
+  setEnergyOptDay(date, next);
+  if(document.getElementById('sched-energy-cal-wrap')) renderEnergyOptCalendar();
+  else renderAHEnergy();
   renderDashboard();
 }
 
 function clearAllEnergyOpts(){
   energyOptDays = {};
   saveSchedule();
+  renderAHEnergy();
   renderDashboard();
   showToast('Energy opt-outs cleared');
 }
@@ -6084,7 +6163,6 @@ function renderAHEnergy(){
 
   // Streak calendar (streak counts day if actual/adjusted target met proportionally)
   left += ahSectionTitle(_iconImg(ICON_URLS.calories,16),'Active Cal Streak — Last 30 Days');
-  left += '<div style="font-size:10px;color:var(--t4);margin-bottom:6px;margin-top:-6px">Opt-out: <button onclick="showPage(\'settings\');setTimeout(()=>{showStgPanel(\'schedule\');schedShowTab(\'energy\');},120)" style="background:none;border:none;color:var(--accent);font-size:10px;cursor:pointer;padding:0;font-family:var(--fb);text-decoration:underline">Settings → Schedule → Energy Opt</button></div>';
   left += buildStreakCalendar([
     {key:'active_calories', label:'Active Cal Goal', icon:_iconImg(ICON_URLS.calories,16),
       done:(val, date)=>{
@@ -6108,165 +6186,252 @@ function renderAHEnergy(){
     },
   ], 30);
 
-  // ── RIGHT PANEL — Energy Analytics ──────────
-  const eDates14 = dates.slice(-14);
-  const activeCals  = dates.map(d=>parseFloat((allData[d]||{}).active_calories)||0);
-  const restingCals = dates.map(d=>parseFloat((allData[d]||{}).resting_calories)||0);
-  const netBalances = dates.map(d=>{ const e=computeAllFields(getEntry(d)); return e.net_energy_balance??null; });
-  const avgActive  = activeCals.filter(v=>v>0).length ? Math.round(activeCals.filter(v=>v>0).reduce((a,b)=>a+b,0)/activeCals.filter(v=>v>0).length) : null;
-  const avgResting = restingCals.filter(v=>v>0).length ? Math.round(restingCals.filter(v=>v>0).reduce((a,b)=>a+b,0)/restingCals.filter(v=>v>0).length) : null;
-  const avgNet     = netBalances.filter(v=>v!=null).length ? Math.round(netBalances.filter(v=>v!=null).reduce((a,b)=>a+b,0)/netBalances.filter(v=>v!=null).length) : null;
+  // ── RIGHT PANEL — Metabolic Intelligence ────────────────────────────────
+  const _latestE = (key) => { for(let i=dates.length-1;i>=0;i--){ const v=computeAllFields(getEntry(dates[i]))[key]; if(v!=null&&!isNaN(v)) return v; } return null; };
+  const _acal  = _latestE('active_calories');
+  const _rcal  = _latestE('resting_calories');
+  const _bmr   = _latestE('bmr');
+  const _gfp   = _latestE('google_fit_points');
 
-  // ── Calorie Donut ──────────────────────────────
-  let calDonut = '';
-  if(avgActive!=null && avgResting!=null){
-    const total = avgActive + avgResting;
-    const actPct = Math.round(avgActive/total*100);
-    const cx=55, cy=55, r=44, ir=28;
-    function buildArc(startPct, endPct, col){
-      const s = startPct/100*2*Math.PI - Math.PI/2;
-      const e = endPct/100*2*Math.PI   - Math.PI/2;
-      const sweep = e - s;
-      if(sweep < 0.01) return '';
-      const x1=cx+r*Math.cos(s), y1=cy+r*Math.sin(s);
-      const x2=cx+r*Math.cos(e), y2=cy+r*Math.sin(e);
-      const ix1=cx+ir*Math.cos(s), iy1=cy+ir*Math.sin(s);
-      const ix2=cx+ir*Math.cos(e), iy2=cy+ir*Math.sin(e);
-      const lg = sweep > Math.PI ? 1 : 0;
-      return '<path d="M'+x1.toFixed(1)+','+y1.toFixed(1)+' A'+r+','+r+' 0 '+lg+',1 '+x2.toFixed(1)+','+y2.toFixed(1)+' L'+ix2.toFixed(1)+','+iy2.toFixed(1)+' A'+ir+','+ir+' 0 '+lg+',0 '+ix1.toFixed(1)+','+iy1.toFixed(1)+' Z" fill="'+col+'" opacity="0.9"/>';
-    }
-    const netCol = avgNet!=null&&avgNet>=0 ? 'var(--good)' : 'var(--danger)';
-    const netDisp = avgNet!=null ? ((avgNet>=0?'+':'')+avgNet) : '\u2014';
-    calDonut = '<div style="margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid var(--border)">'
-      +'<div style="font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">'+_iconImg(ICON_URLS.calories,12)+' Calorie Split (avg)</div>'
-      +'<div style="display:flex;align-items:center;gap:14px">'
-        +'<div style="flex-shrink:0">'
-          +'<svg width="110" height="110" viewBox="0 0 110 110">'
-            +buildArc(0, actPct, '#FF6B35')
-            +buildArc(actPct, 100, '#3B82F6')
-            +'<circle cx="55" cy="55" r="26" fill="var(--solidbg)"/>'
-            +'<text x="55" y="52" text-anchor="middle" font-size="10" font-weight="800" fill="var(--t1)" font-family="var(--fd)">'+Math.round(total)+'</text>'
-            +'<text x="55" y="62" text-anchor="middle" font-size="7" fill="var(--t3)">kcal</text>'
-          +'</svg>'
-        +'</div>'
-        +'<div style="flex:1;display:flex;flex-direction:column;gap:6px">'
-          +'<div style="display:flex;align-items:center;gap:6px">'
-            +'<div style="width:9px;height:9px;border-radius:50%;background:#FF6B35;flex-shrink:0"></div>'
-            +'<span style="font-size:10px;color:var(--t3);flex:1">Active</span>'
-            +'<span style="font-size:13px;font-weight:800;color:#FF6B35;font-family:var(--fd)">'+avgActive+'</span>'
-          +'</div>'
-          +'<div style="display:flex;align-items:center;gap:6px">'
-            +'<div style="width:9px;height:9px;border-radius:50%;background:#3B82F6;flex-shrink:0"></div>'
-            +'<span style="font-size:10px;color:var(--t3);flex:1">Resting</span>'
-            +'<span style="font-size:13px;font-weight:800;color:#3B82F6;font-family:var(--fd)">'+avgResting+'</span>'
-          +'</div>'
-          +'<div style="display:flex;align-items:center;gap:6px">'
-            +'<div style="width:9px;height:9px;border-radius:50%;background:'+netCol+';flex-shrink:0"></div>'
-            +'<span style="font-size:10px;color:var(--t3);flex:1">Net Balance</span>'
-            +'<span style="font-size:13px;font-weight:800;color:'+netCol+';font-family:var(--fd)">'+netDisp+'</span>'
-          +'</div>'
-        +'</div>'
-      +'</div>'
-    +'</div>';
-  }
+  // ── Pie chart data ──
+  const _pieAcal = _acal || 0;
+  const _pieRcal = _rcal || 0;
+  const _pieTotal = _pieAcal + _pieRcal;
+  const _piePctA = _pieTotal > 0 ? (_pieAcal / _pieTotal) : 0;
+  const _piePctR = _pieTotal > 0 ? (_pieRcal / _pieTotal) : 0;
+  // SVG donut: cx=60,cy=60,r=46 => circumference=289
+  const _C = 2 * Math.PI * 46;
+  const _dashA = _pieTotal > 0 ? (_piePctA * _C) : 0;
+  const _dashR = _pieTotal > 0 ? (_piePctR * _C) : 0;
+  const _offsetR = 0;
+  const _offsetA = _dashR;
 
-  // ── Activity Consistency ───────────────────────
-  const acTgt = getTarget ? ((getTarget('active_calories')||{}).lo||300) : 300;
-  const consistDays = activeCals.filter(v=>v>=acTgt).length;
-  const consistPct  = dates.length ? Math.round(consistDays/dates.length*100) : 0;
-  const consistCol  = consistPct>=80?'var(--good)':consistPct>=60?'var(--accent)':consistPct>=40?'var(--warn)':'var(--danger)';
-  const consistBar  = '<div style="margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid var(--border)">'
-    +'<div style="font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">\uD83C\uDFAF Activity Consistency</div>'
-    +'<div style="display:flex;align-items:center;gap:10px">'
-      +'<div style="flex:1">'
-        +'<div style="height:8px;background:var(--border2);border-radius:10px;overflow:hidden;margin-bottom:5px">'
-          +'<div style="height:100%;background:'+consistCol+';width:'+consistPct+'%;border-radius:10px;transition:width .6s ease"></div>'
-        +'</div>'
-        +'<div style="font-size:10px;color:var(--t3)">'+consistDays+' of '+dates.length+' days \u2265 '+acTgt+' cal</div>'
-      +'</div>'
-      +'<div style="font-family:var(--fd);font-size:22px;font-weight:900;color:'+consistCol+'">'+consistPct+'%</div>'
-    +'</div>'
-  +'</div>';
+  // ── Activity ratio ──
+  const _actRatio = (_acal != null && _rcal != null && _rcal > 0) ? (_acal / _rcal).toFixed(2) : null;
+  const _ratioLabel = _actRatio == null ? '—' : _actRatio >= 0.25 ? 'Active' : _actRatio >= 0.12 ? 'Moderate' : 'Sedentary';
+  const _ratioCol   = _actRatio == null ? 'var(--t3)' : _actRatio >= 0.25 ? '#10B981' : _actRatio >= 0.12 ? '#F59E0B' : '#EF4444';
 
-  // ── Fit Point Correlation ──────────────────────
-  const fpCorrPts = dates.map(d=>({fp:parseFloat((allData[d]||{}).google_fit_points)||0, ac:parseFloat((allData[d]||{}).active_calories)||0})).filter(p=>p.fp>0&&p.ac>0);
-  let fpCorr = '';
-  if(fpCorrPts.length>=3){
-    const maxFp=Math.max(...fpCorrPts.map(p=>p.fp),1), maxAc=Math.max(...fpCorrPts.map(p=>p.ac),1);
-    const W=220, H=70, PAD=8;
-    const dots = fpCorrPts.slice(-14).map(p=>{
-      const x=PAD+(p.fp/maxFp)*(W-PAD*2), y=H-PAD-(p.ac/maxAc)*(H-PAD*2);
-      return '<circle cx="'+x.toFixed(1)+'" cy="'+y.toFixed(1)+'" r="3" fill="var(--accent)" opacity="0.7"/>';
-    }).join('');
-    const n=fpCorrPts.length, sx=fpCorrPts.reduce((s,p)=>s+p.fp,0), sy=fpCorrPts.reduce((s,p)=>s+p.ac,0);
-    const mx=sx/n, my=sy/n;
-    const num=fpCorrPts.reduce((s,p)=>s+(p.fp-mx)*(p.ac-my),0);
-    const den=fpCorrPts.reduce((s,p)=>s+(p.fp-mx)**2,0)||1;
-    const m=num/den, b=my-m*mx;
-    const tx1=PAD, ty1=H-PAD-(Math.max(0,Math.min(maxAc,b))/maxAc)*(H-PAD*2);
-    const tx2=PAD+(W-PAD*2), ty2=H-PAD-(Math.max(0,Math.min(maxAc,m*maxFp+b))/maxAc)*(H-PAD*2);
-    const rc=Math.sqrt((num*num)/(den*(fpCorrPts.reduce((s,p)=>s+(p.ac-my)**2,0)||1)));
-    const rcCol = rc>0.6?'var(--good)':rc>0.3?'var(--accent)':'var(--t3)';
-    const rcLbl = rc>0.6?'Strong link':'Weak link';
-    fpCorr = '<div style="margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid var(--border)">'
-      +'<div style="font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">\uD83D\uDCCA Fit Points vs Active Cal</div>'
-      +'<svg width="100%" viewBox="0 0 '+W+' '+H+'" style="overflow:visible">'
-        +'<line x1="'+PAD+'" y1="'+PAD+'" x2="'+PAD+'" y2="'+(H-PAD)+'" stroke="var(--border)" stroke-width="1"/>'
-        +'<line x1="'+PAD+'" y1="'+(H-PAD)+'" x2="'+(W-PAD)+'" y2="'+(H-PAD)+'" stroke="var(--border)" stroke-width="1"/>'
-        +'<line x1="'+tx1.toFixed(1)+'" y1="'+ty1.toFixed(1)+'" x2="'+tx2.toFixed(1)+'" y2="'+ty2.toFixed(1)+'" stroke="var(--accent)" stroke-width="1.5" stroke-dasharray="3,3" opacity="0.5"/>'
-        +dots
-        +'<text x="'+PAD+'" y="'+(PAD-2)+'" font-size="7" fill="var(--t4)">Active Cal</text>'
-        +'<text x="'+(W-PAD)+'" y="'+(H-1)+'" font-size="7" fill="var(--t4)" text-anchor="end">Fit Pts</text>'
-      +'</svg>'
-      +'<div style="font-size:10px;color:var(--t3);margin-top:4px">Correlation r = <strong style="color:'+rcCol+'">'+rc.toFixed(2)+'</strong> \u00B7 '+rcLbl+' between fit points &amp; burn</div>'
-    +'</div>';
-  }
+  // ── Thermic Effect of Food (TEF) = 10% of Resting Calories ──
+  const _tef = _rcal != null ? Math.round(_rcal * 0.10) : null;
 
-  // ── Metabolic Shift ────────────────────────────
-  const avg7ac  = (() => { const vs=allDates().slice(-7).map(d=>parseFloat((allData[d]||{}).active_calories)||0).filter(v=>v>0);  return vs.length?Math.round(vs.reduce((a,b)=>a+b,0)/vs.length):null; })();
-  const avg30ac = (() => { const vs=allDates().slice(-30).map(d=>parseFloat((allData[d]||{}).active_calories)||0).filter(v=>v>0); return vs.length?Math.round(vs.reduce((a,b)=>a+b,0)/vs.length):null; })();
-  let metShift = '';
-  if(avg7ac!=null && avg30ac!=null){
-    const diff=avg7ac-avg30ac, shiftPct=Math.round(diff/avg30ac*100);
-    const arrow=diff>0?'\u2191':'\u2193', shiftCol=diff>0?'var(--good)':'var(--danger)';
-    metShift = '<div style="margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid var(--border)">'
-      +'<div style="font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">\uD83D\uDCC8 Metabolic Shift</div>'
-      +'<div style="display:flex;gap:8px">'
-        +'<div style="flex:1;background:var(--surface2);border-radius:var(--rs);padding:8px;text-align:center">'
-          +'<div style="font-size:9px;color:var(--t4);margin-bottom:2px">7D Avg</div>'
-          +'<div style="font-size:16px;font-weight:800;color:var(--t1);font-family:var(--fd)">'+avg7ac+'</div>'
-          +'<div style="font-size:8px;color:var(--t4)">kcal</div>'
-        +'</div>'
-        +'<div style="flex:1;background:var(--surface2);border-radius:var(--rs);padding:8px;text-align:center">'
-          +'<div style="font-size:9px;color:var(--t4);margin-bottom:2px">30D Avg</div>'
-          +'<div style="font-size:16px;font-weight:800;color:var(--t1);font-family:var(--fd)">'+avg30ac+'</div>'
-          +'<div style="font-size:8px;color:var(--t4)">kcal</div>'
-        +'</div>'
-        +'<div style="flex:1;background:var(--surface2);border-radius:var(--rs);padding:8px;text-align:center">'
-          +'<div style="font-size:9px;color:var(--t4);margin-bottom:2px">Shift</div>'
-          +'<div style="font-size:16px;font-weight:800;color:'+shiftCol+';font-family:var(--fd)">'+arrow+Math.abs(shiftPct)+'%</div>'
-          +'<div style="font-size:8px;color:var(--t4)">'+(diff>0?'+':'')+diff+' kcal</div>'
-        +'</div>'
-      +'</div>'
-    +'</div>';
-  }
+  // ── Baseline Non-Exercise Activity (NEAT) = Resting Cal − BMR − TEF ──
+  // NEAT = gap between BMR and Resting Cal, minus TEF
+  const _neat = (_rcal != null && _bmr != null && _tef != null) ? Math.max(0, Math.round(_rcal - _bmr - _tef)) : null;
 
-  const right = '<div style="font-size:12px;font-weight:700;color:var(--t1);margin-bottom:12px;display:flex;align-items:center;gap:6px">'
-    +_iconImg(ICON_URLS.energy,14)+' Energy Analytics'
-    +'</div>'
-    +calDonut
-    +consistBar
-    +fpCorr
-    +metShift
-    +'<div style="border-top:1px solid var(--border);padding-top:12px">'+renderLocalInsightsHtml('energy', dates)+'</div>';
+  // ── Metabolic Health Ratio = Resting Cal / BMR ──
+  const _mhr  = (_rcal != null && _bmr != null && _bmr > 0) ? (_rcal / _bmr).toFixed(2) : null;
+  const _mhrLabel = _mhr == null ? '—' : _mhr >= 1.6 ? 'Very Active' : _mhr >= 1.3 ? 'Lightly Active' : _mhr >= 1.0 ? 'Sedentary' : 'Below BMR';
+  const _mhrCol   = _mhr == null ? 'var(--t3)' : _mhr >= 1.6 ? '#10B981' : _mhr >= 1.3 ? '#F59E0B' : _mhr >= 1.0 ? '#6366F1' : '#EF4444';
 
-  const html = '<div class="ah-energy-layout">'
-    +'<div class="ah-energy-left">'+left+'</div>'
-    +'<div class="ah-energy-right">'+right+'</div>'
-    +'</div>';
+  // ── Google Fit WHO goals ──
+  const _whoDaily = 80; // Fit Points daily goal (WHO 150min/wk ≈ 80 fit pts/day per Google)
+  const _whoWeekly = 500; // ~WHO 150min/wk in fit points
+  const _todayStr = new Date().toISOString().split('T')[0];
+  const _todayGFP = (() => { const e = computeAllFields(getEntry(_todayStr)); return e && e.google_fit_points != null ? e.google_fit_points : null; })();
+  const _whoToday = _todayGFP != null ? _todayGFP >= _whoDaily : null;
+  const _last7Dates = [];
+  for(let i=6;i>=0;i--){ const d=new Date(); d.setDate(d.getDate()-i); _last7Dates.push(d.toISOString().split('T')[0]); }
+  const _weekGFP = _last7Dates.reduce((s,d)=>{ const e=computeAllFields(getEntry(d)); return s+(e&&e.google_fit_points!=null?e.google_fit_points:0); },0);
+  const _whoWeek = _weekGFP >= _whoWeekly;
+  const _whoWeekPct = Math.min(100, Math.round((_weekGFP / _whoWeekly) * 100));
 
+  // ── Activity Consistency — last 30 days ──
+  const _last30 = [];
+  for(let i=29;i>=0;i--){ const d=new Date(); d.setDate(d.getDate()-i); _last30.push(d.toISOString().split('T')[0]); }
+  const _acTgt = getTarget('active_calories');
+  const _acTgtLo = _acTgt ? (_acTgt.lo ?? 300) : 300;
+  let _consDays = 0, _consMet = 0;
+  const _consCells = _last30.map(d => {
+    _consDays++;
+    const e = computeAllFields(getEntry(d));
+    const v = e && e.active_calories != null ? e.active_calories : null;
+    const optPct = getEnergyOptPct(d);
+    if(optPct === 0) return { skip: true };
+    if(v == null) return { skip: false, met: false, noData: true };
+    const needed = _acTgtLo * (optPct / 100);
+    const met = v >= needed;
+    if(met) _consMet++;
+    return { met, skip: false };
+  });
+  const _consistencyPct = _consDays > 0 ? Math.round((_consMet / _last30.filter((_,i)=>!_consCells[i].skip&&!_consCells[i].noData).length || 0) * 100) : 0;
+  const _consistValid = _last30.filter((_,i)=>!_consCells[i].skip&&!_consCells[i].noData).length;
+  const _consistCol = _consistencyPct >= 80 ? '#10B981' : _consistencyPct >= 50 ? '#F59E0B' : '#EF4444';
+  const _consistLabel = _consistencyPct >= 80 ? 'Consistent' : _consistencyPct >= 50 ? 'Building' : 'Inconsistent';
+
+  // ── Metabolic Shift — compare 7D avg vs 30D avg active cal ──
+  const _eAvgN = (key,n) => { const vs=dates.slice(-n).map(d=>computeAllFields(getEntry(d))[key]).filter(v=>v!=null&&!isNaN(v)&&v>0); return vs.length?Math.round(vs.reduce((a,b)=>a+b,0)/vs.length):null; };
+  const _avg7A  = _eAvgN('active_calories', 7);
+  const _avg30A = _eAvgN('active_calories', 30);
+  const _avg7R  = _eAvgN('resting_calories', 7);
+  const _avg30R = _eAvgN('resting_calories', 30);
+  const _shiftActive  = (_avg7A != null && _avg30A != null) ? _avg7A - _avg30A : null;
+  const _shiftResting = (_avg7R != null && _avg30R != null) ? _avg7R - _avg30R : null;
+  const _shiftSign  = v => v == null ? '—' : (v > 0 ? '+' : '') + v;
+  const _shiftCol   = v => v == null ? 'var(--t3)' : v > 50 ? '#10B981' : v < -50 ? '#EF4444' : '#F59E0B';
+
+  // ── Mini dot grid for consistency ──
+  const _dotGrid = _consCells.map(c => {
+    if(c.skip) return `<div style="width:9px;height:9px;border-radius:2px;background:var(--border2);opacity:.4"></div>`;
+    if(c.noData) return `<div style="width:9px;height:9px;border-radius:2px;background:var(--surface2);border:1px solid var(--border)"></div>`;
+    return `<div style="width:9px;height:9px;border-radius:2px;background:${c.met?'#10B981':'#EF4444'};opacity:${c.met?'.9':'.55'}"></div>`;
+  }).join('');
+
+  const right = `
+    <div style="font-size:12px;font-weight:800;color:var(--t1);margin-bottom:10px;padding-bottom:8px;border-bottom:2px solid var(--border);display:flex;align-items:center;gap:6px">
+      ${_iconImg(ICON_URLS.energy,14)} Metabolic Intelligence
+    </div>
+
+    <!-- 1. PIE CHART: Active vs Resting Calories -->
+    <div style="padding-bottom:12px;border-bottom:1px solid var(--border);margin-bottom:10px">
+      <div style="font-size:10px;font-weight:700;color:var(--t3);letter-spacing:.5px;text-transform:uppercase;margin-bottom:8px">🥧 Calorie Breakdown</div>
+      ${_pieTotal > 0 ? `
+      <div style="display:flex;align-items:center;gap:12px">
+        <svg viewBox="0 0 120 120" width="90" height="90" style="flex-shrink:0">
+          <circle cx="60" cy="60" r="46" fill="none" stroke="var(--border2)" stroke-width="18"/>
+          <circle cx="60" cy="60" r="46" fill="none" stroke="#6366F1" stroke-width="18"
+            stroke-dasharray="${_dashR.toFixed(1)} ${(_C-_dashR).toFixed(1)}"
+            stroke-dashoffset="${(-_offsetR + _C/4).toFixed(1)}"
+            transform="rotate(-90 60 60)" style="transition:stroke-dasharray .8s"/>
+          <circle cx="60" cy="60" r="46" fill="none" stroke="#F59E0B" stroke-width="18"
+            stroke-dasharray="${_dashA.toFixed(1)} ${(_C-_dashA).toFixed(1)}"
+            stroke-dashoffset="${(-_offsetA + _C/4).toFixed(1)}"
+            transform="rotate(-90 60 60)" style="transition:stroke-dasharray .8s"/>
+          <text x="60" y="56" text-anchor="middle" font-family="var(--fd)" font-size="13" font-weight="800" fill="var(--t1)">${_pieTotal}</text>
+          <text x="60" y="68" text-anchor="middle" font-size="8" fill="var(--t3)">kcal</text>
+        </svg>
+        <div style="flex:1;display:flex;flex-direction:column;gap:6px">
+          <div style="display:flex;align-items:center;gap:6px">
+            <div style="width:10px;height:10px;border-radius:3px;background:#F59E0B;flex-shrink:0"></div>
+            <div>
+              <div style="font-size:9px;color:var(--t3);text-transform:uppercase;letter-spacing:.3px">Active</div>
+              <div style="font-family:var(--fd);font-size:15px;font-weight:800;color:#F59E0B;line-height:1">${Math.round(_pieAcal)}</div>
+              <div style="font-size:9px;color:var(--t4)">${Math.round(_piePctA*100)}%</div>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:6px">
+            <div style="width:10px;height:10px;border-radius:3px;background:#6366F1;flex-shrink:0"></div>
+            <div>
+              <div style="font-size:9px;color:var(--t3);text-transform:uppercase;letter-spacing:.3px">Resting</div>
+              <div style="font-family:var(--fd);font-size:15px;font-weight:800;color:#6366F1;line-height:1">${Math.round(_pieRcal)}</div>
+              <div style="font-size:9px;color:var(--t4)">${Math.round(_piePctR*100)}%</div>
+            </div>
+          </div>
+        </div>
+      </div>` : `<div style="font-size:11px;color:var(--t4);text-align:center;padding:10px 0">Log active & resting calories to see breakdown</div>`}
+    </div>
+
+    <!-- 2. Active to Resting Ratio -->
+    <div style="padding-bottom:10px;border-bottom:1px solid var(--border);margin-bottom:10px">
+      <div style="font-size:10px;font-weight:700;color:var(--t3);letter-spacing:.5px;text-transform:uppercase;margin-bottom:6px">⚡ Active / Resting Ratio</div>
+      <div style="display:flex;align-items:center;justify-content:space-between">
+        <div>
+          <div style="font-family:var(--fd);font-size:22px;font-weight:900;color:${_ratioCol};line-height:1">${_actRatio ?? '—'}</div>
+          <div style="font-size:9px;color:var(--t4);margin-top:2px">${_acal!=null?_acal:'—'} ÷ ${_rcal!=null?_rcal:'—'} kcal</div>
+        </div>
+        <div style="padding:4px 10px;border-radius:20px;background:${_actRatio!=null?_ratioCol+'22':'var(--surface2)'};font-size:10px;font-weight:700;color:${_ratioCol}">${_ratioLabel}</div>
+      </div>
+    </div>
+
+    <!-- 3. Thermic Effect of Food -->
+    <div style="padding-bottom:10px;border-bottom:1px solid var(--border);margin-bottom:10px">
+      <div style="font-size:10px;font-weight:700;color:var(--t3);letter-spacing:.5px;text-transform:uppercase;margin-bottom:5px">🌡️ Thermic Effect of Food</div>
+      <div style="display:flex;align-items:center;justify-content:space-between">
+        <div>
+          <div style="font-family:var(--fd);font-size:20px;font-weight:800;color:#06B6D4">${_tef != null ? _tef + ' kcal' : '—'}</div>
+          <div style="font-size:9px;color:var(--t4);margin-top:1px">10% of Resting (${_rcal ?? '—'} kcal)</div>
+        </div>
+        <div style="font-size:9px;color:var(--t3);text-align:right;max-width:80px;line-height:1.4">Energy to digest &amp; process food</div>
+      </div>
+    </div>
+
+    <!-- 4. Baseline Non-Exercise Activity (NEAT) -->
+    <div style="padding-bottom:10px;border-bottom:1px solid var(--border);margin-bottom:10px">
+      <div style="font-size:10px;font-weight:700;color:var(--t3);letter-spacing:.5px;text-transform:uppercase;margin-bottom:5px">🚶 Baseline Non-Exercise Activity</div>
+      ${_neat != null ? `
+      <div style="font-family:var(--fd);font-size:20px;font-weight:800;color:#EC4899;margin-bottom:3px">${_neat} kcal</div>
+      <div style="font-size:9px;color:var(--t4);line-height:1.5">
+        RC (${_rcal}) − BMR (${_bmr}) = ${Math.round(_rcal-_bmr)} − TEF (${_tef}) = <b style="color:#EC4899">${_neat}</b>
+      </div>` : `
+      <div style="font-size:11px;color:var(--t4)">Needs BMR + Resting Cal data</div>
+      <div style="font-size:9px;color:var(--t4);margin-top:2px">RC − BMR − TEF = NEAT</div>`}
+    </div>
+
+    <!-- 5. Metabolic Health Ratio -->
+    <div style="padding-bottom:10px;border-bottom:1px solid var(--border);margin-bottom:10px">
+      <div style="font-size:10px;font-weight:700;color:var(--t3);letter-spacing:.5px;text-transform:uppercase;margin-bottom:5px">📊 Metabolic Health Ratio</div>
+      <div style="display:flex;align-items:center;justify-content:space-between">
+        <div>
+          <div style="font-family:var(--fd);font-size:22px;font-weight:900;color:${_mhrCol};line-height:1">${_mhr ?? '—'}</div>
+          <div style="font-size:9px;color:var(--t4);margin-top:2px">RC (${_rcal??'—'}) ÷ BMR (${_bmr??'—'})</div>
+        </div>
+        <div style="text-align:right">
+          <div style="padding:3px 9px;border-radius:20px;background:${_mhr!=null?_mhrCol+'22':'var(--surface2)'};font-size:10px;font-weight:700;color:${_mhrCol};margin-bottom:3px">${_mhrLabel}</div>
+          <div style="font-size:9px;color:var(--t4)">≥1.6 active · ≥1.3 light</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 6. Google Fit WHO Goals -->
+    <div style="padding-bottom:10px;border-bottom:1px solid var(--border);margin-bottom:10px">
+      <div style="font-size:10px;font-weight:700;color:var(--t3);letter-spacing:.5px;text-transform:uppercase;margin-bottom:6px">🎯 Google Fit — WHO Standard</div>
+      <div style="display:flex;flex-direction:column;gap:5px">
+        <div style="display:flex;align-items:center;justify-content:space-between;background:var(--surface2);border-radius:var(--rs);padding:6px 8px">
+          <div>
+            <div style="font-size:10px;font-weight:600;color:var(--t2)">Today</div>
+            <div style="font-size:9px;color:var(--t4)">${_todayGFP != null ? _todayGFP + ' / ' + _whoDaily + ' pts' : 'No data'}</div>
+          </div>
+          <div style="font-size:16px">${_whoToday === true ? '✅' : _whoToday === false ? '❌' : '⏳'}</div>
+        </div>
+        <div style="background:var(--surface2);border-radius:var(--rs);padding:6px 8px">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+            <div>
+              <div style="font-size:10px;font-weight:600;color:var(--t2)">This Week</div>
+              <div style="font-size:9px;color:var(--t4)">${Math.round(_weekGFP)} / ${_whoWeekly} pts</div>
+            </div>
+            <div style="font-size:16px">${_whoWeek ? '✅' : '❌'}</div>
+          </div>
+          <div style="height:4px;background:var(--border2);border-radius:10px;overflow:hidden">
+            <div style="height:100%;width:${_whoWeekPct}%;background:${_whoWeek?'#10B981':'#3B82F6'};border-radius:10px;transition:width .8s"></div>
+          </div>
+          <div style="font-size:9px;color:var(--t4);margin-top:2px;text-align:right">${_whoWeekPct}% of 500pt WHO goal</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 7. Activity Consistency — Last 30 Days -->
+    <div style="padding-bottom:10px;border-bottom:1px solid var(--border);margin-bottom:10px">
+      <div style="font-size:10px;font-weight:700;color:var(--t3);letter-spacing:.5px;text-transform:uppercase;margin-bottom:6px">📅 Activity Consistency · 30D</div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+        <div style="font-family:var(--fd);font-size:20px;font-weight:800;color:${_consistCol}">${_consistencyPct}%</div>
+        <div style="padding:3px 9px;border-radius:20px;background:${_consistCol}22;font-size:10px;font-weight:700;color:${_consistCol}">${_consistLabel}</div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(10,1fr);gap:3px;margin-bottom:4px">${_dotGrid}</div>
+      <div style="font-size:9px;color:var(--t4)">${_consMet} of ${_consistValid} tracked days met active cal goal</div>
+    </div>
+
+    <!-- 8. Metabolic Shift -->
+    <div style="padding-bottom:4px">
+      <div style="font-size:10px;font-weight:700;color:var(--t3);letter-spacing:.5px;text-transform:uppercase;margin-bottom:6px">📈 Metabolic Shift · 7D vs 30D</div>
+      <div style="display:flex;gap:6px">
+        <div style="flex:1;background:var(--surface2);border-radius:var(--rs);padding:7px 8px;text-align:center">
+          <div style="font-size:9px;color:var(--t4);margin-bottom:2px">🔥 Active Cal</div>
+          <div style="font-family:var(--fd);font-size:15px;font-weight:800;color:${_shiftCol(_shiftActive)}">${_shiftSign(_shiftActive)}</div>
+          <div style="font-size:9px;color:var(--t4)">${_avg7A??'—'} vs ${_avg30A??'—'}</div>
+        </div>
+        <div style="flex:1;background:var(--surface2);border-radius:var(--rs);padding:7px 8px;text-align:center">
+          <div style="font-size:9px;color:var(--t4);margin-bottom:2px">😴 Resting Cal</div>
+          <div style="font-family:var(--fd);font-size:15px;font-weight:800;color:${_shiftCol(_shiftResting)}">${_shiftSign(_shiftResting)}</div>
+          <div style="font-size:9px;color:var(--t4)">${_avg7R??'—'} vs ${_avg30R??'—'}</div>
+        </div>
+      </div>
+      <div style="font-size:9px;color:var(--t4);margin-top:5px;text-align:center">7-day avg minus 30-day avg (kcal/day)</div>
+    </div>`;
+
+  const html = `<div class="ah-energy-layout">
+    <div class="ah-energy-left">${left}</div>
+    <div class="ah-energy-right">${right}</div>
+  </div>`;
   document.getElementById('ah-energy-content').innerHTML = html;
-  // Note: opt-out calendar moved to Settings > Schedule > Energy Opt
 }
 
 // ── ACTIVITY ─────────────────────────────────
@@ -6300,7 +6465,7 @@ function renderActivityOptCalendar(){
       title="${ds}: ${isSkip?'Skip':isPartial?pct+'% credit':'Normal (tap to change)'}">${label}</button>`;
   }
 
-  const wrap = document.getElementById('activity-opt-cal-wrap');
+  const wrap = document.getElementById('sched-activity-cal-wrap') || document.getElementById('activity-opt-cal-wrap');
   if(!wrap) return;
   wrap.innerHTML =
     `<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
@@ -6317,15 +6482,18 @@ function activityOptCalNext(){ activityOptCalMonth++; if(activityOptCalMonth>11)
 function activityOptCellClick(date){
   const cur = getActivityOptPct(date);
   const cycle = [100, 0, 25, 50, 75];
-  setActivityOptDay(date, cycle[(cycle.indexOf(cur)+1)%cycle.length]);
-  renderActivityOptCalendar();  // refresh old page-based cal if present
-  renderStgActivityOptCal();    // refresh settings cal
+  const idx = cycle.indexOf(cur);
+  const next = cycle[(idx + 1) % cycle.length];
+  setActivityOptDay(date, next);
+  if(document.getElementById('sched-activity-cal-wrap')) renderActivityOptCalendar();
+  else renderAHActivity();
   renderDashboard();
 }
 
 function clearAllActivityOpts(){
   activityOptDays = {};
   saveSchedule();
+  renderAHActivity();
   renderDashboard();
   showToast('Activity opt-outs cleared');
 }
@@ -6367,7 +6535,6 @@ function renderAHActivity(){
 
   // Streak with activity opt-out logic
   left += ahSectionTitle(_iconImg(ICON_URLS.steps,16),'Activity Streak — Last 30 Days');
-  left += '<div style="font-size:10px;color:var(--t4);margin-bottom:6px;margin-top:-6px">Opt-out: <button onclick="showPage(\'settings\');setTimeout(()=>{showStgPanel(\'schedule\');schedShowTab(\'activity\');},120)" style="background:none;border:none;color:var(--accent);font-size:10px;cursor:pointer;padding:0;font-family:var(--fb);text-decoration:underline">Settings → Schedule → Activity Opt</button></div>';
   left += buildStreakCalendar([
     {key:'steps', label:'Steps Goal', icon:_iconImg(ICON_URLS.steps,16),
       done:(val, date)=>{
@@ -6398,96 +6565,199 @@ function renderAHActivity(){
     },
   ], 30);
 
-  // ── RIGHT PANEL — Activity Analytics ─────────
-  const stepsTarget = getTarget ? (getTarget('steps')?.lo || 10000) : 10000;
-  const exTarget    = getTarget ? (getTarget('exercise_mins')?.lo || 45) : 45;
-  const stairsTarget= getTarget ? (getTarget('stairs_climbed')?.lo || 10) : 10;
-  const standTarget = getTarget ? (getTarget('standing_mins')?.lo || 120) : 120;
+  // ── RIGHT PANEL — Stats ────────────────────────────────
+  const aAvg = (key,n) => { const vs=dates.slice(-n).map(d=>computeAllFields(getEntry(d))[key]).filter(v=>v!=null&&!isNaN(v)&&v>0); return vs.length?Math.round(vs.reduce((a,b)=>a+b,0)/vs.length):null; };
+  const aMax = (key,n) => { const vs=dates.slice(-n).map(d=>computeAllFields(getEntry(d))[key]).filter(v=>v!=null&&!isNaN(v)&&v>0); return vs.length?Math.max(...vs):null; };
+  const aSum = (key,n) => { const vs=dates.slice(-n).map(d=>computeAllFields(getEntry(d))[key]).filter(v=>v!=null&&!isNaN(v)&&v>0); return vs.length?Math.round(vs.reduce((a,b)=>a+b,0)):null; };
+  const aVals = (key,n) => dates.slice(-n).map(d=>computeAllFields(getEntry(d))[key]).filter(v=>v!=null&&!isNaN(v)&&v>0);
 
-  // 30D averages
-  const allD30 = allDates().slice(-30);
-  function avg30(key){ const vs=allD30.map(d=>parseFloat((allData[d]||{})[key])||0).filter(v=>v>0); return vs.length?Math.round(vs.reduce((a,b)=>a+b,0)/vs.length):null; }
-  const avg30steps  = avg30('steps');
-  const avg30ex     = avg30('exercise_mins');
-  const avg30stairs = avg30('stairs_climbed');
-  const avg30stand  = avg30('standing_mins');
+  // ── 1. Movement Efficiency: active_calories / steps ──
+  const movEffDays = dates.slice(-7).map(d => {
+    const e = computeAllFields(getEntry(d));
+    const cal = e.active_calories, steps = e.steps;
+    if(cal!=null&&steps!=null&&steps>0) return Math.round((cal/steps)*1000)/1000;
+    return null;
+  }).filter(v=>v!=null);
+  const movEffAvg = movEffDays.length ? (movEffDays.reduce((a,b)=>a+b,0)/movEffDays.length).toFixed(3) : null;
+  const movEff7Best = movEffDays.length ? Math.min(...movEffDays).toFixed(3) : null;
+  const movEffRating = movEffAvg ? (movEffAvg < 0.04 ? {label:'Efficient',col:'#10B981'} : movEffAvg < 0.07 ? {label:'Moderate',col:'#F59E0B'} : {label:'High Burn',col:'#EF4444'}) : null;
 
-  // 7D averages for trend comparison
-  const allD7 = allDates().slice(-7);
-  function avg7(key){ const vs=allD7.map(d=>parseFloat((allData[d]||{})[key])||0).filter(v=>v>0); return vs.length?Math.round(vs.reduce((a,b)=>a+b,0)/vs.length):null; }
-  const avg7steps  = avg7('steps');
-  const avg7ex     = avg7('exercise_mins');
-  const avg7stairs = avg7('stairs_climbed');
-  const avg7stand  = avg7('standing_mins');
-
-  function intensityRow(label, avg7v, avg30v, tgt, unit){
-    if(avg7v==null && avg30v==null) return '';
-    const diff = avg7v!=null&&avg30v!=null ? avg7v-avg30v : null;
-    const pct  = diff!=null&&avg30v>0 ? Math.round(diff/avg30v*100) : null;
-    const arrow= diff==null?'':diff>0?'↑':'↓';
-    const col  = diff==null?'var(--t3)':diff>0?'var(--good)':'var(--danger)';
-    const tgtBar = tgt&&avg7v!=null ? Math.min(100,Math.round(avg7v/tgt*100)) : null;
-    const tgtCol = tgtBar==null?'var(--border2)':tgtBar>=100?'var(--good)':tgtBar>=75?'var(--accent)':tgtBar>=50?'var(--warn)':'var(--danger)';
-    return '<div style="margin-bottom:8px;padding:8px 10px;background:var(--surface2);border-radius:var(--rs)">' +
-      '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">' +
-        '<span style="font-size:10px;font-weight:700;color:var(--t2)">' + label + '</span>' +
-        (pct!=null ? '<span style="font-size:10px;font-weight:700;color:' + col + '">' + arrow + Math.abs(pct) + '% vs 30D</span>' : '') +
-      '</div>' +
-      '<div style="display:flex;justify-content:space-between;font-size:10px;color:var(--t3);margin-bottom:4px">' +
-        '<span>7D avg: <strong style="color:var(--t1)">' + (avg7v!=null?avg7v.toLocaleString()+''+unit:'—') + '</strong></span>' +
-        '<span>30D avg: <strong style="color:var(--t1)">' + (avg30v!=null?avg30v.toLocaleString()+''+unit:'—') + '</strong></span>' +
-      '</div>' +
-      (tgtBar!=null ? '<div style="height:4px;background:var(--border2);border-radius:4px;overflow:hidden"><div style="height:100%;background:' + tgtCol + ';width:' + tgtBar + '%;border-radius:4px"></div></div>' : '') +
-    '</div>';
+  // ── 2. Weekly Distance Pie: cycle vs walk (last 7 days) ──
+  const weekCycleDist = aSum('cycle_distance',7) || 0;
+  const weekWalkDist  = aSum('walk_distance',7)  || 0;
+  const weekRunDist   = aSum('run_distance',7)   || 0;
+  const weekTotalPie  = weekCycleDist + weekWalkDist + weekRunDist;
+  function buildDistPie(cycleKm, walkKm, runKm){
+    const total = cycleKm + walkKm + runKm;
+    if(total <= 0) return `<div style="text-align:center;color:var(--t4);font-size:11px;padding:16px 0">No distance data this week</div>`;
+    const pctC = cycleKm/total, pctW = walkKm/total, pctR = runKm/total;
+    // SVG donut pie
+    const cx=60,cy=60,r=46,stroke=18;
+    const circ=2*Math.PI*r;
+    const dC=pctC*circ, dW=pctW*circ, dR=pctR*circ;
+    // offsets: start from top (-90 deg = -circ/4 offset)
+    const offC = -circ/4;
+    const offW = offC - dC;
+    const offR = offW - dW;
+    const fmtKm = v => v>=1 ? v.toFixed(1)+'km' : (v*1000).toFixed(0)+'m';
+    return `
+      <div style="display:flex;align-items:center;gap:10px">
+        <svg width="120" height="120" viewBox="0 0 120 120" style="flex-shrink:0">
+          <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="var(--border)" stroke-width="${stroke}"/>
+          ${dC>0?`<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="#06B6D4" stroke-width="${stroke}" stroke-dasharray="${dC} ${circ}" stroke-dashoffset="${offC}" stroke-linecap="butt" transform="rotate(-90,${cx},${cy})"/>`:''}
+          ${dW>0?`<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="#8B5CF6" stroke-width="${stroke}" stroke-dasharray="${dW} ${circ}" stroke-dashoffset="${offW+(dC?0:0)}" stroke-linecap="butt" transform="rotate(-90,${cx},${cy})"/>`:''}
+          ${dR>0?`<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="#FF3B5C" stroke-width="${stroke}" stroke-dasharray="${dR} ${circ}" stroke-dashoffset="${offR}" stroke-linecap="butt" transform="rotate(-90,${cx},${cy})"/>`:''}
+          <text x="${cx}" y="${cy-5}" text-anchor="middle" font-size="13" font-weight="800" fill="var(--t1)" font-family="var(--fd)">${fmtKm(total)}</text>
+          <text x="${cx}" y="${cy+10}" text-anchor="middle" font-size="8" fill="var(--t3)" font-family="var(--fb)">total</text>
+        </svg>
+        <div style="display:flex;flex-direction:column;gap:5px;flex:1">
+          ${cycleKm>0?`<div style="display:flex;align-items:center;gap:5px"><div style="width:8px;height:8px;border-radius:50%;background:#06B6D4;flex-shrink:0"></div><div style="font-size:10px;color:var(--t2)"><span style="font-weight:700">${fmtKm(cycleKm)}</span><br><span style="color:var(--t4)">Cycle (${Math.round(pctC*100)}%)</span></div></div>`:''}
+          ${walkKm>0?`<div style="display:flex;align-items:center;gap:5px"><div style="width:8px;height:8px;border-radius:50%;background:#8B5CF6;flex-shrink:0"></div><div style="font-size:10px;color:var(--t2)"><span style="font-weight:700">${fmtKm(walkKm)}</span><br><span style="color:var(--t4)">Walk (${Math.round(pctW*100)}%)</span></div></div>`:''}
+          ${runKm>0?`<div style="display:flex;align-items:center;gap:5px"><div style="width:8px;height:8px;border-radius:50%;background:#FF3B5C;flex-shrink:0"></div><div style="font-size:10px;color:var(--t2)"><span style="font-weight:700">${fmtKm(runKm)}</span><br><span style="color:var(--t4)">Run (${Math.round(pctR*100)}%)</span></div></div>`:''}
+        </div>
+      </div>`;
   }
 
-  // Sedentary vs Active Gap
-  const sedVsAct = (() => {
-    const d = allDates().slice(-14);
-    const sedMin  = d.map(dt=>{ const e=(allData[dt]||{}); const sc=(parseFloat(e.mobile_time)||0)+(parseFloat(e.laptop_time)||0)+(parseFloat(e.tablet_time)||0); return sc; }).filter(v=>v>0);
-    const actMin  = d.map(dt=>parseFloat((allData[dt]||{}).exercise_mins)||0).filter(v=>v>0);
-    const avgSed  = sedMin.length ? Math.round(sedMin.reduce((a,b)=>a+b,0)/sedMin.length) : null;
-    const avgActv = actMin.length ? Math.round(actMin.reduce((a,b)=>a+b,0)/actMin.length) : null;
-    return {avgSed, avgActv};
-  })();
+  // ── 3. Active vs Passive Distance ──
+  const activeDist7  = (aSum('walk_distance',7)||0) + (aSum('run_distance',7)||0) + (aSum('cycle_distance',7)||0);
+  const footDist7    = aSum('distance_foot',7) || 0;
+  const passiveDist7 = Math.max(0, footDist7 - ((aSum('walk_distance',7)||0) + (aSum('run_distance',7)||0)));
+  const activeRatio  = activeDist7+passiveDist7 > 0 ? Math.round((activeDist7/(activeDist7+passiveDist7))*100) : null;
+  const fmtKmN = v => v>=1 ? v.toFixed(1)+' km' : (v*1000).toFixed(0)+' m';
 
-  let sedGapHtml = '';
-  if(sedVsAct.avgSed!=null || sedVsAct.avgActv!=null){
-    const total = (sedVsAct.avgSed||0)+(sedVsAct.avgActv||0)||1;
-    const actPct= sedVsAct.avgActv ? Math.round(sedVsAct.avgActv/total*100) : 0;
-    sedGapHtml = '<div style="margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid var(--border)">' +
-      '<div style="font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">📊 Sedentary vs Active Gap</div>' +
-      '<div style="display:flex;height:12px;border-radius:6px;overflow:hidden;margin-bottom:6px">' +
-        '<div style="background:var(--good);width:' + actPct + '%;border-radius:6px 0 0 6px;transition:width .5s"></div>' +
-        '<div style="background:var(--border2);flex:1;border-radius:0 6px 6px 0"></div>' +
-      '</div>' +
-      '<div style="display:flex;justify-content:space-between;font-size:10px">' +
-        '<span style="color:var(--good)">Active: ' + (sedVsAct.avgActv!=null?sedVsAct.avgActv+'min':'—') + '</span>' +
-        '<span style="color:var(--t3)">Screen: ' + (sedVsAct.avgSed!=null?sedVsAct.avgSed+'min':'—') + '</span>' +
-      '</div>' +
-    '</div>';
-  }
+  // ── 4. Standing Endurance & Metabolic Shift ──
+  const standMins7    = aAvg('standing_mins',7);
+  const exerciseMins7 = aAvg('exercise_mins',7);
+  const totalActMins7 = (standMins7||0) + (exerciseMins7||0);
+  const standRatio    = totalActMins7>0 ? Math.round(((standMins7||0)/totalActMins7)*100) : null;
+  const metabolicLoad = standMins7!=null && exerciseMins7!=null ? (standMins7*1.5 + exerciseMins7*4).toFixed(0) : null;
+  const standEndurance = standMins7!=null ? (standMins7>=180?'Excellent':standMins7>=120?'Good':standMins7>=60?'Fair':'Low') : null;
+  const standEndCol    = standMins7!=null ? (standMins7>=180?'#10B981':standMins7>=120?'#3B82F6':standMins7>=60?'#F59E0B':'#EF4444') : 'var(--t4)';
+
+  // ── 5. Exercise Mins + Stand Mins = Total Activity ──
+  const totalActWeek = (aSum('exercise_mins',7)||0) + (aSum('standing_mins',7)||0);
+  const exWeek = aSum('exercise_mins',7);
+  const stWeek = aSum('standing_mins',7);
+  const whoTarget = 150; // WHO weekly exercise mins recommendation
+  const exPctOfWHO = exWeek!=null ? Math.min(100,Math.round((exWeek/whoTarget)*100)) : null;
 
   const right = `
-    <div style="font-size:12px;font-weight:700;color:var(--t1);margin-bottom:12px;display:flex;align-items:center;gap:6px">
-      ${_iconImg(ICON_URLS.steps,14)} Intensity Comparison
+    <div style="font-size:12px;font-weight:800;color:var(--t1);margin-bottom:10px;padding-bottom:8px;border-bottom:2px solid var(--border)">
+      ${_iconImg(ICON_URLS.steps,14)} Activity Intelligence
     </div>
-    <div style="margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid var(--border)">
-      ${intensityRow('🦶 Steps', avg7steps, avg30steps, stepsTarget, '')}
-      ${intensityRow('🏃 Exercise', avg7ex, avg30ex, exTarget, 'min')}
-      ${intensityRow('🪜 Stairs', avg7stairs, avg30stairs, stairsTarget, '')}
-      ${intensityRow('🧍 Standing', avg7stand, avg30stand, standTarget, 'min')}
+
+    <!-- 1. Movement Efficiency -->
+    <div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);padding:11px 12px;margin-bottom:8px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+        <div style="font-size:10px;font-weight:700;color:var(--t2)">⚡ Movement Efficiency</div>
+        ${movEffRating ? `<div style="font-size:9px;font-weight:700;padding:2px 7px;border-radius:20px;background:${movEffRating.col}22;color:${movEffRating.col}">${movEffRating.label}</div>` : ''}
+      </div>
+      <div style="font-size:9px;color:var(--t3);margin-bottom:8px">Active cal ÷ steps — lower = more efficient movement</div>
+      ${movEffAvg!=null ? `
+      <div style="display:flex;gap:6px">
+        <div style="flex:1;text-align:center;background:var(--surface3);border-radius:var(--rxs);padding:7px 4px">
+          <div style="font-family:var(--fd);font-size:17px;font-weight:800;color:#3B82F6">${movEffAvg}</div>
+          <div style="font-size:9px;color:var(--t4)">7D avg<br><span style="color:var(--t4);font-weight:400">cal/step</span></div>
+        </div>
+        <div style="flex:1;text-align:center;background:var(--surface3);border-radius:var(--rxs);padding:7px 4px">
+          <div style="font-family:var(--fd);font-size:17px;font-weight:800;color:#10B981">${movEff7Best}</div>
+          <div style="font-size:9px;color:var(--t4)">best day<br><span style="color:var(--t4);font-weight:400">lowest cal/step</span></div>
+        </div>
+      </div>` : `<div style="text-align:center;color:var(--t4);font-size:11px;padding:8px 0">Log active calories & steps to see efficiency</div>`}
     </div>
-    ${sedGapHtml}
-    <div style="border-top:1px solid var(--border);padding-top:12px">${renderLocalInsightsHtml('activity', dates)}</div>`;
+
+    <!-- 2. Weekly Distance by Mode (Pie) -->
+    <div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);padding:11px 12px;margin-bottom:8px">
+      <div style="font-size:10px;font-weight:700;color:var(--t2);margin-bottom:2px">🗺 Weekly Distance Split</div>
+      <div style="font-size:9px;color:var(--t3);margin-bottom:8px">Cycle · Walk · Run — last 7 days</div>
+      ${buildDistPie(weekCycleDist/1000, weekWalkDist/1000, weekRunDist/1000)}
+    </div>
+
+    <!-- 3. Active vs Passive Distance -->
+    <div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);padding:11px 12px;margin-bottom:8px">
+      <div style="font-size:10px;font-weight:700;color:var(--t2);margin-bottom:2px">🎯 Active vs Passive Distance</div>
+      <div style="font-size:9px;color:var(--t3);margin-bottom:8px">Workout distance vs incidental foot distance</div>
+      ${activeDist7+passiveDist7 > 0 ? `
+      <div style="margin-bottom:7px">
+        <div style="display:flex;justify-content:space-between;font-size:9px;color:var(--t4);margin-bottom:3px">
+          <span>Active (workout)</span><span style="font-weight:700;color:#10B981">${fmtKmN(activeDist7)}</span>
+        </div>
+        <div style="height:7px;border-radius:20px;background:var(--border);overflow:hidden;margin-bottom:5px">
+          <div style="height:100%;width:${activeRatio}%;background:linear-gradient(90deg,#10B981,#3B82F6);border-radius:20px;transition:width .5s ease"></div>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:9px;color:var(--t4);margin-bottom:3px">
+          <span>Passive (incidental)</span><span style="font-weight:700;color:#F59E0B">${fmtKmN(passiveDist7)}</span>
+        </div>
+        <div style="height:7px;border-radius:20px;background:var(--border);overflow:hidden">
+          <div style="height:100%;width:${100-(activeRatio||0)}%;background:linear-gradient(90deg,#F59E0B,#EC4899);border-radius:20px;transition:width .5s ease"></div>
+        </div>
+      </div>
+      <div style="text-align:center;font-size:9px;color:var(--t3)">${activeRatio!=null?activeRatio+'% of distance from intentional exercise':''}</div>
+      ` : `<div style="text-align:center;color:var(--t4);font-size:11px;padding:8px 0">Log walk/run/cycle distances to see split</div>`}
+    </div>
+
+    <!-- 4. Standing Endurance & Metabolic Shift -->
+    <div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);padding:11px 12px;margin-bottom:8px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:2px">
+        <div style="font-size:10px;font-weight:700;color:var(--t2)">🧍 Standing Endurance & Metabolic Shift</div>
+        ${standEndurance?`<div style="font-size:9px;font-weight:700;padding:2px 7px;border-radius:20px;background:${standEndCol}22;color:${standEndCol}">${standEndurance}</div>`:''}
+      </div>
+      <div style="font-size:9px;color:var(--t3);margin-bottom:8px">7D avg · metabolic activity estimate</div>
+      ${standMins7!=null||exerciseMins7!=null ? `
+      <div style="display:flex;gap:5px;margin-bottom:6px">
+        <div style="flex:1;text-align:center;background:var(--surface3);border-radius:var(--rxs);padding:6px 4px">
+          <div style="font-family:var(--fd);font-size:15px;font-weight:800;color:#6366F1">${standMins7??'—'}</div>
+          <div style="font-size:9px;color:var(--t4)">stand min/day</div>
+        </div>
+        <div style="flex:1;text-align:center;background:var(--surface3);border-radius:var(--rxs);padding:6px 4px">
+          <div style="font-family:var(--fd);font-size:15px;font-weight:800;color:#F59E0B">${standRatio??'—'}${standRatio!=null?'%':''}</div>
+          <div style="font-size:9px;color:var(--t4)">of active time</div>
+        </div>
+        <div style="flex:1;text-align:center;background:var(--surface3);border-radius:var(--rxs);padding:6px 4px">
+          <div style="font-family:var(--fd);font-size:15px;font-weight:800;color:#10B981">${metabolicLoad??'—'}</div>
+          <div style="font-size:9px;color:var(--t4)">met-load score</div>
+        </div>
+      </div>
+      <div style="font-size:9px;color:var(--t3);line-height:1.5">Met-load = (stand min × 1.5) + (exercise min × 4). Higher = more daily metabolic engagement.</div>
+      ` : `<div style="text-align:center;color:var(--t4);font-size:11px;padding:8px 0">Log standing & exercise minutes</div>`}
+    </div>
+
+    <!-- 5. Total Activity Minutes -->
+    <div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);padding:11px 12px;margin-bottom:8px">
+      <div style="font-size:10px;font-weight:700;color:var(--t2);margin-bottom:2px">⏱ Total Activity Minutes</div>
+      <div style="font-size:9px;color:var(--t3);margin-bottom:8px">Exercise + Standing — last 7 days total vs WHO 150min/week target</div>
+      ${exWeek!=null||stWeek!=null ? `
+      <div style="display:flex;gap:6px;margin-bottom:8px">
+        <div style="flex:1;text-align:center;background:var(--surface3);border-radius:var(--rxs);padding:7px 4px">
+          <div style="font-family:var(--fd);font-size:17px;font-weight:800;color:#34C759">${exWeek??0}</div>
+          <div style="font-size:9px;color:var(--t4)">exercise min<br><span style="color:var(--t4);font-weight:400">7d total</span></div>
+        </div>
+        <div style="flex:1;text-align:center;background:var(--surface3);border-radius:var(--rxs);padding:7px 4px">
+          <div style="font-family:var(--fd);font-size:17px;font-weight:800;color:#6366F1">${stWeek??0}</div>
+          <div style="font-size:9px;color:var(--t4)">standing min<br><span style="color:var(--t4);font-weight:400">7d total</span></div>
+        </div>
+        <div style="flex:1;text-align:center;background:linear-gradient(135deg,rgba(59,130,246,.15),rgba(99,102,241,.1));border-radius:var(--rxs);padding:7px 4px;border:1px solid rgba(59,130,246,.2)">
+          <div style="font-family:var(--fd);font-size:17px;font-weight:800;color:var(--accent)">${totalActWeek}</div>
+          <div style="font-size:9px;color:var(--t4)">total min<br><span style="color:var(--t4);font-weight:400">7d total</span></div>
+        </div>
+      </div>
+      ${exPctOfWHO!=null?`
+      <div style="font-size:9px;color:var(--t4);margin-bottom:3px">Exercise vs WHO 150 min/week goal</div>
+      <div style="height:7px;border-radius:20px;background:var(--border);overflow:hidden;margin-bottom:3px">
+        <div style="height:100%;width:${exPctOfWHO}%;background:${exPctOfWHO>=100?'linear-gradient(90deg,#10B981,#34C759)':exPctOfWHO>=60?'linear-gradient(90deg,#F59E0B,#FFCC00)':'linear-gradient(90deg,#EF4444,#F59E0B)'};border-radius:20px;transition:width .5s ease"></div>
+      </div>
+      <div style="text-align:right;font-size:9px;font-weight:700;color:${exPctOfWHO>=100?'#10B981':exPctOfWHO>=60?'#F59E0B':'#EF4444'}">${exPctOfWHO}% of WHO goal</div>
+      `:''}
+      ` : `<div style="text-align:center;color:var(--t4);font-size:11px;padding:8px 0">Log exercise & standing minutes</div>`}
+    </div>
+
+    <div style="margin-top:4px;border-top:1px solid var(--border);padding-top:10px">${renderLocalInsightsHtml('activity', dates)}</div>`;
 
   const html = `<div class="ah-energy-layout">
     <div class="ah-energy-left">${left}</div>
     <div class="ah-energy-right">${right}</div>
   </div>`;
-
   document.getElementById('ah-activity-content').innerHTML = html;
-  // Note: opt-out calendar moved to Settings > Schedule > Activity Opt
 }
 
 // ── WORKOUT ──────────────────────────────────
@@ -6513,12 +6783,6 @@ function loadWorkoutOpts(){
 function saveWorkoutOpts(){
   localStorage.setItem('ws2_workout_opt',  JSON.stringify(workoutOptDays));
   localStorage.setItem('ws2_workout_week', JSON.stringify(workoutWeekSched));
-}
-function _refreshWeekPlan(){
-  // Re-render the schedule page without closing the panel (prevents dropdown close)
-  if(typeof _schedTab !== 'undefined' && _schedTab === 'week'){
-    renderStgSchedule();
-  }
 }
 function getWorkoutOptPct(exKey, date){
   return (workoutOptDays[exKey] && workoutOptDays[exKey][date] != null) ? workoutOptDays[exKey][date] : 100;
@@ -6562,7 +6826,7 @@ function renderWorkoutOptCalendar(){
     if(isToday) border='2px solid var(--accent)';
     cells+=`<button onclick="workoutOptDayClick('${ds}')" style="aspect-ratio:1;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:${fw};border-radius:6px;cursor:pointer;background:${bg};color:${color};border:${border};width:100%;font-family:var(--fb);line-height:1">${d}</button>`;
   }
-  const wrap=document.getElementById('workout-opt-cal-wrap');
+  const wrap=document.getElementById('sched-workout-cal-wrap') || document.getElementById('workout-opt-cal-wrap');
   if(!wrap) return;
   wrap.innerHTML=`<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
     <button onclick="workoutOptCalPrev()" style="width:26px;height:26px;border-radius:7px;background:var(--surface2);border:none;color:var(--t3);font-size:14px;cursor:pointer">‹</button>
@@ -6574,7 +6838,7 @@ function workoutOptCalPrev(){workoutOptCalMonth--;if(workoutOptCalMonth<0){worko
 function workoutOptCalNext(){workoutOptCalMonth++;if(workoutOptCalMonth>11){workoutOptCalMonth=0;workoutOptCalYear++;}renderWorkoutOptCalendar();}
 
 function workoutOptDayClick(date){
-  const panel=document.getElementById('stg-workout-day-panel')||document.getElementById('workout-day-panel');
+  const panel=document.getElementById('workout-day-panel');
   if(!panel) return;
   const cycle=[100,0,25,50,75];
   let html=`<div style="font-size:11px;font-weight:700;color:var(--t2);margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid var(--border)">${date}</div>`;
@@ -6586,18 +6850,16 @@ function workoutOptDayClick(date){
       <button onclick="workoutExOptClick('${ex.key}','${date}')" style="font-size:10px;font-weight:700;padding:2px 10px;border-radius:8px;border:1px solid var(--border);background:var(--surface2);color:${color};cursor:pointer">${pct===0?'Skip':pct<100?pct+'%':'Normal'}</button>
     </div>`;
   });
-  const _panelId = document.getElementById('stg-workout-day-panel') ? 'stg-workout-day-panel' : 'workout-day-panel';
-  html+=`<button onclick="document.getElementById('${_panelId}').style.display='none'" style="margin-top:8px;width:100%;font-size:10px;color:var(--t4);background:none;border:none;cursor:pointer">Close</button>`;
+  html+=`<button onclick="document.getElementById('workout-day-panel').style.display='none'" style="margin-top:8px;width:100%;font-size:10px;color:var(--t4);background:none;border:none;cursor:pointer">Close</button>`;
   panel.innerHTML=html; panel.style.display='block';
 }
 function workoutExOptClick(exKey,date){
   const cur=getWorkoutOptPct(exKey,date);
   const cycle=[100,0,25,50,75];
   setWorkoutOptDay(exKey,date,cycle[(cycle.indexOf(cur)+1)%cycle.length]);
-  workoutOptDayClick(date);            // re-render day panel
-  renderWorkoutOptCalendar();          // refresh old page-cal if present
-  renderStgWorkoutOptCal();            // refresh settings cal
-  renderDashboard();
+  workoutOptDayClick(date);
+  renderWorkoutOptCalendar();
+  renderAHWorkout();
 }
 
 function buildWorkoutWeekTab(){
@@ -6768,137 +7030,207 @@ function renderAHWorkout(){
 
   // ── COLLAPSIBLE STREAK ────────────────────────
   left+=ahSectionTitle(_iconImg(ICON_URLS.strength,16),'Streak');
-  left+='<div style="font-size:10px;color:var(--t4);margin-bottom:6px;margin-top:-6px">Opt-out & weekly plan: <button onclick="showPage(\'settings\');setTimeout(()=>{showStgPanel(\'schedule\');schedShowTab(\'workout\');},120)" style="background:none;border:none;color:var(--accent);font-size:10px;cursor:pointer;padding:0;font-family:var(--fb);text-decoration:underline">Settings → Schedule</button></div>';
   left+=buildWorkoutStreakSection();
 
-  // ── RIGHT PANEL — Workout Analytics ──────────
-  // Completion donut: how many activity types completed today / in period
-  const WACT_KEYS_PANEL = ['walk_distance','run_distance','cycle_distance','strength_training','yoga_duration','other_activity'];
-  const WACT_ICONS_PANEL = ['🚶','🏃','🚴','💪','🧘','⚡'];
-  const WACT_LABELS_PANEL= ['Walk','Run','Cycle','Strength','Yoga','Other'];
-  const WACT_COLORS_PANEL= ['#3B82F6','#10B981','#F59E0B','#8B5CF6','#EC4899','#06B6D4'];
+  // ── WEEKLY SCHEDULE ───────────────────────────
+  left+=buildWorkoutWeekTab();
 
-  // Latest day completion
-  const latestD = dates[dates.length-1]||null;
-  const latestEntry = latestD ? (allData[latestD]||{}) : {};
-  const completedKeys = WACT_KEYS_PANEL.filter(k=>parseFloat(latestEntry[k]||0)>0);
-  const nCompleted = completedKeys.length;
-  const nTotal = WACT_KEYS_PANEL.length;
+  // ── RIGHT PANEL — Enhanced Workout Stats ────────────────
+  const allD7 = allDates().sort().slice(-7);
+  const wAvg = (key,n) => { const vs=allDates().sort().slice(-n).map(d=>computeAllFields(getEntry(d))[key]).filter(v=>v!=null&&!isNaN(v)&&v>0); return vs.length?Math.round(vs.reduce((a,b)=>a+b,0)/vs.length*10)/10:null; };
+  const wMax = (key,n) => { const vs=allDates().sort().slice(-n).map(d=>computeAllFields(getEntry(d))[key]).filter(v=>v!=null&&!isNaN(v)&&v>0); return vs.length?Math.round(Math.max(...vs)*10)/10:null; };
+  const wSum = (key,n) => { const vs=allDates().sort().slice(-n).map(d=>computeAllFields(getEntry(d))[key]).filter(v=>v!=null&&!isNaN(v)&&v>0); return vs.length?Math.round(vs.reduce((a,b)=>a+b,0)*10)/10:null; };
+  const wCnt7 = (key) => allD7.filter(d=>{const v=(allData[d]||{})[key]; return v!=null&&v>0;}).length;
 
-  // Donut: each completed slice = equal share, grey = remaining
-  let donutPaths = '';
-  {
-    const cx=55,cy=55,r=44,ir=30;
-    const nSlices = Math.max(nCompleted,1);
-    const sliceAngle = 2*Math.PI/nSlices;
-    let ang = -Math.PI/2;
-    if(nCompleted===0){
-      donutPaths = '<circle cx="55" cy="55" r="44" fill="#E5E7EB" opacity="0.5"/><circle cx="55" cy="55" r="30" fill="var(--solidbg)"/>';
-    } else {
-      completedKeys.forEach((k,i)=>{
-        const col = WACT_COLORS_PANEL[WACT_KEYS_PANEL.indexOf(k)];
-        const sweep = sliceAngle;
-        const x1=cx+r*Math.cos(ang), y1=cy+r*Math.sin(ang);
-        const x2=cx+r*Math.cos(ang+sweep), y2=cy+r*Math.sin(ang+sweep);
-        const ix1=cx+ir*Math.cos(ang), iy1=cy+ir*Math.sin(ang);
-        const ix2=cx+ir*Math.cos(ang+sweep), iy2=cy+ir*Math.sin(ang+sweep);
-        const lg = sweep>Math.PI?1:0;
-        const gap=0.04;
-        const ga=ang+gap, ge=ang+sweep-gap;
-        const gx1=cx+r*Math.cos(ga), gy1=cy+r*Math.sin(ga);
-        const gx2=cx+r*Math.cos(ge), gy2=cy+r*Math.sin(ge);
-        const gix1=cx+ir*Math.cos(ga), giy1=cy+ir*Math.sin(ga);
-        const gix2=cx+ir*Math.cos(ge), giy2=cy+ir*Math.sin(ge);
-        donutPaths += '<path d="M'+gx1.toFixed(1)+','+gy1.toFixed(1)+' A'+r+','+r+' 0 '+lg+',1 '+gx2.toFixed(1)+','+gy2.toFixed(1)+' L'+gix2.toFixed(1)+','+giy2.toFixed(1)+' A'+ir+','+ir+' 0 '+lg+',0 '+gix1.toFixed(1)+','+giy1.toFixed(1)+' Z" fill="'+col+'" opacity="0.9"/>';
-        ang+=sweep;
-      });
+  // ── 1. Last 7D workout activity counts with traffic-light coloring ──
+  function actCountColor(key, count) {
+    if(key==='walk_distance'||key==='run_distance'||key==='strength_training'){
+      if(count<=1) return '#EF4444';
+      if(count<=4) return '#F59E0B';
+      if(count===5) return '#10B981';
+      return '#047857';
     }
+    if(key==='cycle_distance'||key==='yoga_duration'){
+      if(count===0) return '#EF4444';
+      if(count===1) return '#F59E0B';
+      if(count===2) return '#10B981';
+      return '#047857';
+    }
+    return 'var(--accent)';
   }
-  const donutComment = nCompleted===0?'No activity logged today':nCompleted===1?'Good start — add more variety':nCompleted===2?'Goal reached — 2 activities complete! 🎯':nCompleted>=3?'Outstanding — '+nCompleted+' activities today! 🔥':'';
-  const donutLabel = nCompleted>=2?'100':''+Math.round(nCompleted/2*100);
+  const walkCnt7=wCnt7('walk_distance'), cycleCnt7=wCnt7('cycle_distance'),
+        runCnt7=wCnt7('run_distance'),   strCnt7=wCnt7('strength_training'),
+        yogaCnt7=wCnt7('yoga_duration');
 
-  // 30D avg for performance gap
-  function wkAvg30(key){ const vs=allDates().slice(-30).map(d=>parseFloat((allData[d]||{})[key])||0).filter(v=>v>0); return vs.length?vs.reduce((a,b)=>a+b,0)/vs.length:null; }
-  const perfGap = WACT_KEYS_PANEL.map((k,i)=>{
-    const todayV = parseFloat(latestEntry[k]||0)||0;
-    const avg30v = wkAvg30(k);
-    const label30 = WACT_LABELS_PANEL[i];
-    let status = 'Off/Rest';
-    if(todayV>0 && avg30v!=null){
-      const ratio = todayV/avg30v;
-      status = ratio>=1.1?'Above avg 🔥':ratio>=0.9?'Normal ✓':ratio>=0.5?'Light session':'Recovery';
-    } else if(todayV>0) status='Active ✓';
-    const col = status.includes('Above')?'var(--good)':status.includes('Normal')||status.includes('Active')?'var(--accent)':status.includes('Light')?'var(--warn)':'var(--t4)';
-    return {key:k, icon:WACT_ICONS_PANEL[i], label:label30, col:WACT_COLORS_PANEL[i], todayV, avg30v, status, colStatus:col};
-  }).filter(p=>p.todayV>0||p.avg30v!=null);
+  function actCountBadge(label, icon, key, count){
+    const col=actCountColor(key,count);
+    return `<div style="display:flex;align-items:center;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--border)">
+      <span style="font-size:11px;color:var(--t2);display:flex;align-items:center;gap:5px">${icon} ${label}</span>
+      <span style="font-family:var(--fd);font-size:18px;font-weight:900;color:${col}">${count}<span style="font-size:9px;font-weight:500;color:var(--t4);margin-left:2px">/ 7d</span></span>
+    </div>`;
+  }
+
+  // ── 2. Best workout day of the week ──
+  function bestWorkoutDow(){
+    const dowTotals={};
+    const dowKeys=['walk_distance','run_distance','cycle_distance','strength_training','yoga_duration','other_activity'];
+    allDates().sort().forEach(d=>{
+      const dow=new Date(d+'T00:00:00').toLocaleDateString('en-US',{weekday:'short'});
+      if(!dowTotals[dow]) dowTotals[dow]={types:0,days:0};
+      const types=dowKeys.filter(k=>{const v=(allData[d]||{})[k]; return v!=null&&v>0;}).length;
+      if(types>0){ dowTotals[dow].types+=types; dowTotals[dow].days+=1; }
+    });
+    let bestDow='—',bestScore=-1;
+    Object.entries(dowTotals).forEach(([dow,{types,days}])=>{
+      const score=days>0?types/days:0;
+      if(score>bestScore){ bestScore=score; bestDow=dow; }
+    });
+    return bestDow;
+  }
+
+  // ── 3. Avg and best pace from workout walking only (walk_avg_pace, walk_best_pace) ──
+  function workoutPaceStats(){
+    const allD=allDates().sort();
+    const avgPaces=allD.map(d=>(allData[d]||{}).walk_avg_pace).filter(v=>v!=null&&v>0);
+    const bestPaces=allD.map(d=>(allData[d]||{}).walk_best_pace).filter(v=>v!=null&&v>0);
+    const avgPace=avgPaces.length?Math.round(avgPaces.reduce((a,b)=>a+b,0)/avgPaces.length*100)/100:null;
+    const bestPace=bestPaces.length?Math.min(...bestPaces):null; // lower pace = faster
+    return {avgPace,bestPace};
+  }
+  const {avgPace,bestPace}=workoutPaceStats();
+
+  // ── 4+5. Total elevation and distance (Walk+Run+Cycle) ──
+  const totalElevSum = (wSum('walk_elevation',365)||0)+(wSum('run_elevation',365)||0)+(wSum('cycle_elevation',365)||0);
+  const totalDistSum = (wSum('walk_distance',365)||0)+(wSum('run_distance',365)||0)+(wSum('cycle_distance',365)||0);
+  const totalElev7   = (wSum('walk_elevation',7)||0)+(wSum('run_elevation',7)||0)+(wSum('cycle_elevation',7)||0);
+  const totalDist7   = (wSum('walk_distance',7)||0)+(wSum('run_distance',7)||0)+(wSum('cycle_distance',7)||0);
+
+  // ── 6. Avg speed (Walk + Run + Cycle) ──
+  function avgSpeedOf(key){
+    // speed = distance / (avg_pace in min/km → convert to km/h)
+    // cycle_avg_pace stored as km/h; walk/run avg_pace stored as min/km
+    const allD=allDates().sort();
+    if(key==='cycle_distance'){
+      const speeds=allD.map(d=>(allData[d]||{}).cycle_avg_pace).filter(v=>v!=null&&v>0);
+      return speeds.length?Math.round(speeds.reduce((a,b)=>a+b,0)/speeds.length*10)/10:null;
+    }
+    const paceKey=key==='walk_distance'?'walk_avg_pace':'run_avg_pace';
+    const paces=allD.map(d=>(allData[d]||{})[paceKey]).filter(v=>v!=null&&v>0);
+    if(!paces.length) return null;
+    const avgPaceMinKm=paces.reduce((a,b)=>a+b,0)/paces.length;
+    return Math.round(60/avgPaceMinKm*10)/10;
+  }
+  const walkSpeed=avgSpeedOf('walk_distance');
+  const runSpeed=avgSpeedOf('run_distance');
+  const cycleSpeed=avgSpeedOf('cycle_distance');
+
+  // ── 7. WHO standards ──
+  // WHO recommends:
+  // Adults: 150-300 min moderate (e.g. walk/cycle) OR 75-150 min vigorous (run) per week
+  // + 2 days strength per week
+  // Walk: 8000+ steps ~ 6km/week; Run: 5-10km/week; Cycle: 30km/week (approx from MVPA)
+  // Strength: 2+ sessions/week = 2+ days
+  // Yoga: 150+ min/week of flexibility/mindfulness
+  const walkDist7=wSum('walk_distance',7)||0;
+  const runDist7=wSum('run_distance',7)||0;
+  const cycleDist7=wSum('cycle_distance',7)||0;
+  const strMin7=wSum('strength_training',7)||0;
+  const yogaMin7=wSum('yoga_duration',7)||0;
+
+  // WHO targets (weekly)
+  const WHO_WALK_KM=6, WHO_RUN_KM=5, WHO_CYCLE_KM=30, WHO_STR_MIN=60, WHO_YOGA_MIN=60;
+  function whoBadge(label,icon,val,target,unit,valStr){
+    const pct=Math.min(100,Math.round(val/target*100));
+    const col=pct>=100?'#047857':pct>=60?'#10B981':pct>=30?'#F59E0B':'#EF4444';
+    return `<div style="margin-bottom:7px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:2px">
+        <span style="font-size:10px;color:var(--t2)">${icon} ${label}</span>
+        <span style="font-size:10px;font-weight:700;color:${col}">${valStr}<span style="font-size:9px;color:var(--t4);font-weight:400;margin-left:2px">/ ${target}${unit}</span></span>
+      </div>
+      <div style="height:4px;background:var(--border2);border-radius:10px;overflow:hidden">
+        <div style="height:100%;width:${pct}%;background:${col};border-radius:10px;transition:width .8s"></div>
+      </div>
+    </div>`;
+  }
 
   const right=`
-    <div style="font-size:12px;font-weight:700;color:var(--t1);margin-bottom:12px;display:flex;align-items:center;gap:6px">
-      ${_iconImg(ICON_URLS.strength,14)} Workout Analytics
+    <div style="font-size:12px;font-weight:800;color:var(--t1);margin-bottom:10px;padding-bottom:8px;border-bottom:2px solid var(--border)">
+      ${_iconImg(ICON_URLS.strength,14)} Workout Stats
     </div>
 
-    <!-- Completion Donut -->
-    <div style="margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid var(--border)">
-      <div style="font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">Today's Completion</div>
-      <div style="display:flex;align-items:center;gap:14px">
-        <div style="flex-shrink:0;position:relative">
-          <svg width="110" height="110" viewBox="0 0 110 110">
-            ${donutPaths}
-            <circle cx="55" cy="55" r="28" fill="var(--solidbg)"/>
-            <text x="55" y="51" text-anchor="middle" font-size="14" font-weight="900" fill="var(--t1)" font-family="var(--fd)">${donutLabel}</text>
-            <text x="55" y="62" text-anchor="middle" font-size="8" fill="var(--t3)">${nCompleted>=2?'score':nCompleted+'/2'}</text>
-          </svg>
+    <!-- Section: Last 7D Session Counts -->
+    <div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--t3);margin-bottom:4px">Last 7 Days</div>
+    ${actCountBadge('Walk','🚶','walk_distance',walkCnt7)}
+    ${actCountBadge('Cycle','🚴','cycle_distance',cycleCnt7)}
+    ${actCountBadge('Run','🏃','run_distance',runCnt7)}
+    ${actCountBadge('Strength','💪','strength_training',strCnt7)}
+    ${actCountBadge('Yoga','🧘','yoga_duration',yogaCnt7)}
+
+    <!-- Section: Best Day + Pace -->
+    <div style="padding:8px 0;border-bottom:1px solid var(--border)">
+      <div style="display:flex;gap:6px">
+        <div style="flex:1;background:var(--surface2);border-radius:var(--rs);padding:7px 8px;text-align:center">
+          <div style="font-size:9px;color:var(--t4);margin-bottom:2px">Best Workout Day</div>
+          <div style="font-family:var(--fd);font-size:18px;font-weight:900;color:var(--accent)">${bestWorkoutDow()}</div>
         </div>
-        <div style="flex:1;display:flex;flex-direction:column;gap:5px">
-          ${WACT_KEYS_PANEL.map((k,i)=>{
-            const done=parseFloat(latestEntry[k]||0)>0;
-            const val=parseFloat(latestEntry[k]||0);
-            const dispVal=val>0?(k.includes('distance')?fmtNum(val,1)+'km':fmtTime(val)):'—';
-            return '<div style="display:flex;align-items:center;gap:5px;opacity:'+(done?1:0.35)+'">'+
-              '<div style="width:8px;height:8px;border-radius:50%;background:'+WACT_COLORS_PANEL[i]+';flex-shrink:0"></div>'+
-              '<span style="font-size:10px;color:var(--t3);flex:1">'+WACT_ICONS_PANEL[i]+' '+WACT_LABELS_PANEL[i]+'</span>'+
-              '<span style="font-size:10px;font-weight:700;color:var(--t1)">'+dispVal+'</span>'+
-            '</div>';
-          }).join('')}
+        <div style="flex:1;background:var(--surface2);border-radius:var(--rs);padding:7px 8px;text-align:center">
+          <div style="font-size:9px;color:var(--t4);margin-bottom:2px">Avg Walk Pace</div>
+          <div style="font-family:var(--fd);font-size:15px;font-weight:800;color:#10B981">${avgPace!=null?fmtNum(avgPace,2):'—'}<span style="font-size:9px;color:var(--t4);font-weight:400;margin-left:2px">/km</span></div>
+        </div>
+        <div style="flex:1;background:var(--surface2);border-radius:var(--rs);padding:7px 8px;text-align:center">
+          <div style="font-size:9px;color:var(--t4);margin-bottom:2px">Best Walk Pace</div>
+          <div style="font-family:var(--fd);font-size:15px;font-weight:800;color:#047857">${bestPace!=null?fmtNum(bestPace,2):'—'}<span style="font-size:9px;color:var(--t4);font-weight:400;margin-left:2px">/km</span></div>
         </div>
       </div>
-      <div style="margin-top:8px;padding:6px 10px;background:${nCompleted>=2?'rgba(16,185,129,.1)':nCompleted>=1?'rgba(59,130,246,.08)':'var(--surface2)'};border-radius:var(--rs);font-size:10px;font-weight:600;color:${nCompleted>=2?'var(--good)':nCompleted>=1?'var(--accent)':'var(--t4)'};text-align:center">
-        ${donutComment||'Log activities above to track completion'}
+    </div>
+
+    <!-- Section: Total Elevation + Distance + Speed -->
+    <div style="padding:8px 0;border-bottom:1px solid var(--border)">
+      <div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--t3);margin-bottom:6px">Distance, Elevation & Speed</div>
+      <div style="display:flex;gap:6px;margin-bottom:6px">
+        <div style="flex:1;background:var(--surface2);border-radius:var(--rs);padding:7px 8px;text-align:center">
+          <div style="font-size:9px;color:var(--t4);margin-bottom:2px">Total Dist (7D)</div>
+          <div style="font-family:var(--fd);font-size:15px;font-weight:800;color:#3B82F6">${fmtNum(totalDist7,1)}<span style="font-size:9px;color:var(--t4);font-weight:400;margin-left:2px">km</span></div>
+        </div>
+        <div style="flex:1;background:var(--surface2);border-radius:var(--rs);padding:7px 8px;text-align:center">
+          <div style="font-size:9px;color:var(--t4);margin-bottom:2px">Total Elev (7D)</div>
+          <div style="font-family:var(--fd);font-size:15px;font-weight:800;color:#F59E0B">${fmtNum(totalElev7,0)}<span style="font-size:9px;color:var(--t4);font-weight:400;margin-left:2px">m</span></div>
+        </div>
+      </div>
+      <div style="display:flex;gap:6px">
+        <div style="flex:1;background:var(--surface2);border-radius:var(--rs);padding:7px 8px;text-align:center">
+          <div style="font-size:9px;color:var(--t4);margin-bottom:2px">🚶 Avg Speed</div>
+          <div style="font-family:var(--fd);font-size:14px;font-weight:800;color:#10B981">${walkSpeed!=null?walkSpeed:'—'}<span style="font-size:8px;color:var(--t4);font-weight:400;margin-left:1px">km/h</span></div>
+        </div>
+        <div style="flex:1;background:var(--surface2);border-radius:var(--rs);padding:7px 8px;text-align:center">
+          <div style="font-size:9px;color:var(--t4);margin-bottom:2px">🏃 Avg Speed</div>
+          <div style="font-family:var(--fd);font-size:14px;font-weight:800;color:#3B82F6">${runSpeed!=null?runSpeed:'—'}<span style="font-size:8px;color:var(--t4);font-weight:400;margin-left:1px">km/h</span></div>
+        </div>
+        <div style="flex:1;background:var(--surface2);border-radius:var(--rs);padding:7px 8px;text-align:center">
+          <div style="font-size:9px;color:var(--t4);margin-bottom:2px">🚴 Avg Speed</div>
+          <div style="font-family:var(--fd);font-size:14px;font-weight:800;color:#F59E0B">${cycleSpeed!=null?cycleSpeed:'—'}<span style="font-size:8px;color:var(--t4);font-weight:400;margin-left:1px">km/h</span></div>
+        </div>
       </div>
     </div>
 
-    <!-- Performance Gap -->
-    <div style="margin-bottom:14px">
-      <div style="font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">Performance Gap (vs 30D avg)</div>
-      <div style="display:flex;flex-direction:column;gap:5px">
-        ${perfGap.slice(0,5).map(p=>{
-          const todayDisp=p.todayV>0?(p.key.includes('distance')?fmtNum(p.todayV,1)+'km':fmtTime(p.todayV)):'—';
-          const avgDisp=p.avg30v!=null?(p.key.includes('distance')?fmtNum(p.avg30v,1)+'km':fmtTime(Math.round(p.avg30v))):'—';
-          return '<div style="padding:7px 10px;background:var(--surface2);border-radius:var(--rs);border-left:3px solid '+p.col+'">'+
-            '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:2px">'+
-              '<span style="font-size:10px;font-weight:700;color:var(--t2)">'+p.icon+' '+p.label+'</span>'+
-              '<span style="font-size:9px;font-weight:700;color:'+p.colStatus+'">'+p.status+'</span>'+
-            '</div>'+
-            '<div style="display:flex;justify-content:space-between;font-size:9px;color:var(--t4)">'+
-              '<span>Today: <strong style="color:var(--t1)">'+todayDisp+'</strong></span>'+
-              '<span>30D avg: <strong style="color:var(--t3)">'+avgDisp+'</strong></span>'+
-            '</div>'+
-          '</div>';
-        }).join('')}
-        ${perfGap.length===0?'<div style="font-size:11px;color:var(--t4);text-align:center;padding:12px">No workout data in period</div>':''}
-      </div>
-      ${perfGap.some(p=>p.status==='Recovery'||p.status==='Off/Rest')?'<div style="margin-top:8px;padding:7px 10px;background:rgba(245,158,11,.1);border-radius:var(--rs);font-size:10px;color:var(--warn)">💡 Low movement day — Yoga or light activity can maintain metabolic rate</div>':''}
+    <!-- Section: WHO Standards (this week) -->
+    <div style="padding-top:8px">
+      <div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--t3);margin-bottom:6px">WHO Weekly Standards</div>
+      ${whoBadge('Walk Distance','🚶',walkDist7,WHO_WALK_KM,'km',fmtNum(walkDist7,1)+' km')}
+      ${whoBadge('Run Distance','🏃',runDist7,WHO_RUN_KM,'km',fmtNum(runDist7,1)+' km')}
+      ${whoBadge('Cycle Distance','🚴',cycleDist7,WHO_CYCLE_KM,'km',fmtNum(cycleDist7,1)+' km')}
+      ${whoBadge('Strength Time','💪',strMin7,WHO_STR_MIN,'min',Math.round(strMin7)+' min')}
+      ${whoBadge('Yoga / Flex','🧘',yogaMin7,WHO_YOGA_MIN,'min',Math.round(yogaMin7)+' min')}
+      <div style="font-size:9px;color:var(--t4);margin-top:4px;line-height:1.5">WHO: 150+ min MVPA/wk · 2+ strength · flexibility weekly</div>
     </div>
 
-    <div style="border-top:1px solid var(--border);padding-top:12px">${renderLocalInsightsHtml('workout',dates)}</div>`;
+    <div style="margin-top:12px;border-top:1px solid var(--border);padding-top:10px">${renderLocalInsightsHtml('workout',dates)}</div>`;
 
   const html=`<div class="ah-energy-layout">
     <div class="ah-energy-left">${left}</div>
     <div class="ah-energy-right">${right}</div>
   </div>`;
-
   document.getElementById('ah-workout-content').innerHTML=html;
-  // Note: opt-out calendar moved to Settings > Schedule > Workout Opt
 }
 function renderAHVitals(){
   const pageId = 'vitals';
@@ -7199,18 +7531,23 @@ function buildStateOfMindCard(val, dates, sizeClass){
     </svg>`;
   }
 
-  return `<div class="ah-card ${sizeClass} big" onclick="openDrill('state_of_mind')" style="cursor:pointer">
-    <div class="ah-card-top"><div>
-      <div class="ah-card-label"><span style="font-size:22px;line-height:1;display:block;margin-bottom:4px">${_iconImg(ICON_URLS.mindful,22)}</span><span>State of Mind</span></div>
-      <div style="display:flex;align-items:center;gap:12px;margin-top:6px">
-        <div>${crystalFlower(val)}</div>
-        <div>
-          <div style="font-size:14px;font-weight:700;color:${col};line-height:1.3">${label}</div>
-          <div style="font-size:10px;color:var(--t4);margin-top:4px">7D avg: <span style="color:var(--t2);font-weight:600">${avg7!=null?avg7:'—'}</span></div>
-          <div style="font-size:10px;color:var(--t4)">30D avg: <span style="color:var(--t2);font-weight:600">${avg30!=null?avg30:'—'}</span></div>
-        </div>
+  // Check for custom image override
+  const somK = val==null?null:val>=80?'very_pleasant':val>=30?'pleasant':val>=-30?'neutral':val>=-80?'unpleasant':'very_unpleasant';
+  const customImg = (typeof somImages!=='undefined' && somK && somImages[somK]) ? somImages[somK] : null;
+  const visual = customImg
+    ? `<img src="${customImg}" style="width:72px;height:72px;border-radius:12px;object-fit:cover" onerror="this.style.display='none'">`
+    : crystalFlower(val);
+
+  return `<div class="ah-card ${sizeClass} big" onclick="openDrill('state_of_mind')" style="cursor:pointer;overflow:visible">
+    <div class="ah-card-label" style="margin-bottom:8px"><span>State of Mind</span></div>
+    <div style="display:flex;align-items:center;gap:12px">
+      <div style="flex-shrink:0">${visual}</div>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:15px;font-weight:800;color:${col};line-height:1.3;margin-bottom:4px">${label}</div>
+        <div style="font-size:10px;color:var(--t4)">7D avg: <span style="color:var(--t2);font-weight:600">${avg7!=null?avg7:'—'}</span></div>
+        <div style="font-size:10px;color:var(--t4)">30D avg: <span style="color:var(--t2);font-weight:600">${avg30!=null?avg30:'—'}</span></div>
       </div>
-    </div></div>
+    </div>
   </div>`;
 }
 
@@ -7281,7 +7618,16 @@ function buildSleepRightPanel(ts,rem,core,deep,awk,asl,ss,frag,menR,phyR,debt,so
     ${_iconImg(ICON_URLS.sleep,14)} Sleep Analysis
   </div>
   ${doughnut}
-  ${statRow('Sleep Fragmentation', frag!=null?fmt(frag,1):'—', '%', frag!=null?(frag>10?'var(--danger)':frag>5?'var(--warn)':'var(--good)'):'var(--t3)', 'Awake Time ÷ Total Sleep')}
+  ${frag!=null ? `<div style="padding:8px 0;border-bottom:1px solid var(--border)">
+    <div style="display:flex;align-items:center;justify-content:space-between">
+      <span style="font-size:11px;font-weight:700;color:var(--t2)">Sleep Fragmentation</span>
+      <div style="display:flex;align-items:center;gap:6px">
+        <span style="font-family:var(--fd);font-size:16px;font-weight:800;color:${frag>10?'var(--danger)':frag>5?'var(--warn)':'var(--good)'}">${fmt(frag,1)}<span style="font-size:9px;color:var(--t3);font-weight:400;margin-left:2px">%</span></span>
+        <span style="font-size:10px;font-weight:700;padding:2px 7px;border-radius:12px;background:${frag>10?'rgba(239,68,68,.15)':frag>5?'rgba(245,158,11,.15)':'rgba(16,185,129,.15)'};color:${frag>10?'var(--danger)':frag>5?'var(--warn)':'var(--good)'}">${frag>10?'Poor':frag>5?'Fair':'Good'}</span>
+      </div>
+    </div>
+    <div style="font-size:9px;color:var(--t4);margin-top:2px">Awake Time ÷ Total Sleep · ${frag<=5?'Low fragmentation — deep uninterrupted sleep':frag<=10?'Moderate fragmentation — some disturbance':'High fragmentation — sleep disrupted frequently'}</div>
+  </div>` : ''}
   <div style="padding:8px 0;border-bottom:1px solid var(--border)">
     <div style="font-size:11px;font-weight:700;color:var(--t2);margin-bottom:6px">Recovery Split</div>
     <div style="display:flex;gap:8px">
@@ -7289,11 +7635,13 @@ function buildSleepRightPanel(ts,rem,core,deep,awk,asl,ss,frag,menR,phyR,debt,so
         <div style="font-size:9px;color:#6366F1;font-weight:700;text-transform:uppercase;letter-spacing:.4px">Mental</div>
         <div style="font-size:18px;font-weight:900;color:#6366F1;font-family:var(--fd)">${fmt(menR)}%</div>
         <div style="font-size:8px;color:var(--t4)">REM → brain</div>
+        ${menR!=null?`<div style="font-size:9px;font-weight:700;margin-top:3px;color:${menR>=20?'var(--good)':menR>=12?'var(--warn)':'var(--danger)'}">${menR>=20?'Good':menR>=12?'Fair':'Low'}</div>`:''}
       </div>
       <div style="flex:1;background:rgba(27,79,138,.1);border:1px solid rgba(27,79,138,.25);border-radius:var(--rs);padding:7px 10px;text-align:center">
         <div style="font-size:9px;color:#1B4F8A;font-weight:700;text-transform:uppercase;letter-spacing:.4px">Physical</div>
         <div style="font-size:18px;font-weight:900;color:#38BDF8;font-family:var(--fd)">${fmt(phyR)}%</div>
         <div style="font-size:8px;color:var(--t4)">Deep → body</div>
+        ${phyR!=null?`<div style="font-size:9px;font-weight:700;margin-top:3px;color:${phyR>=15?'var(--good)':phyR>=10?'var(--warn)':'var(--danger)'}">${phyR>=15?'Good':phyR>=10?'Fair':'Low'}</div>`:''}
       </div>
     </div>
   </div>
@@ -7656,6 +8004,11 @@ function renderAHPhysique(){
   left += buildRecompCard(allD, 'ah-w2');
   left += '</div>';
 
+  // Row 6: BMR
+  left += '<div class="ah-grid">';
+  left += ahCard('bmr', dates, 'ah-w4', {icon:_iconImg(ICON_URLS.energy,22), big:true});
+  left += '</div>';
+
   // ── MOVEMENT QUALITY ──────────────────────────
   left += ahSectionTitle(_iconImg(ICON_URLS.movement,16),'Movement Quality');
 
@@ -7776,6 +8129,7 @@ function buildPhysiqueRightPanel(allD, w, fat, mus, wat, bon, prt, bAge, dates){
               <div style="width:9px;height:9px;border-radius:50%;background:${s.col};flex-shrink:0"></div>
               <span style="font-size:10px;color:var(--t3);width:46px">${s.lbl}</span>
               <span style="font-size:12px;font-weight:800;color:var(--t1);font-family:var(--fd)">${fmt(s.kg,1)}<span style="font-size:9px;font-weight:400;color:var(--t4)">kg</span></span>
+              <span style="font-size:10px;color:${s.col};font-weight:700;margin-left:auto">${s.pct}</span>
             </div>`).join('')}
         </div>
       </div>
@@ -7907,7 +8261,7 @@ function buildStreakCalendar(rowDefs, nDays){
   }
 
   const lastDataDate = allD.length ? allD[allD.length-1] : todayStr;
-  const CELL=24, LW=120, SW=170;
+  const CELL=32, LW=110, SW=160;
 
   // Header
   const headerCells = days.map(d=>{
@@ -7915,7 +8269,7 @@ function buildStreakCalendar(rowDefs, nDays){
     const lbl = isFirst ? dt.toLocaleString('default',{month:'short'}) : String(dt.getDate());
     return `<div style="width:${CELL}px;flex-shrink:0;text-align:center;font-size:9px;
       color:${isLatestDay?'var(--accent)':isFirst?'var(--t2)':'var(--t4)'};
-      font-weight:${isLatestDay||isFirst?700:400}">${lbl}</div>`;
+      font-weight:${isLatestDay||isFirst?700:400};padding:0 1px">${lbl}</div>`;
   }).join('');
 
   const rows = rowDefs.map(hd=>{
@@ -7984,71 +8338,56 @@ function buildStreakCalendar(rowDefs, nDays){
         : (val!=null&&val!==undefined);
 
       const isOptOut = (ok === null); // null = opt-out free pass
-      // Visual style: filled pill for success, ring for opt-out, faint for miss, bed for rest
-      let cellStyle = '', cellContent = badge;
-      if(rest){
-        cellStyle = 'background:var(--surface2);border:1px solid var(--border);opacity:0.5;';
-        cellContent = '<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:11px">🛌</div>';
-      } else if(isOptOut){
-        cellStyle = 'background:transparent;border:2px dashed var(--warn);opacity:0.7;';
-        cellContent = '<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:900;color:var(--warn)">~</div>';
-      } else if(!has){
-        cellStyle = 'background:var(--border2);opacity:0.18;';
-      } else if(ok){
-        // Gradient fill for success
-        cellStyle = 'background:linear-gradient(135deg,var(--good),#059669);box-shadow:0 1px 4px rgba(16,185,129,.35);';
-      } else {
-        cellStyle = 'background:var(--danger);opacity:0.55;';
-      }
+      const bg = rest ? 'var(--border)' : isOptOut ? 'var(--warn)' : (!has?'var(--border2)':ok?'var(--good)':'var(--danger)');
+      const opacity = rest ? 0.5 : isOptOut ? 0.4 : (has ? 0.9 : 0.15);
       const title = rest ? 'Rest day' : isOptOut ? 'Opt-out (free pass)' : (has ? (hd.multiCount ? `${hd.multiCount(d)} workouts` : String(val)) : 'no data');
+      const restIcon = rest ? `<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:10px">🛌</div>` : '';
+      const optIcon = isOptOut ? `<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:800;color:rgba(255,255,255,.9)">~</div>` : '';
 
-      return `<div style="width:${CELL}px;flex-shrink:0;padding:1px;position:relative">
-        <div title="${title}" style="width:${CELL-2}px;height:${CELL-2}px;border-radius:6px;
-          ${cellStyle}position:relative;
+      return `<div style="width:${CELL}px;flex-shrink:0;padding:2px 1px;position:relative">
+        <div title="${title}" style="width:${CELL-4}px;height:${CELL-4}px;border-radius:5px;
+          background:${bg};opacity:${opacity};position:relative;
           ${isLatest?'outline:2px solid var(--accent);outline-offset:1px;':''}">
-          ${cellContent}
+          ${rest ? restIcon : isOptOut ? optIcon : badge}
         </div>
       </div>`;
     }).join('');
 
     // ── Streak stat panel ──
-    const streakCol = curStreak>=30?'#047857':curStreak>=14?'var(--good)':curStreak>=7?'var(--accent)':curStreak>=3?'var(--warn)':'var(--t4)';
-    const streakFire = curStreak>=7?'🔥 ':'';
     const statPanel = `
       <div style="width:${SW}px;flex-shrink:0;padding-left:10px;display:flex;flex-direction:column;gap:2px;justify-content:center">
-        <div style="display:flex;align-items:baseline;gap:3px">
-          <span style="font-size:10px">${streakFire}</span>
-          <span style="font-size:20px;font-weight:900;color:${streakCol};line-height:1;font-family:var(--fd)">${curStreak}</span>
-          <span style="font-size:10px;color:var(--t3)">day${curStreak!==1?'s':''}</span>
+        <div style="display:flex;align-items:baseline;gap:4px">
+          <span style="font-size:18px;font-weight:900;color:var(--accent);line-height:1">${curStreak}</span>
+          <span style="font-size:11px;color:var(--t3)">day streak</span>
         </div>
-        <div style="font-size:9px;color:var(--t4);line-height:1.3">
+        <div style="font-size:10px;color:var(--t4);line-height:1.3">
           Best: <span style="color:var(--t2);font-weight:600">${longestLabel}</span>
         </div>
       </div>`;
 
-    return `<div style="display:flex;align-items:center;margin-bottom:5px">
-      <div style="width:${LW}px;flex-shrink:0;font-size:11px;color:var(--t2);
-        white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding-right:8px">
-        ${fieldIcons&&fieldIcons[hd.key]?renderFieldIcon(hd.key):hd.icon} ${hd.label}</div>
-      <div style="overflow-x:auto;flex:1">
-        <div style="display:flex;align-items:center;min-width:${CELL*nDays}px">${cells}</div>
+    return `<div style="margin-bottom:10px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;flex-wrap:wrap;gap:4px">
+        <div style="font-size:11px;font-weight:700;color:var(--t2);display:flex;align-items:center;gap:5px">
+          ${fieldIcons&&fieldIcons[hd.key]?renderFieldIcon(hd.key):hd.icon} ${hd.label}
+        </div>
+        <div style="display:flex;align-items:baseline;gap:4px;flex-wrap:wrap">
+          <span style="font-size:16px;font-weight:900;color:var(--accent);line-height:1">${curStreak}</span>
+          <span style="font-size:10px;color:var(--t3)">day streak</span>
+          <span style="font-size:9px;color:var(--t4);margin-left:4px">Best: <span style="color:var(--t2);font-weight:600">${longestLabel}</span></span>
+        </div>
       </div>
-      ${statPanel}
+      <div style="overflow-x:auto;width:100%;-webkit-overflow-scrolling:touch">
+        <div style="display:flex;align-items:center">${cells}</div>
+      </div>
     </div>`;
   }).join('');
 
   const uid = Math.random().toString(36).slice(2,6);
   return `<div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);padding:14px 12px">
-    <div style="display:flex;margin-bottom:4px">
-      <div style="width:${LW}px;flex-shrink:0;font-size:10px;color:var(--t4)"></div>
-      <div style="overflow-x:auto;flex:1" id="sh-${uid}">
-        <div style="display:flex;min-width:${CELL*nDays}px">${headerCells}</div>
-      </div>
-      <div style="width:${SW}px;flex-shrink:0"></div>
+    <div style="overflow-x:auto;width:100%;-webkit-overflow-scrolling:touch;margin-bottom:6px" id="sh-${uid}">
+      <div style="display:flex">${headerCells}</div>
     </div>
-    <div>
-      ${rows}
-    </div>
+    <div>${rows}</div>
   </div>`;
 }
 
@@ -8723,9 +9062,7 @@ function renderStgPanel(id){
     profile: renderStgProfile,
     targets: renderStgTargets,
     schedule: renderStgSchedule,
-    paste: ()=>{},  // Quick Paste removed from settings nav
     paste:   renderStgPaste,
-    healthimport: renderStgHealthImport,
     custom:  renderStgCustom,
     looks:   renderStgLooks,
     data:    renderStgData,
@@ -8875,21 +9212,21 @@ function updateProfileInTopbar(){
 // 1. TARGETS
 // ═══════════════════════════════════════════════
 const TARGET_SECTIONS = [
-  {label:'🔋 Energy',       keys:['active_calories','resting_calories','google_fit_points','total_calories','net_energy_balance']},
-  {label:'🏃 Activity',     keys:['steps','distance_foot','exercise_mins','standing_mins','stairs_climbed','total_distance','stand_hours','total_activity_mins']},
-  {label:'🚶 Walk',         keys:['walk_distance','walk_elevation','walk_avg_pace','walk_best_pace','walk_spm']},
-  {label:'🏃 Run',          keys:['run_distance','run_elevation','run_cadence','run_avg_pace','run_best_pace','run_avg_power']},
-  {label:'🚴 Cycle',        keys:['cycle_distance','cycle_elevation','cycle_avg_pace','cycle_best_pace']},
-  {label:'💪 Strength',     keys:['strength_training','yoga_duration','other_activity','total_workout']},
-  {label:'❤️ Vitals',       keys:['heart_rate','hr_high','hr_low','resting_hr','walking_hr','cardio_fitness','cardio_recovery','hrv','blood_oxygen_high','bp_systolic','bp_diastolic','blood_glucose','breath_high','breath_low']},
-  {label:'🌙 Sleep',        keys:['total_sleep','sleep_rem','sleep_core','sleep_deep','sleep_awake','sleep_score','asleep','sleep_recovery','sleep_debt']},
-  {label:'🧘 Mindful',      keys:['daylight','mindful_mins','surround_sound','state_of_mind']},
-  {label:'⚖️ Body',         keys:['weight','bmi','body_fat_ratio','muscle_rate','body_water','bone_mass','visceral_fat','subcutaneous_fat','protein_mass','muscle_mass','lean_body_mass','waist_size']},
-  {label:'🥗 Nutrition',    keys:['water','protein','fiber','dietary_calories','caffeine','carbohydrates','total_fats','saturated_fats','monounsaturated_fats','polyunsaturated_fats','trans_fats','sugar','added_sugar','cholesterol']},
+  {label:'🔋 Energy',       keys:['active_calories','resting_calories','google_fit_points']},
+  {label:'🏃 Activity',     keys:['steps','distance_foot','exercise_mins','standing_mins','stairs_climbed']},
+  {label:'🚶 Walk',         keys:['walk_distance','walk_elevation']},
+  {label:'🏃 Run',          keys:['run_distance','run_elevation','run_cadence']},
+  {label:'🚴 Cycle',        keys:['cycle_distance','cycle_elevation']},
+  {label:'💪 Strength',     keys:['strength_training','yoga_duration','other_activity']},
+  {label:'❤️ Vitals',       keys:['resting_hr','cardio_fitness','cardio_recovery','hrv','blood_oxygen_high','bp_systolic','bp_diastolic']},
+  {label:'🌙 Sleep',        keys:['total_sleep','sleep_rem','sleep_core','sleep_deep','sleep_awake','sleep_score']},
+  {label:'🧘 Mindful',      keys:['daylight','mindful_mins','surround_sound']},
+  {label:'⚖️ Body',         keys:['bmi','body_fat_ratio','muscle_rate','waist_size','visceral_fat']},
+  {label:'🥗 Nutrition',    keys:['water','protein','fiber','dietary_calories','caffeine','carbohydrates','total_fats','saturated_fats','sugar','added_sugar','cholesterol']},
   {label:'⚗️ Minerals',     keys:['calcium','magnesium','potassium','sodium','iron','zinc','phosphorus','iodine','selenium','chromium','copper','manganese','molybdenum','chloride']},
   {label:'💊 Vitamins',     keys:['vitamin_d','vitamin_c','vitamin_a','vitamin_e','vitamin_b12','folate','vitamin_b6','thiamin','riboflavin','niacin','pantothenic_acid','biotin','vitamin_k']},
-  {label:'📱 Screen',       keys:['mobile_time','youtube_time','reddit_time','twitter_time','laptop_time','tablet_time','movie_time','book_time','total_screen']},
-  {label:'✅ Habit',        keys:['stuff_count','alcohol']},
+  {label:'📱 Screen',       keys:['mobile_time','youtube_time','reddit_time','twitter_time','laptop_time','tablet_time','movie_time','book_time']},
+  {label:'✅ Habit',       keys:['stuff_count','alcohol']},
   {label:'🦵 Movement',     keys:['double_support_time','ground_contact_time','running_stride','vertical_oscillation','walk_asymmetry','walking_step_length']},
 ];
 
@@ -9123,236 +9460,32 @@ const DOW_LABELS = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
 let schedCalYear  = new Date().getFullYear();
 let schedCalMonth = new Date().getMonth();
 
-// Schedule tab state
-let _schedTab = 'dow';
-function schedShowTab(t){ _schedTab=t; renderStgSchedule(); }
-
 function renderStgSchedule(){
   const sc = document.getElementById('stg-content');
-  const tabs = [
-    {id:'dow',      label:'Day Targets'},
-    {id:'rest',     label:'🛌 Rest Days'},
-    {id:'energy',   label:'⚡ Energy Opt'},
-    {id:'activity', label:'🏃 Activity Opt'},
-    {id:'workout',  label:'💪 Workout Opt'},
-    {id:'week',     label:'📅 Weekly Plan'},
-  ];
-  const tabBar = '<div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:16px;border-bottom:1px solid var(--border);padding-bottom:10px">'
-    + tabs.map(t=>'<button onclick="schedShowTab(\''+t.id+'\')" style="padding:5px 12px;border-radius:20px;font-size:11px;font-weight:600;cursor:pointer;border:1px solid var(--border);font-family:var(--fb);transition:all .15s;background:'
-      +(_schedTab===t.id?'var(--accent)':'var(--surface2)')
-      +';color:'+(_schedTab===t.id?'#fff':'var(--t3)')+'">'+t.label+'</button>').join('')
-    +'</div>';
-
-  let body = '';
-
-  if(_schedTab==='dow'){
-    body += '<div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);padding:14px">'
-      +'<div style="font-size:13px;font-weight:700;color:var(--t2);margin-bottom:6px">Day-of-week Target %</div>'
-      +'<div style="font-size:11px;color:var(--t4);margin-bottom:12px">100% = normal. 50% on Sunday = all Energy/Activity/Workout targets halved that day.</div>'
-      +'<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:6px">'
-      +DOW_LABELS.map((lbl,i)=>'<div style="text-align:center">'
-        +'<div style="font-size:10px;font-weight:700;color:var(--t3);margin-bottom:4px">'+lbl+'</div>'
-        +'<input type="number" min="0" max="200" step="5" id="dow-pct-'+i+'" value="'+(dowTargets[i]!=null?dowTargets[i]:100)+'"'
-        +' style="width:100%;text-align:center;padding:6px 2px;border-radius:var(--rxs);background:var(--surface);border:1px solid var(--border2);color:var(--t1);font-size:13px;font-weight:700;font-family:var(--fm)">'
-        +'<div style="font-size:9px;color:var(--t4);margin-top:2px">%</div></div>').join('')
-      +'</div>'
-      +'<button class="stg-btn primary" style="margin-top:12px" onclick="saveDowTargets()"><img src="https://cdn-icons-png.flaticon.com/512/2734/2734428.png" width="13" height="13" style="vertical-align:middle;margin-right:3px"> Save Day Targets</button>'
-      +'</div>';
-  }
-
-  if(_schedTab==='rest'){
-    body += '<div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);padding:14px">'
-      +'<div style="font-size:13px;font-weight:700;color:var(--t2);margin-bottom:4px">🛌 Rest / Skip Days</div>'
-      +'<div style="font-size:11px;color:var(--t4);margin-bottom:10px">Click a day to mark it as a rest day. Streaks unaffected, targets not scored.</div>'
-      +'<div id="sched-cal-wrap" style="max-width:340px"></div>'
-      +'<button class="stg-btn" style="margin-top:10px" onclick="clearAllRestDays()">✕ Clear all rest days</button>'
-      +'</div>';
-  }
-
-  if(_schedTab==='energy'){
-    body += '<div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);padding:14px">'
-      +'<div style="font-size:13px;font-weight:700;color:var(--t2);margin-bottom:4px">⚡ Energy Opt-Out</div>'
-      +'<div style="font-size:11px;color:var(--t4);margin-bottom:8px">Tap a day to cycle its credit. Streak continues when proportional target met.</div>'
-      +'<div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:10px">'
-      +'<span style="font-size:9px;padding:2px 7px;border-radius:8px;background:rgba(239,68,68,.15);color:var(--danger);font-weight:700">✕ Skip</span>'
-      +'<span style="font-size:9px;padding:2px 7px;border-radius:8px;background:rgba(245,158,11,.15);color:var(--warn);font-weight:700">25%</span>'
-      +'<span style="font-size:9px;padding:2px 7px;border-radius:8px;background:rgba(245,158,11,.12);color:var(--warn);font-weight:600">50%</span>'
-      +'<span style="font-size:9px;padding:2px 7px;border-radius:8px;background:rgba(245,158,11,.09);color:var(--warn);font-weight:500">75%</span>'
-      +'<span style="font-size:9px;padding:2px 7px;border-radius:8px;background:var(--surface2);color:var(--t3)">100% Normal</span>'
-      +'</div>'
-      +'<div id="stg-energy-opt-cal" style="max-width:340px"></div>'
-      +'<button class="stg-btn" style="margin-top:10px" onclick="clearAllEnergyOpts();schedShowTab(\'energy\')">✕ Clear energy opt-outs</button>'
-      +'</div>';
-  }
-
-  if(_schedTab==='activity'){
-    body += '<div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);padding:14px">'
-      +'<div style="font-size:13px;font-weight:700;color:var(--t2);margin-bottom:4px">🏃 Activity Opt-Out</div>'
-      +'<div style="font-size:11px;color:var(--t4);margin-bottom:8px">Tap a day to cycle its credit. Streak continues when proportional target met.</div>'
-      +'<div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:10px">'
-      +'<span style="font-size:9px;padding:2px 7px;border-radius:8px;background:rgba(239,68,68,.15);color:var(--danger);font-weight:700">✕ Skip</span>'
-      +'<span style="font-size:9px;padding:2px 7px;border-radius:8px;background:rgba(245,158,11,.15);color:var(--warn);font-weight:700">25%</span>'
-      +'<span style="font-size:9px;padding:2px 7px;border-radius:8px;background:rgba(245,158,11,.12);color:var(--warn);font-weight:600">50%</span>'
-      +'<span style="font-size:9px;padding:2px 7px;border-radius:8px;background:rgba(245,158,11,.09);color:var(--warn);font-weight:500">75%</span>'
-      +'<span style="font-size:9px;padding:2px 7px;border-radius:8px;background:var(--surface2);color:var(--t3)">100% Normal</span>'
-      +'</div>'
-      +'<div id="stg-activity-opt-cal" style="max-width:340px"></div>'
-      +'<button class="stg-btn" style="margin-top:10px" onclick="clearAllActivityOpts();schedShowTab(\'activity\')">✕ Clear activity opt-outs</button>'
-      +'</div>';
-  }
-
-  if(_schedTab==='workout'){
-    body += '<div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);padding:14px">'
-      +'<div style="font-size:13px;font-weight:700;color:var(--t2);margin-bottom:4px">💪 Workout Opt-Out</div>'
-      +'<div style="font-size:11px;color:var(--t4);margin-bottom:8px">Tap a day to set per-exercise credit.</div>'
-      +'<div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:10px">'
-      +'<span style="font-size:9px;padding:2px 7px;border-radius:8px;background:rgba(239,68,68,.15);color:var(--danger);font-weight:700">✕ Skip</span>'
-      +'<span style="font-size:9px;padding:2px 7px;border-radius:8px;background:rgba(245,158,11,.15);color:var(--warn);font-weight:700">Partial</span>'
-      +'<span style="font-size:9px;padding:2px 7px;border-radius:8px;background:var(--surface2);color:var(--t3)">Normal</span>'
-      +'</div>'
-      +'<div id="stg-workout-opt-cal" style="max-width:340px"></div>'
-      +'<div id="stg-workout-day-panel" style="display:none;margin-top:10px;background:var(--surface);border:1px solid var(--border);border-radius:var(--rs);padding:10px 12px"></div>'
-      +'<button class="stg-btn" style="margin-top:10px" onclick="workoutOptDays={};saveWorkoutOpts();schedShowTab(\'workout\')">✕ Reset workout opt-outs</button>'
-      +'</div>';
-  }
-
-  if(_schedTab==='week'){
-    // Weekly schedule: which days each exercise is scheduled
-    let weekHtml = '<div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);padding:14px">'
-      +'<div style="font-size:13px;font-weight:700;color:var(--t2);margin-bottom:4px">📅 Weekly Exercise Plan</div>'
-      +'<div style="font-size:11px;color:var(--t4);margin-bottom:12px">Toggle which days each exercise is scheduled. Off days = free pass for that exercise streak.</div>';
-    WORKOUT_EXERCISES.forEach(ex=>{
-      const sched=getWorkoutWeekDays(ex.key);
-      weekHtml+='<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;padding:8px 10px;background:var(--surface);border-radius:var(--rs);border:1px solid var(--border)">'
-        +'<span style="width:70px;font-size:11px;font-weight:600;color:var(--t2);flex-shrink:0">'+_iconImg(ICON_URLS[ex.icon],13)+' '+ex.label+'</span>'
-        +'<div style="display:flex;gap:3px;flex:1">'
-        +DOW_LABELS_SHORT.map((d,i)=>{
-          const on=!!sched[i];
-          return '<button onclick="toggleWorkoutWeekDay(\''+ex.key+'\','+i+');_refreshWeekPlan()" style="flex:1;padding:4px 2px;border-radius:5px;font-size:9px;font-weight:700;cursor:pointer;font-family:var(--fb);'
-            +'background:'+(on?'linear-gradient(135deg,var(--accent),var(--accent2))':'var(--surface2)')
-            +';color:'+(on?'#fff':'var(--t4)')
-            +';border:'+(on?'none':'1px solid var(--border)')+'">'+d+'</button>';
-        }).join('')
-        +'</div>'
-        +'</div>';
-    });
-    weekHtml += '</div>';
-    body += weekHtml;
-  }
-
   sc.innerHTML = '<div class="stg-panel on" id="sp-schedule">'
     +'<div class="stg-panel-title"><img src="https://cdn-icons-png.flaticon.com/512/2693/2693507.png" width="16" height="16" style="vertical-align:middle;margin-right:3px">Schedule</div>'
-    +'<div class="stg-panel-sub">Day targets, rest days, opt-outs and weekly exercise plan.</div>'
-    + tabBar + body
-    +'</div>';
-
-  // After render, populate calendars
-  if(_schedTab==='rest') renderSchedCal();
-  if(_schedTab==='energy') renderStgEnergyOptCal();
-  if(_schedTab==='activity') renderStgActivityOptCal();
-  if(_schedTab==='workout') renderStgWorkoutOptCal();
-}
-
-// ── Compact opt-out calendar renderers for Settings ─────────
-function _renderOptCal(wrapId, yearRef, monthRef, getPct, onCellClick, prevFn, nextFn){
-  const wrap = document.getElementById(wrapId);
-  if(!wrap) return;
-  const MLBL = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-  const DOW  = ['Su','Mo','Tu','We','Th','Fr','Sa'];
-  const today = new Date().toISOString().split('T')[0];
-  const firstDay = new Date(yearRef, monthRef, 1).getDay();
-  const daysInMonth = new Date(yearRef, monthRef+1, 0).getDate();
-  let cells = DOW.map(d=>'<div style="text-align:center;font-size:9px;font-weight:700;color:var(--t3);padding-bottom:3px">'+d+'</div>').join('');
-  for(let i=0;i<firstDay;i++) cells += '<div></div>';
-  for(let d=1;d<=daysInMonth;d++){
-    const ds = yearRef+'-'+String(monthRef+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');
-    const pct = getPct(ds);
-    const hasData = !!(allData[ds] && Object.keys(allData[ds]).length);
-    const isSkip=pct===0, isPartial=pct>0&&pct<100, isToday=ds===today;
-    let bg='transparent', color=hasData?'var(--t1)':'var(--t3)', border='none', fw=hasData?'600':'400';
-    if(isSkip){ bg='rgba(239,68,68,.18)'; color='var(--danger)'; border='1px solid rgba(239,68,68,.35)'; fw='700'; }
-    else if(isPartial){ bg='rgba(245,158,11,.15)'; color='var(--warn)'; border='1px solid rgba(245,158,11,.3)'; fw='700'; }
-    if(isToday){ border='2px solid var(--accent)'; color=isSkip?'var(--danger)':isPartial?'var(--warn)':'var(--accent)'; }
-    const label=isSkip?'✕':isPartial?pct+'%':d;
-    const fs=isPartial?'8':'10';
-    cells += '<button onclick="'+onCellClick+'(\''+ds+'\')" style="aspect-ratio:1;display:flex;align-items:center;justify-content:center;font-size:'+fs+'px;font-weight:'+fw+';border-radius:5px;cursor:pointer;background:'+bg+';color:'+color+';border:'+border+';width:100%;font-family:var(--fb);transition:all .12s;line-height:1" title="'+ds+'">'+label+'</button>';
-  }
-  wrap.innerHTML = '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">'
-    +'<button onclick="'+prevFn+'()" style="width:24px;height:24px;border-radius:6px;background:var(--surface);border:1px solid var(--border);color:var(--t3);font-size:13px;cursor:pointer">‹</button>'
-    +'<span style="font-family:var(--fd);font-size:12px;font-weight:700;color:var(--t1)">'+MLBL[monthRef]+' '+yearRef+'</span>'
-    +'<button onclick="'+nextFn+'()" style="width:24px;height:24px;border-radius:6px;background:var(--surface);border:1px solid var(--border);color:var(--t3);font-size:13px;cursor:pointer">›</button>'
+    +'<div class="stg-panel-sub">Set reduced targets per day of the week, and mark rest/skip days. Affects Energy, Activity &amp; Workout only.</div>'
+    +'<div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);padding:14px;margin-bottom:16px">'
+    +'<div style="font-size:13px;font-weight:700;color:var(--t2);margin-bottom:6px">Day-of-week target %</div>'
+    +'<div style="font-size:11px;color:var(--t4);margin-bottom:12px">100% = normal. 50% on Sunday = all Energy/Activity/Workout targets halved that day.</div>'
+    +'<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:6px">'
+    +DOW_LABELS.map((lbl,i)=>'<div style="text-align:center">'
+      +'<div style="font-size:10px;font-weight:700;color:var(--t3);margin-bottom:4px">'+lbl+'</div>'
+      +'<input type="number" min="0" max="200" step="5" id="dow-pct-'+i+'" value="'+(dowTargets[i]!=null?dowTargets[i]:100)+'"'
+      +' style="width:100%;text-align:center;padding:6px 2px;border-radius:var(--rxs);background:var(--surface);border:1px solid var(--border2);color:var(--t1);font-size:13px;font-weight:700;font-family:var(--fm)">'
+      +'<div style="font-size:9px;color:var(--t4);margin-top:2px">%</div></div>').join('')
     +'</div>'
-    +'<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:2px">'+cells+'</div>';
-}
-
-let stgEnergyCalYear=new Date().getFullYear(), stgEnergyCalMonth=new Date().getMonth();
-function renderStgEnergyOptCal(){ _renderOptCal('stg-energy-opt-cal',stgEnergyCalYear,stgEnergyCalMonth,getEnergyOptPct,'stgEnergyOptClick','stgEnergyCalPrev','stgEnergyCalNext'); }
-function stgEnergyCalPrev(){ stgEnergyCalMonth--; if(stgEnergyCalMonth<0){stgEnergyCalMonth=11;stgEnergyCalYear--;} renderStgEnergyOptCal(); }
-function stgEnergyCalNext(){ stgEnergyCalMonth++; if(stgEnergyCalMonth>11){stgEnergyCalMonth=0;stgEnergyCalYear++;} renderStgEnergyOptCal(); }
-function stgEnergyOptClick(date){ const cur=getEnergyOptPct(date); const cycle=[100,0,25,50,75]; const idx=cycle.indexOf(cur); setEnergyOptDay(date,cycle[(idx+1)%cycle.length]); renderStgEnergyOptCal(); renderDashboard(); }
-
-let stgActivityCalYear=new Date().getFullYear(), stgActivityCalMonth=new Date().getMonth();
-function renderStgActivityOptCal(){ _renderOptCal('stg-activity-opt-cal',stgActivityCalYear,stgActivityCalMonth,getActivityOptPct,'stgActivityOptClick','stgActivityCalPrev','stgActivityCalNext'); }
-function stgActivityCalPrev(){ stgActivityCalMonth--; if(stgActivityCalMonth<0){stgActivityCalMonth=11;stgActivityCalYear--;} renderStgActivityOptCal(); }
-function stgActivityCalNext(){ stgActivityCalMonth++; if(stgActivityCalMonth>11){stgActivityCalMonth=0;stgActivityCalYear++;} renderStgActivityOptCal(); }
-function stgActivityOptClick(date){ const cur=getActivityOptPct(date); const cycle=[100,0,25,50,75]; const idx=cycle.indexOf(cur); setActivityOptDay(date,cycle[(idx+1)%cycle.length]); renderStgActivityOptCal(); renderDashboard(); }
-
-let stgWorkoutCalYear=new Date().getFullYear(), stgWorkoutCalMonth=new Date().getMonth();
-function renderStgWorkoutOptCal(){
-  const wrap=document.getElementById('stg-workout-opt-cal'); if(!wrap) return;
-  const MLBL=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-  const DOW=['Su','Mo','Tu','We','Th','Fr','Sa'];
-  const today=new Date().toISOString().split('T')[0];
-  const firstDay=new Date(stgWorkoutCalYear,stgWorkoutCalMonth,1).getDay();
-  const daysInMonth=new Date(stgWorkoutCalYear,stgWorkoutCalMonth+1,0).getDate();
-  let cells=DOW.map(d=>'<div style="text-align:center;font-size:9px;font-weight:700;color:var(--t3);padding-bottom:3px">'+d+'</div>').join('');
-  for(let i=0;i<firstDay;i++) cells+='<div></div>';
-  for(let d=1;d<=daysInMonth;d++){
-    const ds=stgWorkoutCalYear+'-'+String(stgWorkoutCalMonth+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');
-    const hasData=!!(allData[ds]&&Object.keys(allData[ds]).length);
-    const isToday=ds===today;
-    // Check if any workout is skipped
-    const anySkip=WORKOUT_EXERCISES.some(ex=>getWorkoutOptPct(ex.key,ds)===0);
-    const anyPartial=WORKOUT_EXERCISES.some(ex=>{ const p=getWorkoutOptPct(ex.key,ds); return p>0&&p<100; });
-    let bg='transparent',color=hasData?'var(--t1)':'var(--t3)',border='none',fw=hasData?'600':'400';
-    if(anySkip){ bg='rgba(239,68,68,.15)'; color='var(--danger)'; border='1px solid rgba(239,68,68,.3)'; fw='700'; }
-    else if(anyPartial){ bg='rgba(245,158,11,.12)'; color='var(--warn)'; border='1px solid rgba(245,158,11,.25)'; fw='700'; }
-    if(isToday){ border='2px solid var(--accent)'; }
-    cells+='<button onclick="stgWorkoutDayClick(\''+ds+'\')" style="aspect-ratio:1;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:'+fw+';border-radius:5px;cursor:pointer;background:'+bg+';color:'+color+';border:'+border+';width:100%;font-family:var(--fb);transition:all .12s" title="'+ds+'">'+d+'</button>';
-  }
-  wrap.innerHTML='<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">'
-    +'<button onclick="stgWorkoutCalPrev()" style="width:24px;height:24px;border-radius:6px;background:var(--surface);border:1px solid var(--border);color:var(--t3);font-size:13px;cursor:pointer">‹</button>'
-    +'<span style="font-family:var(--fd);font-size:12px;font-weight:700;color:var(--t1)">'+MLBL[stgWorkoutCalMonth]+' '+stgWorkoutCalYear+'</span>'
-    +'<button onclick="stgWorkoutCalNext()" style="width:24px;height:24px;border-radius:6px;background:var(--surface);border:1px solid var(--border);color:var(--t3);font-size:13px;cursor:pointer">›</button>'
+    +'<button class="stg-btn primary" style="margin-top:12px" onclick="saveDowTargets()"><img src="https://cdn-icons-png.flaticon.com/512/2734/2734428.png" width="13" height="13" style="vertical-align:middle;margin-right:3px"> Save Day Targets</button>'
     +'</div>'
-    +'<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:2px">'+cells+'</div>';
-}
-function stgWorkoutCalPrev(){ stgWorkoutCalMonth--; if(stgWorkoutCalMonth<0){stgWorkoutCalMonth=11;stgWorkoutCalYear--;} renderStgWorkoutOptCal(); }
-function stgWorkoutCalNext(){ stgWorkoutCalMonth++; if(stgWorkoutCalMonth>11){stgWorkoutCalMonth=0;stgWorkoutCalYear++;} renderStgWorkoutOptCal(); }
-function stgWorkoutDayClick(date){
-  // Show a per-exercise panel in the stg-workout-day-panel div
-  const panel=document.getElementById('stg-workout-day-panel');
-  if(!panel){ return; }
-  panel.style.display='block';
-  const rows=WORKOUT_EXERCISES.map(ex=>{
-    const pct=getWorkoutOptPct(ex.key,date);
-    const opts=[100,75,50,25,0];
-    return '<div style="display:flex;align-items:center;gap:6px;margin-bottom:6px">'
-      +'<span style="width:60px;font-size:10px;font-weight:600;color:var(--t2);flex-shrink:0">'+_iconImg(ICON_URLS[ex.icon],12)+' '+ex.label+'</span>'
-      +'<div style="display:flex;gap:3px;flex:1">'
-      +opts.map(o=>{
-        const labels={100:'Full',75:'75%',50:'50%',25:'25%',0:'Skip'};
-        const active=pct===o;
-        return '<button onclick="setWorkoutOptDay(\''+ex.key+'\',\''+date+'\','+o+');stgWorkoutDayClick(\''+date+'\')" style="flex:1;padding:3px 1px;border-radius:4px;font-size:8px;font-weight:700;cursor:pointer;font-family:var(--fb);'
-          +'background:'+(active?'var(--accent)':'var(--surface)')
-          +';color:'+(active?'#fff':'var(--t3)')
-          +';border:'+(active?'none':'1px solid var(--border)')+'">'+labels[o]+'</button>';
-      }).join('')
-      +'</div>'
-      +'</div>';
-  }).join('');
-  panel.innerHTML='<div style="font-size:10px;font-weight:700;color:var(--t2);margin-bottom:8px">'+date+'</div>'+rows;
-  renderStgWorkoutOptCal();
+    +'<div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);padding:14px">'
+    +'<div style="font-size:13px;font-weight:700;color:var(--t2);margin-bottom:4px">🛌 Rest / Skip Days</div>'
+    +'<div style="font-size:11px;color:var(--t4);margin-bottom:10px">Click a day to mark it as a rest day. Streaks unaffected, targets not scored.</div>'
+    +'<div id="sched-cal-wrap"></div>'
+    +'<button class="stg-btn" style="margin-top:10px" onclick="clearAllRestDays()">✕ Clear all rest days</button>'
+    +'</div>'
+    +"</div>";
+  renderSchedCal();
+  requestAnimationFrame(()=>{ renderEnergyOptCalendar(); renderActivityOptCalendar(); renderWorkoutOptCalendar(); });
 }
 
 function renderSchedCal(){
@@ -9402,14 +9535,14 @@ function clearAllRestDays(){
   if(!confirm('Clear all rest days?')) return;
   restDays = {};
   saveSchedule();
-  renderStgSchedule();
+  renderSchedCal();
   showToast('✕ Rest days cleared');
 }
 
 // ═══════════════════════════════════════════════
 // 2. SPREADSHEET PASTE
 // ═══════════════════════════════════════════════
-const PASTE_COMPUTED = new Set(['active_ratio','cardio_load','cognitive_time','deep_sleep_pct',
+const PASTE_COMPUTED = new Set(['active_ratio','bmr','cardio_load','cognitive_time','deep_sleep_pct',
   'hydration_score','net_energy_balance','protein_per_kg','recovery_index','sleep_efficiency',
   'step_pace','total_activity_mins','total_calories','total_distance','total_screen','total_workout']);
 
@@ -9502,10 +9635,10 @@ function renderStgHealthImport(){
     <div class="stg-panel on" id="sp-healthimport">
       <div class="stg-panel-title">🍎 Health Import</div>
       <div class="stg-panel-sub">Paste the raw text from your Health Export app. WellStat will parse and save automatically.</div>
-      <textarea id="hi-raw" placeholder="Paste your Health Export text here..." style="width:100%;height:260px;margin:12px 0;padding:10px;border-radius:var(--rs);border:1px solid var(--border2);background:var(--surface2);color:var(--t1);font-size:12px;font-family:var(--fm);resize:vertical;box-sizing:border-box"></textarea>
+      <textarea id="hi-raw-stg" placeholder="Paste your Health Export text here..." style="width:100%;height:260px;margin:12px 0;padding:10px;border-radius:var(--rs);border:1px solid var(--border2);background:var(--surface2);color:var(--t1);font-size:12px;font-family:var(--fm);resize:vertical;box-sizing:border-box"></textarea>
       <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
-        <button class="stg-btn primary" onclick="healthImportRun()" style="font-size:14px;padding:8px 20px">⬇ Parse &amp; Import</button>
-        <button class="stg-btn" onclick="document.getElementById('hi-raw').value=''">Clear</button>
+        <button class="stg-btn primary" onclick="(function(){const t=document.getElementById('hi-raw-stg');if(t){const s=document.getElementById('hi-raw')||document.createElement('textarea');s.id='hi-raw';s.value=t.value;if(!s.parentNode)document.body.appendChild(s);}healthImportRun();})()" style="font-size:14px;padding:8px 20px">⬇ Parse &amp; Import</button>
+        <button class="stg-btn" onclick="document.getElementById('hi-raw-stg').value=''">Clear</button>
       </div>
       <div id="hi-log" style="margin-top:14px;font-size:12px;font-family:var(--fm);color:var(--t2);white-space:pre-wrap;line-height:1.7"></div>
     </div>`;
@@ -9537,9 +9670,10 @@ function getCarryForwardValues(date){
 }
 
 function healthImportRun(){
-  const raw = (document.getElementById('hi-raw')||{}).value || '';
+  const _hiEl = document.getElementById('hi-raw') || document.getElementById('hi-raw-stg');
+  const raw = (_hiEl||{}).value || '';
   if(!raw.trim()){ showToast('Paste your export text first'); return; }
-  const log = document.getElementById('hi-log');
+  const log = document.getElementById('hi-log') || {textContent:''};
   log.textContent = 'Parsing...';
 
   try {
@@ -10146,43 +10280,19 @@ function renderStgLooks(){
     iconChipsHTML = '<div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:10px">';
     Object.keys(fieldIcons).forEach(k => {
       const f = allFields().find(f=>f.key===k);
-      const label = f ? f.label : k;
-      iconChipsHTML += '<span style="display:inline-flex;align-items:center;gap:4px;background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:3px 10px;font-size:12px">'+renderFieldIcon(k)+' <span style="color:var(--t2)">'+label+'</span><button onclick="removeFieldIcon(\''+k+'\',event)" style="background:none;border:none;color:var(--t4);cursor:pointer;font-size:11px;padding:0 0 0 4px">×</button></span>';
+      if(f) iconChipsHTML += '<span style="display:inline-flex;align-items:center;gap:4px;background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:3px 10px;font-size:12px">'+renderFieldIcon(k)+' <span style="color:var(--t2)">'+f.label+'</span><button onclick="removeFieldIcon(\''+k+'\',event)" style="background:none;border:none;color:var(--t4);cursor:pointer;font-size:11px;padding:0 0 0 4px">x</button></span>';
     });
     iconChipsHTML += '</div>';
   }
-
-  // Build SOM icon chips
-  const SOM_MOODS_LOOKS = [
-    {key:'very_unpleasant',label:'😞 Very Unpleasant'},
-    {key:'unpleasant',     label:'😕 Unpleasant'},
-    {key:'neutral',        label:'😐 Neutral'},
-    {key:'pleasant',       label:'🙂 Pleasant'},
-    {key:'very_pleasant',  label:'😄 Very Pleasant'},
-  ];
-  const somImgsNow = loadSomImgs ? loadSomImgs() : {};
-  let somChipsHTML = '<div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:6px">';
-  SOM_MOODS_LOOKS.forEach(m=>{
-    const hasImg = !!somImgsNow[m.key];
-    somChipsHTML += '<span style="display:inline-flex;align-items:center;gap:4px;background:var(--surface);border:1px solid '+(hasImg?'var(--accent)':'var(--border)')+';border-radius:20px;padding:3px 10px;font-size:12px">'
-      +(hasImg?'<img src="'+somImgsNow[m.key]+'" style="height:16px;width:16px;object-fit:cover;border-radius:50%;vertical-align:middle">':'')
-      +' <span style="color:var(--t2)">'+m.label+'</span>'
-      +(hasImg?'<button onclick="somImgRemoveLooks(\''+m.key+'\')" style="background:none;border:none;color:var(--t4);cursor:pointer;font-size:11px;padding:0 0 0 4px">×</button>':'')
-      +'</span>';
-  });
-  somChipsHTML += '</div>';
 
   // Widget selector options
   const widgetNames = ['Score','Active Cal','Steps','Sleep','Heart Rate','Distance','Rings','Screen','Cardio','HRV'];
   let wimgOpts = '';
   widgetNames.forEach(w => { wimgOpts += '<option value="'+w+'">'+(widgetImages[w]?'[img] ':'')+w+'</option>'; });
 
-  // Icon field options — show clean label with [custom] flag, not raw URL
+  // Icon field options
   let iconOpts = '';
-  allFields().forEach(f => {
-    const hasIcon = !!fieldIcons[f.key];
-    iconOpts += '<option value="'+f.key+'">'+(hasIcon?'[✓] ':'')+f.label+'</option>';
-  });
+  allFields().forEach(f => { iconOpts += '<option value="'+f.key+'">'+(fieldIcons[f.key]?fieldIcons[f.key]+' ':'')+f.label+'</option>'; });
 
   sc.innerHTML =
     '<div class="stg-panel on" id="sp-looks">' +
@@ -10223,27 +10333,6 @@ function renderStgLooks(){
     colorsHTML +
 
     '<div class="stg-divider"></div>' +
-    '<div style="font-size:13px;font-weight:700;color:var(--t2);margin-bottom:4px">🧠 State of Mind Photo</div>' +
-    '<div style="font-size:12px;color:var(--t3);margin-bottom:12px">Choose a photo for each mood state. Shown in the Sleep &amp; Mindful section.</div>' +
-    '<div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);padding:14px;margin-bottom:14px">' +
-      '<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px">' +
-        [['very_unpleasant','😞 Very Unpleasant','#8B5CF6'],['unpleasant','😕 Unpleasant','#6366F1'],['neutral','😐 Neutral','#3B82F6'],['pleasant','🙂 Pleasant','#F59E0B'],['very_pleasant','😄 Very Pleasant','#10B981']].map(([k,lbl,c])=>`
-          <button onclick="somImgSelect('${k}')" id="som-btn-${k}" style="flex:1;min-width:80px;padding:8px 6px;border-radius:var(--rs);cursor:pointer;font-size:10px;font-weight:700;text-align:center;
-            background:${(() => { try { const si=JSON.parse(localStorage.getItem('ws2_som_imgs')||'{}'); return si[k]?c+'25':'var(--surface)'; } catch(e){ return 'var(--surface)'; } })()};
-            color:var(--t2);border:1px solid var(--border);transition:all .15s">${lbl}</button>`).join('') +
-      '</div>' +
-      '<div style="font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px" id="som-sel-label">Select a mood above</div>' +
-      '<div style="display:flex;gap:8px;margin-bottom:10px">' +
-        '<input id="som-img-url" class="stg-input" placeholder="https://... paste image URL" style="flex:1" oninput="somImgPreview()">' +
-        '<button class="stg-btn primary" onclick="somImgSave()">Set</button>' +
-        '<button class="stg-btn danger" onclick="somImgRemove()">Remove</button>' +
-      '</div>' +
-      '<div id="som-img-preview" style="border-radius:var(--rs);overflow:hidden;background:var(--surface3);min-height:100px;display:flex;align-items:center;justify-content:center">' +
-        '<span id="som-img-ph" style="font-size:12px;color:var(--t4)">Select a mood state to see/change its photo</span>' +
-      '</div>' +
-    '</div>' +
-
-    '<div class="stg-divider"></div>' +
     '<div style="font-size:13px;font-weight:700;color:var(--t2);margin-bottom:4px">Widget Images</div>' +
     '<div style="font-size:12px;color:var(--t3);margin-bottom:12px">Pick a widget, paste a URL, preview and save.</div>' +
     '<div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);padding:14px">' +
@@ -10263,8 +10352,8 @@ function renderStgLooks(){
 
     '<div class="stg-divider"></div>' +
     '<div style="font-size:13px;font-weight:700;color:var(--t2);margin-bottom:4px">Icon Management</div>' +
-    '<div style="font-size:12px;color:var(--t3);margin-bottom:12px">Pick a field, paste an image URL or type an emoji, preview and save. Field names with [✓] already have a custom icon.</div>' +
-    '<div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);padding:14px;margin-bottom:10px">' +
+    '<div style="font-size:12px;color:var(--t3);margin-bottom:12px">Pick a field, paste an image URL or type an emoji, preview and save.</div>' +
+    '<div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);padding:14px">' +
       '<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:10px">' +
         '<select class="stg-select" id="icon-field-sel" style="flex:1;min-width:140px" onchange="iconSelChange()">' + iconOpts + '</select>' +
         '<button class="stg-btn danger" onclick="removeSelectedFieldIcon()">Remove</button>' +
@@ -10278,11 +10367,6 @@ function renderStgLooks(){
       '</div>' +
       '<div id="icon-inline-status" style="font-size:11px;color:var(--t4);margin-top:4px;min-height:16px"></div>' +
       iconChipsHTML +
-    '</div>' +
-    '<div style="font-size:13px;font-weight:700;color:var(--t2);margin-bottom:4px">🧠 State of Mind Photos</div>' +
-    '<div style="font-size:12px;color:var(--t3);margin-bottom:8px">Set a photo for each mood. Shown in Sleep & Mindful section. Go to <em>State of Mind Photo</em> section below to edit.</div>' +
-    '<div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);padding:14px;margin-bottom:10px">' +
-      somChipsHTML +
     '</div>' +
 
     '<div class="stg-divider"></div>' +
@@ -10366,99 +10450,6 @@ function resetLookColors(){
 }
 
 // wimgSelChange: when dropdown changes, load current URL into input + show preview
-// ── State of Mind image management ────────────────
-let _somSelKey = null;
-const SOM_LABELS = {
-  very_unpleasant:'😞 Very Unpleasant',
-  unpleasant:'😕 Unpleasant',
-  neutral:'😐 Neutral',
-  pleasant:'🙂 Pleasant',
-  very_pleasant:'😄 Very Pleasant',
-};
-function loadSomImgs(){ try { return JSON.parse(localStorage.getItem('ws2_som_imgs')||'{}'); } catch(e){ return {}; } }
-function saveSomImgs(obj){ localStorage.setItem('ws2_som_imgs', JSON.stringify(obj)); }
-
-function somImgSelect(key){
-  _somSelKey = key;
-  const lbl = document.getElementById('som-sel-label');
-  if(lbl) lbl.textContent = 'Photo for: ' + SOM_LABELS[key];
-  // Update button styles
-  Object.keys(SOM_LABELS).forEach(k => {
-    const btn = document.getElementById('som-btn-'+k);
-    if(!btn) return;
-    const imgs = loadSomImgs();
-    const colors = {very_unpleasant:'#8B5CF6',unpleasant:'#6366F1',neutral:'#3B82F6',pleasant:'#F59E0B',very_pleasant:'#10B981'};
-    const c = colors[k];
-    btn.style.background = (k===key) ? (c+'40') : (imgs[k] ? c+'25' : 'var(--surface)');
-    btn.style.borderColor = (k===key) ? c : 'var(--border)';
-    btn.style.color = (k===key) ? c : 'var(--t2)';
-  });
-  // Show current image
-  const imgs = loadSomImgs();
-  const inp = document.getElementById('som-img-url');
-  if(inp) inp.value = imgs[key] || '';
-  somImgPreview();
-}
-
-function somImgPreview(){
-  const url = (document.getElementById('som-img-url')||{}).value?.trim() || '';
-  const box = document.getElementById('som-img-preview');
-  const ph  = document.getElementById('som-img-ph');
-  if(!box) return;
-  const old = document.getElementById('som-img-built');
-  if(old) old.remove();
-  if(!url || !url.startsWith('http')){
-    if(ph){ ph.style.display='flex'; ph.textContent = _somSelKey ? 'Paste a URL above' : 'Select a mood state to see/change its photo'; }
-    return;
-  }
-  if(ph) ph.style.display='none';
-  const img = document.createElement('img');
-  img.id='som-img-built';
-  img.style.cssText='width:100%;max-height:180px;object-fit:cover;display:block';
-  img.onerror=()=>{ img.remove(); if(ph){ ph.style.display='flex'; ph.textContent='Could not load — check URL'; ph.style.color='var(--danger)'; } };
-  img.src=url;
-  box.appendChild(img);
-}
-
-function somImgSave(){
-  if(!_somSelKey){ showToast('Select a mood state first'); return; }
-  const url = (document.getElementById('som-img-url')||{}).value?.trim();
-  if(!url){ showToast('Paste a URL first'); return; }
-  const imgs = loadSomImgs();
-  imgs[_somSelKey] = url;
-  saveSomImgs(imgs);
-  showToast('✅ Photo set for ' + SOM_LABELS[_somSelKey]);
-  somImgSelect(_somSelKey);
-}
-
-function somImgRemove(){
-  if(!_somSelKey){ showToast('Select a mood state first'); return; }
-  const imgs = loadSomImgs();
-  delete imgs[_somSelKey];
-  saveSomImgs(imgs);
-  const inp = document.getElementById('som-img-url');
-  if(inp) inp.value = '';
-  showToast('Photo removed for ' + SOM_LABELS[_somSelKey]);
-  somImgSelect(_somSelKey);
-}
-function somImgRemoveLooks(key){
-  const imgs = loadSomImgs();
-  delete imgs[key];
-  saveSomImgs(imgs);
-  showToast('Photo removed for ' + (SOM_LABELS[key]||key));
-  if(typeof renderStgLooks==='function') renderStgLooks();
-}
-
-function getSomImgForValue(val){
-  if(val == null) return null;
-  const imgs = loadSomImgs();
-  if(val >= 80) return imgs['very_pleasant'] || null;
-  if(val >= 30) return imgs['pleasant'] || null;
-  if(val > -30) return imgs['neutral'] || null;
-  if(val > -80) return imgs['unpleasant'] || null;
-  return imgs['very_unpleasant'] || null;
-}
-
 function wimgSelChange(){
   var sel = document.getElementById('wimg-widget-sel');
   if(!sel) return;
@@ -11686,10 +11677,6 @@ function gistBuildPayload(){
     navicons:   localStorage.getItem('ws2_navicons')   || null,
     dow:        localStorage.getItem('ws2_dow')         || null,
     rest:       localStorage.getItem('ws2_rest')        || null,
-    energy_opt: localStorage.getItem('ws2_energy_opt')  || null,
-    activity_opt: localStorage.getItem('ws2_activity_opt') || null,
-    workout_opt: localStorage.getItem('ws2_workout_opt') || null,
-    workout_week: localStorage.getItem('ws2_workout_week') || null,
     // ws2_wimgs: only sync URL-based images (not base64 uploads — too large)
     wimgs_urls: (() => {
       try {
@@ -11730,10 +11717,6 @@ function gistApplyPayload(payload){
     if(s.navicons)   localStorage.setItem('ws2_navicons',   s.navicons);
     if(s.dow)        localStorage.setItem('ws2_dow',         s.dow);
     if(s.rest)       localStorage.setItem('ws2_rest',        s.rest);
-    if(s.energy_opt)   localStorage.setItem('ws2_energy_opt',   s.energy_opt);
-    if(s.activity_opt) localStorage.setItem('ws2_activity_opt', s.activity_opt);
-    if(s.workout_opt)  localStorage.setItem('ws2_workout_opt',  s.workout_opt);
-    if(s.workout_week) localStorage.setItem('ws2_workout_week', s.workout_week);
     if(s.sync)       localStorage.setItem('ws2_sync',       s.sync);
     if(s.ai_active)  localStorage.setItem('ws2_ai_active',  s.ai_active);
     if(s.ai)         localStorage.setItem('ws2_ai',         s.ai);
