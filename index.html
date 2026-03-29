@@ -16,8 +16,8 @@
 <meta name="theme-color" content="#EEF3FB" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#0D1117" media="(prefers-color-scheme: dark)">
 <title>WellStat</title>
-<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%230F172A'/><text y='24' x='4' font-size='22'>💪</text></svg>">
-<link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%230F172A'/><text y='24' x='4' font-size='22'>💪</text></svg>">
+<link rel="icon" type="image/png" href="https://img.icons8.com/?size=100&id=nmM43CH558Ma&format=png&color=000000">
+<link rel="apple-touch-icon" href="https://img.icons8.com/?size=180&id=nmM43CH558Ma&format=png&color=000000">
 
 <style>
 /* ── TOKENS ─────────────────────────────────── */
@@ -645,6 +645,9 @@ canvas{display:block}
   border:1px solid var(--border);border-radius:var(--r);
   overflow-y:auto;padding:0;
   -webkit-overflow-scrolling:touch;
+  max-height:calc(100vh - 118px);
+  scrollbar-width:thin;
+  scrollbar-color:var(--border2) transparent;
 }
 .nf-wrap{
   font-family:'Helvetica Neue',Arial,sans-serif;
@@ -676,10 +679,16 @@ canvas{display:block}
 .nf-dv{font-weight:700;white-space:nowrap;margin-left:4px;flex-shrink:0;font-size:10px}
 .nf-dv-good{color:#16a34a}
 .nf-dv-warn{color:#dc2626}
-/* Two-column grid for vitamins + minerals */
+/* Vitamins + minerals stacked vertically */
 .nf-two-col{
-  display:grid;grid-template-columns:1fr 1fr;gap:0 8px;margin-top:2px;
+  display:flex;flex-direction:column;gap:0;margin-top:2px;
 }
+.nf-two-col > div + div {
+  margin-top:6px;
+  border-top:1px solid #ddd;
+  padding-top:4px;
+}
+[data-theme=dark] .nf-two-col > div + div { border-top-color:#444; }
 .nf-two-col .nf-col-title{
   font-size:8px;font-weight:800;letter-spacing:.6px;text-transform:uppercase;
   color:#666;padding:3px 0 1px;border-top:3px solid currentColor;
@@ -906,7 +915,7 @@ canvas{display:block}
     <div class="nav" onclick="showPage('ah-physique')" id="n-ah-physique"><div class="nav-ic"><img src="https://cdn-icons-png.flaticon.com/512/921/921051.png" width="22" height="22"></div>Physique</div>
     <div class="nav" onclick="showPage('ah-nutrition')" id="n-ah-nutrition"><div class="nav-ic"><img src="https://cdn-icons-png.flaticon.com/512/2515/2515183.png" width="22" height="22"></div>Nutrition</div>
     <div class="nav" onclick="showPage('ah-screen')" id="n-ah-screen"><div class="nav-ic"><img src="https://cdn-icons-png.flaticon.com/512/2991/2991148.png" width="22" height="22"></div>Screen</div>
-    <div class="nav" onclick="showPage('ah-habits')" id="n-ah-habits"><div class="nav-ic"><img src="https://cdn-icons-png.flaticon.com/512/1378/1378644.png" width="22" height="22"></div>Habit</div>
+    <div class="nav" onclick="showPage('ah-habits')" id="n-ah-habits"><div class="nav-ic"><img src="https://cdn-icons-png.flaticon.com/512/1378/1378644.png" width="22" height="22"></div>Habits</div>
     <div class="sb-lbl" style="margin-top:6px">Tools</div>
     <div class="nav" onclick="showPage('paste')" id="n-paste"><div class="nav-ic"><img src="https://cdn-icons-png.flaticon.com/512/1585/1585484.png" width="22" height="22"></div>Grid Paste</div>
     <div class="nav" onclick="showPage('settings')" id="n-settings"><div class="nav-ic"><img src="https://cdn-icons-png.flaticon.com/512/3524/3524659.png" width="22" height="22"></div>Settings</div>
@@ -1802,26 +1811,26 @@ sleep:[
 body:[
   {key:'weight',            label:'Weight',           unit:'kg',   scored:false},
   {key:'bmi',               label:'BMI',              unit:'',     bl:18.5,bh:25,  bl2:16,  bh2:30,   scored:true},
-  {key:'body_fat_ratio',    label:'Body Fat',         unit:'%',    bl:null,bh:20,  bl2:null,bh2:30,   scored:true},
+  {key:'body_fat_ratio',    label:'Body Fat',         unit:'%',    bl:10,bh:20,  bl2:5,bh2:30,   scored:true},
   {key:'muscle_rate',       label:'Muscle Rate',      unit:'%',    bl:72,  bh:null, bl2:60,  bh2:null, scored:true},
   {key:'body_water',        label:'Body Water',       unit:'%',    bl:55,  bh:65,  bl2:45,  bh2:75,   scored:false},
   {key:'bone_mass',         label:'Bone Mass',        unit:'kg',   scored:false},
-  {key:'visceral_fat',      label:'Visceral Fat',     unit:'',     bl:null,bh:8,   bl2:null,bh2:15,   scored:true},
+  {key:'visceral_fat',      label:'Visceral Fat',     unit:'',     bl:3,bh:8,   bl2:1,bh2:15,   scored:true},
   {key:'subcutaneous_fat',  label:'Subcut Fat',       unit:'%',    scored:false},
   {key:'protein_mass',      label:'Protein',          unit:'%',    bl:16,  bh:null, bl2:10,  bh2:null, scored:false},
   {key:'muscle_mass',       label:'Muscle Mass',      unit:'kg',   scored:false},
   {key:'lean_body_mass',    label:'Lean Body Mass',   unit:'kg',   scored:false},
-  {key:'waist_size',        label:'Waist',            unit:'cm',   bl:null,bh:90,  bl2:null,bh2:100,  scored:true},
+  {key:'waist_size',        label:'Waist',            unit:'cm',   bl:70,bh:90,  bl2:60,bh2:100,  scored:true},
   {key:'muscle_efficiency', label:'Muscle Efficiency',unit:'%',    bl:40,  bh:null, bl2:25,  bh2:null, scored:false, computed:true},
   {key:'body_age',          label:'Body Age',         unit:'yrs',  scored:false, computed:true},
   {key:'bmr',               label:'BMR',              unit:'kcal', bl:1400,bh:2200,bl2:1000,bh2:3000, scored:false, computed:true},
 ],
 movement:[
-  {key:'double_support_time',  label:'Double Support',  unit:'%',   bl:null,bh:22, bl2:null,bh2:30,  scored:true},
-  {key:'ground_contact_time',  label:'Ground Contact',  unit:'ms',  bl:null,bh:260,bl2:null,bh2:320, scored:true},
+  {key:'double_support_time',  label:'Double Support',  unit:'%',   bl:10,bh:22, bl2:3,bh2:30,  scored:true},
+  {key:'ground_contact_time',  label:'Ground Contact',  unit:'ms',  bl:200,bh:260,bl2:150,bh2:320, scored:true},
   {key:'running_stride',       label:'Running Stride',  unit:'m',   bl:1.2, bh:1.8,bl2:0.8, bh2:2.2, scored:true},
-  {key:'vertical_oscillation', label:'Vert Oscillation',unit:'cm',  bl:null,bh:8,  bl2:null,bh2:12,  scored:true},
-  {key:'walk_asymmetry',       label:'Walk Asymmetry',  unit:'%',   bl:null,bh:3,  bl2:null,bh2:8,   scored:true},
+  {key:'vertical_oscillation', label:'Vert Oscillation',unit:'cm',  bl:4,bh:8,  bl2:2,bh2:12,  scored:true},
+  {key:'walk_asymmetry',       label:'Walk Asymmetry',  unit:'%',   bl:1,bh:3,  bl2:0.3,bh2:8,   scored:true},
   {key:'walking_step_length',  label:'Step Length',     unit:'cm',  bl:65,  bh:85, bl2:50,  bh2:100, scored:true},
   {key:'movement_score',       label:'Movement Score',  unit:'%',   bl:80,  bh:null,bl2:40, bh2:null, scored:true, computed:true},
 ],
@@ -1882,26 +1891,26 @@ vitamins:[
 screen:[
   {key:'book_time',      label:'Book',       unit:'min',bl:30,bh:null,bl2:5,bh2:null,scored:true},
   {key:'movie_time',     label:'Movie',      unit:'min',bl:null,bh:90,bl2:null,bh2:180,scored:true},
-  {key:'reddit_time',    label:'Reddit',     unit:'min',bl:null,bh:30,bl2:null,bh2:90,scored:true},
-  {key:'twitter_time',   label:'Twitter/X',  unit:'min',bl:null,bh:20,bl2:null,bh2:60,scored:true},
-  {key:'youtube_time',   label:'YouTube',    unit:'min',bl:null,bh:60,bl2:null,bh2:180,scored:true},
-  {key:'mobile_time',    label:'Mobile',     unit:'min',bl:null,bh:90,bl2:null,bh2:240,scored:true},
-  {key:'tablet_time',    label:'Tablet',     unit:'min',bl:null,bh:60,bl2:null,bh2:180,scored:true},
-  {key:'laptop_time',    label:'Laptop',     unit:'min',bl:null,bh:240,bl2:null,bh2:480,scored:true},
+  {key:'reddit_time',    label:'Reddit',     unit:'min',bl:10,bh:30,bl2:3,bh2:90,scored:true},
+  {key:'twitter_time',   label:'Twitter/X',  unit:'min',bl:5,bh:20,bl2:1,bh2:60,scored:true},
+  {key:'youtube_time',   label:'YouTube',    unit:'min',bl:30,bh:60,bl2:5,bh2:180,scored:true},
+  {key:'mobile_time',    label:'Mobile',     unit:'min',bl:30,bh:90,bl2:5,bh2:240,scored:true},
+  {key:'tablet_time',    label:'Tablet',     unit:'min',bl:20,bh:60,bl2:3,bh2:180,scored:true},
+  {key:'laptop_time',    label:'Laptop',     unit:'min',bl:60,bh:240,bl2:15,bh2:480,scored:true},
   {key:'cognitive_time', label:'Cognitive',  unit:'min',scored:false,computed:true},
   {key:'total_screen',   label:'Total Screen',unit:'min',bl:null,bh:180,bl2:null,bh2:420,scored:false,computed:true},
 ],
 habits:[
-  {key:'stuff_count',    label:'Stuff',      unit:'',  bl:null,bh:1,bl2:null,bh2:3, scored:true},
-  {key:'alcohol',        label:'Alcohol',    unit:'units',bl:null,bh:0,bl2:null,bh2:3,scored:true},
+  {key:'stuff_count',    label:'Stuff',      unit:'',  bl:0,bh:1,bl2:0,bh2:3, scored:true},
+  {key:'alcohol',        label:'Alcohol',    unit:'units',bl:0,bh:0,bl2:0,bh2:3,scored:true},
 ],
 movement:[
   // lower is better for most movement quality metrics
-  {key:'double_support_time',  label:'Double Support',     unit:'%',    bl:null,bh:20,  bl2:null,bh2:30,  scored:true},
-  {key:'ground_contact_time',  label:'Ground Contact',     unit:'ms',   bl:null,bh:240, bl2:null,bh2:300, scored:true},
+  {key:'double_support_time',  label:'Double Support',     unit:'%',    bl:10,bh:20,  bl2:3,bh2:30,  scored:true},
+  {key:'ground_contact_time',  label:'Ground Contact',     unit:'ms',   bl:200,bh:240, bl2:150,bh2:300, scored:true},
   {key:'running_stride',       label:'Running Stride',     unit:'m',    bl:1.2, bh:1.8, bl2:0.8, bh2:2.2, scored:true},
-  {key:'vertical_oscillation', label:'Vertical Oscillation',unit:'cm',  bl:null,bh:8,   bl2:null,bh2:12,  scored:true},
-  {key:'walk_asymmetry',       label:'Walk Asymmetry',     unit:'%',    bl:null,bh:3,   bl2:null,bh2:8,   scored:true},
+  {key:'vertical_oscillation', label:'Vertical Oscillation',unit:'cm',  bl:4,bh:8,   bl2:2,bh2:12,  scored:true},
+  {key:'walk_asymmetry',       label:'Walk Asymmetry',     unit:'%',    bl:1,bh:3,   bl2:0.3,bh2:8,   scored:true},
   {key:'walking_step_length',  label:'Step Length',        unit:'cm',   bl:65,  bh:85,  bl2:50,  bh2:100, scored:true},
 ],
 };
@@ -1925,7 +1934,7 @@ const CATS = [
   {id:'physique',  label:'Physique', color:'var(--cb)', icon:'https://cdn-icons-png.flaticon.com/512/921/921051.png', sections:['body','movement']},
   {id:'nutrition', label:'Nutrition',color:'var(--cn)', icon:'https://cdn-icons-png.flaticon.com/512/2515/2515183.png', sections:['nutrition_macro','minerals','vitamins']},
   {id:'screen',    label:'Screen',   color:'var(--csc)',icon:'https://cdn-icons-png.flaticon.com/512/2991/2991148.png', sections:['screen']},
-  {id:'habits',    label:'Habit',    color:'var(--ch)', icon:'https://cdn-icons-png.flaticon.com/512/1378/1378644.png', sections:['habits']},
+  {id:'habits',    label:'Habits',   color:'var(--ch)', icon:'https://cdn-icons-png.flaticon.com/512/1378/1378644.png', sections:['habits']},
 ];
 
 // ── DATA STORE ───────────────────────────────
@@ -2460,7 +2469,8 @@ const PAGE_META = {
   'ah-sleep':{title:'Sleep & Mindful',sub:'Sleep stages and mindfulness'},
   'ah-physique':{title:'Physique',sub:'Body composition, measurements & movement quality'},
   'ah-nutrition':{title:'Nutrition',sub:'Macros, vitamins and minerals'},
-  'ah-screen':{title:'Screen & Habits',sub:'Screen time and daily habits'},
+  'ah-screen':{title:'Screen',sub:'Screen time, books and movies'},
+  'ah-habits':{title:'Habits',sub:'Daily rituals, streaks and consistency'},
   paste:{title:'Grid Paste',sub:'Paste from Numbers or Excel'},
   settings:{title:'Settings',sub:'Configure WellStat'},
 };
@@ -4548,6 +4558,28 @@ function renderRangeDetail(from, to, label){
     return;
   }
 
+  // Score each day
+  function scoreDayV2(entry){
+    if(!entry || Object.keys(entry).length === 0) return null;
+    const scores = [];
+    allFields().forEach(f => {
+      if(f.scored === false) return;
+      const v = entry[f.key];
+      if(v === null || v === undefined || isNaN(v)) return;
+      const sc = scoreFieldV2(f.key, v);
+      if(sc !== null) scores.push(sc);
+    });
+    return scores.length > 0 ? Math.round(scores.reduce((a,b)=>a+b,0)/scores.length) : null;
+  }
+
+  const dayScores = allD.map(d => ({
+    date: d,
+    score: scoreDayV2(computeAllFields(getEntry(d)))
+  })).filter(x => x.score !== null).sort((a,b) => b.score - a.score);
+
+  const top5 = dayScores.slice(0, 5);
+  const bottom5 = dayScores.slice(-5).reverse();
+
   // For each field: sum if cumulative (steps, calories, distances, time fields), avg otherwise
   // Vitals and body fields only show avg; everything else shows both sum and avg
   const AVG_ONLY_SECTIONS = new Set(['❤️ Vitals','⚖️ Body']);
@@ -4575,14 +4607,47 @@ function renderRangeDetail(from, to, label){
     {title:'⚖️ Body',         keys:['weight','bmi','body_fat_ratio','muscle_rate','muscle_mass','lean_body_mass','body_water','bone_mass','waist_size','visceral_fat']},
     {title:'🥗 Nutrition',    keys:['dietary_calories','water','protein','carbohydrates','total_fats','fiber','sugar','caffeine']},
     {title:'📱 Screen',       keys:['total_screen','total_entertainment','mobile_time','laptop_time','tablet_time','youtube_time','reddit_time','twitter_time','book_time','movie_time','cognitive_time']},
-    {title:'✅ Habit',        keys:['stuff_count','alcohol']},
+    {title:'✅ Habits',       keys:['stuff_count','alcohol']},
   ];
 
   const rangeLabel = allD.length===1 ? allD[0] : `${from} → ${to} (${allD.length} days)`;
 
+  // ── Best 5 / Worst 5 scored days ──────────────────────────────────
+  function scoreLabel(s){
+    if(s==null) return {label:'—',col:'var(--t3)'};
+    if(s>=90) return {label:'Excellent',col:'#10B981'};
+    if(s>=75) return {label:'Great',col:'#10B981'};
+    if(s>=60) return {label:'Good',col:'#3B82F6'};
+    if(s>=40) return {label:'Fair',col:'#F59E0B'};
+    return {label:'Needs work',col:'#EF4444'};
+  }
+  function scoreDayRow(x, rank, isTop){
+    const sl = scoreLabel(x.score);
+    const medal = rank===1?(isTop?'🥇':'🔴'):rank===2?(isTop?'🥈':'🟠'):rank===3?(isTop?'🥉':'🟡'):'';
+    return `<div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid var(--border)">
+      <span style="font-size:12px;min-width:18px;text-align:center">${medal||'#'+rank}</span>
+      <span style="font-size:11px;color:var(--t2);font-family:var(--fm);flex:1">${x.date}</span>
+      <span style="font-size:13px;font-weight:800;font-family:var(--fd);color:${sl.col}">${x.score}</span>
+      <span style="font-size:9px;font-weight:600;padding:2px 7px;border-radius:20px;background:${sl.col}18;color:${sl.col}">${sl.label}</span>
+    </div>`;
+  }
+
+  const best5Worst5Html = dayScores.length >= 2 ? `
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">
+      <div style="background:rgba(16,185,129,.06);border:1px solid rgba(16,185,129,.2);border-radius:var(--rs);padding:12px 14px">
+        <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:#10B981;margin-bottom:8px">🏆 Best Days</div>
+        ${top5.map((x,i)=>scoreDayRow(x,i+1,true)).join('')}
+      </div>
+      <div style="background:rgba(239,68,68,.06);border:1px solid rgba(239,68,68,.2);border-radius:var(--rs);padding:12px 14px">
+        <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:#EF4444;margin-bottom:8px">📉 Worst Days</div>
+        ${bottom5.map((x,i)=>scoreDayRow(x,i+1,false)).join('')}
+      </div>
+    </div>` : '';
+
   let html = `<div style="padding:12px 16px">
     <div style="font-family:var(--fd);font-size:16px;font-weight:800;color:var(--t1);margin-bottom:2px">${label} Summary</div>
-    <div style="font-size:11px;color:var(--t4);margin-bottom:14px">${rangeLabel}</div>`;
+    <div style="font-size:11px;color:var(--t4);margin-bottom:14px">${rangeLabel}</div>
+    ${best5Worst5Html}`;
 
   sections.forEach(sec=>{
     const avgOnly = AVG_ONLY_SECTIONS.has(sec.title) || allD.length === 1;
@@ -4618,6 +4683,7 @@ function renderRangeDetail(from, to, label){
   });
 
   html += '</div>';
+  
   panel.innerHTML = html;
 
   // Nutrition label — aggregate nutrition
@@ -4656,7 +4722,8 @@ function renderNutritionLabel(entry, nfWrap, titleStr){
   const vtLabels={vitamin_d:'Vit D',vitamin_c:'Vit C',vitamin_a:'Vit A',vitamin_e:'Vit E',vitamin_k:'Vit K',thiamin:'B1',riboflavin:'B2',niacin:'B3',pantothenic_acid:'B5',vitamin_b6:'B6',biotin:'B7',folate:'B9',vitamin_b12:'B12'};
   const vtRow=(key)=>{ const v=entry[key]; if(!v) return ''; const f=fields.find(x=>x.key===key); const dv=dvPct(key,v); const dvClass=dv!=null?(dv<=5?'':dv>=20?'nf-dv-good':''):''; return `<div class="nf-row-mini"><span>${vtLabels[key]||key}</span><span class="nf-dv ${dvClass}">${dv!=null?dv+'%':fmtNum(v,1)+(f?f.unit:'')}</span></div>`; };
   const minerRow=(key)=>{ const v=entry[key]; if(!v) return ''; const f=fields.find(x=>x.key===key); const dv=dvPct(key,v); const dvClass=dv!=null?(dv<=5?'':dv>=20?'nf-dv-good':''):''; return `<div class="nf-row-mini"><span>${f?f.label:key}</span><span class="nf-dv ${dvClass}">${dv!=null?dv+'%':fmtNum(v,1)+(f?f.unit:'')}</span></div>`; };
-  nfWrap.innerHTML=`<div class="nf-title">Nutrition Facts</div><div class="nf-subtitle">${titleStr}</div><div class="nf-cal-row"><span>Calories</span><span class="nf-cal-num">${entry.dietary_calories?Math.round(entry.dietary_calories):'—'}</span></div><div class="nf-divider-sm"></div><div class="nf-dv-note">% Daily Value*</div>${nfRow('Total Fat','total_fats',0,true)}${nfRow('Saturated Fat','saturated_fats',1,false)}${nfRow('Trans Fat','trans_fats',1,false)}${nfRow('Cholesterol','cholesterol',0,true)}${nfRow('Sodium','sodium',0,true)}${nfRow('Total Carbohydrate','carbohydrates',0,true)}${nfRow('Dietary Fiber','fiber',1,false)}${nfRow('Total Sugars','sugar',1,false)}${nfRow('Added Sugars','added_sugar',2,false)}${nfRow('Protein','protein',0,true)}<div class="nf-divider-md"></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:2px 8px;padding:4px 0">${['vitamin_d','calcium','iron','potassium','vitamin_c','vitamin_a','vitamin_e','vitamin_k','thiamin','riboflavin','niacin','pantothenic_acid','vitamin_b6','biotin','folate','vitamin_b12'].map(vtRow).join('')}</div><div class="nf-divider-sm"></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:2px 8px;padding:4px 0">${['magnesium','phosphorus','zinc','chromium','copper','iodine','manganese','molybdenum','selenium','chloride'].map(minerRow).join('')}</div><div class="nf-footnote">* Percent Daily Values are based on a 2,000 calorie diet.</div>`;
+  const nutContent = `<div class="nf-title">Nutrition Facts</div><div class="nf-subtitle">${titleStr}</div><div class="nf-cal-row"><span>Calories</span><span class="nf-cal-num">${entry.dietary_calories?Math.round(entry.dietary_calories):'—'}</span></div><div class="nf-divider-sm"></div><div class="nf-dv-note">% Daily Value*</div>${nfRow('Total Fat','total_fats',0,true)}${nfRow('Saturated Fat','saturated_fats',1,false)}${nfRow('Trans Fat','trans_fats',1,false)}${nfRow('Cholesterol','cholesterol',0,true)}${nfRow('Sodium','sodium',0,true)}${nfRow('Total Carbohydrate','carbohydrates',0,true)}${nfRow('Dietary Fiber','fiber',1,false)}${nfRow('Total Sugars','sugar',1,false)}${nfRow('Added Sugars','added_sugar',2,false)}${nfRow('Protein','protein',0,true)}<div class="nf-divider-md"></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:2px 8px;padding:4px 0">${['vitamin_d','calcium','iron','potassium','vitamin_c','vitamin_a','vitamin_e','vitamin_k','thiamin','riboflavin','niacin','pantothenic_acid','vitamin_b6','biotin','folate','vitamin_b12'].map(vtRow).join('')}</div><div class="nf-divider-sm"></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:2px 8px;padding:4px 0">${['magnesium','phosphorus','zinc','chromium','copper','iodine','manganese','molybdenum','selenium','chloride'].map(minerRow).join('')}</div><div class="nf-footnote">* Percent Daily Values are based on a 2,000 calorie diet.</div>`;
+  nfWrap.innerHTML = `<div style="max-height:100%;overflow-y:auto;padding:0;-webkit-overflow-scrolling:touch">${nutContent}</div>`;
 }
 
 function initHistory(){
@@ -5400,7 +5467,7 @@ window.addEventListener('load', ()=>{
       <div class="mob-nav-item" onclick="mobNav('ah-physique')"><div class="mni-ic"><img src="https://cdn-icons-png.flaticon.com/512/921/921051.png" width="28" height="28"></div>Physique</div>
       <div class="mob-nav-item" onclick="mobNav('ah-nutrition')"><div class="mni-ic"><img src="https://cdn-icons-png.flaticon.com/512/2515/2515183.png" width="28" height="28"></div>Nutrition</div>
       <div class="mob-nav-item" onclick="mobNav('ah-screen')"><div class="mni-ic"><img src="https://cdn-icons-png.flaticon.com/512/2991/2991148.png" width="28" height="28"></div>Screen</div>
-      <div class="mob-nav-item" onclick="mobNav('ah-habits')"><div class="mni-ic"><img src="https://cdn-icons-png.flaticon.com/512/1378/1378644.png" width="28" height="28"></div>Habit</div>
+      <div class="mob-nav-item" onclick="mobNav('ah-habits')"><div class="mni-ic"><img src="https://cdn-icons-png.flaticon.com/512/1378/1378644.png" width="28" height="28"></div>Habits</div>
       <div class="mob-nav-item" onclick="mobNav('paste')"><div class="mni-ic"><img src="https://cdn-icons-png.flaticon.com/512/1585/1585484.png" width="28" height="28"></div>Paste</div>
       <div class="mob-nav-item" onclick="mobNav('settings')"><div class="mni-ic"><img src="https://cdn-icons-png.flaticon.com/512/3524/3524659.png" width="28" height="28"></div>Settings</div>
     </div>
@@ -6591,24 +6658,26 @@ function renderAHActivity(){
     const total = cycleKm + walkKm + runKm;
     if(total <= 0) return `<div style="text-align:center;color:var(--t4);font-size:11px;padding:16px 0">No distance data this week</div>`;
     const pctC = cycleKm/total, pctW = walkKm/total, pctR = runKm/total;
-    // SVG donut pie
+    // SVG donut pie — use dashoffset only (no transform), start from top = offset of circ/4
     const cx=60,cy=60,r=46,stroke=18;
     const circ=2*Math.PI*r;
     const dC=pctC*circ, dW=pctW*circ, dR=pctR*circ;
-    // offsets: start from top (-90 deg = -circ/4 offset)
-    const offC = -circ/4;
-    const offW = offC - dC;
-    const offR = offW - dW;
+    // Each segment: dasharray = [segLen, rest], dashoffset shifts start position
+    // Starting at top = circ/4 offset. Each subsequent segment starts after the previous.
+    const startOff = circ/4; // 90deg = start at top
+    const offC = startOff;
+    const offW = startOff - dC;
+    const offR = startOff - dC - dW;
     const fmtKm = v => v>=1 ? v.toFixed(1)+'km' : (v*1000).toFixed(0)+'m';
     return `
       <div style="display:flex;align-items:center;gap:10px">
-        <svg width="120" height="120" viewBox="0 0 120 120" style="flex-shrink:0">
+        <svg width="120" height="120" viewBox="0 0 120 120" style="flex-shrink:0;transform:rotate(-90deg)">
           <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="var(--border)" stroke-width="${stroke}"/>
-          ${dC>0?`<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="#06B6D4" stroke-width="${stroke}" stroke-dasharray="${dC} ${circ}" stroke-dashoffset="${offC}" stroke-linecap="butt" transform="rotate(-90,${cx},${cy})"/>`:''}
-          ${dW>0?`<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="#8B5CF6" stroke-width="${stroke}" stroke-dasharray="${dW} ${circ}" stroke-dashoffset="${offW+(dC?0:0)}" stroke-linecap="butt" transform="rotate(-90,${cx},${cy})"/>`:''}
-          ${dR>0?`<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="#FF3B5C" stroke-width="${stroke}" stroke-dasharray="${dR} ${circ}" stroke-dashoffset="${offR}" stroke-linecap="butt" transform="rotate(-90,${cx},${cy})"/>`:''}
-          <text x="${cx}" y="${cy-5}" text-anchor="middle" font-size="13" font-weight="800" fill="var(--t1)" font-family="var(--fd)">${fmtKm(total)}</text>
-          <text x="${cx}" y="${cy+10}" text-anchor="middle" font-size="8" fill="var(--t3)" font-family="var(--fb)">total</text>
+          ${dC>0?`<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="#06B6D4" stroke-width="${stroke}" stroke-dasharray="${dC} ${circ-dC}" stroke-dashoffset="${offC}" stroke-linecap="butt"/>`:''}
+          ${dW>0?`<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="#8B5CF6" stroke-width="${stroke}" stroke-dasharray="${dW} ${circ-dW}" stroke-dashoffset="${offW}" stroke-linecap="butt"/>`:''}
+          ${dR>0?`<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="#FF3B5C" stroke-width="${stroke}" stroke-dasharray="${dR} ${circ-dR}" stroke-dashoffset="${offR}" stroke-linecap="butt"/>`:''}
+          <text x="${cx}" y="${cy-5}" text-anchor="middle" font-size="13" font-weight="800" fill="var(--t1)" font-family="var(--fd)" transform="rotate(90,${cx},${cy})">${fmtKm(total)}</text>
+          <text x="${cx}" y="${cy+10}" text-anchor="middle" font-size="8" fill="var(--t3)" font-family="var(--fb)" transform="rotate(90,${cx},${cy})">total</text>
         </svg>
         <div style="display:flex;flex-direction:column;gap:5px;flex:1">
           ${cycleKm>0?`<div style="display:flex;align-items:center;gap:5px"><div style="width:8px;height:8px;border-radius:50%;background:#06B6D4;flex-shrink:0"></div><div style="font-size:10px;color:var(--t2)"><span style="font-weight:700">${fmtKm(cycleKm)}</span><br><span style="color:var(--t4)">Cycle (${Math.round(pctC*100)}%)</span></div></div>`:''}
@@ -6669,8 +6738,8 @@ function renderAHActivity(){
     <!-- 2. Weekly Distance by Mode (Pie) -->
     <div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);padding:11px 12px;margin-bottom:8px">
       <div style="font-size:10px;font-weight:700;color:var(--t2);margin-bottom:2px">🗺 Weekly Distance Split</div>
-      <div style="font-size:9px;color:var(--t3);margin-bottom:8px">Cycle · Walk · Run — last 7 days</div>
-      ${buildDistPie(weekCycleDist/1000, weekWalkDist/1000, weekRunDist/1000)}
+      <div style="font-size:9px;color:var(--t3);margin-bottom:8px">Cycle · Walk · Run — last 7 days (km)</div>
+      ${buildDistPie(weekCycleDist, weekWalkDist, weekRunDist)}
     </div>
 
     <!-- 3. Active vs Passive Distance -->
@@ -8569,12 +8638,11 @@ function renderAHHabits(){
 
   // ── LEFT PANEL ─────────────────────────────────
   let left = ahSortBar(pageId);
-  left += `<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;padding-top:2px">
-    <span style="font-size:20px;font-weight:900;color:var(--t1);font-family:var(--fd);letter-spacing:-.3px">Habit</span>
-    <span style="font-size:11px;color:var(--t3);font-weight:500">Track streaks, consistency & daily rituals</span>
-  </div>`;
   left += ahScoreBanner('habits', dates);
-  left += `<div style="font-size:11px;color:var(--t3);margin:-4px 0 12px;padding:0 2px">🟢 done · 🔴 missed · 🟡 skipped</div>`;
+  left += `<div style="margin:-4px 0 10px;padding:4px 0">
+    <div style="font-size:11px;font-weight:600;color:var(--t3);letter-spacing:.1px;margin-bottom:3px">Daily rituals, streaks &amp; consistency tracking</div>
+    <div style="font-size:11px;color:var(--t4)">🟢 done · 🔴 missed · 🟡 skipped · Tap a card to drill down</div>
+  </div>`;
 
   // ── HABIT SCORE STATS — 2 per row ─────────────
   left += ahSectionTitle(_iconImg(ICON_URLS.habits,16),'Habit Score');
@@ -9221,12 +9289,12 @@ const TARGET_SECTIONS = [
   {label:'❤️ Vitals',       keys:['resting_hr','cardio_fitness','cardio_recovery','hrv','blood_oxygen_high','bp_systolic','bp_diastolic']},
   {label:'🌙 Sleep',        keys:['total_sleep','sleep_rem','sleep_core','sleep_deep','sleep_awake','sleep_score']},
   {label:'🧘 Mindful',      keys:['daylight','mindful_mins','surround_sound']},
-  {label:'⚖️ Body',         keys:['bmi','body_fat_ratio','muscle_rate','waist_size','visceral_fat']},
+  {label:'⚖️ Body/Physique', keys:['weight','bmi','body_fat_ratio','muscle_rate','body_water','bone_mass','visceral_fat','subcutaneous_fat','protein_mass','muscle_mass','lean_body_mass','waist_size']},
   {label:'🥗 Nutrition',    keys:['water','protein','fiber','dietary_calories','caffeine','carbohydrates','total_fats','saturated_fats','sugar','added_sugar','cholesterol']},
   {label:'⚗️ Minerals',     keys:['calcium','magnesium','potassium','sodium','iron','zinc','phosphorus','iodine','selenium','chromium','copper','manganese','molybdenum','chloride']},
   {label:'💊 Vitamins',     keys:['vitamin_d','vitamin_c','vitamin_a','vitamin_e','vitamin_b12','folate','vitamin_b6','thiamin','riboflavin','niacin','pantothenic_acid','biotin','vitamin_k']},
   {label:'📱 Screen',       keys:['mobile_time','youtube_time','reddit_time','twitter_time','laptop_time','tablet_time','movie_time','book_time']},
-  {label:'✅ Habit',       keys:['stuff_count','alcohol']},
+  {label:'✅ Habits',      keys:['stuff_count','alcohol']},
   {label:'🦵 Movement',     keys:['double_support_time','ground_contact_time','running_stride','vertical_oscillation','walk_asymmetry','walking_step_length']},
 ];
 
@@ -9251,7 +9319,7 @@ function renderStgTargets(){
       <span>Perfect Low<br><span style="font-weight:400;text-transform:none;letter-spacing:0">lo ✦</span></span>
       <span class="tgt-hi">Perfect High<br><span style="font-weight:400;text-transform:none;letter-spacing:0">hi ✦</span></span>
       <span class="tgt-w2">Worst High<br><span style="font-weight:400;text-transform:none;letter-spacing:0">w2</span></span>
-      <span class="tgt-elite" style="color:#047857;font-weight:700">Above Target<br><span style="font-weight:400;text-transform:none;letter-spacing:0">elite ⚡</span></span>
+      <span class="tgt-elite" style="color:#047857;font-weight:700">Elite Threshold<br><span style="font-weight:400;text-transform:none;letter-spacing:0">above / below ⚡</span></span>
     </div>`;
 
   TARGET_SECTIONS.forEach(sec => {
@@ -9266,7 +9334,7 @@ function renderStgTargets(){
         <input class="tgt-inp" type="number" step="any" placeholder="—" value="${t.lo??''}" id="tlo-${key}" title="Perfect Low / Start">
         <input class="tgt-inp tgt-hi" type="number" step="any" placeholder="—" value="${t.hi??''}" id="thi-${key}" title="Perfect High / End">
         <input class="tgt-inp tgt-w2" type="number" step="any" placeholder="—" value="${t.w2??''}" id="tw2-${key}" title="Worst High">
-        ${isEliteField(key)?`<input class="tgt-inp tgt-elite" type="number" step="any" placeholder="—" value="${t.elite??''}" id="telite-${key}" title="Above Target (elite)" style="border-color:#04785740">`:'<span class="tgt-elite" style="opacity:.2;font-size:10px;text-align:center;color:var(--t4)">—</span>'}
+        ${isEliteField(key)?(`<input class="tgt-inp tgt-elite" type="number" step="any" placeholder="—" value="${t.elite??''}" id="telite-${key}" title="${ELITE_LOW_KEYS.has(key)?'Below Limit Elite (screen)':'Above Target Elite'}" style="border-color:#04785740;background:${ELITE_LOW_KEYS.has(key)?'rgba(4,120,87,.06)':'rgba(4,120,87,.04)'}">`):'<span class="tgt-elite" style="opacity:.2;font-size:10px;text-align:center;color:var(--t4)">—</span>'}
       </div>`;
     });
   });
@@ -9302,11 +9370,20 @@ const ELITE_KEYS = new Set([
   'water','protein','fiber','vitamin_d','vitamin_c',
   'calcium','magnesium','potassium','iron','zinc',
 ]);
-function isEliteField(key){ return ELITE_KEYS.has(key); }
+// Screen-time fields where elite = BELOW threshold (less screen = more disciplined)
+// movie_time excluded — it has a range with lower+upper limits handled separately
+const ELITE_LOW_KEYS = new Set([
+  'mobile_time','youtube_time','reddit_time','twitter_time','tablet_time','laptop_time',
+]);
+function isEliteField(key){ return ELITE_KEYS.has(key) || ELITE_LOW_KEYS.has(key); }
 function isElite(key, val){
   if(!isEliteField(key)||val==null) return false;
   const t = targets[key]||DEFAULT_TARGETS[key]||{};
-  return t.elite!=null && val >= t.elite;
+  if(t.elite==null) return false;
+  // Screen-time: elite = val BELOW threshold (disciplined usage)
+  if(ELITE_LOW_KEYS.has(key)) return val <= t.elite;
+  // All others: elite = val ABOVE threshold
+  return val >= t.elite;
 }
 // Dark emerald for elite
 const ELITE_COLOR     = '#047857';
