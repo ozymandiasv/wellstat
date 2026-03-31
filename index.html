@@ -1482,6 +1482,7 @@ canvas{display:block}
             </div>
           </div>
           <div class="log-hdr-right">
+            <button class="stg-btn" onclick="switchLogSection('healthimport')" style="font-size:12px;padding:5px 11px;height:auto">🍎 Import</button>
             <button class="log-save-btn" onclick="saveLogEntry()">💾 Save</button>
             <button class="log-del-btn" onclick="deleteLogEntry()">🗑</button>
           </div>
@@ -1664,6 +1665,7 @@ canvas{display:block}
             <div class="stg-nav-item" onclick="showStgPanel('looks')" id="sni-looks">🎨 Customise Looks</div>
             <div class="stg-nav-item" onclick="showStgPanel('percentiles')" id="sni-percentiles">🌍 Global Percentiles</div>
             <div class="stg-nav-item" onclick="showStgPanel('data')" id="sni-data">📦 Data</div>
+            <div class="stg-nav-item" onclick="showStgPanel('healthimport')" id="sni-healthimport">🍎 Health Import</div>
             <div class="stg-nav-item" onclick="showStgPanel('sync')" id="sni-sync">☁️ Sheets Sync</div>
             <div class="stg-nav-item" onclick="showStgPanel('gist')" id="sni-gist">🐙 GitHub Sync</div>
 
@@ -3924,9 +3926,311 @@ function initLog(){
 }
 
 function switchLogSection(id){
+  if(id === 'healthimport'){
+    showHealthImportPanel();
+    return;
+  }
   logSection = id;
   renderLogLeftPanel();
   renderLogFields();
+}
+
+function showHealthImportPanel(){
+  const scroll = document.getElementById('log-fields');
+  if(!scroll) return;
+  scroll.innerHTML = `<div style="padding:12px">
+    <div style="font-size:13px;font-weight:700;color:var(--t1);margin-bottom:4px">🍎 Health Import</div>
+    <div style="font-size:12px;color:var(--t3);margin-bottom:10px">Paste raw export text — WellStat parses and fills today's log.</div>
+    <textarea id="hi-raw" placeholder="Paste Health Export text here..." style="width:100%;height:220px;padding:10px;border-radius:var(--rs);border:1px solid var(--border2);background:var(--surface2);color:var(--t1);font-size:11px;font-family:var(--fm);resize:vertical;box-sizing:border-box"></textarea>
+    <div style="display:flex;gap:8px;margin-top:8px;align-items:center">
+      <button class="log-save-btn" style="font-size:13px;padding:8px 18px" onclick="healthImportRun();renderLogFields()">⬇ Parse &amp; Import</button>
+      <button class="stg-btn" onclick="renderLogFields()">← Back</button>
+    </div>
+    <div id="hi-log" style="margin-top:10px;font-size:11px;font-family:var(--fm);color:var(--t2);white-space:pre-wrap;line-height:1.6;max-height:200px;overflow-y:auto"></div>
+  </div>`;
+}
+
+// Fields that don't change daily — carry forward from most recent previous entry
+const CARRY_FORWARD_KEYS = [
+  'weight','bmi','body_fat_ratio','muscle_rate','body_water','bone_mass',
+  'visceral_fat','subcutaneous_fat','protein_mass','muscle_mass','lean_body_mass','waist_size',
+  'cardio_fitness','cardio_recovery',
+  'bp_systolic','bp_diastolic','blood_glucose',
+  'blood_oxygen_high',
+];
+
+function getCarryForwardValues(date){
+  const prevDates = allDates().filter(d => d < date).sort().reverse();
+  const carried = {};
+  CARRY_FORWARD_KEYS.forEach(key => {
+    for(let i = 0; i < prevDates.length; i++){
+      const v = (allData[prevDates[i]] || {})[key];
+      if(v != null && v !== ''){
+        carried[key] = v;
+        break;
+      }
+    }
+  });
+  return carried;
+}
+
+function healthImportRun(){
+  const _hiEl = document.getElementById('hi-raw') || document.getElementById('hi-raw-stg');
+  const raw = (_hiEl||{}).value || '';
+  if(!raw.trim()){ showToast('Paste your export text first'); return; }
+  const log = document.getElementById('hi-log') || {textContent:''};
+  log.textContent = 'Parsing...';
+
+  try {
+    const result = parseHealthExport(raw);
+    const date   = result.date;
+    const entry  = result.entry;
+
+    if(!date){ log.textContent = '❌ Could not detect date.\nMake sure your export starts with a date like "22 Mar 2026 at 4:18 PM"'; return; }
+
+    const fieldCount = Object.keys(entry).length;
+    if(fieldCount === 0){ log.textContent = '❌ No fields parsed. Check the export format.'; return; }
+
+    // Carry forward fields not in today's export from most recent previous entry
+    const carried = getCarryForwardValues(date);
+    const carriedKeys = [];
+    Object.keys(carried).forEach(k => {
+      if(entry[k] == null) { entry[k] = carried[k]; carriedKeys.push(k); }
+    });
+
+    // Save into allData — existing manual entries win, health fills blanks
+    if(!allData[date]) allData[date] = {};
+    Object.keys(entry).forEach(k => {
+      if(allData[date][k] == null || allData[date][k] === '') allData[date][k] = entry[k];
+    });
+    saveData();
+    renderDashboard();
+
+    // Build log
+    const totalFields = Object.keys(entry).length;
+    let lines = ['✅ Imported ' + date + ' — ' + totalFields + ' fields:', ''];
+    Object.keys(entry).sort().forEach(k => {
+      const f = allFields().find(f=>f.key===k);
+      const label = f ? f.label : k;
+      const flag  = carriedKeys.includes(k) ? ' ↩ carried forward' : '';
+      lines.push('  ' + label + ': ' + entry[k] + (f&&f.unit?' '+f.unit:'') + flag);
+    });
+    log.textContent = lines.join('\n');
+    showToast('✅ Imported ' + totalFields + ' fields for ' + date);
+
+    // Auto-push to Gist if configured
+    try {
+      const gc = JSON.parse(localStorage.getItem('ws2_gist') || '{}');
+      if(gc.gistId && gc.token){
+        log.textContent += '\n\nPushing to Gist...';
+        gistPush();
+      }
+    } catch(e) {}
+
+  } catch(err) {
+    log.textContent = '❌ Error: ' + err.message;
+  }
+}
+
+function parseHealthExport(raw){
+  const entry = {};
+
+  const MONTHS = {Jan:'01',Feb:'02',Mar:'03',Apr:'04',May:'05',Jun:'06',
+                  Jul:'07',Aug:'08',Sep:'09',Oct:'10',Nov:'11',Dec:'12'};
+  const tsMatch = raw.match(/(\d{1,2})\s+(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s+(\d{4})/);
+  let date = null;
+  if(tsMatch){
+    const dd = tsMatch[1].padStart(2,'0');
+    const mm = MONTHS[tsMatch[2]];
+    const yy = tsMatch[3];
+    date = yy+'-'+mm+'-'+dd;
+  }
+
+  if(!date){
+    const rowMatch = raw.match(/(\d{4}-\d{2}-\d{2})/);
+    if(rowMatch) date = rowMatch[1];
+  }
+
+  const ACTIVITY_MAP = {
+    'walking':'walk','hiking':'walk','outdoor walk':'walk',
+    'running':'run','outdoor run':'run',
+    'cycling':'cycle','outdoor cycle':'cycle',
+    'traditional strength training':'strength','functional strength training':'strength','core training':'strength',
+    'yoga':'yoga','pilates':'yoga',
+    'hiit':'other','swimming':'other','elliptical':'other','rowing':'other','dance':'other','other':'other'
+  };
+
+  let hrSamples=[],hrvSamples=[],spo2Samples=[],respSamples=[],soundSamples=[];
+  let walkAsym=[],walkDouble=[],walkSpeed=[],walkStep=[];
+  let sleepREM=0,sleepCore=0,sleepDeep=0,sleepAwake=0,sleepLeg=0;
+  let daylightMin=0,mindfulMin=0;
+  let wkWalkDist=0,wkWalkElev=0,wkWalkSpeedSum=0,wkWalkSpeedN=0;
+  let wkRunDist=0,wkRunElev=0,wkRunSpeedSum=0,wkRunSpeedN=0;
+  let wkCycleDist=0,wkCycleElev=0,wkCycleSpeedSum=0,wkCycleSpeedN=0;
+  let wkStrength=0,wkYoga=0,wkOther=0;
+
+  const blocks = raw.split(';');
+
+  blocks.forEach(block => {
+    block = block.trim();
+    if(block.length < 5) return;
+
+    const lines = block.split('\n').map(l=>l.trim()).filter(l=>l.length>0);
+    let headerIdx = -1;
+    for(let i=0;i<lines.length;i++){
+      if(lines[i].startsWith('Date,') || lines[i].startsWith(' Date,')){
+        headerIdx = i; break;
+      }
+    }
+    if(headerIdx === -1) return;
+
+    const hCols  = csvSplit(lines[headerIdx].trim());
+    const metric = hCols[1] ? hCols[1].trim() : '';
+    if(!metric) return;
+
+    const dataRows = lines.slice(headerIdx+1).filter(l=>/^\d{4}-\d{2}-\d{2}/.test(l));
+    if(!dataRows.length) return;
+
+    const fv = r => { const v=parseFloat(csvSplit(r)[1]); return isNaN(v)?null:v; };
+
+    // ── WORKOUT block (multi-column) ──
+    if(metric==='Active energy burned(kcal)' && hCols.length > 3){
+      dataRows.forEach(row => {
+        const c  = csvSplit(row);
+        const act = (c[2]||'').toLowerCase().trim();
+        const type = ACTIVITY_MAP[act]||'other';
+        const durM = (parseFloat(c[4])||0)/60;
+        const dist = parseFloat(c[3])||0;
+        const elev = parseFloat(c[5])||0;
+        const spd  = parseFloat(c[18])||0;
+        if(type==='walk'){
+          wkWalkDist+=dist; wkWalkElev+=elev;
+          if(dist>0&&durM>0){wkWalkSpeedSum+=dist/(durM/60);wkWalkSpeedN++;}
+        } else if(type==='run'){
+          wkRunDist+=dist; wkRunElev+=elev;
+          if(spd>0){wkRunSpeedSum+=spd;wkRunSpeedN++;}
+          else if(dist>0&&durM>0){wkRunSpeedSum+=dist/(durM/60);wkRunSpeedN++;}
+        } else if(type==='cycle'){
+          wkCycleDist+=dist; wkCycleElev+=elev;
+          if(dist>0&&durM>0){wkCycleSpeedSum+=dist/(durM/60);wkCycleSpeedN++;}
+        } else if(type==='strength'){ wkStrength+=durM; }
+        else if(type==='yoga')      { wkYoga+=durM; }
+        else                        { wkOther+=durM; }
+      });
+      return;
+    }
+
+    // ── SINGLE VALUE ──
+    const SINGLE = {
+      'Active energy burned(kcal)':           {key:'active_calories',  fn:v=>Math.round(v)},
+      'Basal energy burned(kcal)':            {key:'resting_calories', fn:v=>Math.round(v)},
+      'Stand time(min)':                      {key:'standing_mins',    fn:v=>Math.round(v)},
+      'Exercise time(min)':                   {key:'exercise_mins',    fn:v=>Math.round(v)},
+      'Step count(count)':                    {key:'steps',            fn:v=>Math.round(v)},
+      'Distance walking / running(km)':       {key:'distance_foot',    fn:v=>Math.round(v*100)/100},
+      'Flights climbed(count)':               {key:'stairs_climbed',   fn:v=>Math.round(v)},
+      'VO2 Max(mL/min·kg)':                   {key:'cardio_fitness',   fn:v=>Math.round(v*10)/10},
+      'Resting heart rate(count/min)':        {key:'resting_hr',       fn:v=>Math.round(v)},
+      'Walking heart rate average(count/min)':{key:'walking_hr',       fn:v=>Math.round(v)},
+      'State of Mind(Valence)':               {key:'state_of_mind',    fn:v=>Math.round(v)},
+    };
+
+    // ── HEART RATE ──
+    if(metric==='Heart rate(count/min)'){
+      if(dataRows.length===1){ const v=fv(dataRows[0]); if(v!=null) entry.heart_rate=Math.round(v*10)/10; }
+      else dataRows.forEach(r=>{const v=fv(r);if(v!=null&&v>30&&v<220)hrSamples.push(v);});
+      return;
+    }
+
+    if(SINGLE[metric]){
+      const v=fv(dataRows[0]); if(v!=null) entry[SINGLE[metric].key]=SINGLE[metric].fn(v);
+      return;
+    }
+
+    // ── TIME SERIES ──
+    const pushAll = (arr) => dataRows.forEach(r=>{const v=fv(r);if(v!=null)arr.push(v);});
+    if(metric==='Heart rate variability (SDNN)(ms)')    { pushAll(hrvSamples);  return; }
+    if(metric==='Oxygen saturation(%)')                 { pushAll(spo2Samples); return; }
+    if(metric==='Respiratory Rate(count/min)')          { pushAll(respSamples); return; }
+    if(metric==='Environmental sound levels(dBASPL)')   { pushAll(soundSamples);return; }
+    if(metric==='Walking asymmetry percentage(%)')      { pushAll(walkAsym);    return; }
+    if(metric==='Walking double support percentage(%)'){ pushAll(walkDouble);   return; }
+    if(metric==='Walking speed(km/hr)')                 { pushAll(walkSpeed);   return; }
+    if(metric==='Walking step length(cm)')              { pushAll(walkStep);    return; }
+
+    // ── SLEEP ──
+    if(metric==='Time REM(hr)')   { dataRows.forEach(r=>{const v=fv(r);if(v)sleepREM+=v;});   return; }
+    if(metric==='Time core(hr)')  { dataRows.forEach(r=>{const v=fv(r);if(v)sleepCore+=v;});  return; }
+    if(metric==='Time deep(hr)')  { dataRows.forEach(r=>{const v=fv(r);if(v)sleepDeep+=v;});  return; }
+    if(metric==='Time awake(hr)') { dataRows.forEach(r=>{const v=fv(r);if(v)sleepAwake+=v;}); return; }
+    if(metric==='Time asleep(hr)'){ dataRows.forEach(r=>{const v=fv(r);if(v)sleepLeg+=v;});   return; }
+    if(metric==='Time in daylight(min)'){ dataRows.forEach(r=>{const v=fv(r);if(v)daylightMin+=v;}); return; }
+    if(metric==='Mindfulness(min)')     { dataRows.forEach(r=>{const v=fv(r);if(v)mindfulMin+=v;});  return; }
+  });
+
+  // ── Finalise aggregations ──
+  const avg = arr => arr.length ? arr.reduce((a,b)=>a+b,0)/arr.length : null;
+  const r0  = v => Math.round(v);
+  const r1  = v => Math.round(v*10)/10;
+  const r2  = v => Math.round(v*100)/100;
+
+  if(hrSamples.length){
+    entry.hr_low  = r0(Math.min(...hrSamples));
+    entry.hr_high = r0(Math.max(...hrSamples));
+    if(!entry.heart_rate) entry.heart_rate = r1(avg(hrSamples));
+  }
+  if(hrvSamples.length)   entry.hrv              = r1(avg(hrvSamples));
+  if(spo2Samples.length){
+    const s = avg(spo2Samples);
+    entry.blood_oxygen_high = r1(s < 2 ? s*100 : s);
+  }
+  if(respSamples.length){
+    entry.breath_low  = r1(Math.min(...respSamples));
+    entry.breath_high = r1(Math.max(...respSamples));
+  }
+  if(soundSamples.length) entry.surround_sound      = r1(avg(soundSamples));
+  if(walkAsym.length){    const a=avg(walkAsym);    entry.walk_asymmetry     = r1(a<1?a*100:a); }
+  if(walkDouble.length){  const a=avg(walkDouble);  entry.double_support_time= r1(a<1?a*100:a); }
+  if(walkSpeed.length){   const s=avg(walkSpeed);   if(s>0) entry.walk_avg_pace = r2(60/s); }
+  if(walkStep.length)     entry.walking_step_length = r1(avg(walkStep));
+
+  if(sleepREM   > 0) entry.sleep_rem   = r0(sleepREM*60);
+  if(sleepCore  > 0) entry.sleep_core  = r0(sleepCore*60);
+  if(sleepDeep  > 0) entry.sleep_deep  = r0(sleepDeep*60);
+  if(sleepAwake > 0) entry.sleep_awake = r0(sleepAwake*60);
+  if(sleepLeg   > 0) entry.asleep      = r0(sleepLeg*60);
+  const slTotal = sleepREM+sleepCore+sleepDeep+sleepAwake+sleepLeg;
+  if(slTotal    > 0) entry.total_sleep = r0(slTotal*60);
+
+  if(daylightMin > 0) entry.daylight     = r1(daylightMin);
+  if(mindfulMin  > 0) entry.mindful_mins = r1(mindfulMin);
+
+  if(wkWalkDist  > 0) entry.walk_distance   = r2(wkWalkDist);
+  if(wkWalkElev  > 0) entry.walk_elevation  = r0(wkWalkElev);
+  if(wkWalkSpeedN> 0) entry.walk_avg_pace   = r2(60/(wkWalkSpeedSum/wkWalkSpeedN));
+  if(wkRunDist   > 0) entry.run_distance    = r2(wkRunDist);
+  if(wkRunElev   > 0) entry.run_elevation   = r0(wkRunElev);
+  if(wkRunSpeedN > 0) entry.run_avg_pace    = r2(60/(wkRunSpeedSum/wkRunSpeedN));
+  if(wkCycleDist > 0) entry.cycle_distance  = r2(wkCycleDist);
+  if(wkCycleElev > 0) entry.cycle_elevation = r0(wkCycleElev);
+  if(wkCycleSpeedN>0) entry.cycle_avg_pace  = r1(wkCycleSpeedSum/wkCycleSpeedN);
+  if(wkStrength  > 0) entry.strength_training= r1(wkStrength);
+  if(wkYoga      > 0) entry.yoga_duration    = r1(wkYoga);
+  if(wkOther     > 0) entry.other_activity   = r1(wkOther);
+
+  return { date, entry };
+}
+
+function csvSplit(line){
+  const result=[]; let cur='', inQ=false;
+  for(let i=0;i<line.length;i++){
+    const ch=line[i];
+    if(ch==='"'){ inQ=!inQ; }
+    else if(ch===','&&!inQ){ result.push(cur.trim()); cur=''; }
+    else { cur+=ch; }
+  }
+  result.push(cur.trim());
+  return result;
 }
 
 function renderLogFields(){
@@ -9067,6 +9371,7 @@ function renderStgPanel(id){
     data:    renderStgData,
     sync:    renderStgSync,
     gist:    renderStgGist,
+    healthimport: renderStgHealthImport,
     // ai panel removed,
   };
   if(map[id]) map[id]();
@@ -10945,6 +11250,24 @@ function deleteAllData(){
   saveData();
   renderStgData();
   showToast('All data deleted');
+}
+
+// ═══════════════════════════════════════════════
+// HEALTH IMPORT (Settings panel)
+// ═══════════════════════════════════════════════
+function renderStgHealthImport(){
+  const sc = document.getElementById('stg-content');
+  sc.innerHTML = `
+    <div class="stg-panel on" id="sp-healthimport">
+      <div class="stg-panel-title">🍎 Health Import</div>
+      <div class="stg-panel-sub">Paste the raw text from your Health Export app. WellStat will parse and save automatically.</div>
+      <textarea id="hi-raw-stg" placeholder="Paste your Health Export text here..." style="width:100%;height:260px;margin:12px 0;padding:10px;border-radius:var(--rs);border:1px solid var(--border2);background:var(--surface2);color:var(--t1);font-size:12px;font-family:var(--fm);resize:vertical;box-sizing:border-box"></textarea>
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+        <button class="stg-btn primary" onclick="(function(){const t=document.getElementById('hi-raw-stg');if(t){const s=document.getElementById('hi-raw')||document.createElement('textarea');s.id='hi-raw';s.value=t.value;if(!s.parentNode)document.body.appendChild(s);}healthImportRun();})()" style="font-size:14px;padding:8px 20px">⬇ Parse &amp; Import</button>
+        <button class="stg-btn" onclick="document.getElementById('hi-raw-stg').value=''">Clear</button>
+      </div>
+      <div id="hi-log" style="margin-top:14px;font-size:12px;font-family:var(--fm);color:var(--t2);white-space:pre-wrap;line-height:1.7"></div>
+    </div>`;
 }
 
 // ═══════════════════════════════════════════════
