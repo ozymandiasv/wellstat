@@ -16,8 +16,8 @@
 <meta name="theme-color" content="#EEF3FB" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#0D1117" media="(prefers-color-scheme: dark)">
 <title>WellStat</title>
-<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'><rect width='180' height='180' rx='40' fill='%23F5F5F3'/><image href='https://img.icons8.com/?size=100&id=7dnbEGJ0fI1R&format=png&color=000000' x='40' y='40' width='100' height='100'/></svg>">
-<link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'><rect width='180' height='180' rx='40' fill='%23F5F5F3'/><image href='https://img.icons8.com/?size=100&id=7dnbEGJ0fI1R&format=png&color=000000' x='40' y='40' width='100' height='100'/></svg>">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%230F172A'/><text y='24' x='4' font-size='22'>💪</text></svg>">
+<link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%230F172A'/><text y='24' x='4' font-size='22'>💪</text></svg>">
 
 <style>
 /* ── TOKENS ─────────────────────────────────── */
@@ -95,10 +95,9 @@ input,select{font-family:var(--fb);outline:none}
 }
 .sb-logo{
   width:36px;height:36px;border-radius:11px;flex-shrink:0;
-  background:#F5F5F3;
-  display:flex;align-items:center;justify-content:center;font-size:20px;
-  box-shadow:0 2px 8px rgba(0,0,0,.08);
-  border:1px solid rgba(0,0,0,.05);
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  display:flex;align-items:center;justify-content:center;font-size:18px;
+  box-shadow:0 4px 14px rgba(59,130,246,.35);
 }
 .sb-wordmark{font-family:var(--fd);font-size:17px;font-weight:800;letter-spacing:-.4px;color:var(--t1)}
 .sb-tagline{font-size:10px;color:var(--t3);letter-spacing:.5px;text-transform:uppercase;margin-top:1px}
@@ -900,7 +899,7 @@ canvas{display:block}
 <!-- ══ SIDEBAR ══════════════════════════════════ -->
 <aside class="sb" id="sb">
   <div class="sb-hdr">
-    <div class="sb-logo"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="24" height="24"><image href="https://img.icons8.com/?size=100&id=7dnbEGJ0fI1R&format=png&color=000000" x="0" y="0" width="100" height="100"/></svg></div>
+    <div class="sb-logo">💪</div>
     <div>
       <div class="sb-wordmark">WellStat</div>
       <div class="sb-tagline">Health OS</div>
@@ -1029,7 +1028,7 @@ canvas{display:block}
         <div class="card w-rings c1" id="w-rings">
           <div class="clabel">Activity Rings</div>
           <div class="rings-body" style="margin-top:8px">
-            <div class="rings-svg"><svg viewBox="0 0 120 120" id="rings-svg"></svg></div>
+            <div class="rings-svg"><svg viewBox="0 0 120 120" id="rings-svg" preserveAspectRatio="xMidYMid meet"></svg></div>
             <div class="rings-leg" id="rings-leg"></div>
           </div>
         </div>
@@ -1663,6 +1662,7 @@ canvas{display:block}
             <div class="stg-nav-item" onclick="showStgPanel('paste')" id="sni-paste">📋 Quick Paste</div>
             <div class="stg-nav-item" onclick="showStgPanel('custom')" id="sni-custom">➕ Custom Fields</div>
             <div class="stg-nav-item" onclick="showStgPanel('looks')" id="sni-looks">🎨 Customise Looks</div>
+            <div class="stg-nav-item" onclick="showStgPanel('percentiles')" id="sni-percentiles">🌍 Global Percentiles</div>
             <div class="stg-nav-item" onclick="showStgPanel('data')" id="sni-data">📦 Data</div>
             <div class="stg-nav-item" onclick="showStgPanel('sync')" id="sni-sync">☁️ Sheets Sync</div>
             <div class="stg-nav-item" onclick="showStgPanel('gist')" id="sni-gist">🐙 GitHub Sync</div>
@@ -1812,15 +1812,6 @@ body:[
   {key:'muscle_efficiency', label:'Muscle Efficiency',unit:'%',    bl:40,  bh:null, bl2:25,  bh2:null, scored:false, computed:true},
   {key:'body_age',          label:'Body Age',         unit:'yrs',  scored:false, computed:true},
 ],
-movement:[
-  {key:'double_support_time',  label:'Double Support',  unit:'%',   bl:null,bh:22, bl2:null,bh2:30,  scored:true},
-  {key:'ground_contact_time',  label:'Ground Contact',  unit:'ms',  bl:null,bh:260,bl2:null,bh2:320, scored:true},
-  {key:'running_stride',       label:'Running Stride',  unit:'m',   bl:1.2, bh:1.8,bl2:0.8, bh2:2.2, scored:true},
-  {key:'vertical_oscillation', label:'Vert Oscillation',unit:'cm',  bl:null,bh:8,  bl2:null,bh2:12,  scored:true},
-  {key:'walk_asymmetry',       label:'Walk Asymmetry',  unit:'%',   bl:null,bh:3,  bl2:null,bh2:8,   scored:true},
-  {key:'walking_step_length',  label:'Step Length',     unit:'cm',  bl:65,  bh:85, bl2:50,  bh2:100, scored:true},
-  {key:'movement_score',       label:'Movement Score',  unit:'%',   bl:80,  bh:null,bl2:40, bh2:null, scored:true, computed:true},
-],
 nutrition_macro:[
   {key:'water',             label:'Water',            unit:'L',    bl:2.5, bh:4,   bl2:1,   bh2:6,    scored:true},
   {key:'dietary_calories',  label:'Dietary Calories', unit:'kcal', bl:1600,bh:2400,bl2:1000,bh2:3500, scored:false},
@@ -1899,6 +1890,7 @@ movement:[
   {key:'vertical_oscillation', label:'Vertical Oscillation',unit:'cm',  bl:null,bh:8,   bl2:null,bh2:12,  scored:true},
   {key:'walk_asymmetry',       label:'Walk Asymmetry',     unit:'%',    bl:null,bh:3,   bl2:null,bh2:8,   scored:true},
   {key:'walking_step_length',  label:'Step Length',        unit:'cm',   bl:65,  bh:85,  bl2:50,  bh2:100, scored:true},
+  {key:'movement_score',       label:'Movement Score',     unit:'%',    bl:80,  bh:null, bl2:40, bh2:null, scored:true, computed:true},
 ],
 };
 
@@ -2447,6 +2439,7 @@ const PAGE_META = {
   'ah-physique':{title:'Physique',sub:'Body composition, measurements & movement quality'},
   'ah-nutrition':{title:'Nutrition',sub:'Macros, vitamins and minerals'},
   'ah-screen':{title:'Screen & Habits',sub:'Screen time and daily habits'},
+  'ah-habits':{title:'Habits',sub:'Track streaks, consistency & daily rituals'},
   paste:{title:'Grid Paste',sub:'Paste from Numbers or Excel'},
   settings:{title:'Settings',sub:'Configure WellStat'},
 };
@@ -3097,59 +3090,73 @@ function renderDashboard(){
     </div>`;
   }).join('');
 
-  // ── Activity rings ──
-  // Use DoW-scaled effective targets if available
-  const _rtMove = typeof getEffectiveTarget==='function' && latest ? getEffectiveTarget('active_calories',latest) : getTarget('active_calories');
-  const _rtSteps = typeof getEffectiveTarget==='function' && latest ? getEffectiveTarget('steps',latest) : getTarget('steps');
-  const _rtExer = typeof getEffectiveTarget==='function' && latest ? getEffectiveTarget('exercise_mins',latest) : getTarget('exercise_mins');
-  const ringTargets = {
-    move:     (_rtMove?.lo ?? 600),
-    steps:    (_rtSteps?.lo ?? 9000),
-    exercise: (_rtExer?.lo ?? 45),
-  };
-  const ringVals = {move:dv('active_calories')||0,steps:dv('steps')||0,exercise:dv('exercise_mins')||0};
-  const ringScores = {
-    move:     typeof scoreFieldForDate==='function' && latest ? scoreFieldForDate('active_calories',ringVals.move,latest) : scoreFieldV2('active_calories',ringVals.move),
-    steps:    typeof scoreFieldForDate==='function' && latest ? scoreFieldForDate('steps',ringVals.steps,latest) : scoreFieldV2('steps',ringVals.steps),
-    exercise: typeof scoreFieldForDate==='function' && latest ? scoreFieldForDate('exercise_mins',ringVals.exercise,latest) : scoreFieldV2('exercise_mins',ringVals.exercise),
-  };
-  const ringColors = {
-    move:     ringRingColor('move',     ringScores.move,     ringVals.move/ringTargets.move),
-    steps:    ringRingColor('steps',    ringScores.steps,    ringVals.steps/ringTargets.steps),
-    exercise: ringRingColor('exercise', ringScores.exercise, ringVals.exercise/ringTargets.exercise),
-  };
-  const rings = [
-    {key:'move',  label:'Move',    val:ringVals.move,     target:ringTargets.move,    unit:'kcal',r:52,color:ringColors.move},
-    {key:'steps', label:'Steps',   val:ringVals.steps,    target:ringTargets.steps,   unit:'steps',r:40,color:ringColors.steps},
-    {key:'exercise',label:'Exer',  val:ringVals.exercise, target:ringTargets.exercise,unit:'min',  r:28,color:ringColors.exercise},
+  // ── Activity rings (nested concentric Apple Fitness style) ──
+  // Read effective targets that respect day-of-week scaling for accurate ring targets
+  const _tMove  = (typeof getEffectiveTarget === 'function' && latest) ? getEffectiveTarget('active_calories', latest) : getTarget('active_calories');
+  const _tSteps = (typeof getEffectiveTarget === 'function' && latest) ? getEffectiveTarget('steps', latest) : getTarget('steps');
+  const _tExer  = (typeof getEffectiveTarget === 'function' && latest) ? getEffectiveTarget('exercise_mins', latest) : getTarget('exercise_mins');
+  const _tStand = (typeof getEffectiveTarget === 'function' && latest) ? getEffectiveTarget('standing_mins', latest) : getTarget('standing_mins');
+
+  // Detect rest day — on rest days show rings greyed out with a REST label
+  const isRestDayView = typeof isRestDay === 'function' && latest && isRestDay(latest);
+
+  const moveTarget     = (_tMove?.lo  > 0 ? _tMove.lo  : 600);
+  const stepsTarget    = (_tSteps?.lo > 0 ? _tSteps.lo : 8000);
+  const exerciseTarget = (_tExer?.lo  > 0 ? _tExer.lo  : 45);
+
+  // Elite threshold: user-set .elite, otherwise 1.5× target
+  const moveElite     = (_tMove?.elite  > 0 ? _tMove.elite  : moveTarget     * 1.5);
+  const stepsElite    = (_tSteps?.elite > 0 ? _tSteps.elite : stepsTarget    * 1.5);
+  const exerciseElite = (_tExer?.elite  > 0 ? _tExer.elite  : exerciseTarget * 1.5);
+  
+  const ringVals = {move:dv('active_calories')||0, steps:dv('steps')||0, exercise:dv('exercise_mins')||0};
+
+
+
+  // Nested ring definitions (outer to inner) — colours read from lookColors (user-customisable)
+  // On rest days, override colours to grey
+  const _restGrey = '#8899AA';
+  const ringDefs = [
+    {key:'move',     label:'Move',  val:ringVals.move,     target:moveTarget,     elite:moveElite,     unit:'kcal',  lightColor:isRestDayView?_restGrey:(lookColors.ringMoveLight||'#FFB3C1'),  darkColor:isRestDayView?_restGrey:(lookColors.ringMoveDark||'#D81B60'),  radius:52},
+    {key:'exercise', label:'Exer',  val:ringVals.exercise, target:exerciseTarget, elite:exerciseElite, unit:'min',   lightColor:isRestDayView?_restGrey:(lookColors.ringExerLight||'#88FC03'),  darkColor:isRestDayView?_restGrey:(lookColors.ringExerDark||'#77C71C'),  radius:40},
+    {key:'steps',    label:'Steps', val:ringVals.steps,    target:stepsTarget,    elite:stepsElite,    unit:'steps', lightColor:isRestDayView?_restGrey:(lookColors.ringStepsLight||'#00F5F5'), darkColor:isRestDayView?_restGrey:(lookColors.ringStepsDark||'#38BABA'), radius:28},
   ];
-  const CX=60,CY=60;
-  document.getElementById('rings-svg').innerHTML = rings.map(rg=>{
-    const circ2=2*Math.PI*rg.r;
-    const rawPct=rg.val/rg.target;
-    const pctV=Math.min(rawPct,1);
-    const over=rawPct>1;
-    const overPct=over?Math.min(rawPct-1,1):0; // how far past 100% (cap at 200%)
-    // Over-100 colors: dazzling white-gold per ring
-    const overColors={move:'#FFE566',steps:'#E0F2FE',exercise:'#D1FAE5'};
-    const overColor=overColors[rg.key]||'#FFE566';
-    return `<circle cx="${CX}" cy="${CY}" r="${rg.r}" fill="none" stroke="${rg.color}22" stroke-width="9"/>
-      <circle cx="${CX}" cy="${CY}" r="${rg.r}" fill="none" stroke="${rg.color}" stroke-width="9"
-        stroke-linecap="round" stroke-dasharray="${circ2}" stroke-dashoffset="${circ2*(1-pctV)}"
-        transform="rotate(-90 ${CX} ${CY})" style="transition:stroke-dashoffset .9s cubic-bezier(.4,0,.2,1)"/>
-      ${over?`<circle cx="${CX}" cy="${CY}" r="${rg.r}" fill="none" stroke="${overColor}" stroke-width="5"
-        stroke-linecap="round" stroke-dasharray="${circ2}" stroke-dashoffset="${circ2*(1-overPct)}"
-        transform="rotate(-90 ${CX} ${CY})" style="transition:stroke-dashoffset .9s cubic-bezier(.4,0,.2,1);filter:drop-shadow(0 0 4px ${overColor})"/>`:''}`;
+  
+  // Render nested SVG rings
+  const CX = 60, CY = 60;
+  document.getElementById('rings-svg').innerHTML = ringDefs.map(rg=>{
+    const pctRaw = rg.val / rg.target;
+    const pctCapped = Math.min(pctRaw, 1); // 0-100% at most
+    // below target: light colour at reduced opacity (handled via stroke opacity on track)
+    // at target (>=100%): light colour; at elite: dark colour
+    const isElite  = rg.elite  > 0 && rg.val >= rg.elite;
+    const ringColor = isElite ? rg.darkColor : rg.lightColor;
+    const circumference = 2 * Math.PI * rg.radius;
+    const strokeDash = pctCapped * circumference;
+    
+    return `
+      <circle cx="${CX}" cy="${CY}" r="${rg.radius}" fill="none" stroke="${ringColor}22" stroke-width="6"/>
+      <circle cx="${CX}" cy="${CY}" r="${rg.radius}" fill="none" stroke="${ringColor}" stroke-width="6"
+        stroke-linecap="round" stroke-dasharray="${circumference}" stroke-dashoffset="${circumference - strokeDash}"
+        style="transition:stroke-dashoffset .9s cubic-bezier(.4,0,.2,1);transform-origin:${CX}px ${CY}px;transform:rotate(-90deg)"/>
+    `;
   }).join('');
-  document.getElementById('rings-leg').innerHTML = rings.map(rg=>{
-    const pctD=rg.val>0?Math.round(rg.val/rg.target*100):0;
-    const dispVal=rg.key==='steps'?rg.val.toLocaleString():rg.key==='exercise'?fmtTime(rg.val):Math.round(rg.val).toLocaleString();
+  
+  // Render legend
+  document.getElementById('rings-leg').innerHTML = ringDefs.map(rg=>{
+    const pctD = rg.val > 0 ? Math.round((rg.val / rg.target) * 100) : 0;
+    const isElite  = rg.elite  > 0 && rg.val >= rg.elite;
+    const ringColor = isElite ? rg.darkColor : rg.lightColor;
+    const dispVal = rg.key === 'steps' ? rg.val.toLocaleString() : rg.key === 'exercise' ? fmtTime(rg.val) : Math.round(rg.val).toLocaleString();
+    const eliteLabel = isElite ? ' 🏆' : '';
+    
+    const pctLabel = isRestDayView ? 'Rest day' : (pctD > 100 ? `${pctD}% of goal 🔥` : `${pctD}% of goal`);
     return `<div class="rleg-item">
-      <div class="rleg-dot" style="background:${rg.color}"></div>
+      <div class="rleg-dot" style="background:${ringColor}"></div>
       <div>
-        <div class="rleg-name">${rg.label}</div>
-        <div class="rleg-val" style="color:${rg.color}">${dispVal}<span style="font-size:10px;color:var(--t4);margin-left:3px">${rg.unit}</span></div>
-        <div class="rleg-sub">${pctD}% of goal</div>
+        <div class="rleg-name">${rg.label}${eliteLabel}</div>
+        <div class="rleg-val" style="color:${ringColor}">${dispVal}<span style="font-size:10px;color:var(--t4);margin-left:3px">${rg.unit}</span></div>
+        <div class="rleg-sub">${pctLabel}</div>
       </div>
     </div>`;
   }).join('');
@@ -3215,10 +3222,10 @@ function renderDashboard(){
   }
 
   // Row 2 metrics
-  setMetricWidget({vId:'v-acal',barId:'bar-acal',sumId:null,sumLblId:null,ytdId:null,key:'active_calories',target:600,barColor:'var(--move)'});
-  setMetricWidget({vId:'v-steps',barId:'bar-steps',sumId:null,sumLblId:null,ytdId:null,key:'steps',target:9000,barColor:'var(--steps-c)'});
-  setMetricWidget({vId:'v-stand',barId:'bar-stand',sumId:null,sumLblId:null,ytdId:null,key:'standing_mins',target:120,barColor:'var(--ca)'});
-  setMetricWidget({vId:'v-exer',barId:'bar-exer',sumId:null,sumLblId:null,ytdId:null,key:'exercise_mins',target:45,barColor:'var(--exer)'});
+  setMetricWidget({vId:'v-acal',barId:'bar-acal',sumId:null,sumLblId:null,ytdId:null,key:'active_calories',target:moveTarget,barColor:'var(--move)'});
+  setMetricWidget({vId:'v-steps',barId:'bar-steps',sumId:null,sumLblId:null,ytdId:null,key:'steps',target:stepsTarget,barColor:'var(--steps-c)'});
+  setMetricWidget({vId:'v-stand',barId:'bar-stand',sumId:null,sumLblId:null,ytdId:null,key:'standing_mins',target:(_tStand?.lo>0?_tStand.lo:120),barColor:'var(--ca)'});
+  setMetricWidget({vId:'v-exer',barId:'bar-exer',sumId:null,sumLblId:null,ytdId:null,key:'exercise_mins',target:exerciseTarget,barColor:'var(--exer)'});
 
   // Row 2 — 7D/30D avgs for redesigned cards
   setEl('acal-7d',  rollingAvgDash('active_calories',7)  ? fmtNum(rollingAvgDash('active_calories',7),0)  : '—');
@@ -5283,7 +5290,7 @@ window.addEventListener('load', ()=>{
 <div class="mob-nav-overlay" id="mob-nav-overlay" onclick="if(event.target===this)closeMobNav()">
   <div class="mob-nav-sheet">
     <div class="mob-nav-close">
-      <div class="mob-nav-close-title"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="18" height="18" style="display:inline;margin-right:6px;vertical-align:middle"><image href="https://img.icons8.com/?size=100&id=7dnbEGJ0fI1R&format=png&color=000000" x="0" y="0" width="100" height="100"/></svg>WellStat</div>
+      <div class="mob-nav-close-title">💪 WellStat</div>
       <button class="mob-nav-close-btn" onclick="closeMobNav()">✕</button>
     </div>
     <div class="mob-nav-grid">
@@ -5305,8 +5312,7 @@ window.addEventListener('load', ()=>{
   </div>
 </div>
 
-</body>
-</html>
+
 <!-- ═══════════════════════════════════════════════
      HEALTH DATA ENGINE — injected after body
      (appended as inline script for modularity)
@@ -5719,6 +5725,62 @@ function ahCard(key, dates, sizeClass, opts={}){
   </div>`;
 }
 
+// ── WORLD PERCENTILE HELPERS ─────────────────────────────────
+// Maps field snake_case keys to GLOBAL_PERCENTILES label keys
+const _KEY_TO_LABEL = {
+  'active_calories':   'Active Calories',
+  'google_fit_points': 'Fit Points',
+  'net_energy_balance':'Net Energy Balance',
+  'steps':             'Steps',
+  'exercise_mins':     'Exercise Mins',
+  'standing_mins':     'Standing',
+  'distance_foot':     'Foot Distance',
+  'stairs_climbed':    'Stairs',
+  'walk_distance':     'Walk Distance',
+  'run_distance':      'Run Distance',
+  'cycle_distance':    'Cycle Distance',
+  'total_sleep':       'Total Sleep',
+  'book_time':         'Book',
+  'mobile_time':       'Mobile',
+  'tablet_time':       'Tablet',
+  'laptop_time':       'Laptop',
+  'youtube_time':      'YouTube',
+  'twitter_time':      'Twitter/X',
+  'reddit_time':       'Reddit',
+};
+
+/**
+ * getWorldPercentile(fieldKey, value)
+ * Wraps getGlobalPercentile using snake_case field key instead of display label.
+ * Returns {percentile, text} or {percentile:null, text:''}.
+ */
+function getWorldPercentile(fieldKey, value) {
+  const label = _KEY_TO_LABEL[fieldKey];
+  if (!label) return { percentile: null, text: '' };
+  return getGlobalPercentile(label, value);
+}
+
+/**
+ * percentileBadge(input)
+ * Renders a small inline HTML badge for a percentile.
+ * Accepts either a {percentile, text} object (from getWorldPercentile/getGlobalPercentile)
+ * or a raw number (0-100).
+ */
+function percentileBadge(input) {
+  let pct, text;
+  if (input == null) return '';
+  if (typeof input === 'object') {
+    pct  = input.percentile;
+    text = input.text;
+  } else {
+    pct  = Number(input);
+    text = pct != null ? `Better than ${pct.toFixed(1)}% of global population` : '';
+  }
+  if (pct == null || isNaN(pct)) return '';
+  const col = pct >= 90 ? '#10B981' : pct >= 70 ? '#3B82F6' : pct >= 50 ? '#F59E0B' : '#EF4444';
+  return `<span style="display:inline-block;padding:1px 6px;border-radius:10px;font-size:9px;font-weight:700;background:${col}18;color:${col}" title="${text}">🌍 Top ${(100 - pct).toFixed(1)}%</span>`;
+}
+
 function ahSectionTitle(icon, label, count){
   return `<div class="ah-section-title">${icon} ${label}
     ${count?`<span class="pill">${count} fields</span>`:''}
@@ -6008,19 +6070,21 @@ function renderEnergyOptCalendar(){
     const label = isSkip ? '✕' : isPartial ? pct+'%' : d;
     const fs = isPartial ? '8' : '11';
     cells += `<button onclick="energyOptCellClick('${ds}')"
-      style="aspect-ratio:1;display:flex;align-items:center;justify-content:center;font-size:${fs}px;font-weight:${fw};border-radius:6px;cursor:pointer;background:${bg};color:${color};border:${border};width:100%;font-family:var(--fb);transition:all .12s;line-height:1"
+      style="height:26px;display:flex;align-items:center;justify-content:center;font-size:${fs}px;font-weight:${fw};border-radius:4px;cursor:pointer;background:${bg};color:${color};border:${border};width:100%;font-family:var(--fb);transition:all .12s;line-height:1"
       title="${ds}: ${isSkip?'Skip — not counted':isPartial?pct+'% credit':'Normal (tap to change)'}">${label}</button>`;
   }
 
   const wrap = document.getElementById('energy-opt-cal-wrap');
   if(!wrap) return;
   wrap.innerHTML =
-    `<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
-      <button onclick="energyOptCalPrev()" style="width:26px;height:26px;border-radius:7px;background:var(--surface2);border:none;color:var(--t3);font-size:14px;cursor:pointer">‹</button>
-      <span style="font-family:var(--fd);font-size:13px;font-weight:700;color:var(--t1)">${MLBL[energyOptCalMonth]} ${energyOptCalYear}</span>
-      <button onclick="energyOptCalNext()" style="width:26px;height:26px;border-radius:7px;background:var(--surface2);border:none;color:var(--t3);font-size:14px;cursor:pointer">›</button>
+    `<div style="max-width:260px">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:5px">
+      <button onclick="energyOptCalPrev()" style="width:20px;height:20px;border-radius:5px;background:var(--surface2);border:none;color:var(--t3);font-size:12px;cursor:pointer">‹</button>
+      <span style="font-family:var(--fd);font-size:11px;font-weight:700;color:var(--t1)">${MLBL[energyOptCalMonth]} ${energyOptCalYear}</span>
+      <button onclick="energyOptCalNext()" style="width:20px;height:20px;border-radius:5px;background:var(--surface2);border:none;color:var(--t3);font-size:12px;cursor:pointer">›</button>
     </div>
-    <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:3px">${cells}</div>`;
+    <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:2px">${cells}</div>
+    </div>`;
 }
 
 function energyOptCalPrev(){ energyOptCalMonth--; if(energyOptCalMonth<0){energyOptCalMonth=11;energyOptCalYear--;} renderEnergyOptCalendar(); }
@@ -6033,15 +6097,17 @@ function energyOptCellClick(date){
   const idx = cycle.indexOf(cur);
   const next = cycle[(idx + 1) % cycle.length];
   setEnergyOptDay(date, next);
-  // Re-render the full Energy page so streak calendar reflects new opt-out
-  renderAHEnergy();
+  // Re-render the opt calendar in Settings and update Energy streak
+  renderEnergyOptCalendar();
+  if(document.getElementById('ah-energy-content')) renderAHEnergy();
   renderDashboard();
 }
 
 function clearAllEnergyOpts(){
   energyOptDays = {};
   saveSchedule();
-  renderAHEnergy();
+  renderEnergyOptCalendar();
+  if(document.getElementById('ah-energy-content')) renderAHEnergy();
   renderDashboard();
   showToast('Energy opt-outs cleared');
 }
@@ -6094,21 +6160,248 @@ function renderAHEnergy(){
     },
   ], 30);
 
-  // ── RIGHT PANEL — Opt-Out Calendar ──────────
+  // ── RIGHT PANEL — Metabolic Intelligence ────────────────────────────────
+  const _latestE = (key) => { for(let i=dates.length-1;i>=0;i--){ const v=computeAllFields(getEntry(dates[i]))[key]; if(v!=null&&!isNaN(v)) return v; } return null; };
+  const _acal  = _latestE('active_calories');
+  const _rcal  = _latestE('resting_calories');
+  const _bmr   = _latestE('bmr');
+  const _gfp   = _latestE('google_fit_points');
+
+  // ── Pie chart data ──
+  const _pieAcal = _acal || 0;
+  const _pieRcal = _rcal || 0;
+  const _pieTotal = _pieAcal + _pieRcal;
+  const _piePctA = _pieTotal > 0 ? (_pieAcal / _pieTotal) : 0;
+  const _piePctR = _pieTotal > 0 ? (_pieRcal / _pieTotal) : 0;
+  const _C = 2 * Math.PI * 46;
+  const _dashA = _pieTotal > 0 ? (_piePctA * _C) : 0;
+  const _dashR = _pieTotal > 0 ? (_piePctR * _C) : 0;
+  const _offsetR = 0;
+  const _offsetA = _dashR;
+
+  // ── Activity ratio ──
+  const _actRatio = (_acal != null && _rcal != null && _rcal > 0) ? (_acal / _rcal).toFixed(2) : null;
+  const _ratioLabel = _actRatio == null ? '—' : _actRatio >= 0.25 ? 'Active' : _actRatio >= 0.12 ? 'Moderate' : 'Sedentary';
+  const _ratioCol   = _actRatio == null ? 'var(--t3)' : _actRatio >= 0.25 ? '#10B981' : _actRatio >= 0.12 ? '#F59E0B' : '#EF4444';
+
+  // ── Thermic Effect of Food (TEF) ──
+  const _tef = _rcal != null ? Math.round(_rcal * 0.10) : null;
+
+  // ── Baseline Non-Exercise Activity (NEAT) ──
+  const _neat = (_rcal != null && _bmr != null && _tef != null) ? Math.max(0, Math.round(_rcal - _bmr - _tef)) : null;
+
+  // ── Metabolic Health Ratio = Resting Cal / BMR ──
+  const _mhr  = (_rcal != null && _bmr != null && _bmr > 0) ? (_rcal / _bmr).toFixed(2) : null;
+  const _mhrLabel = _mhr == null ? '—' : _mhr >= 1.6 ? 'Very Active' : _mhr >= 1.3 ? 'Lightly Active' : _mhr >= 1.0 ? 'Sedentary' : 'Below BMR';
+  const _mhrCol   = _mhr == null ? 'var(--t3)' : _mhr >= 1.6 ? '#10B981' : _mhr >= 1.3 ? '#F59E0B' : _mhr >= 1.0 ? '#6366F1' : '#EF4444';
+
+  // ── Google Fit WHO goals ──
+  const _whoDaily = 80;
+  const _whoWeekly = 500;
+  const _todayStr = new Date().toISOString().split('T')[0];
+  const _todayGFP = (() => { const e = computeAllFields(getEntry(_todayStr)); return e && e.google_fit_points != null ? e.google_fit_points : null; })();
+  const _whoToday = _todayGFP != null ? _todayGFP >= _whoDaily : null;
+  const _last7Dates = [];
+  for(let i=6;i>=0;i--){ const d=new Date(); d.setDate(d.getDate()-i); _last7Dates.push(d.toISOString().split('T')[0]); }
+  const _weekGFP = _last7Dates.reduce((s,d)=>{ const e=computeAllFields(getEntry(d)); return s+(e&&e.google_fit_points!=null?e.google_fit_points:0); },0);
+  const _whoWeek = _weekGFP >= _whoWeekly;
+  const _whoWeekPct = Math.min(100, Math.round((_weekGFP / _whoWeekly) * 100));
+
+  // ── Activity Consistency — last 30 days ──
+  const _last30 = [];
+  for(let i=29;i>=0;i--){ const d=new Date(); d.setDate(d.getDate()-i); _last30.push(d.toISOString().split('T')[0]); }
+  const _acTgt = getTarget('active_calories');
+  const _acTgtLo = _acTgt ? (_acTgt.lo ?? 300) : 300;
+  let _consDays = 0, _consMet = 0;
+  const _consCells = _last30.map(d => {
+    _consDays++;
+    const e = computeAllFields(getEntry(d));
+    const v = e && e.active_calories != null ? e.active_calories : null;
+    const optPct = getEnergyOptPct(d);
+    if(optPct === 0) return { skip: true };
+    if(v == null) return { skip: false, met: false, noData: true };
+    const needed = _acTgtLo * (optPct / 100);
+    const met = v >= needed;
+    if(met) _consMet++;
+    return { met, skip: false };
+  });
+  const _consistencyPct = _consDays > 0 ? Math.round((_consMet / (_last30.filter((_,i)=>!_consCells[i].skip&&!_consCells[i].noData).length || 1)) * 100) : 0;
+  const _consistValid = _last30.filter((_,i)=>!_consCells[i].skip&&!_consCells[i].noData).length;
+  const _consistCol = _consistencyPct >= 80 ? '#10B981' : _consistencyPct >= 50 ? '#F59E0B' : '#EF4444';
+  const _consistLabel = _consistencyPct >= 80 ? 'Consistent' : _consistencyPct >= 50 ? 'Building' : 'Inconsistent';
+
+  // ── Metabolic Shift — compare 7D avg vs 30D avg active cal ──
+  const _eAvgN = (key,n) => { const vs=dates.slice(-n).map(d=>computeAllFields(getEntry(d))[key]).filter(v=>v!=null&&!isNaN(v)&&v>0); return vs.length?Math.round(vs.reduce((a,b)=>a+b,0)/vs.length):null; };
+  const _avg7A  = _eAvgN('active_calories', 7);
+  const _avg30A = _eAvgN('active_calories', 30);
+  const _avg7R  = _eAvgN('resting_calories', 7);
+  const _avg30R = _eAvgN('resting_calories', 30);
+  const _shiftActive  = (_avg7A != null && _avg30A != null) ? _avg7A - _avg30A : null;
+  const _shiftResting = (_avg7R != null && _avg30R != null) ? _avg7R - _avg30R : null;
+  const _shiftSign  = v => v == null ? '—' : (v > 0 ? '+' : '') + v;
+  const _shiftCol   = v => v == null ? 'var(--t3)' : v > 50 ? '#10B981' : v < -50 ? '#EF4444' : '#F59E0B';
+
+  // ── Mini dot grid for consistency ──
+  const _dotGrid = _consCells.map(c => {
+    if(c.skip) return `<div style="width:9px;height:9px;border-radius:2px;background:var(--border2);opacity:.4"></div>`;
+    if(c.noData) return `<div style="width:9px;height:9px;border-radius:2px;background:var(--surface2);border:1px solid var(--border)"></div>`;
+    return `<div style="width:9px;height:9px;border-radius:2px;background:${c.met?'#10B981':'#EF4444'};opacity:${c.met?'.9':'.55'}"></div>`;
+  }).join('');
+
   const right = `
-    <div style="font-size:12px;font-weight:700;color:var(--t1);margin-bottom:4px;display:flex;align-items:center;gap:6px">
-      ${_iconImg(ICON_URLS.energy,14)} Energy Opt-Out
+    <div style="font-size:12px;font-weight:800;color:var(--t1);margin-bottom:10px;padding-bottom:8px;border-bottom:2px solid var(--border);display:flex;align-items:center;gap:6px">
+      ${_iconImg(ICON_URLS.energy,14)} Metabolic Intelligence
     </div>
-    <div style="font-size:10px;color:var(--t3);margin-bottom:10px;line-height:1.5">Tap any day to cycle its credit. Streak continues when proportional target is met.</div>
-    <div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:10px">
-      <span style="font-size:9px;padding:2px 7px;border-radius:8px;background:rgba(239,68,68,.15);color:var(--danger);font-weight:700">✕ Skip</span>
-      <span style="font-size:9px;padding:2px 7px;border-radius:8px;background:rgba(245,158,11,.15);color:var(--warn);font-weight:700">25%</span>
-      <span style="font-size:9px;padding:2px 7px;border-radius:8px;background:rgba(245,158,11,.12);color:var(--warn);font-weight:600">50%</span>
-      <span style="font-size:9px;padding:2px 7px;border-radius:8px;background:rgba(245,158,11,.09);color:var(--warn);font-weight:500">75%</span>
-      <span style="font-size:9px;padding:2px 7px;border-radius:8px;background:var(--surface2);color:var(--t3)">100% Normal</span>
+
+    <!-- 1. PIE CHART: Active vs Resting Calories -->
+    <div style="padding-bottom:12px;border-bottom:1px solid var(--border);margin-bottom:10px">
+      <div style="font-size:10px;font-weight:700;color:var(--t3);letter-spacing:.5px;text-transform:uppercase;margin-bottom:8px">🥧 Calorie Breakdown</div>
+      ${_pieTotal > 0 ? `
+      <div style="display:flex;align-items:center;gap:12px">
+        <svg viewBox="0 0 120 120" width="90" height="90" style="flex-shrink:0">
+          <circle cx="60" cy="60" r="46" fill="none" stroke="var(--border2)" stroke-width="18"/>
+          <circle cx="60" cy="60" r="46" fill="none" stroke="#6366F1" stroke-width="18"
+            stroke-dasharray="${_dashR.toFixed(1)} ${(_C-_dashR).toFixed(1)}"
+            stroke-dashoffset="${(-_offsetR + _C/4).toFixed(1)}"
+            transform="rotate(-90 60 60)" style="transition:stroke-dasharray .8s"/>
+          <circle cx="60" cy="60" r="46" fill="none" stroke="#F59E0B" stroke-width="18"
+            stroke-dasharray="${_dashA.toFixed(1)} ${(_C-_dashA).toFixed(1)}"
+            stroke-dashoffset="${(-_offsetA + _C/4).toFixed(1)}"
+            transform="rotate(-90 60 60)" style="transition:stroke-dasharray .8s"/>
+          <text x="60" y="56" text-anchor="middle" font-family="var(--fd)" font-size="13" font-weight="800" fill="var(--t1)">${_pieTotal}</text>
+          <text x="60" y="68" text-anchor="middle" font-size="8" fill="var(--t3)">kcal</text>
+        </svg>
+        <div style="flex:1;display:flex;flex-direction:column;gap:6px">
+          <div style="display:flex;align-items:center;gap:6px">
+            <div style="width:10px;height:10px;border-radius:3px;background:#F59E0B;flex-shrink:0"></div>
+            <div>
+              <div style="font-size:9px;color:var(--t3);text-transform:uppercase;letter-spacing:.3px">Active</div>
+              <div style="font-family:var(--fd);font-size:15px;font-weight:800;color:#F59E0B;line-height:1">${Math.round(_pieAcal)}</div>
+              <div style="font-size:9px;color:var(--t4)">${Math.round(_piePctA*100)}%</div>
+              ${_acal ? `<div style="margin-top:2px">${percentileBadge(getWorldPercentile('active_calories',_acal))}</div>` : ''}
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:6px">
+            <div style="width:10px;height:10px;border-radius:3px;background:#6366F1;flex-shrink:0"></div>
+            <div>
+              <div style="font-size:9px;color:var(--t3);text-transform:uppercase;letter-spacing:.3px">Resting</div>
+              <div style="font-family:var(--fd);font-size:15px;font-weight:800;color:#6366F1;line-height:1">${Math.round(_pieRcal)}</div>
+              <div style="font-size:9px;color:var(--t4)">${Math.round(_piePctR*100)}%</div>
+              ${_rcal ? `<div style="margin-top:2px">${percentileBadge(getWorldPercentile('resting_calories',_rcal))}</div>` : ''}
+            </div>
+          </div>
+        </div>
+      </div>` : `<div style="font-size:11px;color:var(--t4);text-align:center;padding:10px 0">Log active & resting calories to see breakdown</div>`}
     </div>
-    <div id="energy-opt-cal-wrap"></div>
-    <button onclick="clearAllEnergyOpts()" style="margin-top:10px;width:100%;padding:6px;border-radius:var(--rs);background:var(--surface2);border:1px solid var(--border);color:var(--t4);font-size:11px;cursor:pointer;font-family:var(--fb)">Reset all opt-outs</button>
+
+    <!-- 2. Active to Resting Ratio -->
+    <div style="padding-bottom:10px;border-bottom:1px solid var(--border);margin-bottom:10px">
+      <div style="font-size:10px;font-weight:700;color:var(--t3);letter-spacing:.5px;text-transform:uppercase;margin-bottom:6px">⚡ Active / Resting Ratio</div>
+      <div style="display:flex;align-items:center;justify-content:space-between">
+        <div>
+          <div style="font-family:var(--fd);font-size:22px;font-weight:900;color:${_ratioCol};line-height:1">${_actRatio ?? '—'}</div>
+          <div style="font-size:9px;color:var(--t4);margin-top:2px">${_acal!=null?_acal:'—'} ÷ ${_rcal!=null?_rcal:'—'} kcal</div>
+        </div>
+        <div style="padding:4px 10px;border-radius:20px;background:${_actRatio!=null?_ratioCol+'22':'var(--surface2)'};font-size:10px;font-weight:700;color:${_ratioCol}">${_ratioLabel}</div>
+      </div>
+    </div>
+
+    <!-- 3. Thermic Effect of Food -->
+    <div style="padding-bottom:10px;border-bottom:1px solid var(--border);margin-bottom:10px">
+      <div style="font-size:10px;font-weight:700;color:var(--t3);letter-spacing:.5px;text-transform:uppercase;margin-bottom:5px">🌡️ Thermic Effect of Food</div>
+      <div style="display:flex;align-items:center;justify-content:space-between">
+        <div>
+          <div style="font-family:var(--fd);font-size:20px;font-weight:800;color:#06B6D4">${_tef != null ? _tef + ' kcal' : '—'}</div>
+          <div style="font-size:9px;color:var(--t4);margin-top:1px">10% of Resting (${_rcal ?? '—'} kcal)</div>
+        </div>
+        <div style="font-size:9px;color:var(--t3);text-align:right;max-width:80px;line-height:1.4">Energy to digest &amp; process food</div>
+      </div>
+    </div>
+
+    <!-- 4. Baseline Non-Exercise Activity (NEAT) -->
+    <div style="padding-bottom:10px;border-bottom:1px solid var(--border);margin-bottom:10px">
+      <div style="font-size:10px;font-weight:700;color:var(--t3);letter-spacing:.5px;text-transform:uppercase;margin-bottom:5px">🚶 Baseline Non-Exercise Activity</div>
+      ${_neat != null ? `
+      <div style="font-family:var(--fd);font-size:20px;font-weight:800;color:#EC4899;margin-bottom:3px">${_neat} kcal</div>
+      <div style="font-size:9px;color:var(--t4);line-height:1.5">
+        RC (${_rcal}) − BMR (${_bmr}) = ${Math.round(_rcal-_bmr)} − TEF (${_tef}) = <b style="color:#EC4899">${_neat}</b>
+      </div>` : `
+      <div style="font-size:11px;color:var(--t4)">Needs BMR + Resting Cal data</div>
+      <div style="font-size:9px;color:var(--t4);margin-top:2px">RC − BMR − TEF = NEAT</div>`}
+    </div>
+
+    <!-- 5. Metabolic Health Ratio -->
+    <div style="padding-bottom:10px;border-bottom:1px solid var(--border);margin-bottom:10px">
+      <div style="font-size:10px;font-weight:700;color:var(--t3);letter-spacing:.5px;text-transform:uppercase;margin-bottom:5px">📊 Metabolic Health Ratio</div>
+      <div style="display:flex;align-items:center;justify-content:space-between">
+        <div>
+          <div style="font-family:var(--fd);font-size:22px;font-weight:900;color:${_mhrCol};line-height:1">${_mhr ?? '—'}</div>
+          <div style="font-size:9px;color:var(--t4);margin-top:2px">RC (${_rcal??'—'}) ÷ BMR (${_bmr??'—'})</div>
+        </div>
+        <div style="text-align:right">
+          <div style="padding:3px 9px;border-radius:20px;background:${_mhr!=null?_mhrCol+'22':'var(--surface2)'};font-size:10px;font-weight:700;color:${_mhrCol};margin-bottom:3px">${_mhrLabel}</div>
+          <div style="font-size:9px;color:var(--t4)">≥1.6 active · ≥1.3 light</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 6. Google Fit WHO Goals -->
+    <div style="padding-bottom:10px;border-bottom:1px solid var(--border);margin-bottom:10px">
+      <div style="font-size:10px;font-weight:700;color:var(--t3);letter-spacing:.5px;text-transform:uppercase;margin-bottom:6px">🎯 Google Fit — WHO Standard</div>
+      <div style="display:flex;flex-direction:column;gap:5px">
+        <div style="display:flex;align-items:center;justify-content:space-between;background:var(--surface2);border-radius:var(--rs);padding:6px 8px">
+          <div>
+            <div style="font-size:10px;font-weight:600;color:var(--t2)">Today</div>
+            <div style="font-size:9px;color:var(--t4)">${_todayGFP != null ? _todayGFP + ' / ' + _whoDaily + ' pts' : 'No data'}</div>
+            ${_todayGFP != null ? `<div style="margin-top:2px">${percentileBadge(getWorldPercentile('google_fit_points', _todayGFP))}</div>` : ''}
+          </div>
+          <div style="font-size:16px">${_whoToday === true ? '✅' : _whoToday === false ? '❌' : '⏳'}</div>
+        </div>
+        <div style="background:var(--surface2);border-radius:var(--rs);padding:6px 8px">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+            <div>
+              <div style="font-size:10px;font-weight:600;color:var(--t2)">This Week</div>
+              <div style="font-size:9px;color:var(--t4)">${Math.round(_weekGFP)} / ${_whoWeekly} pts</div>
+            </div>
+            <div style="font-size:16px">${_whoWeek ? '✅' : '❌'}</div>
+          </div>
+          <div style="height:4px;background:var(--border2);border-radius:10px;overflow:hidden">
+            <div style="height:100%;width:${_whoWeekPct}%;background:${_whoWeek?'#10B981':'#3B82F6'};border-radius:10px;transition:width .8s"></div>
+          </div>
+          <div style="font-size:9px;color:var(--t4);margin-top:2px;text-align:right">${_whoWeekPct}% of 500pt WHO goal</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 7. Activity Consistency — Last 30 Days -->
+    <div style="padding-bottom:10px;border-bottom:1px solid var(--border);margin-bottom:10px">
+      <div style="font-size:10px;font-weight:700;color:var(--t3);letter-spacing:.5px;text-transform:uppercase;margin-bottom:6px">📅 Activity Consistency · 30D</div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+        <div style="font-family:var(--fd);font-size:20px;font-weight:800;color:${_consistCol}">${_consistencyPct}%</div>
+        <div style="padding:3px 9px;border-radius:20px;background:${_consistCol}22;font-size:10px;font-weight:700;color:${_consistCol}">${_consistLabel}</div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(10,1fr);gap:3px;margin-bottom:4px">${_dotGrid}</div>
+      <div style="font-size:9px;color:var(--t4)">${_consMet} of ${_consistValid} tracked days met active cal goal</div>
+    </div>
+
+    <!-- 8. Metabolic Shift -->
+    <div style="padding-bottom:10px;border-bottom:1px solid var(--border);margin-bottom:10px">
+      <div style="font-size:10px;font-weight:700;color:var(--t3);letter-spacing:.5px;text-transform:uppercase;margin-bottom:6px">📈 Metabolic Shift · 7D vs 30D</div>
+      <div style="display:flex;gap:6px">
+        <div style="flex:1;background:var(--surface2);border-radius:var(--rs);padding:7px 8px;text-align:center">
+          <div style="font-size:9px;color:var(--t4);margin-bottom:2px">🔥 Active Cal</div>
+          <div style="font-family:var(--fd);font-size:15px;font-weight:800;color:${_shiftCol(_shiftActive)}">${_shiftSign(_shiftActive)}</div>
+          <div style="font-size:9px;color:var(--t4)">${_avg7A??'—'} vs ${_avg30A??'—'}</div>
+        </div>
+        <div style="flex:1;background:var(--surface2);border-radius:var(--rs);padding:7px 8px;text-align:center">
+          <div style="font-size:9px;color:var(--t4);margin-bottom:2px">😴 Resting Cal</div>
+          <div style="font-family:var(--fd);font-size:15px;font-weight:800;color:${_shiftCol(_shiftResting)}">${_shiftSign(_shiftResting)}</div>
+          <div style="font-size:9px;color:var(--t4)">${_avg7R??'—'} vs ${_avg30R??'—'}</div>
+        </div>
+      </div>
+      <div style="font-size:9px;color:var(--t4);margin-top:5px;text-align:center">7-day avg minus 30-day avg (kcal/day)</div>
+    </div>
+
     <div style="margin-top:14px;border-top:1px solid var(--border);padding-top:12px">${renderLocalInsightsHtml('energy', dates)}</div>`;
 
   // Assemble two-panel layout
@@ -6118,7 +6411,6 @@ function renderAHEnergy(){
   </div>`;
 
   document.getElementById('ah-energy-content').innerHTML = html;
-  requestAnimationFrame(renderEnergyOptCalendar);
 }
 
 // ── ACTIVITY ─────────────────────────────────
@@ -6148,19 +6440,21 @@ function renderActivityOptCalendar(){
     const label = isSkip ? '✕' : isPartial ? pct+'%' : d;
     const fs = isPartial ? '8' : '11';
     cells += `<button onclick="activityOptCellClick('${ds}')"
-      style="aspect-ratio:1;display:flex;align-items:center;justify-content:center;font-size:${fs}px;font-weight:${fw};border-radius:6px;cursor:pointer;background:${bg};color:${color};border:${border};width:100%;font-family:var(--fb);transition:all .12s;line-height:1"
+      style="height:26px;display:flex;align-items:center;justify-content:center;font-size:${fs}px;font-weight:${fw};border-radius:4px;cursor:pointer;background:${bg};color:${color};border:${border};width:100%;font-family:var(--fb);transition:all .12s;line-height:1"
       title="${ds}: ${isSkip?'Skip':isPartial?pct+'% credit':'Normal (tap to change)'}">${label}</button>`;
   }
 
   const wrap = document.getElementById('activity-opt-cal-wrap');
   if(!wrap) return;
   wrap.innerHTML =
-    `<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
-      <button onclick="activityOptCalPrev()" style="width:26px;height:26px;border-radius:7px;background:var(--surface2);border:none;color:var(--t3);font-size:14px;cursor:pointer">‹</button>
-      <span style="font-family:var(--fd);font-size:13px;font-weight:700;color:var(--t1)">${MLBL[activityOptCalMonth]} ${activityOptCalYear}</span>
-      <button onclick="activityOptCalNext()" style="width:26px;height:26px;border-radius:7px;background:var(--surface2);border:none;color:var(--t3);font-size:14px;cursor:pointer">›</button>
+    `<div style="max-width:260px">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:5px">
+      <button onclick="activityOptCalPrev()" style="width:20px;height:20px;border-radius:5px;background:var(--surface2);border:none;color:var(--t3);font-size:12px;cursor:pointer">‹</button>
+      <span style="font-family:var(--fd);font-size:11px;font-weight:700;color:var(--t1)">${MLBL[activityOptCalMonth]} ${activityOptCalYear}</span>
+      <button onclick="activityOptCalNext()" style="width:20px;height:20px;border-radius:5px;background:var(--surface2);border:none;color:var(--t3);font-size:12px;cursor:pointer">›</button>
     </div>
-    <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:3px">${cells}</div>`;
+    <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:2px">${cells}</div>
+    </div>`;
 }
 
 function activityOptCalPrev(){ activityOptCalMonth--; if(activityOptCalMonth<0){activityOptCalMonth=11;activityOptCalYear--;} renderActivityOptCalendar(); }
@@ -6172,14 +6466,16 @@ function activityOptCellClick(date){
   const idx = cycle.indexOf(cur);
   const next = cycle[(idx + 1) % cycle.length];
   setActivityOptDay(date, next);
-  renderAHActivity(); // re-render full page so streak updates
+  renderActivityOptCalendar();
+  if(document.getElementById('ah-activity-content')) renderAHActivity();
   renderDashboard();
 }
 
 function clearAllActivityOpts(){
   activityOptDays = {};
   saveSchedule();
-  renderAHActivity();
+  renderActivityOptCalendar();
+  if(document.getElementById('ah-activity-content')) renderAHActivity();
   renderDashboard();
   showToast('Activity opt-outs cleared');
 }
@@ -6193,6 +6489,7 @@ function calcStandHours(mins){
 function renderAHActivity(){
   const pageId = 'activity';
   const dates  = getAHDates(pageId);
+  const latest = dates.length ? dates[dates.length-1] : null;
 
   // ── LEFT PANEL ──────────────────────────────
   let left = ahSortBar(pageId);
@@ -6251,21 +6548,200 @@ function renderAHActivity(){
     },
   ], 30);
 
-  // ── RIGHT PANEL — Opt-Out Calendar ──────────
+  // ── RIGHT PANEL — Activity Intelligence ────────────────────────────────
+  const aAvg = (key,n) => { const vs=dates.slice(-n).map(d=>computeAllFields(getEntry(d))[key]).filter(v=>v!=null&&!isNaN(v)&&v>0); return vs.length?Math.round(vs.reduce((a,b)=>a+b,0)/vs.length):null; };
+  const aMax = (key,n) => { const vs=dates.slice(-n).map(d=>computeAllFields(getEntry(d))[key]).filter(v=>v!=null&&!isNaN(v)&&v>0); return vs.length?Math.max(...vs):null; };
+  const aSum = (key,n) => { const vs=dates.slice(-n).map(d=>computeAllFields(getEntry(d))[key]).filter(v=>v!=null&&!isNaN(v)&&v>0); return vs.length?Math.round(vs.reduce((a,b)=>a+b,0)):null; };
+
+  // ── 1. Movement Efficiency ──
+  const movEffDays = dates.slice(-7).map(d => {
+    const e = computeAllFields(getEntry(d));
+    const cal = e.active_calories, steps = e.steps;
+    if(cal!=null&&steps!=null&&steps>0) return Math.round((cal/steps)*1000)/1000;
+    return null;
+  }).filter(v=>v!=null);
+  const movEffAvg = movEffDays.length ? (movEffDays.reduce((a,b)=>a+b,0)/movEffDays.length).toFixed(3) : null;
+  
+  // Today's movement efficiency (for comparison)
+  const todayEntry = latest ? computeAllFields(getEntry(latest)) : {};
+  const movEffToday = (todayEntry.active_calories!=null && todayEntry.steps!=null && todayEntry.steps>0) 
+    ? (Math.round((todayEntry.active_calories/todayEntry.steps)*1000)/1000).toFixed(3)
+    : null;
+  
+  // Rating based on today's efficiency
+  const movEffRating = movEffToday ? (parseFloat(movEffToday) < 0.12 ? {label:'Efficient',col:'#10B981'} : parseFloat(movEffToday) < 0.22 ? {label:'Moderate',col:'#F59E0B'} : {label:'High Burn',col:'#EF4444'}) : null;
+
+  // ── 2. Weekly Distance Pie ──
+  const weekCycleDist = aSum('cycle_distance',7) || 0;
+  const weekWalkDist  = aSum('walk_distance',7)  || 0;
+  const weekRunDist   = aSum('run_distance',7)   || 0;
+  const weekTotalPie  = weekCycleDist + weekWalkDist + weekRunDist;
+  function buildDistPie(cycleKm, walkKm, runKm){
+    const total = cycleKm + walkKm + runKm;
+    if(total <= 0) return `<div style="text-align:center;color:var(--t4);font-size:11px;padding:16px 0">No distance data this week</div>`;
+    const pctC = cycleKm/total, pctW = walkKm/total, pctR = runKm/total;
+    const cx=60,cy=60,r=46,stroke=18;
+    const circ=2*Math.PI*r;
+    const dC=pctC*circ, dW=pctW*circ, dR=pctR*circ;
+    const startOff = circ/4;
+    const offC = startOff;
+    const offW = startOff - dC;
+    const offR = startOff - dC - dW;
+    const fmtKm = v => v>=1 ? v.toFixed(1)+'km' : (v*1000).toFixed(0)+'m';
+    return `
+      <div style="display:flex;align-items:center;gap:10px">
+        <svg width="120" height="120" viewBox="0 0 120 120" style="flex-shrink:0;transform:rotate(-90deg)">
+          <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="var(--border)" stroke-width="${stroke}"/>
+          ${dC>0?`<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="#06B6D4" stroke-width="${stroke}" stroke-dasharray="${dC} ${circ-dC}" stroke-dashoffset="${offC}" stroke-linecap="butt"/>`:''}
+          ${dW>0?`<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="#8B5CF6" stroke-width="${stroke}" stroke-dasharray="${dW} ${circ-dW}" stroke-dashoffset="${offW}" stroke-linecap="butt"/>`:''}
+          ${dR>0?`<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="#FF3B5C" stroke-width="${stroke}" stroke-dasharray="${dR} ${circ-dR}" stroke-dashoffset="${offR}" stroke-linecap="butt"/>`:''}
+          <text x="${cx}" y="${cy-5}" text-anchor="middle" font-size="13" font-weight="800" fill="var(--t1)" font-family="var(--fd)" transform="rotate(90,${cx},${cy})">${fmtKm(total)}</text>
+          <text x="${cx}" y="${cy+10}" text-anchor="middle" font-size="8" fill="var(--t3)" font-family="var(--fb)" transform="rotate(90,${cx},${cy})">total</text>
+        </svg>
+        <div style="display:flex;flex-direction:column;gap:5px;flex:1">
+          ${cycleKm>0?`<div style="display:flex;align-items:center;gap:5px"><div style="width:8px;height:8px;border-radius:50%;background:#06B6D4;flex-shrink:0"></div><div style="font-size:10px;color:var(--t2)"><span style="font-weight:700">${fmtKm(cycleKm)}</span><br><span style="color:var(--t4)">Cycle (${Math.round(pctC*100)}%)</span></div></div>`:''}
+          ${walkKm>0?`<div style="display:flex;align-items:center;gap:5px"><div style="width:8px;height:8px;border-radius:50%;background:#8B5CF6;flex-shrink:0"></div><div style="font-size:10px;color:var(--t2)"><span style="font-weight:700">${fmtKm(walkKm)}</span><br><span style="color:var(--t4)">Walk (${Math.round(pctW*100)}%)</span></div></div>`:''}
+          ${runKm>0?`<div style="display:flex;align-items:center;gap:5px"><div style="width:8px;height:8px;border-radius:50%;background:#FF3B5C;flex-shrink:0"></div><div style="font-size:10px;color:var(--t2)"><span style="font-weight:700">${fmtKm(runKm)}</span><br><span style="color:var(--t4)">Run (${Math.round(pctR*100)}%)</span></div></div>`:''}
+        </div>
+      </div>`;
+  }
+
+  // ── 3. Active vs Passive Distance ──
+  const activeDist7  = (aSum('walk_distance',7)||0) + (aSum('run_distance',7)||0) + (aSum('cycle_distance',7)||0);
+  const footDist7    = aSum('distance_foot',7) || 0;
+  const passiveDist7 = Math.max(0, footDist7 - ((aSum('walk_distance',7)||0) + (aSum('run_distance',7)||0)));
+  const activeRatio  = activeDist7+passiveDist7 > 0 ? Math.round((activeDist7/(activeDist7+passiveDist7))*100) : null;
+  const fmtKmN = v => v>=1 ? v.toFixed(1)+' km' : (v*1000).toFixed(0)+' m';
+
+  // ── 4. Standing Endurance & Metabolic Load ──
+  const standMins7    = aAvg('standing_mins',7);
+  const exerciseMins7 = aAvg('exercise_mins',7);
+  const totalActMins7 = (standMins7||0) + (exerciseMins7||0);
+  const standRatio    = totalActMins7>0 ? Math.round(((standMins7||0)/totalActMins7)*100) : null;
+  const metabolicLoad = standMins7!=null && exerciseMins7!=null ? (standMins7*1.5 + exerciseMins7*4).toFixed(0) : null;
+  const standEndurance = standMins7!=null ? (standMins7>=180?'Excellent':standMins7>=120?'Good':standMins7>=60?'Fair':'Low') : null;
+  const standEndCol    = standMins7!=null ? (standMins7>=180?'#10B981':standMins7>=120?'#3B82F6':standMins7>=60?'#F59E0B':'#EF4444') : 'var(--t4)';
+
+  // ── 5. Total Activity Minutes ──
+  const totalActWeek = (aSum('exercise_mins',7)||0) + (aSum('standing_mins',7)||0);
+  const exWeek = aSum('exercise_mins',7);
+  const stWeek = aSum('standing_mins',7);
+  const whoTarget = 150;
+  const exPctOfWHO = exWeek!=null ? Math.min(100,Math.round((exWeek/whoTarget)*100)) : null;
+
   const right = `
-    <div style="font-size:12px;font-weight:700;color:var(--t1);margin-bottom:4px;display:flex;align-items:center;gap:6px">
-      ${_iconImg(ICON_URLS.steps,14)} Activity Opt-Out
+    <div style="font-size:12px;font-weight:800;color:var(--t1);margin-bottom:10px;padding-bottom:8px;border-bottom:2px solid var(--border)">
+      ${_iconImg(ICON_URLS.steps,14)} Activity Intelligence
     </div>
-    <div style="font-size:10px;color:var(--t3);margin-bottom:10px;line-height:1.5">Tap a day to set credit. Streak continues when proportional target is met.</div>
-    <div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:10px">
-      <span style="font-size:9px;padding:2px 7px;border-radius:8px;background:rgba(239,68,68,.15);color:var(--danger);font-weight:700">✕ Skip</span>
-      <span style="font-size:9px;padding:2px 7px;border-radius:8px;background:rgba(245,158,11,.15);color:var(--warn);font-weight:700">25%</span>
-      <span style="font-size:9px;padding:2px 7px;border-radius:8px;background:rgba(245,158,11,.12);color:var(--warn);font-weight:600">50%</span>
-      <span style="font-size:9px;padding:2px 7px;border-radius:8px;background:rgba(245,158,11,.09);color:var(--warn);font-weight:500">75%</span>
-      <span style="font-size:9px;padding:2px 7px;border-radius:8px;background:var(--surface2);color:var(--t3)">100% Normal</span>
+
+    <!-- 1. Movement Efficiency -->
+    <div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);padding:11px 12px;margin-bottom:8px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+        <div style="font-size:10px;font-weight:700;color:var(--t2)">⚡ Movement Efficiency</div>
+        ${movEffRating ? `<div style="font-size:9px;font-weight:700;padding:2px 7px;border-radius:20px;background:${movEffRating.col}22;color:${movEffRating.col}">${movEffRating.label}</div>` : ''}
+      </div>
+      <div style="font-size:9px;color:var(--t3);margin-bottom:8px">Active cal ÷ steps — lower = more efficient movement</div>
+      ${movEffAvg!=null ? `
+      <div style="display:flex;gap:6px">
+        <div style="flex:1;text-align:center;background:var(--surface3);border-radius:var(--rxs);padding:7px 4px">
+          <div style="font-family:var(--fd);font-size:17px;font-weight:800;color:#3B82F6">${movEffAvg}</div>
+          <div style="font-size:9px;color:var(--t4)">7D avg<br><span style="color:var(--t4);font-weight:400">cal/step</span></div>
+        </div>
+        <div style="flex:1;text-align:center;background:var(--surface3);border-radius:var(--rxs);padding:7px 4px">
+          <div style="font-family:var(--fd);font-size:17px;font-weight:800;color:#10B981">${movEffToday??'—'}</div>
+          <div style="font-size:9px;color:var(--t4)">Today<br><span style="color:var(--t4);font-weight:400">cal/step</span></div>
+        </div>
+      </div>` : `<div style="text-align:center;color:var(--t4);font-size:11px;padding:8px 0">Log active calories & steps to see efficiency</div>`}
     </div>
-    <div id="activity-opt-cal-wrap"></div>
-    <button onclick="clearAllActivityOpts()" style="margin-top:10px;width:100%;padding:6px;border-radius:var(--rs);background:var(--surface2);border:1px solid var(--border);color:var(--t4);font-size:11px;cursor:pointer;font-family:var(--fb)">Reset all opt-outs</button>
+
+    <!-- 2. Weekly Distance by Mode (Pie) -->
+    <div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);padding:11px 12px;margin-bottom:8px">
+      <div style="font-size:10px;font-weight:700;color:var(--t2);margin-bottom:2px">🗺 Weekly Distance Split</div>
+      <div style="font-size:9px;color:var(--t3);margin-bottom:8px">Cycle · Walk · Run — last 7 days (km)</div>
+      ${buildDistPie(weekCycleDist, weekWalkDist, weekRunDist)}
+    </div>
+
+    <!-- 3. Active vs Passive Distance -->
+    <div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);padding:11px 12px;margin-bottom:8px">
+      <div style="font-size:10px;font-weight:700;color:var(--t2);margin-bottom:2px">🎯 Active vs Passive Distance</div>
+      <div style="font-size:9px;color:var(--t3);margin-bottom:8px">Workout distance vs incidental foot distance</div>
+      ${activeDist7+passiveDist7 > 0 ? `
+      <div style="margin-bottom:7px">
+        <div style="display:flex;justify-content:space-between;font-size:9px;color:var(--t4);margin-bottom:3px">
+          <span>Active (workout)</span><span style="font-weight:700;color:#10B981">${fmtKmN(activeDist7)}</span>
+        </div>
+        <div style="height:7px;border-radius:20px;background:var(--border);overflow:hidden;margin-bottom:5px">
+          <div style="height:100%;width:${activeRatio}%;background:linear-gradient(90deg,#10B981,#3B82F6);border-radius:20px;transition:width .5s ease"></div>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:9px;color:var(--t4);margin-bottom:3px">
+          <span>Passive (incidental)</span><span style="font-weight:700;color:#F59E0B">${fmtKmN(passiveDist7)}</span>
+        </div>
+        <div style="height:7px;border-radius:20px;background:var(--border);overflow:hidden">
+          <div style="height:100%;width:${100-(activeRatio||0)}%;background:linear-gradient(90deg,#F59E0B,#EC4899);border-radius:20px;transition:width .5s ease"></div>
+        </div>
+      </div>
+      <div style="text-align:center;font-size:9px;color:var(--t3)">${activeRatio!=null?activeRatio+'% of distance from intentional exercise':''}</div>
+      ` : `<div style="text-align:center;color:var(--t4);font-size:11px;padding:8px 0">Log walk/run/cycle distances to see split</div>`}
+    </div>
+
+    <!-- 4. Standing Endurance & Metabolic Shift -->
+    <div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);padding:11px 12px;margin-bottom:8px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:2px">
+        <div style="font-size:10px;font-weight:700;color:var(--t2)">🧍 Standing Endurance & Metabolic Shift</div>
+        ${standEndurance?`<div style="font-size:9px;font-weight:700;padding:2px 7px;border-radius:20px;background:${standEndCol}22;color:${standEndCol}">${standEndurance}</div>`:''}
+      </div>
+      <div style="font-size:9px;color:var(--t3);margin-bottom:8px">7D avg · metabolic activity estimate</div>
+      ${standMins7!=null||exerciseMins7!=null ? `
+      <div style="display:flex;gap:5px;margin-bottom:6px">
+        <div style="flex:1;text-align:center;background:var(--surface3);border-radius:var(--rxs);padding:6px 4px">
+          <div style="font-family:var(--fd);font-size:15px;font-weight:800;color:#6366F1">${standMins7??'—'}</div>
+          <div style="font-size:9px;color:var(--t4)">stand min/day</div>
+          ${standMins7!=null?`<div style="margin-top:2px">${percentileBadge(getWorldPercentile('standing_mins',standMins7))}</div>`:''}
+        </div>
+        <div style="flex:1;text-align:center;background:var(--surface3);border-radius:var(--rxs);padding:6px 4px">
+          <div style="font-family:var(--fd);font-size:15px;font-weight:800;color:#F59E0B">${standRatio??'—'}${standRatio!=null?'%':''}</div>
+          <div style="font-size:9px;color:var(--t4)">of active time</div>
+        </div>
+        <div style="flex:1;text-align:center;background:var(--surface3);border-radius:var(--rxs);padding:6px 4px">
+          <div style="font-family:var(--fd);font-size:15px;font-weight:800;color:#10B981">${metabolicLoad??'—'}</div>
+          <div style="font-size:9px;color:var(--t4)">met-load score</div>
+        </div>
+      </div>
+      <div style="font-size:9px;color:var(--t3);line-height:1.5">Met-load = (stand min × 1.5) + (exercise min × 4). Higher = more daily metabolic engagement.</div>
+      ` : `<div style="text-align:center;color:var(--t4);font-size:11px;padding:8px 0">Log standing & exercise minutes</div>`}
+    </div>
+
+    <!-- 5. Total Activity Minutes -->
+    <div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);padding:11px 12px;margin-bottom:8px">
+      <div style="font-size:10px;font-weight:700;color:var(--t2);margin-bottom:2px">⏱ Total Activity Minutes</div>
+      <div style="font-size:9px;color:var(--t3);margin-bottom:8px">Exercise + Standing — last 7 days total vs WHO 150min/week target</div>
+      ${exWeek!=null||stWeek!=null ? `
+      <div style="display:flex;gap:6px;margin-bottom:8px">
+        <div style="flex:1;text-align:center;background:var(--surface3);border-radius:var(--rxs);padding:7px 4px">
+          <div style="font-family:var(--fd);font-size:17px;font-weight:800;color:#34C759">${exWeek??0}</div>
+          <div style="font-size:9px;color:var(--t4)">exercise min<br><span style="color:var(--t4);font-weight:400">7d total</span></div>
+          ${exWeek!=null&&exWeek>0?`<div style="margin-top:2px">${percentileBadge(getWorldPercentile('exercise_mins',exWeek/7))}</div>`:''}
+        </div>
+        <div style="flex:1;text-align:center;background:var(--surface3);border-radius:var(--rxs);padding:7px 4px">
+          <div style="font-family:var(--fd);font-size:17px;font-weight:800;color:#6366F1">${stWeek??0}</div>
+          <div style="font-size:9px;color:var(--t4)">standing min<br><span style="color:var(--t4);font-weight:400">7d total</span></div>
+          ${stWeek!=null&&stWeek>0?`<div style="margin-top:2px">${percentileBadge(getWorldPercentile('standing_mins',stWeek/7))}</div>`:''}
+        </div>
+        <div style="flex:1;text-align:center;background:linear-gradient(135deg,rgba(59,130,246,.15),rgba(99,102,241,.1));border-radius:var(--rxs);padding:7px 4px;border:1px solid rgba(59,130,246,.2)">
+          <div style="font-family:var(--fd);font-size:17px;font-weight:800;color:var(--accent)">${totalActWeek}</div>
+          <div style="font-size:9px;color:var(--t4)">total min<br><span style="color:var(--t4);font-weight:400">7d total</span></div>
+        </div>
+      </div>
+      ${exPctOfWHO!=null?`
+      <div style="font-size:9px;color:var(--t4);margin-bottom:3px">Exercise vs WHO 150 min/week goal</div>
+      <div style="height:7px;border-radius:20px;background:var(--border);overflow:hidden;margin-bottom:3px">
+        <div style="height:100%;width:${exPctOfWHO}%;background:${exPctOfWHO>=100?'linear-gradient(90deg,#10B981,#34C759)':exPctOfWHO>=60?'linear-gradient(90deg,#F59E0B,#FFCC00)':'linear-gradient(90deg,#EF4444,#F59E0B)'};border-radius:20px;transition:width .5s ease"></div>
+      </div>
+      <div style="text-align:right;font-size:9px;font-weight:700;color:${exPctOfWHO>=100?'#10B981':exPctOfWHO>=60?'#F59E0B':'#EF4444'}">${exPctOfWHO}% of WHO goal</div>
+      `:''}
+      ` : `<div style="text-align:center;color:var(--t4);font-size:11px;padding:8px 0">Log exercise & standing minutes</div>`}
+    </div>
+
     <div style="margin-top:14px;border-top:1px solid var(--border);padding-top:12px">${renderLocalInsightsHtml('activity', dates)}</div>`;
 
   const html = `<div class="ah-energy-layout">
@@ -6274,7 +6750,6 @@ function renderAHActivity(){
   </div>`;
 
   document.getElementById('ah-activity-content').innerHTML = html;
-  requestAnimationFrame(renderActivityOptCalendar);
 }
 
 // ── WORKOUT ──────────────────────────────────
@@ -6316,7 +6791,8 @@ function toggleWorkoutWeekDay(exKey, dow){
   if(!workoutWeekSched[exKey]) workoutWeekSched[exKey] = {0:true,1:true,2:true,3:true,4:true,5:true,6:true};
   workoutWeekSched[exKey][dow] = !workoutWeekSched[exKey][dow];
   saveWorkoutOpts();
-  renderAHWorkout();
+  renderStgSchedule();
+  if(document.getElementById('ah-workout-content')) renderAHWorkout();
 }
 function isWorkoutDay(exKey, date){
   const dow = new Date(date+'T00:00:00').getDay();
@@ -6341,15 +6817,17 @@ function renderWorkoutOptCalendar(){
     if(anySkip){bg='rgba(239,68,68,.15)';color='var(--danger)';border='1px solid rgba(239,68,68,.3)';fw='700';}
     else if(anyOpt){bg='rgba(245,158,11,.12)';color='var(--warn)';border='1px solid rgba(245,158,11,.25)';fw='700';}
     if(isToday) border='2px solid var(--accent)';
-    cells+=`<button onclick="workoutOptDayClick('${ds}')" style="aspect-ratio:1;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:${fw};border-radius:6px;cursor:pointer;background:${bg};color:${color};border:${border};width:100%;font-family:var(--fb);line-height:1">${d}</button>`;
+    cells+=`<button onclick="workoutOptDayClick('${ds}')" style="height:26px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:${fw};border-radius:4px;cursor:pointer;background:${bg};color:${color};border:${border};width:100%;font-family:var(--fb);line-height:1">${d}</button>`;
   }
   const wrap=document.getElementById('workout-opt-cal-wrap');
   if(!wrap) return;
-  wrap.innerHTML=`<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
-    <button onclick="workoutOptCalPrev()" style="width:26px;height:26px;border-radius:7px;background:var(--surface2);border:none;color:var(--t3);font-size:14px;cursor:pointer">‹</button>
-    <span style="font-family:var(--fd);font-size:13px;font-weight:700;color:var(--t1)">${MLBL[workoutOptCalMonth]} ${workoutOptCalYear}</span>
-    <button onclick="workoutOptCalNext()" style="width:26px;height:26px;border-radius:7px;background:var(--surface2);border:none;color:var(--t3);font-size:14px;cursor:pointer">›</button>
-  </div><div style="display:grid;grid-template-columns:repeat(7,1fr);gap:3px">${cells}</div>`;
+  wrap.innerHTML=`<div style="max-width:260px">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:5px">
+    <button onclick="workoutOptCalPrev()" style="width:20px;height:20px;border-radius:5px;background:var(--surface2);border:none;color:var(--t3);font-size:12px;cursor:pointer">‹</button>
+    <span style="font-family:var(--fd);font-size:11px;font-weight:700;color:var(--t1)">${MLBL[workoutOptCalMonth]} ${workoutOptCalYear}</span>
+    <button onclick="workoutOptCalNext()" style="width:20px;height:20px;border-radius:5px;background:var(--surface2);border:none;color:var(--t3);font-size:12px;cursor:pointer">›</button>
+  </div><div style="display:grid;grid-template-columns:repeat(7,1fr);gap:2px">${cells}</div>
+  </div>`;
 }
 function workoutOptCalPrev(){workoutOptCalMonth--;if(workoutOptCalMonth<0){workoutOptCalMonth=11;workoutOptCalYear--;}renderWorkoutOptCalendar();}
 function workoutOptCalNext(){workoutOptCalMonth++;if(workoutOptCalMonth>11){workoutOptCalMonth=0;workoutOptCalYear++;}renderWorkoutOptCalendar();}
@@ -6376,7 +6854,7 @@ function workoutExOptClick(exKey,date){
   setWorkoutOptDay(exKey,date,cycle[(cycle.indexOf(cur)+1)%cycle.length]);
   workoutOptDayClick(date);
   renderWorkoutOptCalendar();
-  renderAHWorkout();
+  if(document.getElementById('ah-workout-content')) renderAHWorkout();
 }
 
 function buildWorkoutWeekTab(){
@@ -6549,23 +7027,199 @@ function renderAHWorkout(){
   left+=ahSectionTitle(_iconImg(ICON_URLS.strength,16),'Streak');
   left+=buildWorkoutStreakSection();
 
-  // ── WEEKLY SCHEDULE ───────────────────────────
-  left+=buildWorkoutWeekTab();
+  // ── RIGHT PANEL — Enhanced Workout Stats ────────────────
+  const allD7 = allDates().sort().slice(-7);
+  const wAvg = (key,n) => { const vs=allDates().sort().slice(-n).map(d=>computeAllFields(getEntry(d))[key]).filter(v=>v!=null&&!isNaN(v)&&v>0); return vs.length?Math.round(vs.reduce((a,b)=>a+b,0)/vs.length*10)/10:null; };
+  const wMax = (key,n) => { const vs=allDates().sort().slice(-n).map(d=>computeAllFields(getEntry(d))[key]).filter(v=>v!=null&&!isNaN(v)&&v>0); return vs.length?Math.round(Math.max(...vs)*10)/10:null; };
+  const wSum = (key,n) => { const vs=allDates().sort().slice(-n).map(d=>computeAllFields(getEntry(d))[key]).filter(v=>v!=null&&!isNaN(v)&&v>0); return vs.length?Math.round(vs.reduce((a,b)=>a+b,0)*10)/10:null; };
+  const wCnt7 = (key) => allD7.filter(d=>{const v=(allData[d]||{})[key]; return v!=null&&v>0;}).length;
 
-  // ── RIGHT PANEL ───────────────────────────────
+  function actCountColor(key, count) {
+    if(key==='walk_distance'||key==='run_distance'||key==='strength_training'){
+      if(count<=1) return '#EF4444';
+      if(count<=4) return '#F59E0B';
+      if(count===5) return '#10B981';
+      return '#047857';
+    }
+    if(key==='cycle_distance'||key==='yoga_duration'){
+      if(count===0) return '#EF4444';
+      if(count===1) return '#F59E0B';
+      if(count===2) return '#10B981';
+      return '#047857';
+    }
+    return 'var(--accent)';
+  }
+  const walkCnt7=wCnt7('walk_distance'), cycleCnt7=wCnt7('cycle_distance'),
+        runCnt7=wCnt7('run_distance'),   strCnt7=wCnt7('strength_training'),
+        yogaCnt7=wCnt7('yoga_duration');
+
+  const WORKOUT_FREQ_PCTS = {
+    walk_distance:      [0,5,10,20,35,50,65,77,87,95,99],
+    run_distance:       [30,45,58,70,80,88,93,96,98,99,99],
+    cycle_distance:     [45,58,68,77,84,89,93,96,98,99,99],
+    strength_training:  [35,48,60,71,81,88,93,96,98,99,99],
+    yoga_duration:      [55,65,73,80,86,91,94,97,98,99,99],
+  };
+  function workoutFreqPct(key, count){
+    const curve = WORKOUT_FREQ_PCTS[key];
+    if(!curve) return null;
+    const idx = Math.min(count, curve.length - 1);
+    return curve[idx];
+  }
+
+  function actCountBadge(label, icon, key, count){
+    const col=actCountColor(key,count);
+    const freqPct = workoutFreqPct(key, count);
+    const freqBadge = freqPct != null ? percentileBadge(freqPct) : '';
+    return `<div style="display:flex;align-items:center;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--border)">
+      <span style="font-size:11px;color:var(--t2);display:flex;align-items:center;gap:5px">${icon} ${label}</span>
+      <div style="text-align:right">
+        <span style="font-family:var(--fd);font-size:18px;font-weight:900;color:${col}">${count}<span style="font-size:9px;font-weight:500;color:var(--t4);margin-left:2px">/ 7d</span></span>
+        ${freqBadge ? `<div style="margin-top:1px">${freqBadge}</div>` : ''}
+      </div>
+    </div>`;
+  }
+
+  function bestWorkoutDow(){
+    const dowTotals={};
+    const dowKeys=['walk_distance','run_distance','cycle_distance','strength_training','yoga_duration','other_activity'];
+    allDates().sort().forEach(d=>{
+      const dow=new Date(d+'T00:00:00').toLocaleDateString('en-US',{weekday:'short'});
+      if(!dowTotals[dow]) dowTotals[dow]={types:0,days:0};
+      const types=dowKeys.filter(k=>{const v=(allData[d]||{})[k]; return v!=null&&v>0;}).length;
+      if(types>0){ dowTotals[dow].types+=types; dowTotals[dow].days+=1; }
+    });
+    let bestDow='—',bestScore=-1;
+    Object.entries(dowTotals).forEach(([dow,{types,days}])=>{
+      const score=days>0?types/days:0;
+      if(score>bestScore){ bestScore=score; bestDow=dow; }
+    });
+    return bestDow;
+  }
+
+  function workoutPaceStats(){
+    const allD=allDates().sort();
+    const avgPaces=allD.map(d=>(allData[d]||{}).walk_avg_pace).filter(v=>v!=null&&v>0);
+    const bestPaces=allD.map(d=>(allData[d]||{}).walk_best_pace).filter(v=>v!=null&&v>0);
+    const avgPace=avgPaces.length?Math.round(avgPaces.reduce((a,b)=>a+b,0)/avgPaces.length*100)/100:null;
+    const bestPace=bestPaces.length?Math.min(...bestPaces):null;
+    return {avgPace,bestPace};
+  }
+  const {avgPace,bestPace}=workoutPaceStats();
+
+  const totalElevSum = (wSum('walk_elevation',365)||0)+(wSum('run_elevation',365)||0)+(wSum('cycle_elevation',365)||0);
+  const totalDistSum = (wSum('walk_distance',365)||0)+(wSum('run_distance',365)||0)+(wSum('cycle_distance',365)||0);
+  const totalElev7   = (wSum('walk_elevation',7)||0)+(wSum('run_elevation',7)||0)+(wSum('cycle_elevation',7)||0);
+  const totalDist7   = (wSum('walk_distance',7)||0)+(wSum('run_distance',7)||0)+(wSum('cycle_distance',7)||0);
+
+  function avgSpeedOf(key){
+    const allD=allDates().sort();
+    if(key==='cycle_distance'){
+      const speeds=allD.map(d=>(allData[d]||{}).cycle_avg_pace).filter(v=>v!=null&&v>0);
+      return speeds.length?Math.round(speeds.reduce((a,b)=>a+b,0)/speeds.length*10)/10:null;
+    }
+    const paceKey=key==='walk_distance'?'walk_avg_pace':'run_avg_pace';
+    const paces=allD.map(d=>(allData[d]||{})[paceKey]).filter(v=>v!=null&&v>0);
+    if(!paces.length) return null;
+    const avgPaceMinKm=paces.reduce((a,b)=>a+b,0)/paces.length;
+    return Math.round(60/avgPaceMinKm*10)/10;
+  }
+  const walkSpeed=avgSpeedOf('walk_distance');
+  const runSpeed=avgSpeedOf('run_distance');
+  const cycleSpeed=avgSpeedOf('cycle_distance');
+
+  const walkDist7=wSum('walk_distance',7)||0;
+  const runDist7=wSum('run_distance',7)||0;
+  const cycleDist7=wSum('cycle_distance',7)||0;
+  const strMin7=wSum('strength_training',7)||0;
+  const yogaMin7=wSum('yoga_duration',7)||0;
+
+  const WHO_WALK_KM=6, WHO_RUN_KM=5, WHO_CYCLE_KM=30, WHO_STR_MIN=60, WHO_YOGA_MIN=60;
+  function whoBadge(label,icon,val,target,unit,valStr){
+    const pct=Math.min(100,Math.round(val/target*100));
+    const col=pct>=100?'#047857':pct>=60?'#10B981':pct>=30?'#F59E0B':'#EF4444';
+    return `<div style="margin-bottom:7px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:2px">
+        <span style="font-size:10px;color:var(--t2)">${icon} ${label}</span>
+        <span style="font-size:10px;font-weight:700;color:${col}">${valStr}<span style="font-size:9px;color:var(--t4);font-weight:400;margin-left:2px">/ ${target}${unit}</span></span>
+      </div>
+      <div style="height:4px;background:var(--border2);border-radius:10px;overflow:hidden">
+        <div style="height:100%;width:${pct}%;background:${col};border-radius:10px;transition:width .8s"></div>
+      </div>
+    </div>`;
+  }
+
   const right=`
-    <div style="font-size:12px;font-weight:700;color:var(--t1);margin-bottom:4px;display:flex;align-items:center;gap:6px">
-      ${_iconImg(ICON_URLS.strength,14)} Workout Opt-Out
+    <div style="font-size:12px;font-weight:800;color:var(--t1);margin-bottom:10px;padding-bottom:8px;border-bottom:2px solid var(--border)">
+      ${_iconImg(ICON_URLS.strength,14)} Workout Stats
     </div>
-    <div style="font-size:10px;color:var(--t3);margin-bottom:10px;line-height:1.5">Tap a day to set per-exercise credit.</div>
-    <div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:10px">
-      <span style="font-size:9px;padding:2px 7px;border-radius:8px;background:rgba(239,68,68,.15);color:var(--danger);font-weight:700">✕ Skip</span>
-      <span style="font-size:9px;padding:2px 7px;border-radius:8px;background:rgba(245,158,11,.15);color:var(--warn);font-weight:700">Partial</span>
-      <span style="font-size:9px;padding:2px 7px;border-radius:8px;background:var(--surface2);color:var(--t3)">Normal</span>
+
+    <!-- Section: Last 7D Session Counts -->
+    <div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--t3);margin-bottom:4px">Last 7 Days</div>
+    ${actCountBadge('Walk','🚶','walk_distance',walkCnt7)}
+    ${actCountBadge('Cycle','🚴','cycle_distance',cycleCnt7)}
+    ${actCountBadge('Run','🏃','run_distance',runCnt7)}
+    ${actCountBadge('Strength','💪','strength_training',strCnt7)}
+    ${actCountBadge('Yoga','🧘','yoga_duration',yogaCnt7)}
+
+    <!-- Section: Best Day + Pace -->
+    <div style="padding:8px 0;border-bottom:1px solid var(--border)">
+      <div style="display:flex;gap:6px">
+        <div style="flex:1;background:var(--surface2);border-radius:var(--rs);padding:7px 8px;text-align:center">
+          <div style="font-size:9px;color:var(--t4);margin-bottom:2px">Best Workout Day</div>
+          <div style="font-family:var(--fd);font-size:18px;font-weight:900;color:var(--accent)">${bestWorkoutDow()}</div>
+        </div>
+        <div style="flex:1;background:var(--surface2);border-radius:var(--rs);padding:7px 8px;text-align:center">
+          <div style="font-size:9px;color:var(--t4);margin-bottom:2px">Avg Walk Pace</div>
+          <div style="font-family:var(--fd);font-size:15px;font-weight:800;color:#10B981">${avgPace!=null?fmtNum(avgPace,2):'—'}<span style="font-size:9px;color:var(--t4);font-weight:400;margin-left:2px">/km</span></div>
+        </div>
+        <div style="flex:1;background:var(--surface2);border-radius:var(--rs);padding:7px 8px;text-align:center">
+          <div style="font-size:9px;color:var(--t4);margin-bottom:2px">Best Walk Pace</div>
+          <div style="font-family:var(--fd);font-size:15px;font-weight:800;color:#047857">${bestPace!=null?fmtNum(bestPace,2):'—'}<span style="font-size:9px;color:var(--t4);font-weight:400;margin-left:2px">/km</span></div>
+        </div>
+      </div>
     </div>
-    <div id="workout-opt-cal-wrap"></div>
-    <div id="workout-day-panel" style="display:none;margin-top:10px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);padding:10px 12px"></div>
-    <button onclick="workoutOptDays={};saveWorkoutOpts();renderAHWorkout()" style="margin-top:10px;width:100%;padding:6px;border-radius:var(--rs);background:var(--surface2);border:1px solid var(--border);color:var(--t4);font-size:11px;cursor:pointer;font-family:var(--fb)">Reset all opt-outs</button>
+
+    <!-- Section: Total Elevation + Distance + Speed -->
+    <div style="padding:8px 0;border-bottom:1px solid var(--border)">
+      <div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--t3);margin-bottom:6px">Distance, Elevation & Speed</div>
+      <div style="display:flex;gap:6px;margin-bottom:6px">
+        <div style="flex:1;background:var(--surface2);border-radius:var(--rs);padding:7px 8px;text-align:center">
+          <div style="font-size:9px;color:var(--t4);margin-bottom:2px">Total Dist (7D)</div>
+          <div style="font-family:var(--fd);font-size:15px;font-weight:800;color:#3B82F6">${fmtNum(totalDist7,1)}<span style="font-size:9px;color:var(--t4);font-weight:400;margin-left:2px">km</span></div>
+        </div>
+        <div style="flex:1;background:var(--surface2);border-radius:var(--rs);padding:7px 8px;text-align:center">
+          <div style="font-size:9px;color:var(--t4);margin-bottom:2px">Total Elev (7D)</div>
+          <div style="font-family:var(--fd);font-size:15px;font-weight:800;color:#F59E0B">${fmtNum(totalElev7,0)}<span style="font-size:9px;color:var(--t4);font-weight:400;margin-left:2px">m</span></div>
+        </div>
+      </div>
+      <div style="display:flex;gap:6px">
+        <div style="flex:1;background:var(--surface2);border-radius:var(--rs);padding:7px 8px;text-align:center">
+          <div style="font-size:9px;color:var(--t4);margin-bottom:2px">🚶 Avg Speed</div>
+          <div style="font-family:var(--fd);font-size:14px;font-weight:800;color:#10B981">${walkSpeed!=null?walkSpeed:'—'}<span style="font-size:8px;color:var(--t4);font-weight:400;margin-left:1px">km/h</span></div>
+        </div>
+        <div style="flex:1;background:var(--surface2);border-radius:var(--rs);padding:7px 8px;text-align:center">
+          <div style="font-size:9px;color:var(--t4);margin-bottom:2px">🏃 Avg Speed</div>
+          <div style="font-family:var(--fd);font-size:14px;font-weight:800;color:#3B82F6">${runSpeed!=null?runSpeed:'—'}<span style="font-size:8px;color:var(--t4);font-weight:400;margin-left:1px">km/h</span></div>
+        </div>
+        <div style="flex:1;background:var(--surface2);border-radius:var(--rs);padding:7px 8px;text-align:center">
+          <div style="font-size:9px;color:var(--t4);margin-bottom:2px">🚴 Avg Speed</div>
+          <div style="font-family:var(--fd);font-size:14px;font-weight:800;color:#F59E0B">${cycleSpeed!=null?cycleSpeed:'—'}<span style="font-size:8px;color:var(--t4);font-weight:400;margin-left:1px">km/h</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section: WHO Standards -->
+    <div style="padding-top:8px;border-bottom:1px solid var(--border);padding-bottom:8px;margin-bottom:8px">
+      <div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--t3);margin-bottom:6px">WHO Weekly Standards + Global Rank</div>
+      ${whoBadge('Walk Distance','🚶',walkDist7,WHO_WALK_KM,'km',fmtNum(walkDist7,1)+' km')} ${walkDist7>0?`<div style="font-size:8px;margin:-4px 0 8px 0;text-align:right">${percentileBadge(getWorldPercentile('walk_distance',walkDist7))}</div>`:''}
+      ${whoBadge('Run Distance','🏃',runDist7,WHO_RUN_KM,'km',fmtNum(runDist7,1)+' km')} ${runDist7>0?`<div style="font-size:8px;margin:-4px 0 8px 0;text-align:right">${percentileBadge(getWorldPercentile('run_distance',runDist7))}</div>`:''}
+      ${whoBadge('Cycle Distance','🚴',cycleDist7,WHO_CYCLE_KM,'km',fmtNum(cycleDist7,1)+' km')} ${cycleDist7>0?`<div style="font-size:8px;margin:-4px 0 8px 0;text-align:right">${percentileBadge(getWorldPercentile('cycle_distance',cycleDist7))}</div>`:''}
+      ${whoBadge('Strength Time','💪',strMin7,WHO_STR_MIN,'min',Math.round(strMin7)+' min')}
+      ${whoBadge('Yoga / Flex','🧘',yogaMin7,WHO_YOGA_MIN,'min',Math.round(yogaMin7)+' min')}
+      <div style="font-size:9px;color:var(--t4);margin-top:4px;line-height:1.5">WHO: 150+ min MVPA/wk · 2+ strength · flexibility weekly</div>
+    </div>
+
     <div style="margin-top:14px;border-top:1px solid var(--border);padding-top:12px">${renderLocalInsightsHtml('workout',dates)}</div>`;
 
   const html=`<div class="ah-energy-layout">
@@ -6574,7 +7228,6 @@ function renderAHWorkout(){
   </div>`;
 
   document.getElementById('ah-workout-content').innerHTML=html;
-  requestAnimationFrame(renderWorkoutOptCalendar);
 }
 function renderAHVitals(){
   const pageId = 'vitals';
@@ -7012,7 +7665,14 @@ function renderAHNutrition(){
 
   // ── LEFT PANEL ─────────────────────────────────
   let left = ahSortBar(pageId);
-  left += ahScoreBanner('nutrition', dates);
+  const nutritionBanner = ahScoreBanner('nutrition', dates);
+  left += nutritionBanner || `<div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);padding:14px 16px;margin-bottom:12px;display:flex;align-items:center;gap:12px">
+    <div style="font-size:28px;opacity:.4">🥗</div>
+    <div>
+      <div style="font-size:12px;font-weight:700;color:var(--t2);margin-bottom:2px">Nutrition Score</div>
+      <div style="font-size:11px;color:var(--t3)">Log water, protein & fiber to generate your nutrition score</div>
+    </div>
+  </div>`;
 
   // ── CALORIES & WATER ──────────────────────────
   left += ahSectionTitle(_iconImg(ICON_URLS.calories,16),'Calories & Water');
@@ -7904,7 +8564,7 @@ function renderAHHabits(){
   // ── LEFT PANEL ─────────────────────────────────
   let left = ahSortBar(pageId);
   left += `<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;padding-top:2px">
-    <span style="font-size:20px;font-weight:900;color:var(--t1);font-family:var(--fd);letter-spacing:-.3px">Habit</span>
+    <span style="font-size:20px;font-weight:900;color:var(--t1);font-family:var(--fd);letter-spacing:-.3px">Habits</span>
     <span style="font-size:11px;color:var(--t3);font-weight:500">Track streaks, consistency & daily rituals</span>
   </div>`;
   left += ahScoreBanner('habits', dates);
@@ -8350,6 +9010,10 @@ let lookColors = {
   energy:'#FF6B35', activity:'#3B82F6', workout:'#8B5CF6',
   vitals:'#EF4444', sleep:'#6366F1', body:'#06B6D4',
   nutrition:'#10B981', screen:'#F59E0B', habits:'#EC4899',
+  // Activity ring light (target reached) / dark (elite) colours
+  ringMoveLight:'#FFB3C1', ringMoveDark:'#D81B60',
+  ringExerLight:'#88FC03', ringExerDark:'#77C71C',
+  ringStepsLight:'#00F5F5', ringStepsDark:'#38BABA',
 };
 let aiKeys = { claude:'', chatgpt:'', gemini:'' };
 let syncConfig = { url:'', secret:'' };
@@ -8399,6 +9063,7 @@ function renderStgPanel(id){
     paste:   renderStgPaste,
     custom:  renderStgCustom,
     looks:   renderStgLooks,
+    percentiles: renderStgPercentiles,
     data:    renderStgData,
     sync:    renderStgSync,
     gist:    renderStgGist,
@@ -8794,14 +9459,17 @@ const DOW_LABELS = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
 let schedCalYear  = new Date().getFullYear();
 let schedCalMonth = new Date().getMonth();
 
+// Active tab for Schedule panel
+let scheduleActiveTab = 'rest';
+
 function renderStgSchedule(){
+  loadWorkoutOpts();
   const sc = document.getElementById('stg-content');
-  sc.innerHTML = '<div class="stg-panel on" id="sp-schedule">'
-    +'<div class="stg-panel-title">📅Schedule</div>'
-    +'<div class="stg-panel-sub">Set reduced targets per day of the week, and mark rest/skip days. Affects Energy, Activity &amp; Workout only.</div>'
-    +'<div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);padding:14px;margin-bottom:16px">'
-    +'<div style="font-size:13px;font-weight:700;color:var(--t2);margin-bottom:6px">Day-of-week target %</div>'
-    +'<div style="font-size:11px;color:var(--t4);margin-bottom:12px">100% = normal. 50% on Sunday = all Energy/Activity/Workout targets halved that day.</div>'
+
+  // ── Day-of-week % row (always visible at top) ──
+  const dowRow = '<div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);padding:14px;margin-bottom:16px">'
+    +'<div style="font-size:13px;font-weight:700;color:var(--t2);margin-bottom:2px">📊 Day of Week %</div>'
+    +'<div style="font-size:11px;color:var(--t4);margin-bottom:12px">100% = normal targets. 50% on Sunday = all Energy / Activity / Workout targets halved that day.</div>'
     +'<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:6px">'
     +DOW_LABELS.map((lbl,i)=>'<div style="text-align:center">'
       +'<div style="font-size:10px;font-weight:700;color:var(--t3);margin-bottom:4px">'+lbl+'</div>'
@@ -8810,15 +9478,143 @@ function renderStgSchedule(){
       +'<div style="font-size:9px;color:var(--t4);margin-top:2px">%</div></div>').join('')
     +'</div>'
     +'<button class="stg-btn primary" style="margin-top:12px" onclick="saveDowTargets()">💾 Save Day Targets</button>'
-    +'</div>'
-    +'<div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);padding:14px">'
-    +'<div style="font-size:13px;font-weight:700;color:var(--t2);margin-bottom:4px">🛌 Rest / Skip Days</div>'
+    +'</div>';
+
+  // ── Workout Schedule (always visible below DOW) ──
+  const workoutSchedRow = (function(){
+    let html = '<div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);padding:14px;margin-bottom:16px">'
+      +'<div style="font-size:13px;font-weight:700;color:var(--t2);margin-bottom:2px">💪 Workout Schedule</div>'
+      +'<div style="font-size:10px;color:var(--t3);margin-bottom:10px">Toggled-off days are rest days for that exercise — streak free pass.</div>';
+    WORKOUT_EXERCISES.forEach(ex=>{
+      const sched=getWorkoutWeekDays(ex.key);
+      html+='<div style="display:flex;align-items:center;gap:6px;margin-bottom:6px">'
+        +'<span style="width:60px;font-size:10px;color:var(--t2);display:flex;align-items:center;gap:4px;flex-shrink:0">'+_iconImg(ICON_URLS[ex.icon],12)+' '+ex.label+'</span>'
+        +'<div style="display:flex;gap:3px;flex:1">'
+        +DOW_LABELS_SHORT.map((d,i)=>{
+          const on=!!sched[i];
+          return '<button onclick="toggleWorkoutWeekDay(\''+ex.key+'\','+i+')"'
+            +' style="flex:1;padding:3px 0;border-radius:5px;font-size:9px;font-weight:700;cursor:pointer;'
+            +'background:'+(on?'linear-gradient(135deg,var(--accent),var(--accent2))':'var(--surface3)')+';'
+            +'color:'+(on?'#fff':'var(--t4)')+';border:'+(on?'none':'1px solid var(--border)')+'">'+d+'</button>';
+        }).join('')
+        +'</div></div>';
+    });
+    html+='</div>';
+    return html;
+  })();
+
+  // ── 4-tab section ──
+  const tabs = [
+    {id:'rest',     label:'🛌 Rest Skip Days'},
+    {id:'energy',   label:'🔋 Energy Opt Out'},
+    {id:'activity', label:'🏃 Activity Opt Out'},
+    {id:'workout',  label:'💪 Workout Opt Out'},
+  ];
+
+  // 2×2 grid tab bar for 4 tabs
+  const tabBar = '<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:14px" id="sched-tab-bar">'
+    +tabs.map(t=>'<button onclick="switchScheduleTab(\''+t.id+'\')" id="sched-tab-btn-'+t.id+'"'
+      +' style="padding:8px 4px;border-radius:var(--rs);font-size:11px;font-weight:700;cursor:pointer;border:1px solid var(--border2);'
+      +'transition:all .15s;font-family:var(--fb);'
+      +(scheduleActiveTab===t.id
+        ?'background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;border-color:transparent;'
+        :'background:var(--surface2);color:var(--t3);')
+      +'">'+t.label+'</button>').join('')
+    +'</div>';
+
+  // ── Tab content panels ──
+  const panelRest = '<div id="sched-tab-rest" style="display:'+(scheduleActiveTab==='rest'?'block':'none')+'">'
     +'<div style="font-size:11px;color:var(--t4);margin-bottom:10px">Click a day to mark it as a rest day. Streaks unaffected, targets not scored.</div>'
     +'<div id="sched-cal-wrap"></div>'
     +'<button class="stg-btn" style="margin-top:10px" onclick="clearAllRestDays()">✕ Clear all rest days</button>'
+    +'</div>';
+
+  const panelEnergy = '<div id="sched-tab-energy" style="display:'+(scheduleActiveTab==='energy'?'block':'none')+'">'
+    +'<div style="font-size:11px;color:var(--t4);margin-bottom:10px">Tap any day to cycle its credit percentage. Skip days don\'t break streaks.</div>'
+    +'<div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:10px">'
+    +'<span style="font-size:9px;padding:2px 8px;border-radius:8px;background:rgba(239,68,68,.15);color:var(--danger);font-weight:700">✕ Skip</span>'
+    +'<span style="font-size:9px;padding:2px 8px;border-radius:8px;background:rgba(245,158,11,.15);color:var(--warn);font-weight:700">25%</span>'
+    +'<span style="font-size:9px;padding:2px 8px;border-radius:8px;background:rgba(245,158,11,.12);color:var(--warn);font-weight:600">50%</span>'
+    +'<span style="font-size:9px;padding:2px 8px;border-radius:8px;background:rgba(245,158,11,.09);color:var(--warn);font-weight:500">75%</span>'
+    +'<span style="font-size:9px;padding:2px 8px;border-radius:8px;background:var(--surface2);color:var(--t3)">100%</span>'
     +'</div>'
-    +"</div>";
-  renderSchedCal();
+    +'<div id="energy-opt-cal-wrap"></div>'
+    +'<button class="stg-btn" style="margin-top:10px" onclick="clearAllEnergyOpts()">✕ Reset all energy opt-outs</button>'
+    +'</div>';
+
+  const panelActivity = '<div id="sched-tab-activity" style="display:'+(scheduleActiveTab==='activity'?'block':'none')+'">'
+    +'<div style="font-size:11px;color:var(--t4);margin-bottom:10px">Tap any day to cycle its credit percentage. Skip days don\'t break streaks.</div>'
+    +'<div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:10px">'
+    +'<span style="font-size:9px;padding:2px 8px;border-radius:8px;background:rgba(239,68,68,.15);color:var(--danger);font-weight:700">✕ Skip</span>'
+    +'<span style="font-size:9px;padding:2px 8px;border-radius:8px;background:rgba(245,158,11,.15);color:var(--warn);font-weight:700">25%</span>'
+    +'<span style="font-size:9px;padding:2px 8px;border-radius:8px;background:rgba(245,158,11,.12);color:var(--warn);font-weight:600">50%</span>'
+    +'<span style="font-size:9px;padding:2px 8px;border-radius:8px;background:rgba(245,158,11,.09);color:var(--warn);font-weight:500">75%</span>'
+    +'<span style="font-size:9px;padding:2px 8px;border-radius:8px;background:var(--surface2);color:var(--t3)">100%</span>'
+    +'</div>'
+    +'<div id="activity-opt-cal-wrap"></div>'
+    +'<button class="stg-btn" style="margin-top:10px" onclick="clearAllActivityOpts()">✕ Reset all activity opt-outs</button>'
+    +'</div>';
+
+  const panelWorkout = '<div id="sched-tab-workout" style="display:'+(scheduleActiveTab==='workout'?'block':'none')+'">'
+    +'<div style="font-size:11px;color:var(--t4);margin-bottom:10px">Tap a day to set per-exercise credit. Opt-out days don\'t break streaks.</div>'
+    +'<div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:10px">'
+    +'<span style="font-size:9px;padding:2px 8px;border-radius:8px;background:rgba(239,68,68,.15);color:var(--danger);font-weight:700">✕ Skip</span>'
+    +'<span style="font-size:9px;padding:2px 8px;border-radius:8px;background:rgba(245,158,11,.15);color:var(--warn);font-weight:700">Partial</span>'
+    +'<span style="font-size:9px;padding:2px 8px;border-radius:8px;background:var(--surface2);color:var(--t3)">Normal</span>'
+    +'</div>'
+    +'<div id="workout-opt-cal-wrap"></div>'
+    +'<div id="workout-day-panel" style="display:none;margin-top:10px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);padding:10px 12px"></div>'
+    +'<button class="stg-btn" style="margin-top:10px" onclick="workoutOptDays={};saveWorkoutOpts();renderStgSchedule();showToast(\'Workout opt-outs cleared\')">✕ Reset all workout opt-outs</button>'
+    +'</div>';
+
+  sc.innerHTML = '<div class="stg-panel on" id="sp-schedule">'
+    +'<div class="stg-panel-title">📅 Schedule</div>'
+    +'<div class="stg-panel-sub">Configure day-of-week targets, workout schedule, and opt-out calendars. Affects Energy, Activity &amp; Workout scoring.</div>'
+    + dowRow
+    + workoutSchedRow
+    + '<div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);padding:14px">'
+    + tabBar
+    + panelRest
+    + panelEnergy
+    + panelActivity
+    + panelWorkout
+    +'</div>'
+    +'</div>';
+
+  // Render the active tab's calendar
+  if(scheduleActiveTab === 'rest')     renderSchedCal();
+  else if(scheduleActiveTab === 'energy')   requestAnimationFrame(renderEnergyOptCalendar);
+  else if(scheduleActiveTab === 'activity') requestAnimationFrame(renderActivityOptCalendar);
+  else if(scheduleActiveTab === 'workout')  requestAnimationFrame(renderWorkoutOptCalendar);
+}
+
+function switchScheduleTab(tabId){
+  scheduleActiveTab = tabId;
+  // Update tab button styles
+  ['rest','energy','activity','workout'].forEach(id=>{
+    const btn = document.getElementById('sched-tab-btn-'+id);
+    if(!btn) return;
+    if(id === tabId){
+      btn.style.background='linear-gradient(135deg,var(--accent),var(--accent2))';
+      btn.style.color='#fff';
+      btn.style.borderColor='transparent';
+    } else {
+      btn.style.background='var(--surface2)';
+      btn.style.color='var(--t3)';
+      btn.style.borderColor='var(--border2)';
+    }
+  });
+  // Show/hide panels
+  const panels = {rest:'sched-tab-rest', energy:'sched-tab-energy', activity:'sched-tab-activity', workout:'sched-tab-workout'};
+  Object.entries(panels).forEach(([id,elId])=>{
+    const el = document.getElementById(elId);
+    if(el) el.style.display = id===tabId?'block':'none';
+  });
+  // Render the calendar for the newly shown tab
+  if(tabId==='rest')     renderSchedCal();
+  else if(tabId==='energy')   requestAnimationFrame(renderEnergyOptCalendar);
+  else if(tabId==='activity') requestAnimationFrame(renderActivityOptCalendar);
+  else if(tabId==='workout')  requestAnimationFrame(renderWorkoutOptCalendar);
 }
 
 function renderSchedCal(){
@@ -9264,9 +10060,15 @@ function deleteCustomField(i){
 // 4. CUSTOMISE LOOKS
 // ═══════════════════════════════════════════════
 const COLOR_DEFS = [
-  {key:'move',      label:'Move / Active Cal Ring',    cat:'rings'},
-  {key:'steps',     label:'Steps Ring',                cat:'rings'},
-  {key:'exercise',  label:'Exercise Ring',             cat:'rings'},
+  {key:'move',      label:'Move / Active Cal Ring (CSS var)',    cat:'rings'},
+  {key:'steps',     label:'Steps Ring (CSS var)',                cat:'rings'},
+  {key:'exercise',  label:'Exercise Ring (CSS var)',             cat:'rings'},
+  {key:'ringMoveLight',  label:'Move — Target Reached',          cat:'ringtheme'},
+  {key:'ringMoveDark',   label:'Move — Elite Achievement',       cat:'ringtheme'},
+  {key:'ringExerLight',  label:'Exercise — Target Reached',      cat:'ringtheme'},
+  {key:'ringExerDark',   label:'Exercise — Elite Achievement',   cat:'ringtheme'},
+  {key:'ringStepsLight', label:'Steps — Target Reached',         cat:'ringtheme'},
+  {key:'ringStepsDark',  label:'Steps — Elite Achievement',      cat:'ringtheme'},
   {key:'accent',    label:'Primary Accent',            cat:'ui'},
   {key:'accent2',   label:'Secondary Accent',          cat:'ui'},
   {key:'energy',    label:'Energy Category',           cat:'cats'},
@@ -9284,11 +10086,18 @@ function renderStgLooks(){
   const sc = document.getElementById('stg-content');
   const catGroups = {};
   COLOR_DEFS.forEach(cd => { catGroups[cd.cat] = catGroups[cd.cat]||[]; catGroups[cd.cat].push(cd); });
-  const catLabels = {rings:'Activity Rings',ui:'UI Colours',cats:'Category Colours'};
+  const catLabels = {rings:'Activity Ring CSS Vars',ringtheme:'Activity Ring Colours — Light (Target) / Dark (Elite)',ui:'UI Colours',cats:'Category Colours'};
 
   let colorsHTML = '';
   Object.keys(catGroups).forEach(cat => {
     colorsHTML += '<div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--t3);padding:12px 0 6px">'+(catLabels[cat]||cat)+'</div>';
+    if(cat === 'ringtheme'){
+      colorsHTML += '<div style="font-size:11px;color:var(--t3);background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);padding:10px 12px;margin-bottom:10px;line-height:1.6">' +
+        '🌤️ <strong>Light colour</strong> — shown when you\'ve hit your daily target (100%)<br>' +
+        '🏆 <strong>Dark colour</strong> — shown when you\'ve reached elite achievement (your hi target)<br>' +
+        'Hit <em>Apply Colours</em> below to see changes on the dashboard.' +
+        '</div>';
+    }
     colorsHTML += catGroups[cat].map(cd =>
       '<div class="color-row">' +
         '<div class="color-label">'+cd.label+'</div>' +
@@ -9456,6 +10265,8 @@ function applyLookColors(){
   Object.keys(map).forEach(k => {
     if(lookColors[k]) document.documentElement.style.setProperty(map[k], lookColors[k]);
   });
+  // Re-render rings so the new light/dark colours take effect immediately
+  if(typeof renderDashboard === 'function') renderDashboard();
   showToast('✅ Colours applied');
 }
 
@@ -9467,9 +10278,13 @@ function resetLookColors(){
     energy:'#FF6B35',activity:'#3B82F6',workout:'#8B5CF6',
     vitals:'#EF4444',sleep:'#6366F1',body:'#06B6D4',
     nutrition:'#10B981',screen:'#F59E0B',habits:'#EC4899',
+    ringMoveLight:'#FFB3C1', ringMoveDark:'#D81B60',
+    ringExerLight:'#88FC03', ringExerDark:'#77C71C',
+    ringStepsLight:'#00F5F5', ringStepsDark:'#38BABA',
   };
   saveStgState();
   renderStgLooks();
+  if(typeof renderDashboard === 'function') renderDashboard();
   showToast('↩ Colours reset');
 }
 
@@ -10990,11 +11805,153 @@ function getGlobalPercentile(metric, value) {
 }
 
 // ═══════════════════════════════════════════════
+// GLOBAL PERCENTILE SETTINGS
+// ═══════════════════════════════════════════════
+let customGlobalPercentiles = null;
+
+function loadGlobalPercentilesSettings(){
+  try {
+    const stored = localStorage.getItem('ws2_global_percentiles');
+    if(stored) customGlobalPercentiles = JSON.parse(stored);
+  } catch(e) {
+    console.warn('Failed to load percentiles:', e);
+  }
+}
+
+function saveGlobalPercentilesSettings(){
+  if(customGlobalPercentiles){
+    localStorage.setItem('ws2_global_percentiles', JSON.stringify(customGlobalPercentiles));
+    // Update the active percentiles
+    Object.keys(customGlobalPercentiles).forEach(metric => {
+      if(GLOBAL_PERCENTILES[metric]){
+        GLOBAL_PERCENTILES[metric] = customGlobalPercentiles[metric];
+      }
+    });
+    showToast('✅ Global percentiles saved');
+  }
+}
+
+function resetGlobalPercentilestoDefaults(){
+  if(confirm('Reset all global percentiles to defaults? This cannot be undone.')){
+    customGlobalPercentiles = null;
+    localStorage.removeItem('ws2_global_percentiles');
+    showToast('✅ Reset to defaults');
+    renderStgPercentiles();
+    renderDashboard();
+  }
+}
+
+function exportGlobalPercentiles(){
+  const data = customGlobalPercentiles || GLOBAL_PERCENTILES;
+  const json = JSON.stringify(data, null, 2);
+  const blob = new Blob([json], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `wellstat-percentiles-${new Date().toISOString().slice(0,10)}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('📥 Percentiles exported');
+}
+
+function importGlobalPercentiles(file){
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const data = JSON.parse(e.target.result);
+      customGlobalPercentiles = data;
+      saveGlobalPercentilesSettings();
+      renderStgPercentiles();
+      renderDashboard();
+      showToast('✅ Percentiles imported');
+    } catch(err){
+      showToast('❌ Invalid JSON file');
+    }
+  };
+  reader.readAsText(file);
+}
+
+function renderStgPercentiles(){
+  loadGlobalPercentilesSettings();
+  const data = customGlobalPercentiles || GLOBAL_PERCENTILES;
+  const sc = document.getElementById('stg-content');
+  
+  const metrics = Object.keys(data).sort();
+  const percentilesArray = [5, 10, 20, 30, 40, 50, 60, 70, 80, 90, 95, 96, 97, 98, 99, 99.1, 99.2, 99.3, 99.4, 99.5, 99.6, 99.7, 99.8, 99.9];
+  
+  let tableHtml = `<table style="width:100%;border-collapse:collapse;font-size:12px">
+    <thead>
+      <tr style="background:var(--surface2);border-bottom:1px solid var(--border)">
+        <th style="text-align:left;padding:8px;font-weight:700">Metric</th>
+        ${percentilesArray.map(p => `<th style="text-align:center;padding:4px;font-weight:600;font-size:10px">${p}</th>`).join('')}
+      </tr>
+    </thead>
+    <tbody>
+      ${metrics.map(metric => {
+        const metricData = data[metric];
+        return `<tr style="border-bottom:1px solid var(--border)">
+          <td style="padding:8px;font-weight:600;color:var(--t1);min-width:120px">${metric}</td>
+          ${percentilesArray.map(p => {
+            const val = metricData[p] !== undefined ? metricData[p] : '—';
+            return `<td style="padding:4px;text-align:center">
+              <input type="number" value="${val}" style="width:100%;padding:4px;border:1px solid var(--border);border-radius:4px;font-size:11px;text-align:center" 
+                onchange="updatePercentileValue('${metric}', ${p}, this.value)" 
+                ${val === '—' ? 'disabled style="background:var(--surface3)"' : ''}>
+            </td>`;
+          }).join('')}
+        </tr>`;
+      }).join('')}
+    </tbody>
+  </table>`;
+  
+  sc.innerHTML = `<div class="stg-panel on" id="sp-percentiles">
+    <div class="stg-panel-title">🌍 Global Health Percentiles</div>
+    <div class="stg-panel-sub">Edit global percentile benchmarks. Changes apply to all health metrics immediately.</div>
+    
+    <div style="margin-bottom:16px;display:flex;gap:8px;flex-wrap:wrap">
+      <button class="stg-btn primary" onclick="saveGlobalPercentilesSettings()">💾 Save Changes</button>
+      <button class="stg-btn" onclick="resetGlobalPercentilestoDefaults()">🔄 Reset to Defaults</button>
+      <button class="stg-btn" onclick="exportGlobalPercentiles()">📥 Export</button>
+      <button class="stg-btn" onclick="document.getElementById('import-percentiles-file').click()">📤 Import</button>
+      <input type="file" id="import-percentiles-file" accept=".json" style="display:none" onchange="importGlobalPercentiles(this.files[0])">
+    </div>
+    
+    <div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);padding:14px;margin-bottom:16px">
+      <div style="font-size:11px;color:var(--t3);line-height:1.6">
+        <strong>How to use:</strong><br>
+        • Edit values in the table to customize benchmarks<br>
+        • Lower values = better performance for reverse metrics (screen time)<br>
+        • Save your changes to apply them<br>
+        • Export/Import to backup or share your settings
+      </div>
+    </div>
+    
+    <div style="overflow-x:auto;max-height:600px;border:1px solid var(--border);border-radius:var(--rs);padding:0">
+      ${tableHtml}
+    </div>
+  </div>`;
+}
+
+function updatePercentileValue(metric, percentile, value){
+  if(!customGlobalPercentiles) customGlobalPercentiles = JSON.parse(JSON.stringify(GLOBAL_PERCENTILES));
+  if(!customGlobalPercentiles[metric]) customGlobalPercentiles[metric] = {};
+  const numValue = value === '' || value === null ? null : parseFloat(value);
+  if(numValue !== null && !isNaN(numValue)){
+    customGlobalPercentiles[metric][percentile] = numValue;
+  }
+}
+
+// ═══════════════════════════════════════════════
 // HOOK SETTINGS INTO showPage
 // ═══════════════════════════════════════════════
 const _showPage2 = window.showPage;
 window.showPage = function(id){
   _showPage2(id);
-  if(id==='settings') initSettings();
+  if(id==='settings') {
+    loadGlobalPercentilesSettings();
+    initSettings();
+  }
 };
 </script>
+</body>
+</html>
