@@ -16,8 +16,9 @@
 <meta name="theme-color" content="#EEF3FB" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#0D1117" media="(prefers-color-scheme: dark)">
 <title>WellStat</title>
-<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%230F172A'/><text y='24' x='4' font-size='22'>💪</text></svg>">
-<link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%230F172A'/><text y='24' x='4' font-size='22'>💪</text></svg>">
+<link rel="icon" type="image/png" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="manifest" href="manifest.json">
 
 <style>
 /* ── TOKENS ─────────────────────────────────── */
@@ -6410,7 +6411,7 @@ function energyOptCellClick(date){
 function clearAllEnergyOpts(){
   energyOptDays = {};
   saveSchedule();
-  renderEnergyOptCalendar();
+  renderUnifiedSchedCal();
   if(document.getElementById('ah-energy-content')) renderAHEnergy();
   renderDashboard();
   showToast('Energy opt-outs cleared');
@@ -6778,7 +6779,7 @@ function activityOptCellClick(date){
 function clearAllActivityOpts(){
   activityOptDays = {};
   saveSchedule();
-  renderActivityOptCalendar();
+  renderUnifiedSchedCal();
   if(document.getElementById('ah-activity-content')) renderAHActivity();
   renderDashboard();
   showToast('Activity opt-outs cleared');
@@ -9111,6 +9112,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
 .stg-layout {
   display:grid; grid-template-columns:200px 1fr; gap:16px;
   min-height:calc(100vh - 118px);
+  max-width:900px; margin:0 auto;
 }
 @media(max-width:700px){
   #stg-mobile-msg { display:flex!important; }
@@ -9808,62 +9810,34 @@ function renderStgSchedule(){
     return html;
   })();
 
-  // ── 4-tab section ──
-  const tabs = [
-    {id:'rest',     label:'🛌 Rest Skip Days'},
-    {id:'energy',   label:'🔋 Energy Opt Out'},
-    {id:'activity', label:'🏃 Activity Opt Out'},
-    {id:'workout',  label:'💪 Workout Opt Out'},
-  ];
-
-  // 2×2 grid tab bar for 4 tabs
-  const tabBar = '<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:14px" id="sched-tab-bar">'
-    +tabs.map(t=>'<button onclick="switchScheduleTab(\''+t.id+'\')" id="sched-tab-btn-'+t.id+'"'
-      +' style="padding:8px 4px;border-radius:var(--rs);font-size:11px;font-weight:700;cursor:pointer;border:1px solid var(--border2);'
-      +'transition:all .15s;font-family:var(--fb);'
-      +(scheduleActiveTab===t.id
-        ?'background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;border-color:transparent;'
-        :'background:var(--surface2);color:var(--t3);')
-      +'">'+t.label+'</button>').join('')
+  // ── Legend for unified calendar ──
+  const legend = '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;align-items:center">'
+    +'<span style="font-size:10px;font-weight:700;color:var(--t3)">Dots:</span>'
+    +'<span style="font-size:10px;display:flex;align-items:center;gap:3px;color:var(--t3)"><span style="width:7px;height:7px;border-radius:50%;background:#8B5CF6;display:inline-block"></span>Rest</span>'
+    +'<span style="font-size:10px;display:flex;align-items:center;gap:3px;color:var(--t3)"><span style="width:7px;height:7px;border-radius:50%;background:var(--warn);display:inline-block"></span>Energy</span>'
+    +'<span style="font-size:10px;display:flex;align-items:center;gap:3px;color:var(--t3)"><span style="width:7px;height:7px;border-radius:50%;background:var(--accent);display:inline-block"></span>Activity</span>'
+    +'<span style="font-size:10px;display:flex;align-items:center;gap:3px;color:var(--t3)"><span style="width:7px;height:7px;border-radius:50%;background:var(--danger);display:inline-block"></span>Workout</span>'
+    +'<span style="font-size:10px;color:var(--t4)">(filled = modified, faded = normal)</span>'
     +'</div>';
 
-  // ── Tab content panels ──
-  const panelRest = '<div id="sched-tab-rest" style="display:'+(scheduleActiveTab==='rest'?'block':'none')+'">'
-    +'<div style="font-size:11px;color:var(--t4);margin-bottom:10px">Click a day to mark it as a rest day. Streaks unaffected, targets not scored.</div>'
-    +'<div id="sched-cal-wrap"></div>'
-    +'<button class="stg-btn" style="margin-top:10px" onclick="clearAllRestDays()">✕ Clear all rest days</button>'
-    +'</div>';
-
-  const panelEnergy = '<div id="sched-tab-energy" style="display:'+(scheduleActiveTab==='energy'?'block':'none')+'">'
-    +'<div style="font-size:11px;color:var(--t4);margin-bottom:10px">Tap any day to cycle its credit percentage. Skip days don\'t break streaks.</div>'
-    +'<div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:10px">'
-    +'<span style="font-size:9px;padding:2px 8px;border-radius:8px;background:rgba(239,68,68,.15);color:var(--danger);font-weight:700">✕ Skip</span>'
-    +'<span style="font-size:9px;padding:2px 8px;border-radius:8px;background:rgba(245,158,11,.15);color:var(--warn);font-weight:700">25%</span>'
-    +'<span style="font-size:9px;padding:2px 8px;border-radius:8px;background:rgba(245,158,11,.12);color:var(--warn);font-weight:600">50%</span>'
-    +'<span style="font-size:9px;padding:2px 8px;border-radius:8px;background:rgba(245,158,11,.09);color:var(--warn);font-weight:500">75%</span>'
-    +'<span style="font-size:9px;padding:2px 8px;border-radius:8px;background:var(--surface2);color:var(--t3)">100%</span>'
+  const unifiedSection = '<div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);padding:14px">'
+    +'<div style="font-size:13px;font-weight:700;color:var(--t2);margin-bottom:4px">📅 Opt-Out Calendar</div>'
+    +'<div style="font-size:11px;color:var(--t4);margin-bottom:12px">Click any day to set Rest, Energy, Activity &amp; Workout opt-outs all in one place.</div>'
+    + legend
+    +'<div style="max-width:420px;margin:0 auto"><div id="unified-sched-cal-wrap"></div></div>'
+    +'<div id="unified-day-panel" style="display:none;margin-top:12px;background:var(--surface);border:1px solid var(--border2);border-radius:var(--rs);padding:12px 14px"></div>'
+    +'<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px">'
+    +'<button class="stg-btn" onclick="clearAllRestDays()">✕ Clear rest days</button>'
+    +'<button class="stg-btn" onclick="clearAllEnergyOpts()">✕ Clear energy</button>'
+    +'<button class="stg-btn" onclick="clearAllActivityOpts()">✕ Clear activity</button>'
+    +'<button class="stg-btn" onclick="workoutOptDays={};saveWorkoutOpts();renderUnifiedSchedCal();showToast(\'Workout opt-outs cleared\')">✕ Clear workout</button>'
     +'</div>'
-    +'<div id="energy-opt-cal-wrap"></div>'
-    +'<button class="stg-btn" style="margin-top:10px" onclick="clearAllEnergyOpts()">✕ Reset all energy opt-outs</button>'
     +'</div>';
 
-  const panelActivity = '<div id="sched-tab-activity" style="display:'+(scheduleActiveTab==='activity'?'block':'none')+'">'
-    +'<div style="font-size:11px;color:var(--t4);margin-bottom:10px">Tap any day to cycle its credit percentage. Skip days don\'t break streaks.</div>'
-    +'<div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:10px">'
-    +'<span style="font-size:9px;padding:2px 8px;border-radius:8px;background:rgba(239,68,68,.15);color:var(--danger);font-weight:700">✕ Skip</span>'
-    +'<span style="font-size:9px;padding:2px 8px;border-radius:8px;background:rgba(245,158,11,.15);color:var(--warn);font-weight:700">25%</span>'
-    +'<span style="font-size:9px;padding:2px 8px;border-radius:8px;background:rgba(245,158,11,.12);color:var(--warn);font-weight:600">50%</span>'
-    +'<span style="font-size:9px;padding:2px 8px;border-radius:8px;background:rgba(245,158,11,.09);color:var(--warn);font-weight:500">75%</span>'
-    +'<span style="font-size:9px;padding:2px 8px;border-radius:8px;background:var(--surface2);color:var(--t3)">100%</span>'
-    +'</div>'
-    +'<div id="activity-opt-cal-wrap"></div>'
-    +'<button class="stg-btn" style="margin-top:10px" onclick="clearAllActivityOpts()">✕ Reset all activity opt-outs</button>'
-    +'</div>';
-
-  const panelWorkout = '<div id="sched-tab-workout" style="display:'+(scheduleActiveTab==='workout'?'block':'none')+'">'
-    +'<div style="font-size:11px;color:var(--t4);margin-bottom:10px">Tap a day to set per-exercise credit. Opt-out days don\'t break streaks.</div>'
-    +'<div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:10px">'
-    +'<span style="font-size:9px;padding:2px 8px;border-radius:8px;background:rgba(239,68,68,.15);color:var(--danger);font-weight:700">✕ Skip</span>'
+  // DEAD CODE kept for compat (tabs no longer rendered):
+  const panelWorkout = '<div id="sched-tab-workout" style="display:none">'
+    +'<div id="workout-opt-cal-wrap"></div>'
+    +'<div id="workout-day-panel" style="display:none"></div>'
     +'<span style="font-size:9px;padding:2px 8px;border-radius:8px;background:rgba(245,158,11,.15);color:var(--warn);font-weight:700">Partial</span>'
     +'<span style="font-size:9px;padding:2px 8px;border-radius:8px;background:var(--surface2);color:var(--t3)">Normal</span>'
     +'</div>'
@@ -9877,20 +9851,11 @@ function renderStgSchedule(){
     +'<div class="stg-panel-sub">Configure day-of-week targets, workout schedule, and opt-out calendars. Affects Energy, Activity &amp; Workout scoring.</div>'
     + dowRow
     + workoutSchedRow
-    + '<div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);padding:14px">'
-    + tabBar
-    + panelRest
-    + panelEnergy
-    + panelActivity
-    + panelWorkout
-    +'</div>'
+    + unifiedSection
     +'</div>';
 
-  // Render the active tab's calendar
-  if(scheduleActiveTab === 'rest')     renderSchedCal();
-  else if(scheduleActiveTab === 'energy')   requestAnimationFrame(renderEnergyOptCalendar);
-  else if(scheduleActiveTab === 'activity') requestAnimationFrame(renderActivityOptCalendar);
-  else if(scheduleActiveTab === 'workout')  requestAnimationFrame(renderWorkoutOptCalendar);
+  // Render the unified calendar
+  requestAnimationFrame(renderUnifiedSchedCal);
 }
 
 function switchScheduleTab(tabId){
@@ -9969,8 +9934,153 @@ function clearAllRestDays(){
   if(!confirm('Clear all rest days?')) return;
   restDays = {};
   saveSchedule();
-  renderStgSchedule();
+  renderUnifiedSchedCal();
   showToast('✕ Rest days cleared');
+}
+
+// ── Unified opt-out calendar (single calendar for all 4 types) ──
+let unifiedCalYear  = new Date().getFullYear();
+let unifiedCalMonth = new Date().getMonth();
+
+function renderUnifiedSchedCal(){
+  const MONTHS_LBL = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  const DOW_SHORT = ['Su','Mo','Tu','We','Th','Fr','Sa'];
+  const today = new Date().toISOString().split('T')[0];
+  const firstDay = new Date(unifiedCalYear, unifiedCalMonth, 1).getDay();
+  const daysInMonth = new Date(unifiedCalYear, unifiedCalMonth+1, 0).getDate();
+
+  let cells = DOW_SHORT.map(d=>`<div style="text-align:center;font-size:9px;font-weight:700;color:var(--t4);padding-bottom:4px">${d}</div>`).join('');
+  for(let i=0;i<firstDay;i++) cells += '<div></div>';
+
+  for(let d=1;d<=daysInMonth;d++){
+    const ds = unifiedCalYear+'-'+String(unifiedCalMonth+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');
+    const isRest   = !!restDays[ds];
+    const ePct     = getEnergyOptPct(ds);
+    const aPct     = getActivityOptPct(ds);
+    const anyWkOpt = WORKOUT_EXERCISES.some(ex=>getWorkoutOptPct(ex.key,ds)<100);
+    const isToday  = ds===today;
+    const hasData  = !!(allData[ds] && Object.keys(allData[ds]).length);
+
+    // Build 4 dots
+    const dotRest    = isRest                         ? '<span style="width:5px;height:5px;border-radius:50%;background:#8B5CF6;display:inline-block;flex-shrink:0"></span>' : '<span style="width:5px;height:5px;border-radius:50%;background:var(--border2);display:inline-block;flex-shrink:0;opacity:0.35"></span>';
+    const dotEnergy  = ePct<100                       ? '<span style="width:5px;height:5px;border-radius:50%;background:'+(ePct===0?'var(--danger)':'var(--warn)')+';display:inline-block;flex-shrink:0"></span>' : '<span style="width:5px;height:5px;border-radius:50%;background:var(--border2);display:inline-block;flex-shrink:0;opacity:0.35"></span>';
+    const dotActivity= aPct<100                       ? '<span style="width:5px;height:5px;border-radius:50%;background:'+(aPct===0?'var(--danger)':'var(--warn)')+';display:inline-block;flex-shrink:0"></span>' : '<span style="width:5px;height:5px;border-radius:50%;background:var(--border2);display:inline-block;flex-shrink:0;opacity:0.35"></span>';
+    const dotWorkout = anyWkOpt                       ? '<span style="width:5px;height:5px;border-radius:50%;background:var(--danger);display:inline-block;flex-shrink:0"></span>' : '<span style="width:5px;height:5px;border-radius:50%;background:var(--border2);display:inline-block;flex-shrink:0;opacity:0.35"></span>';
+
+    const hasAnyOpt = isRest || ePct<100 || aPct<100 || anyWkOpt;
+    const dayColor = isToday ? 'var(--accent)' : hasData ? 'var(--t1)' : 'var(--t3)';
+    const border = isToday ? '2px solid var(--accent)' : hasAnyOpt ? '1px solid var(--border2)' : 'none';
+    const bg = hasAnyOpt ? 'var(--surface3)' : 'transparent';
+    const fw = hasData || hasAnyOpt ? '700' : '400';
+
+    cells += `<button onclick="unifiedDayClick('${ds}')"
+      style="padding:2px 1px;border-radius:5px;cursor:pointer;background:${bg};border:${border};width:100%;font-family:var(--fb);transition:all .12s;display:flex;flex-direction:column;align-items:center;gap:2px"
+      title="Click to edit opt-outs for ${ds}">
+      <span style="font-size:11px;font-weight:${fw};color:${dayColor};line-height:1.2">${d}</span>
+      <div style="display:flex;gap:2px;justify-content:center">${dotRest}${dotEnergy}${dotActivity}${dotWorkout}</div>
+    </button>`;
+  }
+
+  const wrap = document.getElementById('unified-sched-cal-wrap');
+  if(!wrap) return;
+  wrap.innerHTML = `
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+      <button onclick="unifiedCalPrev()" style="width:24px;height:24px;border-radius:7px;background:var(--surface2);border:1px solid var(--border);color:var(--t3);font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center">‹</button>
+      <span style="font-family:var(--fd);font-size:13px;font-weight:700;color:var(--t1)">${MONTHS_LBL[unifiedCalMonth]} ${unifiedCalYear}</span>
+      <button onclick="unifiedCalNext()" style="width:24px;height:24px;border-radius:7px;background:var(--surface2);border:1px solid var(--border);color:var(--t3);font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center">›</button>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:3px">${cells}</div>`;
+}
+
+function unifiedCalPrev(){ unifiedCalMonth--; if(unifiedCalMonth<0){unifiedCalMonth=11;unifiedCalYear--;} renderUnifiedSchedCal(); }
+function unifiedCalNext(){ unifiedCalMonth++; if(unifiedCalMonth>11){unifiedCalMonth=0;unifiedCalYear++;} renderUnifiedSchedCal(); }
+
+function unifiedDayClick(date){
+  const panel = document.getElementById('unified-day-panel');
+  if(!panel) return;
+
+  const isRest = !!restDays[date];
+  const ePct   = getEnergyOptPct(date);
+  const aPct   = getActivityOptPct(date);
+  const eCycle = [100,0,25,50,75];
+  const aCycle = [100,0,25,50,75];
+
+  function pctLabel(p){ return p===0?'<span style="color:var(--danger);font-weight:700">Skip (0%)</span>':p===100?'<span style="color:var(--good);font-weight:600">Normal</span>':'<span style="color:var(--warn);font-weight:700">'+p+'%</span>'; }
+
+  let html = `<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid var(--border)">
+    <span style="font-size:12px;font-weight:700;color:var(--t1)">📅 ${date}</span>
+    <button onclick="document.getElementById('unified-day-panel').style.display='none'" style="font-size:11px;color:var(--t4);background:none;border:none;cursor:pointer;padding:2px 6px">✕</button>
+  </div>`;
+
+  // Rest toggle
+  html += `<div style="display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border)">
+    <span style="font-size:11px;color:var(--t2);display:flex;align-items:center;gap:6px"><span style="width:8px;height:8px;border-radius:50%;background:#8B5CF6;display:inline-block"></span>🛌 Rest Day</span>
+    <button onclick="toggleRestDayUnified('${date}')" style="font-size:10px;font-weight:700;padding:3px 12px;border-radius:8px;border:1px solid var(--border);background:var(--surface);color:${isRest?'#8B5CF6':'var(--t3)'};cursor:pointer">${isRest?'✓ Rest':'Off'}</button>
+  </div>`;
+
+  // Energy opt
+  html += `<div style="display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border)">
+    <span style="font-size:11px;color:var(--t2);display:flex;align-items:center;gap:6px"><span style="width:8px;height:8px;border-radius:50%;background:#F59E0B;display:inline-block"></span>🔋 Energy</span>
+    <button onclick="cycleEnergyOptUnified('${date}')" style="font-size:10px;font-weight:700;padding:3px 12px;border-radius:8px;border:1px solid var(--border);background:var(--surface);cursor:pointer">${pctLabel(ePct)}</button>
+  </div>`;
+
+  // Activity opt
+  html += `<div style="display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border)">
+    <span style="font-size:11px;color:var(--t2);display:flex;align-items:center;gap:6px"><span style="width:8px;height:8px;border-radius:50%;background:#3B82F6;display:inline-block"></span>🏃 Activity</span>
+    <button onclick="cycleActivityOptUnified('${date}')" style="font-size:10px;font-weight:700;padding:3px 12px;border-radius:8px;border:1px solid var(--border);background:var(--surface);cursor:pointer">${pctLabel(aPct)}</button>
+  </div>`;
+
+  // Workout per-exercise
+  html += `<div style="padding:7px 0">
+    <div style="font-size:11px;color:var(--t2);display:flex;align-items:center;gap:6px;margin-bottom:6px"><span style="width:8px;height:8px;border-radius:50%;background:#EF4444;display:inline-block"></span>💪 Workout</div>`;
+  WORKOUT_EXERCISES.forEach(ex=>{
+    const pct = getWorkoutOptPct(ex.key, date);
+    html += `<div style="display:flex;align-items:center;justify-content:space-between;padding:3px 0 3px 14px">
+      <span style="font-size:10px;color:var(--t3)">${ex.label}</span>
+      <button onclick="cycleWorkoutOptUnified('${ex.key}','${date}')" style="font-size:10px;font-weight:700;padding:2px 10px;border-radius:8px;border:1px solid var(--border);background:var(--surface);color:${pct===0?'var(--danger)':pct<100?'var(--warn)':'var(--t3)'};cursor:pointer">${pct===0?'Skip':pct<100?pct+'%':'Normal'}</button>
+    </div>`;
+  });
+  html += '</div>';
+
+  panel.innerHTML = html;
+  panel.style.display = 'block';
+}
+
+function toggleRestDayUnified(date){
+  if(restDays[date]) delete restDays[date]; else restDays[date]=true;
+  saveSchedule();
+  renderUnifiedSchedCal();
+  unifiedDayClick(date);
+  renderDashboard();
+}
+
+function cycleEnergyOptUnified(date){
+  const cycle=[100,0,25,50,75];
+  const cur=getEnergyOptPct(date);
+  setEnergyOptDay(date, cycle[(cycle.indexOf(cur)+1)%cycle.length]);
+  renderUnifiedSchedCal();
+  unifiedDayClick(date);
+  if(document.getElementById('ah-energy-content')) renderAHEnergy();
+  renderDashboard();
+}
+
+function cycleActivityOptUnified(date){
+  const cycle=[100,0,25,50,75];
+  const cur=getActivityOptPct(date);
+  setActivityOptDay(date, cycle[(cycle.indexOf(cur)+1)%cycle.length]);
+  renderUnifiedSchedCal();
+  unifiedDayClick(date);
+  if(document.getElementById('ah-activity-content')) renderAHActivity();
+  renderDashboard();
+}
+
+function cycleWorkoutOptUnified(exKey, date){
+  const cycle=[100,0,25,50,75];
+  const cur=getWorkoutOptPct(exKey,date);
+  setWorkoutOptDay(exKey,date,cycle[(cycle.indexOf(cur)+1)%cycle.length]);
+  renderUnifiedSchedCal();
+  unifiedDayClick(date);
+  if(document.getElementById('ah-workout-content')) renderAHWorkout();
 }
 
 // ═══════════════════════════════════════════════
