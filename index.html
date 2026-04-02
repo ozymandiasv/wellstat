@@ -2051,8 +2051,18 @@ function generateLocalInsights(catId, dates){
     return diff > 0.05 ? 'up' : diff < -0.05 ? 'down' : 'stable';
   }
   function streak(key){ // how many consecutive days has key been logged >0
-    const allD = allDates().slice().reverse();
-    let s=0; for(const d of allD){ const v=computeAllFields(getEntry(d))[key]; if(v!=null&&v>0) s++; else break; } return s;
+    const allD = allDates().sort();
+    if(!allD.length) return 0;
+    const today2 = new Date().toISOString().split('T')[0];
+    const first  = allD[0];
+    // build contiguous range through today so missing-data days don't silently extend streak
+    const range = [];
+    for(let d=new Date(first+'T00:00:00'), end=new Date(today2+'T00:00:00'); d<=end; d.setDate(d.getDate()+1)){
+      range.push(d.toISOString().split('T')[0]);
+    }
+    let s=0;
+    for(let i=range.length-1;i>=0;i--){ const v=computeAllFields(getEntry(range[i]))[key]; if(v!=null&&v>0) s++; else break; }
+    return s;
   }
   function v(key){ return e[key]||0; }
 
@@ -3272,10 +3282,15 @@ function renderDashboard(){
   // Helper: simple streak for a key (non-zero)
   function simpleStreak(key){
     const allD2 = allDates().sort(); if(!allD2.length) return 0;
+    const todayS = new Date().toISOString().split('T')[0];
+    const range2 = [];
+    for(let d=new Date(allD2[0]+'T00:00:00'), end=new Date(todayS+'T00:00:00'); d<=end; d.setDate(d.getDate()+1)){
+      range2.push(d.toISOString().split('T')[0]);
+    }
     let s=0;
-    for(let i=allD2.length-1;i>=0;i--){
-      if(isRestDay&&isRestDay(allD2[i])){ s++; continue; }
-      const v=computeAllFields(getEntry(allD2[i]))[key];
+    for(let i=range2.length-1;i>=0;i--){
+      if(isRestDay&&isRestDay(range2[i])){ s++; continue; }
+      const v=computeAllFields(getEntry(range2[i]))[key];
       if(v!=null&&v>0) s++; else break;
     }
     return s;
@@ -8548,12 +8563,11 @@ function buildStreakCalendar(rowDefs, nDays){
     days.push(d.toISOString().split('T')[0]);
   }
 
-  // All dates ever (for longest streak calc) — end at last data date, not today
+  // All dates ever (for longest streak calc) — end at today so current day is always included
   const allHistDates = [];
   if(allD.length){
-    const first   = new Date(allD[0]+'T00:00:00');
-    const lastStr = allD[allD.length-1];
-    const last    = new Date(lastStr+'T00:00:00');
+    const first = new Date(allD[0]+'T00:00:00');
+    const last  = new Date(todayStr+'T00:00:00'); // always extend through today
     for(let d=new Date(first); d<=last; d.setDate(d.getDate()+1)){
       allHistDates.push(d.toISOString().split('T')[0]);
     }
@@ -8712,16 +8726,24 @@ function buildHabitWidget(key, label, iconHtml, doneFunc, startDate, endDate){
 
   const activeDates = allD.filter(d => (!startDate||d>=startDate) && (!endDate||d<=endDate));
 
+  // Build a contiguous date range from earliest active date through today
+  // so gaps (days with no logged data at all) don't falsely break the streak
+  const firstActiveDate = activeDates.length ? activeDates[0] : today;
+  const contiguousDates = [];
+  for(let d=new Date(firstActiveDate+'T00:00:00'), end=new Date(today+'T00:00:00'); d<=end; d.setDate(d.getDate()+1)){
+    contiguousDates.push(d.toISOString().split('T')[0]);
+  }
+
   // Current streak
   let streak = 0, longestStreak = 0, cur = 0;
-  activeDates.forEach(d=>{
+  contiguousDates.forEach(d=>{
     const ok = doneFunc((allData[d]||{})[key], d);
     if(ok===true||ok===null){ cur++; } else { longestStreak=Math.max(longestStreak,cur); cur=0; }
   });
   longestStreak = Math.max(longestStreak, cur);
-  // streak from today backwards
-  for(let i=activeDates.length-1;i>=0;i--){
-    const ok = doneFunc((allData[activeDates[i]]||{})[key], activeDates[i]);
+  // streak from today backwards through contiguous range
+  for(let i=contiguousDates.length-1;i>=0;i--){
+    const ok = doneFunc((allData[contiguousDates[i]]||{})[key], contiguousDates[i]);
     if(ok===true||ok===null) streak++; else break;
   }
 
