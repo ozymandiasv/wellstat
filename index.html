@@ -1736,6 +1736,11 @@ workout_walk:[
   {key:'walk_best_pace',    label:'Walk Best Pace',   unit:'min/km',scored:false},
   {key:'walk_avg_pace',     label:'Walk Avg Pace',    unit:'min/km',scored:false},
   {key:'walk_spm',          label:'Walk Cadence',     unit:'spm',  bl:100, bh:130, bl2:80, bh2:150, scored:false, computed:true},
+  {key:'walk_z1_mins',      label:'Walk Zone 1',      unit:'min',  scored:false},
+  {key:'walk_z2_mins',      label:'Walk Zone 2',      unit:'min',  scored:false},
+  {key:'walk_z3_mins',      label:'Walk Zone 3',      unit:'min',  scored:false},
+  {key:'walk_z4_mins',      label:'Walk Zone 4',      unit:'min',  scored:false},
+  {key:'walk_z5_mins',      label:'Walk Zone 5',      unit:'min',  scored:false},
 ],
 workout_run:[
   {key:'run_distance',      label:'Run Distance',     unit:'km',   bl:5,   bh:null, bl2:1,   bh2:null, scored:true},
@@ -1744,6 +1749,11 @@ workout_run:[
   {key:'run_cadence',       label:'Run Cadence',      unit:'spm',  bl:170, bh:190,  bl2:140, bh2:220,  scored:false},
   {key:'run_best_pace',     label:'Run Best Pace',    unit:'min/km',scored:false},
   {key:'run_avg_pace',      label:'Run Avg Pace',     unit:'min/km',scored:false},
+  {key:'run_z1_mins',       label:'Run Zone 1',       unit:'min',  scored:false},
+  {key:'run_z2_mins',       label:'Run Zone 2',       unit:'min',  scored:false},
+  {key:'run_z3_mins',       label:'Run Zone 3',       unit:'min',  scored:false},
+  {key:'run_z4_mins',       label:'Run Zone 4',       unit:'min',  scored:false},
+  {key:'run_z5_mins',       label:'Run Zone 5',       unit:'min',  scored:false},
 ],
 workout_cycle:[
   {key:'cycle_distance',    label:'Cycle Distance',   unit:'km',   bl:15,  bh:null, bl2:5,   bh2:null, scored:true},
@@ -1751,8 +1761,20 @@ workout_cycle:[
   {key:'cycle_best_pace',   label:'Cycle Best Speed', unit:'km/h', scored:false},
   {key:'cycle_avg_pace',    label:'Cycle Avg Speed',  unit:'km/h', scored:false},
   {key:'cycle_cadence',     label:'Cycle Cadence',    unit:'rpm',  bl:80,  bh:100, bl2:60, bh2:120, scored:false, computed:true},
+  {key:'cycle_z1_mins',     label:'Cycle Zone 1',     unit:'min',  scored:false},
+  {key:'cycle_z2_mins',     label:'Cycle Zone 2',     unit:'min',  scored:false},
+  {key:'cycle_z3_mins',     label:'Cycle Zone 3',     unit:'min',  scored:false},
+  {key:'cycle_z4_mins',     label:'Cycle Zone 4',     unit:'min',  scored:false},
+  {key:'cycle_z5_mins',     label:'Cycle Zone 5',     unit:'min',  scored:false},
 ],
-workout_strength:[{key:'strength_training',label:'Strength',unit:'min',bl:45,bh:null,bl2:15,bh2:null,scored:true}],
+workout_strength:[
+  {key:'strength_training', label:'Strength',         unit:'min',  bl:45,  bh:null, bl2:15, bh2:null, scored:true},
+  {key:'str_z1_mins',       label:'Strength Zone 1',  unit:'min',  scored:false},
+  {key:'str_z2_mins',       label:'Strength Zone 2',  unit:'min',  scored:false},
+  {key:'str_z3_mins',       label:'Strength Zone 3',  unit:'min',  scored:false},
+  {key:'str_z4_mins',       label:'Strength Zone 4',  unit:'min',  scored:false},
+  {key:'str_z5_mins',       label:'Strength Zone 5',  unit:'min',  scored:false},
+],
 workout_yoga:    [{key:'yoga_duration',     label:'Yoga',    unit:'min',bl:30,bh:null,bl2:10,bh2:null,scored:true}],
 workout_other:   [{key:'other_activity',    label:'Other',   unit:'min',bl:20,bh:null,bl2:5, bh2:null,scored:true}],
 vitals:[
@@ -3846,10 +3868,10 @@ const COMPUTED_DEFS = [
 const LOG_SECTIONS = [
   {id:'energy',    label:'Energy',    keys:['google_fit_points','active_calories','resting_calories']},
   {id:'activity',  label:'Activity',  keys:['standing_mins','exercise_mins','steps','distance_foot','stairs_climbed']},
-  {id:'walk',      label:'Walk',      keys:['walk_distance','walk_elevation','walk_best_pace','walk_avg_pace']},
-  {id:'run',       label:'Run',       keys:['run_distance','run_elevation','run_avg_power','run_cadence','run_best_pace','run_avg_pace']},
-  {id:'cycle',     label:'Cycle',     keys:['cycle_distance','cycle_elevation','cycle_best_pace','cycle_avg_pace']},
-  {id:'strength',  label:'Strength',  keys:['strength_training','yoga_duration','other_activity']},
+  {id:'walk',      label:'Walk',      keys:['walk_distance','walk_elevation','walk_best_pace','walk_avg_pace','walk_z1_mins','walk_z2_mins','walk_z3_mins','walk_z4_mins','walk_z5_mins']},
+  {id:'run',       label:'Run',       keys:['run_distance','run_elevation','run_avg_power','run_cadence','run_best_pace','run_avg_pace','run_z1_mins','run_z2_mins','run_z3_mins','run_z4_mins','run_z5_mins']},
+  {id:'cycle',     label:'Cycle',     keys:['cycle_distance','cycle_elevation','cycle_best_pace','cycle_avg_pace','cycle_z1_mins','cycle_z2_mins','cycle_z3_mins','cycle_z4_mins','cycle_z5_mins']},
+  {id:'strength',  label:'Strength',  keys:['strength_training','yoga_duration','other_activity','str_z1_mins','str_z2_mins','str_z3_mins','str_z4_mins','str_z5_mins']},
   {id:'vitals',    label:'Vitals',    keys:['hr_high','hr_low','heart_rate','resting_hr','walking_hr','cardio_fitness','cardio_recovery','hrv','breath_high','breath_low','blood_oxygen_high','bp_systolic','bp_diastolic','blood_glucose']},
   {id:'mindful',   label:'Mindful',   keys:['surround_sound','daylight','mindful_mins','state_of_mind']},
   {id:'sleep',     label:'Sleep',     keys:['sleep_awake','sleep_rem','sleep_core','sleep_deep','asleep','total_sleep','sleep_score']},
@@ -4051,54 +4073,93 @@ function healthImportRun(){
 function parseHealthExport(raw){
   const entry = {};
 
+  // ── Date detection ──────────────────────────────────────────────────────────
   const MONTHS = {Jan:'01',Feb:'02',Mar:'03',Apr:'04',May:'05',Jun:'06',
                   Jul:'07',Aug:'08',Sep:'09',Oct:'10',Nov:'11',Dec:'12'};
   const tsMatch = raw.match(/(\d{1,2})\s+(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s+(\d{4})/);
   let date = null;
   if(tsMatch){
-    const dd = tsMatch[1].padStart(2,'0');
-    const mm = MONTHS[tsMatch[2]];
-    const yy = tsMatch[3];
+    const dd=tsMatch[1].padStart(2,'0'), mm=MONTHS[tsMatch[2]], yy=tsMatch[3];
     date = yy+'-'+mm+'-'+dd;
   }
+  if(!date){ const m=raw.match(/(\d{4}-\d{2}-\d{2})/); if(m) date=m[1]; }
 
-  if(!date){
-    const rowMatch = raw.match(/(\d{4}-\d{2}-\d{2})/);
-    if(rowMatch) date = rowMatch[1];
-  }
-
+  // ── Activity type map ───────────────────────────────────────────────────────
   const ACTIVITY_MAP = {
     'walking':'walk','hiking':'walk','outdoor walk':'walk',
     'running':'run','outdoor run':'run',
-    'cycling':'cycle','outdoor cycle':'cycle',
-    'traditional strength training':'strength','functional strength training':'strength','core training':'strength',
+    'cycling':'cycle','outdoor cycle':'cycle','indoor cycling':'cycle',
+    'traditional strength training':'strength','functional strength training':'strength',
+    'core training':'strength','high intensity interval training':'strength',
     'yoga':'yoga','pilates':'yoga',
-    'hiit':'other','swimming':'other','elliptical':'other','rowing':'other','dance':'other','other':'other'
+    'hiit':'other','swimming':'other','elliptical':'other','rowing':'other',
+    'dance':'other','other':'other'
   };
 
+  // ── Accumulators ────────────────────────────────────────────────────────────
   let hrSamples=[],hrvSamples=[],spo2Samples=[],respSamples=[],soundSamples=[];
-  let walkAsym=[],walkDouble=[],walkSpeed=[],walkStep=[];
+  let walkAsym=[],walkDouble=[],walkStep=[];
+  let runGCT=[],runStride=[],runVO=[],runPower=[],runCadenceSamples=[];
   let sleepREM=0,sleepCore=0,sleepDeep=0,sleepAwake=0,sleepLeg=0;
   let daylightMin=0,mindfulMin=0;
-  let wkWalkDist=0,wkWalkElev=0,wkWalkSpeedSum=0,wkWalkSpeedN=0;
-  let wkRunDist=0,wkRunElev=0,wkRunSpeedSum=0,wkRunSpeedN=0;
-  let wkCycleDist=0,wkCycleElev=0,wkCycleSpeedSum=0,wkCycleSpeedN=0;
-  let wkStrength=0,wkYoga=0,wkOther=0;
 
+  // Workout aggregators keyed by activity type
+  const wk = {
+    walk:     {dist:0,elev:0,durM:0,speedSum:0,speedN:0,bestSpeedKmh:0,
+               z1:0,z2:0,z3:0,z4:0,z5:0,bestPaceMinKm:null},
+    run:      {dist:0,elev:0,durM:0,speedSum:0,speedN:0,
+               z1:0,z2:0,z3:0,z4:0,z5:0,bestPaceMinKm:null,
+               powerSum:0,powerN:0,cadSum:0,cadN:0},
+    cycle:    {dist:0,elev:0,durM:0,speedSum:0,speedN:0,bestSpeedKmh:0,
+               z1:0,z2:0,z3:0,z4:0,z5:0},
+    strength: {durM:0, z1:0,z2:0,z3:0,z4:0,z5:0},
+    yoga:     {durM:0},
+    other:    {durM:0},
+  };
+
+  // Helper: zone % * duration => zone minutes for a workout row
+  // Google Fit columns (0-based after Date): 
+  //  c[0]=datetime, c[1]=activeKcal, c[2]=activity, c[3]=dist, c[4]=durSec,
+  //  c[5]=elevAsc,  c[6]=elevMax,    c[7]=elevMin,
+  //  c[8]=zoneA%,   c[9]=zoneB%,     c[10]=zoneC%,  c[11]=zoneD%, c[12]=zoneE%,
+  //  c[13]=hrAvg,   c[14]=hrMax,     c[15]=METs,
+  //  c[16]=runCad,  c[17]=runGCT,    c[18]=runPower, c[19]=runSpeed,
+  //  c[20]=runStride,c[21]=runVertOsc, c[22]=humidity, c[23]=temp
+  function extractZoneMins(c, durM){
+    const zA=parseFloat(c[8])||0, zB=parseFloat(c[9])||0,
+          zC=parseFloat(c[10])||0, zD=parseFloat(c[11])||0, zE=parseFloat(c[12])||0;
+    return [zA*durM, zB*durM, zC*durM, zD*durM, zE*durM];
+  }
+
+  // ── Parse blocks ────────────────────────────────────────────────────────────
   const blocks = raw.split(';');
 
   blocks.forEach(block => {
     block = block.trim();
-    if(block.length < 5) return;
+    if(block.length < 3) return;
+
+    // Handle non-table single values like "Google Fit, 211" or "Cardio Fitness, 24.02"
+    // or "Environmental Sound, 2126.59"
+    const singleLineMatch = block.match(/^([A-Za-z][^\n,]+),\s*([\d.]+)\s*$/);
+    if(singleLineMatch){
+      const label = singleLineMatch[1].trim().toLowerCase();
+      const val   = parseFloat(singleLineMatch[2]);
+      if(!isNaN(val)){
+        if(label.includes('google fit'))       entry.google_fit_points = Math.round(val);
+        if(label.includes('cardio fitness'))   entry.cardio_fitness    = Math.round(val*10)/10;
+        if(label.includes('environmental sound')) entry.surround_sound = Math.round(val*10)/10;
+      }
+      return;
+    }
 
     const lines = block.split('\n').map(l=>l.trim()).filter(l=>l.length>0);
     let headerIdx = -1;
     for(let i=0;i<lines.length;i++){
       if(lines[i].startsWith('Date,') || lines[i].startsWith(' Date,')){
-        headerIdx = i; break;
+        headerIdx=i; break;
       }
     }
-    if(headerIdx === -1) return;
+    if(headerIdx===-1) return;
 
     const hCols  = csvSplit(lines[headerIdx].trim());
     const metric = hCols[1] ? hCols[1].trim() : '';
@@ -4108,50 +4169,90 @@ function parseHealthExport(raw){
     if(!dataRows.length) return;
 
     const fv = r => { const v=parseFloat(csvSplit(r)[1]); return isNaN(v)?null:v; };
+    const pushAll = arr => dataRows.forEach(r=>{const v=fv(r);if(v!=null)arr.push(v);});
 
-    // ── WORKOUT block (multi-column) ──
+    // ── WORKOUT block (multi-column header with Activity column) ─────────────
     if(metric==='Active energy burned(kcal)' && hCols.length > 3){
       dataRows.forEach(row => {
-        const c  = csvSplit(row);
-        const act = (c[2]||'').toLowerCase().trim();
-        const type = ACTIVITY_MAP[act]||'other';
-        const durM = (parseFloat(c[4])||0)/60;
+        const c    = csvSplit(row);
+        const act  = (c[2]||'').toLowerCase().trim();
+        const type = ACTIVITY_MAP[act] || 'other';
+        const durM = (parseFloat(c[4])||0) / 60;
         const dist = parseFloat(c[3])||0;
         const elev = parseFloat(c[5])||0;
-        const spd  = parseFloat(c[18])||0;
+        const hrAvg  = parseFloat(c[13])||0;
+        const hrMax  = parseFloat(c[14])||0;
+        const runSpd = parseFloat(c[19])||0;  // km/hr
+        const runCad = parseFloat(c[16])||0;  // spm
+        const runGct = parseFloat(c[17])||0;  // ms
+        const runPwr = parseFloat(c[18])||0;  // W
+        const runStr = parseFloat(c[20])||0;  // m
+        const runVOc = parseFloat(c[21])||0;  // cm
+        const [z1m,z2m,z3m,z4m,z5m] = extractZoneMins(c, durM);
+
+        const bucket = wk[type] || wk.other;
+        bucket.durM += durM;
+        bucket.z1   += z1m;
+        bucket.z2   += z2m;
+        bucket.z3   += z3m;
+        bucket.z4   += z4m;
+        bucket.z5   += z5m;
+
         if(type==='walk'){
-          wkWalkDist+=dist; wkWalkElev+=elev;
-          if(dist>0&&durM>0){wkWalkSpeedSum+=dist/(durM/60);wkWalkSpeedN++;}
+          bucket.dist += dist; bucket.elev += elev;
+          if(dist>0&&durM>0){
+            const kmh = dist/(durM/60);
+            bucket.speedSum += kmh; bucket.speedN++;
+            const paceMinKm = 60/kmh;
+            if(bucket.bestPaceMinKm===null || paceMinKm < bucket.bestPaceMinKm)
+              bucket.bestPaceMinKm = paceMinKm;
+          }
         } else if(type==='run'){
-          wkRunDist+=dist; wkRunElev+=elev;
-          if(spd>0){wkRunSpeedSum+=spd;wkRunSpeedN++;}
-          else if(dist>0&&durM>0){wkRunSpeedSum+=dist/(durM/60);wkRunSpeedN++;}
+          bucket.dist += dist; bucket.elev += elev;
+          const spd = runSpd > 0 ? runSpd : (dist>0&&durM>0 ? dist/(durM/60) : 0);
+          if(spd>0){
+            bucket.speedSum += spd; bucket.speedN++;
+            const paceMinKm = 60/spd;
+            if(bucket.bestPaceMinKm===null || paceMinKm < bucket.bestPaceMinKm)
+              bucket.bestPaceMinKm = paceMinKm;
+          }
+          if(runPwr>0){ bucket.powerSum = (bucket.powerSum||0)+runPwr; bucket.powerN=(bucket.powerN||0)+1; }
+          if(runCad>0){ bucket.cadSum   = (bucket.cadSum||0)+runCad;   bucket.cadN  =(bucket.cadN||0)+1; }
+          if(runGct>0) runGCT.push(runGct);
+          if(runStr>0) runStride.push(runStr);
+          if(runVOc>0) runVO.push(runVOc);
         } else if(type==='cycle'){
-          wkCycleDist+=dist; wkCycleElev+=elev;
-          if(dist>0&&durM>0){wkCycleSpeedSum+=dist/(durM/60);wkCycleSpeedN++;}
-        } else if(type==='strength'){ wkStrength+=durM; }
-        else if(type==='yoga')      { wkYoga+=durM; }
-        else                        { wkOther+=durM; }
+          bucket.dist += dist; bucket.elev += elev;
+          if(dist>0&&durM>0){
+            const kmh = dist/(durM/60);
+            bucket.speedSum += kmh; bucket.speedN++;
+            if(kmh > bucket.bestSpeedKmh) bucket.bestSpeedKmh = kmh;
+          }
+        }
       });
       return;
     }
 
-    // ── SINGLE VALUE ──
+    // ── SINGLE-ROW MAPPED METRICS ─────────────────────────────────────────────
     const SINGLE = {
-      'Active energy burned(kcal)':           {key:'active_calories',  fn:v=>Math.round(v)},
-      'Basal energy burned(kcal)':            {key:'resting_calories', fn:v=>Math.round(v)},
-      'Stand time(min)':                      {key:'standing_mins',    fn:v=>Math.round(v)},
-      'Exercise time(min)':                   {key:'exercise_mins',    fn:v=>Math.round(v)},
-      'Step count(count)':                    {key:'steps',            fn:v=>Math.round(v)},
-      'Distance walking / running(km)':       {key:'distance_foot',    fn:v=>Math.round(v*100)/100},
-      'Flights climbed(count)':               {key:'stairs_climbed',   fn:v=>Math.round(v)},
-      'VO2 Max(mL/min·kg)':                   {key:'cardio_fitness',   fn:v=>Math.round(v*10)/10},
-      'Resting heart rate(count/min)':        {key:'resting_hr',       fn:v=>Math.round(v)},
-      'Walking heart rate average(count/min)':{key:'walking_hr',       fn:v=>Math.round(v)},
-      'State of Mind(Valence)':               {key:'state_of_mind',    fn:v=>Math.round(v)},
+      'Active energy burned(kcal)':            {key:'active_calories',   fn:v=>Math.round(v)},
+      'Basal energy burned(kcal)':             {key:'resting_calories',  fn:v=>Math.round(v)},
+      'Stand time(min)':                       {key:'standing_mins',     fn:v=>Math.round(v)},
+      'Exercise time(min)':                    {key:'exercise_mins',     fn:v=>Math.round(v)},
+      'Step count(count)':                     {key:'steps',             fn:v=>Math.round(v)},
+      'Distance walking / running(km)':        {key:'distance_foot',     fn:v=>Math.round(v*100)/100},
+      'Flights climbed(count)':                {key:'stairs_climbed',    fn:v=>Math.round(v)},
+      'VO2 Max(mL/min·kg)':                    {key:'cardio_fitness',    fn:v=>Math.round(v*10)/10},
+      'Resting heart rate(count/min)':         {key:'resting_hr',        fn:v=>Math.round(v)},
+      'Walking heart rate average(count/min)': {key:'walking_hr',        fn:v=>Math.round(v)},
+      'State of Mind(Valence)':                {key:'state_of_mind',     fn:v=>Math.round(v)},
+      'Cardio Recovery(bpm)':                  {key:'cardio_recovery',   fn:v=>Math.round(v)},
+      'Blood pressure (Diastolic)(mmHg)':      {key:'bp_diastolic',      fn:v=>Math.round(v)},
+      'Blood pressure (Systolic)(mmHg)':       {key:'bp_systolic',       fn:v=>Math.round(v)},
+      'Blood glucose(mg/dL)':                  {key:'blood_glucose',     fn:v=>Math.round(v*10)/10},
     };
 
-    // ── HEART RATE ──
+    // ── HEART RATE ────────────────────────────────────────────────────────────
     if(metric==='Heart rate(count/min)'){
       if(dataRows.length===1){ const v=fv(dataRows[0]); if(v!=null) entry.heart_rate=Math.round(v*10)/10; }
       else dataRows.forEach(r=>{const v=fv(r);if(v!=null&&v>30&&v<220)hrSamples.push(v);});
@@ -4163,53 +4264,60 @@ function parseHealthExport(raw){
       return;
     }
 
-    // ── TIME SERIES ──
-    const pushAll = (arr) => dataRows.forEach(r=>{const v=fv(r);if(v!=null)arr.push(v);});
-    if(metric==='Heart rate variability (SDNN)(ms)')    { pushAll(hrvSamples);  return; }
-    if(metric==='Oxygen saturation(%)')                 { pushAll(spo2Samples); return; }
-    if(metric==='Respiratory Rate(count/min)')          { pushAll(respSamples); return; }
-    if(metric==='Environmental sound levels(dBASPL)')   { pushAll(soundSamples);return; }
-    if(metric==='Walking asymmetry percentage(%)')      { pushAll(walkAsym);    return; }
-    if(metric==='Walking double support percentage(%)'){ pushAll(walkDouble);   return; }
-    if(metric==='Walking speed(km/hr)')                 { pushAll(walkSpeed);   return; }
-    if(metric==='Walking step length(cm)')              { pushAll(walkStep);    return; }
+    // ── TIME-SERIES / AGGREGATED METRICS ─────────────────────────────────────
+    if(metric==='Heart rate variability (SDNN)(ms)')   { pushAll(hrvSamples);  return; }
+    if(metric==='Oxygen saturation(%)')                { pushAll(spo2Samples); return; }
+    if(metric==='Respiratory Rate(count/min)')         { pushAll(respSamples); return; }
+    if(metric==='Environmental sound levels(dBASPL)')  { pushAll(soundSamples);return; }
+    if(metric==='Walking asymmetry percentage(%)')     { pushAll(walkAsym);    return; }
+    if(metric==='Walking double support percentage(%)'){ pushAll(walkDouble);  return; }
+    if(metric==='Walking step length(cm)')             { pushAll(walkStep);    return; }
+    if(metric==='Running ground contact time(ms)')     { pushAll(runGCT);      return; }
+    if(metric==='Running stride length(m)')            { pushAll(runStride);   return; }
+    if(metric==='Running vertical oscillation(cm)')    { pushAll(runVO);       return; }
+    if(metric==='Running power(W)')                    { pushAll(runPower);    return; }
+    if(metric==='Running cadence(spm)')                { pushAll(runCadenceSamples); return; }
 
-    // ── SLEEP ──
-    if(metric==='Time REM(hr)')   { dataRows.forEach(r=>{const v=fv(r);if(v)sleepREM+=v;});   return; }
-    if(metric==='Time core(hr)')  { dataRows.forEach(r=>{const v=fv(r);if(v)sleepCore+=v;});  return; }
-    if(metric==='Time deep(hr)')  { dataRows.forEach(r=>{const v=fv(r);if(v)sleepDeep+=v;});  return; }
-    if(metric==='Time awake(hr)') { dataRows.forEach(r=>{const v=fv(r);if(v)sleepAwake+=v;}); return; }
-    if(metric==='Time asleep(hr)'){ dataRows.forEach(r=>{const v=fv(r);if(v)sleepLeg+=v;});   return; }
+    // ── SLEEP ─────────────────────────────────────────────────────────────────
+    if(metric==='Time REM(hr)')        { dataRows.forEach(r=>{const v=fv(r);if(v)sleepREM+=v;});   return; }
+    if(metric==='Time core(hr)')       { dataRows.forEach(r=>{const v=fv(r);if(v)sleepCore+=v;});  return; }
+    if(metric==='Time deep(hr)')       { dataRows.forEach(r=>{const v=fv(r);if(v)sleepDeep+=v;});  return; }
+    if(metric==='Time awake(hr)')      { dataRows.forEach(r=>{const v=fv(r);if(v)sleepAwake+=v;}); return; }
+    if(metric==='Time asleep(hr)')     { dataRows.forEach(r=>{const v=fv(r);if(v)sleepLeg+=v;});   return; }
     if(metric==='Time in daylight(min)'){ dataRows.forEach(r=>{const v=fv(r);if(v)daylightMin+=v;}); return; }
-    if(metric==='Mindfulness(min)')     { dataRows.forEach(r=>{const v=fv(r);if(v)mindfulMin+=v;});  return; }
+    if(metric==='Mindfulness(min)')    { dataRows.forEach(r=>{const v=fv(r);if(v)mindfulMin+=v;});  return; }
   });
 
-  // ── Finalise aggregations ──
+  // ── Finalise aggregations ────────────────────────────────────────────────────
   const avg = arr => arr.length ? arr.reduce((a,b)=>a+b,0)/arr.length : null;
   const r0  = v => Math.round(v);
   const r1  = v => Math.round(v*10)/10;
   const r2  = v => Math.round(v*100)/100;
 
+  // HR samples → high / low / avg
   if(hrSamples.length){
-    entry.hr_low  = r0(Math.min(...hrSamples));
-    entry.hr_high = r0(Math.max(...hrSamples));
+    entry.hr_low   = r0(Math.min(...hrSamples));
+    entry.hr_high  = r0(Math.max(...hrSamples));
     if(!entry.heart_rate) entry.heart_rate = r1(avg(hrSamples));
   }
-  if(hrvSamples.length)   entry.hrv              = r1(avg(hrvSamples));
-  if(spo2Samples.length){
-    const s = avg(spo2Samples);
-    entry.blood_oxygen_high = r1(s < 2 ? s*100 : s);
-  }
-  if(respSamples.length){
-    entry.breath_low  = r1(Math.min(...respSamples));
-    entry.breath_high = r1(Math.max(...respSamples));
-  }
-  if(soundSamples.length) entry.surround_sound      = r1(avg(soundSamples));
-  if(walkAsym.length){    const a=avg(walkAsym);    entry.walk_asymmetry     = r1(a<1?a*100:a); }
-  if(walkDouble.length){  const a=avg(walkDouble);  entry.double_support_time= r1(a<1?a*100:a); }
-  if(walkSpeed.length){   const s=avg(walkSpeed);   if(s>0) entry.walk_avg_pace = r2(60/s); }
-  if(walkStep.length)     entry.walking_step_length = r1(avg(walkStep));
 
+  // HRV, SpO2, Respiration, Sound
+  if(hrvSamples.length)  entry.hrv              = r1(avg(hrvSamples));
+  if(spo2Samples.length){ const s=avg(spo2Samples); entry.blood_oxygen_high = r1(s<2?s*100:s); }
+  if(respSamples.length){ entry.breath_low=r1(Math.min(...respSamples)); entry.breath_high=r1(Math.max(...respSamples)); }
+  if(soundSamples.length && !entry.surround_sound) entry.surround_sound = r1(avg(soundSamples));
+
+  // Gait / movement
+  if(walkAsym.length)  { const a=avg(walkAsym);   entry.walk_asymmetry     = r1(a<1?a*100:a); }
+  if(walkDouble.length){ const a=avg(walkDouble);  entry.double_support_time= r1(a<1?a*100:a); }
+  if(walkStep.length)    entry.walking_step_length = r1(avg(walkStep));
+  if(runGCT.length)      entry.ground_contact_time = r0(avg(runGCT));
+  if(runStride.length)   entry.running_stride      = r2(avg(runStride));
+  if(runVO.length)       entry.vertical_oscillation= r1(avg(runVO));
+  if(runPower.length && !entry.run_avg_power)   entry.run_avg_power  = r0(avg(runPower));
+  if(runCadenceSamples.length && !entry.run_cadence) entry.run_cadence = r0(avg(runCadenceSamples));
+
+  // Sleep
   if(sleepREM   > 0) entry.sleep_rem   = r0(sleepREM*60);
   if(sleepCore  > 0) entry.sleep_core  = r0(sleepCore*60);
   if(sleepDeep  > 0) entry.sleep_deep  = r0(sleepDeep*60);
@@ -4218,21 +4326,73 @@ function parseHealthExport(raw){
   const slTotal = sleepREM+sleepCore+sleepDeep+sleepAwake+sleepLeg;
   if(slTotal    > 0) entry.total_sleep = r0(slTotal*60);
 
+  // Daylight & mindful
   if(daylightMin > 0) entry.daylight     = r1(daylightMin);
   if(mindfulMin  > 0) entry.mindful_mins = r1(mindfulMin);
 
-  if(wkWalkDist  > 0) entry.walk_distance   = r2(wkWalkDist);
-  if(wkWalkElev  > 0) entry.walk_elevation  = r0(wkWalkElev);
-  if(wkWalkSpeedN> 0) entry.walk_avg_pace   = r2(60/(wkWalkSpeedSum/wkWalkSpeedN));
-  if(wkRunDist   > 0) entry.run_distance    = r2(wkRunDist);
-  if(wkRunElev   > 0) entry.run_elevation   = r0(wkRunElev);
-  if(wkRunSpeedN > 0) entry.run_avg_pace    = r2(60/(wkRunSpeedSum/wkRunSpeedN));
-  if(wkCycleDist > 0) entry.cycle_distance  = r2(wkCycleDist);
-  if(wkCycleElev > 0) entry.cycle_elevation = r0(wkCycleElev);
-  if(wkCycleSpeedN>0) entry.cycle_avg_pace  = r1(wkCycleSpeedSum/wkCycleSpeedN);
-  if(wkStrength  > 0) entry.strength_training= r1(wkStrength);
-  if(wkYoga      > 0) entry.yoga_duration    = r1(wkYoga);
-  if(wkOther     > 0) entry.other_activity   = r1(wkOther);
+  // ── Workout fields ──────────────────────────────────────────────────────────
+  const W = wk;
+
+  // WALK
+  if(W.walk.dist  > 0) entry.walk_distance  = r2(W.walk.dist);
+  if(W.walk.elev  > 0) entry.walk_elevation = r0(W.walk.elev);
+  if(W.walk.speedN> 0){
+    const avgSpd = W.walk.speedSum/W.walk.speedN;
+    entry.walk_avg_pace = r2(60/avgSpd);
+  }
+  if(W.walk.bestPaceMinKm !== null) entry.walk_best_pace = r2(W.walk.bestPaceMinKm);
+  if(W.walk.z1 > 0) entry.walk_z1_mins = r1(W.walk.z1);
+  if(W.walk.z2 > 0) entry.walk_z2_mins = r1(W.walk.z2);
+  if(W.walk.z3 > 0) entry.walk_z3_mins = r1(W.walk.z3);
+  if(W.walk.z4 > 0) entry.walk_z4_mins = r1(W.walk.z4);
+  if(W.walk.z5 > 0) entry.walk_z5_mins = r1(W.walk.z5);
+
+  // RUN
+  if(W.run.dist  > 0) entry.run_distance  = r2(W.run.dist);
+  if(W.run.elev  > 0) entry.run_elevation = r0(W.run.elev);
+  if(W.run.speedN> 0){
+    const avgSpd = W.run.speedSum/W.run.speedN;
+    entry.run_avg_pace = r2(60/avgSpd);
+  }
+  if(W.run.bestPaceMinKm !== null) entry.run_best_pace = r2(W.run.bestPaceMinKm);
+  if((W.run.powerN||0) > 0 && !entry.run_avg_power) entry.run_avg_power = r0(W.run.powerSum/W.run.powerN);
+  if((W.run.cadN  ||0) > 0 && !entry.run_cadence)   entry.run_cadence   = r0(W.run.cadSum/W.run.cadN);
+  if(W.run.z1 > 0) entry.run_z1_mins = r1(W.run.z1);
+  if(W.run.z2 > 0) entry.run_z2_mins = r1(W.run.z2);
+  if(W.run.z3 > 0) entry.run_z3_mins = r1(W.run.z3);
+  if(W.run.z4 > 0) entry.run_z4_mins = r1(W.run.z4);
+  if(W.run.z5 > 0) entry.run_z5_mins = r1(W.run.z5);
+
+  // CYCLE
+  if(W.cycle.dist  > 0) entry.cycle_distance  = r2(W.cycle.dist);
+  if(W.cycle.elev  > 0) entry.cycle_elevation = r0(W.cycle.elev);
+  if(W.cycle.speedN> 0){
+    const avgSpd = W.cycle.speedSum/W.cycle.speedN;
+    entry.cycle_avg_pace = r1(avgSpd);            // stored as km/h for cycle
+  }
+  if(W.cycle.bestSpeedKmh > 0) entry.cycle_best_pace = r1(W.cycle.bestSpeedKmh);
+  if(W.cycle.z1 > 0) entry.cycle_z1_mins = r1(W.cycle.z1);
+  if(W.cycle.z2 > 0) entry.cycle_z2_mins = r1(W.cycle.z2);
+  if(W.cycle.z3 > 0) entry.cycle_z3_mins = r1(W.cycle.z3);
+  if(W.cycle.z4 > 0) entry.cycle_z4_mins = r1(W.cycle.z4);
+  if(W.cycle.z5 > 0) entry.cycle_z5_mins = r1(W.cycle.z5);
+
+  // STRENGTH
+  if(W.strength.durM > 0) entry.strength_training = r1(W.strength.durM);
+  if(W.strength.z1 > 0) entry.str_z1_mins = r1(W.strength.z1);
+  if(W.strength.z2 > 0) entry.str_z2_mins = r1(W.strength.z2);
+  if(W.strength.z3 > 0) entry.str_z3_mins = r1(W.strength.z3);
+  if(W.strength.z4 > 0) entry.str_z4_mins = r1(W.strength.z4);
+  if(W.strength.z5 > 0) entry.str_z5_mins = r1(W.strength.z5);
+
+  // YOGA / OTHER
+  if(W.yoga.durM  > 0) entry.yoga_duration = r1(W.yoga.durM);
+  if(W.other.durM > 0) entry.other_activity = r1(W.other.durM);
+
+  // Running movement metrics from standalone time-series (fallback if not in workout block)
+  if(!entry.ground_contact_time && runGCT.length)    entry.ground_contact_time = r0(avg(runGCT));
+  if(!entry.running_stride       && runStride.length) entry.running_stride      = r2(avg(runStride));
+  if(!entry.vertical_oscillation && runVO.length)     entry.vertical_oscillation= r1(avg(runVO));
 
   return { date, entry };
 }
@@ -4329,7 +4489,51 @@ function renderLogFields(){
       subHeader('Vitamins', ICON_URLS.vitamins) +
       VITAMIN_KEYS.map(renderField).join('');
   } else {
-    grid.innerHTML = sec.keys.map(renderField).join('');
+    // For workout sections inject a zone sub-header before zone fields
+    const ZONE_PREFIXES = {walk:'walk', run:'run', cycle:'cycle', strength:'str'};
+    const zonePrefix = ZONE_PREFIXES[logSection];
+    if(zonePrefix){
+      const zoneKeys = [`${zonePrefix}_z1_mins`,`${zonePrefix}_z2_mins`,`${zonePrefix}_z3_mins`,`${zonePrefix}_z4_mins`,`${zonePrefix}_z5_mins`];
+      const nonZoneKeys = sec.keys.filter(k=>!zoneKeys.includes(k));
+      const zoneKeysFinal = sec.keys.filter(k=>zoneKeys.includes(k));
+      const ZONE_COLORS = ['#3B82F6','#10B981','#F59E0B','#EF4444','#8B5CF6'];
+      const ZONE_SUBS   = ['Recovery','Aerobic','Tempo','Threshold','Max'];
+      grid.innerHTML =
+        nonZoneKeys.map(renderField).join('') +
+        (zoneKeysFinal.length ? `<div style="grid-column:1/-1;display:flex;align-items:center;gap:8px;padding:6px 0 2px;border-bottom:1px solid var(--border);margin:4px 0 2px">
+          <span style="font-size:13px">❤️</span>
+          <span style="font-size:10px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:var(--t3)">Heart Rate Zone Mins</span>
+          <span style="font-size:9px;color:var(--t4);margin-left:4px">Zone 1 = Recovery → Zone 5 = Max</span>
+        </div>
+        <div style="grid-column:1/-1;display:flex;gap:4px;margin-bottom:6px">
+          ${ZONE_COLORS.map((c,i)=>`<div style="flex:1;height:4px;border-radius:4px;background:${c}"></div>`).join('')}
+        </div>` : '') +
+        zoneKeysFinal.map((k,i)=>{
+          const zIdx = parseInt(k.match(/z(\d)_mins/)?.[1]||'1')-1;
+          const col = ZONE_COLORS[zIdx]||'var(--accent)';
+          const sub = ZONE_SUBS[zIdx]||'';
+          const f = allFields().find(x=>x.key===k);
+          if(!f) return '';
+          const val = (getEntry(logDate)||{})[k]??'';
+          return `<div class="lf-card" style="position:relative;border-top:2px solid ${col}20;border-color:${col}30">
+            <div class="lf-label">
+              <span style="display:flex;align-items:center;gap:4px">
+                <span style="width:8px;height:8px;border-radius:50%;background:${col};display:inline-block;flex-shrink:0"></span>
+                ${f.label}
+              </span>
+              <span class="lf-unit" style="color:${col}">${f.unit}</span>
+            </div>
+            <div style="font-size:8px;color:${col};font-weight:600;text-transform:uppercase;letter-spacing:.3px;margin-bottom:2px">${sub}</div>
+            <input class="lf-input" type="number" step="any" placeholder="—" value="${val}"
+              id="lf-${k}"
+              onchange="onLogFieldChange('${k}', this.value)"
+              oninput="onLogFieldChange('${k}', this.value)">
+            <div class="lf-score-bar"><div style="height:100%;width:0%;background:${col};border-radius:10px"></div></div>
+          </div>`;
+        }).join('');
+    } else {
+      grid.innerHTML = sec.keys.map(renderField).join('');
+    }
   }
 
   // ── Vitals: HR calc helper above heart_rate ──────────────────────────────
@@ -7278,6 +7482,139 @@ function virtualCard(colClass, label, iconKey, val, unit, subtitle, pills){
   </div>`;
 }
 
+// ── ZONE SECTION BUILDER ──────────────────────────────────────────────────────
+const ZONE_META = [
+  {z:1, label:'Zone 1', sub:'Recovery',   color:'#3B82F6'},
+  {z:2, label:'Zone 2', sub:'Aerobic',    color:'#10B981'},
+  {z:3, label:'Zone 3', sub:'Tempo',      color:'#F59E0B'},
+  {z:4, label:'Zone 4', sub:'Threshold',  color:'#EF4444'},
+  {z:5, label:'Zone 5', sub:'Max',        color:'#8B5CF6'},
+];
+
+function buildZoneSection(dates, prefix, icon){
+  // Sum zone mins across selected dates
+  function zSum(z){
+    return dates.reduce((acc,d)=>{
+      const v=computeAllFields(getEntry(d))[`${prefix}_z${z}_mins`];
+      return acc+(v!=null&&v>0?v:0);
+    },0);
+  }
+  const vals = ZONE_META.map(zm=>({...zm, val:zSum(zm.z)}));
+  const total = vals.reduce((a,b)=>a+b.val,0);
+  if(total===0 && dates.length > 1){
+    // No data — show compact placeholder
+    return `<div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);padding:10px 14px;margin-bottom:10px;display:flex;align-items:center;gap:8px">
+      <span style="font-size:14px">${icon}</span>
+      <span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--t4)">Heart Rate Zones — no data logged yet</span>
+    </div>`;
+  }
+
+  // Bar segments
+  const segments = vals.map(zm=>{
+    const pct = total>0?Math.round(zm.val/total*100):0;
+    return pct>0?`<div title="${zm.label}: ${Math.round(zm.val)} min" style="height:100%;width:${pct}%;background:${zm.color};transition:width .8s cubic-bezier(.4,0,.2,1)"></div>`:'';
+  }).join('');
+
+  // Legend chips
+  const chips = vals.map(zm=>`
+    <div style="display:flex;align-items:center;gap:5px;flex:1;min-width:80px">
+      <div style="width:8px;height:8px;border-radius:50%;background:${zm.color};flex-shrink:0"></div>
+      <div>
+        <div style="font-size:9px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.3px">${zm.label}</div>
+        <div style="font-size:9px;color:var(--t4)">${zm.sub}</div>
+        <div style="font-family:var(--fd);font-size:13px;font-weight:700;color:var(--t1)">${zm.val>0?Math.round(zm.val):'—'}<span style="font-size:9px;font-weight:400;color:var(--t4);margin-left:1px">${zm.val>0?'min':''}</span></div>
+      </div>
+    </div>`).join('');
+
+  return `<div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);padding:12px 14px;margin-bottom:10px">
+    <div style="display:flex;align-items:center;gap:6px;margin-bottom:8px">
+      <span style="font-size:13px">${icon}</span>
+      <span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--t3)">Heart Rate Zones</span>
+      ${total>0?`<span style="margin-left:auto;font-size:10px;color:var(--t4)">${Math.round(total)} min total</span>`:''}
+    </div>
+    <div style="height:8px;border-radius:8px;overflow:hidden;background:var(--border2);display:flex;margin-bottom:10px">${segments||`<div style="height:100%;width:100%;background:var(--border2)"></div>`}</div>
+    <div style="display:flex;flex-wrap:wrap;gap:8px">${chips}</div>
+  </div>`;
+}
+
+function buildCombinedZoneSection(dates){
+  const PREFIXES = ['walk','run','cycle','str'];
+  const EXERCISE_LABELS = {walk:'Walk',run:'Run',cycle:'Cycle',str:'Strength'};
+  const EXERCISE_ICONS  = {walk:'🚶',run:'🏃',cycle:'🚴',str:'💪'};
+
+  // Sum each zone across ALL exercise types
+  function zTotalAll(z){
+    return PREFIXES.reduce((acc,px)=>acc+dates.reduce((a,d)=>{
+      const v=computeAllFields(getEntry(d))[`${px}_z${z}_mins`];
+      return a+(v!=null&&v>0?v:0);
+    },0),0);
+  }
+
+  const combined = ZONE_META.map(zm=>({...zm, val:zTotalAll(zm.z)}));
+  const grandTotal = combined.reduce((a,b)=>a+b.val,0);
+
+  // Per-exercise totals (for legend)
+  const exTotals = PREFIXES.map(px=>{
+    const t = [1,2,3,4,5].reduce((acc,z)=>acc+dates.reduce((a,d)=>{
+      const v=computeAllFields(getEntry(d))[`${px}_z${z}_mins`];
+      return a+(v!=null&&v>0?v:0);
+    },0),0);
+    return {px, t};
+  }).filter(e=>e.t>0);
+
+  if(grandTotal===0){
+    return `<div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);padding:12px 14px;margin-bottom:12px;display:flex;align-items:center;gap:8px">
+      <span style="font-size:16px">❤️‍🔥</span>
+      <div>
+        <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--t3)">Combined HR Zones</div>
+        <div style="font-size:10px;color:var(--t4);margin-top:1px">Log zone mins in Walk, Run, Cycle or Strength to see combined breakdown</div>
+      </div>
+    </div>`;
+  }
+
+  // Stacked bar
+  const segments = combined.map(zm=>{
+    const pct = grandTotal>0 ? (zm.val/grandTotal*100) : 0;
+    return pct>0 ? `<div title="${zm.label}: ${Math.round(zm.val)} min" style="height:100%;width:${pct}%;background:${zm.color};transition:width .8s cubic-bezier(.4,0,.2,1)"></div>` : '';
+  }).join('');
+
+  // Zone chips
+  const chips = combined.map(zm=>`
+    <div style="flex:1;min-width:72px;background:var(--surface);border:1px solid ${zm.color}30;border-top:3px solid ${zm.color};border-radius:var(--rs);padding:7px 8px;text-align:center">
+      <div style="font-size:8px;font-weight:700;color:${zm.color};text-transform:uppercase;letter-spacing:.4px">${zm.label}</div>
+      <div style="font-size:8px;color:var(--t4);margin-bottom:3px">${zm.sub}</div>
+      <div style="font-family:var(--fd);font-size:16px;font-weight:800;color:var(--t1);letter-spacing:-.3px">${zm.val>0?Math.round(zm.val):'—'}</div>
+      <div style="font-size:8px;color:var(--t4)">${zm.val>0?'min':''}</div>
+    </div>`).join('');
+
+  // Per-exercise breakdown pills
+  const exPills = exTotals.map(e=>`
+    <div style="display:flex;align-items:center;gap:4px;padding:3px 8px;background:var(--surface2);border:1px solid var(--border);border-radius:20px;font-size:10px;color:var(--t2)">
+      <span>${EXERCISE_ICONS[e.px]}</span>
+      <span style="font-weight:600">${EXERCISE_LABELS[e.px]}</span>
+      <span style="color:var(--accent);font-weight:700">${Math.round(e.t)} min</span>
+    </div>`).join('');
+
+  return `<div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:14px 16px;margin-bottom:12px;box-shadow:var(--sh)">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+      <div style="display:flex;align-items:center;gap:7px">
+        <span style="font-size:16px">❤️‍🔥</span>
+        <div>
+          <div style="font-size:12px;font-weight:800;color:var(--t1);letter-spacing:-.2px">Combined HR Zones</div>
+          <div style="font-size:10px;color:var(--t3)">All exercises · ${Math.round(grandTotal)} min total</div>
+        </div>
+      </div>
+      <div style="text-align:right">
+        <div style="font-family:var(--fd);font-size:22px;font-weight:900;color:var(--accent);letter-spacing:-.5px">${Math.round(grandTotal)}</div>
+        <div style="font-size:9px;color:var(--t4)">total min</div>
+      </div>
+    </div>
+    <div style="height:10px;border-radius:10px;overflow:hidden;background:var(--border2);display:flex;margin-bottom:10px">${segments}</div>
+    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px">${chips}</div>
+    ${exPills?`<div style="display:flex;gap:5px;flex-wrap:wrap;padding-top:8px;border-top:1px solid var(--border)">${exPills}</div>`:''}
+  </div>`;
+}
+
 function renderAHWorkout(){
   loadWorkoutOpts();
   const pageId='workout';
@@ -7291,6 +7628,9 @@ function renderAHWorkout(){
   let left=ahSortBar(pageId);
   left+=ahScoreBanner('workout',dates);
 
+  // ── COMBINED ZONE SUMMARY ─────────────────────
+  left+=buildCombinedZoneSection(dates);
+
   // ── WALK ──────────────────────────────────────
   left+=ahSectionTitle(_iconImg(ICON_URLS.walk,16),'Walk');
   left+='<div class="ah-grid">';
@@ -7302,6 +7642,7 @@ function renderAHWorkout(){
   left+=ahCard('walk_avg_pace', dates,'ah-w2',{icon:_iconImg(ICON_URLS.walk,22)});
   left+=ahCard('walk_spm',      dates,'ah-w2',{icon:_iconImg(ICON_URLS.steps,22)});
   left+='</div>';
+  left+=buildZoneSection(dates,'walk','🚶');
 
   // ── RUN ───────────────────────────────────────
   left+=ahSectionTitle(_iconImg(ICON_URLS.run,16),'Run');
@@ -7319,6 +7660,7 @@ function renderAHWorkout(){
   left+=ahCard('run_best_pace', dates,'ah-w2',{icon:_iconImg(ICON_URLS.run,22)});
   left+=ahCard('run_avg_pace',  dates,'ah-w2',{icon:_iconImg(ICON_URLS.run,22)});
   left+='</div>';
+  left+=buildZoneSection(dates,'run','🏃');
 
   // ── CYCLE ─────────────────────────────────────
   left+=ahSectionTitle(_iconImg(ICON_URLS.cycle,16),'Cycle');
@@ -7331,6 +7673,7 @@ function renderAHWorkout(){
   left+=ahCard('cycle_best_pace',dates,'ah-w2',{icon:_iconImg(ICON_URLS.cycle,22)});
   left+=ahCard('cycle_avg_pace', dates,'ah-w2',{icon:_iconImg(ICON_URLS.cycle,22)});
   left+='</div>';
+  left+=buildZoneSection(dates,'cycle','🚴');
 
   // ── STRENGTH & YOGA ───────────────────────────
   left+=ahSectionTitle(_iconImg(ICON_URLS.strength,16),'Strength & Yoga');
@@ -7342,6 +7685,7 @@ function renderAHWorkout(){
   left+=ahCard('other_activity',dates,'ah-w2',{icon:_iconImg(ICON_URLS.exercise,22)});
   left+=ahCard('total_workout', dates,'ah-w2',{icon:_iconImg(ICON_URLS.exercise,22)});
   left+='</div>';
+  left+=buildZoneSection(dates,'str','💪');
 
   // ── COLLAPSIBLE STREAK ────────────────────────
   left+=ahSectionTitle(_iconImg(ICON_URLS.strength,16),'Streak');
@@ -11389,16 +11733,43 @@ function deleteAllData(){
 // ═══════════════════════════════════════════════
 function renderStgHealthImport(){
   const sc = document.getElementById('stg-content');
+  const FIELD_GROUPS = [
+    {icon:'⚡',label:'Activity',    fields:['Google Fit Points','Active Calories','Resting Calories','Standing Mins','Exercise Mins','Steps','Foot Distance','Stairs Climbed']},
+    {icon:'🚶',label:'Walk',        fields:['Walk Distance','Walk Elevation','Walk Best Pace','Walk Avg Pace','Walk Zones 1–5']},
+    {icon:'🏃',label:'Run',         fields:['Run Distance','Run Elevation','Run Avg Power','Run Cadence','Run Best Pace','Run Avg Pace','Run Zones 1–5']},
+    {icon:'🚴',label:'Cycle',       fields:['Cycle Distance','Cycle Elevation','Cycle Best Speed','Cycle Avg Speed','Cycle Zones 1–5']},
+    {icon:'💪',label:'Strength',    fields:['Strength Mins','Yoga Mins','Other Activity','Strength Zones 1–5']},
+    {icon:'❤️',label:'Vitals',      fields:['HR High/Low/Avg','Resting HR','Walking HR','HRV','Cardio Fitness (VO₂Max)','Cardio Recovery','Breath High/Low','Blood Oxygen','BP Systolic/Diastolic','Blood Glucose']},
+    {icon:'🧘',label:'Mindful',     fields:['Daylight Mins','Mindful Mins','State of Mind','Sound Level']},
+    {icon:'😴',label:'Sleep',       fields:['Sleep Awake','Sleep REM','Sleep Core','Sleep Deep','Total Asleep','Total Sleep']},
+    {icon:'🦵',label:'Movement',    fields:['Double Support','Ground Contact Time','Running Stride','Vertical Oscillation','Walk Asymmetry','Step Length']},
+  ];
+  const groupHtml = FIELD_GROUPS.map(g=>`
+    <div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);padding:8px 10px">
+      <div style="font-size:10px;font-weight:700;color:var(--t2);margin-bottom:4px">${g.icon} ${g.label}</div>
+      <div style="font-size:10px;color:var(--t3);line-height:1.6">${g.fields.join(' · ')}</div>
+    </div>`).join('');
+
   sc.innerHTML = `
     <div class="stg-panel on" id="sp-healthimport">
       <div class="stg-panel-title">🍎 Health Import</div>
-      <div class="stg-panel-sub">Paste the raw text from your Health Export app. WellStat will parse and save automatically.</div>
-      <textarea id="hi-raw-stg" placeholder="Paste your Health Export text here..." style="width:100%;height:260px;margin:12px 0;padding:10px;border-radius:var(--rs);border:1px solid var(--border2);background:var(--surface2);color:var(--t1);font-size:12px;font-family:var(--fm);resize:vertical;box-sizing:border-box"></textarea>
+      <div class="stg-panel-sub">Paste the raw text from your Health Export app (Google Fit / Apple Health). WellStat parses and saves all fields automatically.</div>
+
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:7px;margin-bottom:14px">
+        ${groupHtml}
+      </div>
+
+      <div style="background:rgba(59,130,246,.07);border:1px solid rgba(59,130,246,.2);border-radius:var(--rs);padding:10px 12px;margin-bottom:12px;font-size:11px;color:var(--t3);line-height:1.7">
+        <strong style="color:var(--accent)">💡 How to export from Google Fit:</strong> Open Google Fit → Profile → Settings → Export Google Fit data → Share. Copy the full text and paste below.<br>
+        <strong style="color:var(--accent)">Heart Rate Zones</strong> are read directly from the workout activity block columns (A–E) and mapped to Zones 1–5 per exercise type.
+      </div>
+
+      <textarea id="hi-raw-stg" placeholder="Paste your Health Export text here..." style="width:100%;height:240px;margin-bottom:10px;padding:10px;border-radius:var(--rs);border:1px solid var(--border2);background:var(--surface2);color:var(--t1);font-size:12px;font-family:var(--fm);resize:vertical;box-sizing:border-box"></textarea>
       <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
         <button class="stg-btn primary" onclick="(function(){const t=document.getElementById('hi-raw-stg');if(t){const s=document.getElementById('hi-raw')||document.createElement('textarea');s.id='hi-raw';s.value=t.value;if(!s.parentNode)document.body.appendChild(s);}healthImportRun();})()" style="font-size:14px;padding:8px 20px">⬇ Parse &amp; Import</button>
-        <button class="stg-btn" onclick="document.getElementById('hi-raw-stg').value=''">Clear</button>
+        <button class="stg-btn" onclick="document.getElementById('hi-raw-stg').value='';document.getElementById('hi-log').textContent=''">🗑 Clear</button>
       </div>
-      <div id="hi-log" style="margin-top:14px;font-size:12px;font-family:var(--fm);color:var(--t2);white-space:pre-wrap;line-height:1.7"></div>
+      <div id="hi-log" style="margin-top:14px;font-size:12px;font-family:var(--fm);color:var(--t2);white-space:pre-wrap;line-height:1.7;max-height:400px;overflow-y:auto"></div>
     </div>`;
 }
 
