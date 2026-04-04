@@ -3284,9 +3284,9 @@ function renderDashboard(){
   const {workoutElite:_wElite} = scoreData;
   document.getElementById('cats-grid').innerHTML = CATS.map(cat=>{
     const s = catScores[cat.id]??null;
-    // Bars always fill 100% — only colour and label change based on score
+    // Bars fill proportionally up to 100; at 100+ always full — only colour and label change
     const isLinearCat = cat.id==='energy' || cat.id==='activity';
-    const pct = s!=null ? 100 : 0;
+    const pct = s!=null ? Math.min(s, 100) : 0;
     const col = s==null ? 'var(--border2)'
       : s>=150 ? '#064E3B'
       : s>=100 ? '#047857'
