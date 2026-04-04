@@ -2460,7 +2460,8 @@ function computeWorkoutScore(e){
 // ─────────────────────────────────────────────────────────────
 
 function computeScore(date){
-  if(isRestDay && isRestDay(date)) return {overall:null, catScores:{}, workoutBonus:0, workoutTypes:0, workoutElite:false, wCompleted:0};
+  // Rest days: still compute score from vitals/sleep/nutrition — only skip workout bonus
+  const _isRest = typeof isRestDay === 'function' && isRestDay(date);
   const e = computeAllFields(getEntry(date));
   const catW = {energy:10,activity:12,workout:12,vitals:15,sleep:15,physique:12,nutrition:12,screen:5,habits:7};
   let totalW=0, totalS=0;
@@ -2479,7 +2480,7 @@ function computeScore(date){
   const {wScore, wRaw, wCompleted, workoutElite, activityScores} = computeWorkoutScore(e);
   catScores.workout = wScore;
   const wTypes = wCompleted;
-  const workoutBonus = workoutElite ? 5 : wCompleted>=2 ? 3 : 0;
+  const workoutBonus = _isRest ? 0 : (workoutElite ? 5 : wCompleted>=2 ? 3 : 0);
   // Recalculate overall with updated workout score
   let totalW2=0, totalS2=0;
   CATS.forEach(cat=>{
@@ -2505,7 +2506,7 @@ function computeScore(date){
   const activityOver= activityCatRaw != null ? Math.max(0, activityCatRaw - 100) : 0;
   // maxScore = what the score would be if excess also counted fully (for display under ring)
   const maxScore = overall!=null ? overall + Math.round(energyOver/2) + Math.round(activityOver/2) : null;
-  return {overall, catScores, workoutBonus, workoutTypes:wTypes, workoutElite, wCompleted, energyOver, activityOver, maxScore};
+  return {overall, catScores, workoutBonus, workoutTypes:wTypes, workoutElite, wCompleted, energyOver, activityOver, maxScore, isRestDay:_isRest};
 }
 
 // ── PERIOD STATE ─────────────────────────────
