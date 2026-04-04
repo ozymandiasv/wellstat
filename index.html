@@ -3284,13 +3284,12 @@ function renderDashboard(){
   const {workoutElite:_wElite} = scoreData;
   document.getElementById('cats-grid').innerHTML = CATS.map(cat=>{
     const s = catScores[cat.id]??null;
-    // Energy & Activity bars can exceed 100 — scale bar to 200 max for visual overflow
+    // Bars always fill 100% — only colour and label change based on score
     const isLinearCat = cat.id==='energy' || cat.id==='activity';
-    const barMax = isLinearCat ? 200 : 100;
-    const pct = s!=null ? Math.min(s, barMax) / barMax * 100 : 0;
+    const pct = s!=null ? 100 : 0;
     const col = s==null ? 'var(--border2)'
       : s>=150 ? '#064E3B'
-      : s>=100 ? (isLinearCat ? '#FF6B35' : '#047857')
+      : s>=100 ? '#047857'
       : s>=85  ? '#10B981'
       : s>=60  ? '#3B82F6'
       : s>=35  ? '#F59E0B'
@@ -3302,7 +3301,7 @@ function renderDashboard(){
       : s>=60  ? 'rgba(59,130,246,.1)'
       : s>=35  ? 'rgba(245,158,11,.1)'
       : 'rgba(239,68,68,.1)';
-    const scoreLbl = s!=null ? (s>100 && isLinearCat ? `${s}⚡` : s) : '—';
+    const scoreLbl = s!=null ? (s>100 ? `${s}⚡` : s) : '—';
     return `<div class="cat-tube-wrap">
       <div class="cat-tube-pct" style="color:${col}">${scoreLbl}</div>
       <div class="cat-tube-track" style="background:${bgCol}">
