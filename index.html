@@ -270,8 +270,8 @@ input,select{font-family:var(--fb);outline:none}
 .c1{grid-column:span 1}.c2{grid-column:span 2}
 .c3{grid-column:span 3}.c4{grid-column:span 4}
 .r2{grid-row:span 2}
-/* Row 1 - slightly taller for rings/score/cats */
-.w-score,.w-rings,.w-cats{ min-height:170px; }
+/* Row 1 - score ring, activity rings, category bars */
+.w-score,.w-rings,.w-cats{ min-height:210px; }
 /* Metric widgets consistent feel */
 .w-metric{ min-height:140px; }
 /* Screen widget fills its 2-row span */
@@ -285,42 +285,69 @@ input,select{font-family:var(--fb);outline:none}
 .mbar-fill{height:100%;border-radius:10px;transition:width .9s cubic-bezier(.4,0,.2,1)}
 
 /* ── SCORE WIDGET ────────────────────────────── */
-.w-score{padding:20px;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:210px}
-.score-ring{position:relative;width:118px;height:118px;margin:0 auto 10px}
+.w-score{padding:16px 14px;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:210px}
+.score-ring{position:relative;width:160px;height:160px;margin:0 auto 8px}
 .score-ring svg{width:100%;height:100%;transform:rotate(-90deg)}
-.sr-bg{fill:none;stroke:var(--border2);stroke-width:11}
-.sr-fill{fill:none;stroke-width:11;stroke-linecap:round;transition:stroke-dashoffset 1.1s cubic-bezier(.4,0,.2,1)}
+.sr-bg{fill:none;stroke:var(--border2);stroke-width:13}
+.sr-fill{fill:none;stroke-width:13;stroke-linecap:round;transition:stroke-dashoffset 1.1s cubic-bezier(.4,0,.2,1)}
 .score-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
-.score-num{font-family:var(--fd);font-size:28px;font-weight:800;letter-spacing:-1px;line-height:1}
+.score-num{font-family:var(--fd);font-size:42px;font-weight:900;letter-spacing:-2px;line-height:1}
 .score-sub{font-size:10px;color:var(--t3);font-weight:500;margin-top:2px}
 .score-grade{
   font-size:11px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;
-  margin-top:8px;padding:3px 12px;border-radius:20px;
+  margin-top:6px;padding:3px 12px;border-radius:20px;
 }
 
-/* ── CATEGORY ARCS ───────────────────────────── */
-.w-cats{padding:16px 18px;min-height:210px}
-.cats-title{font-size:11px;font-weight:600;letter-spacing:.5px;text-transform:uppercase;color:var(--t3);margin-bottom:12px}
-.cats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
-.cat-item{display:flex;flex-direction:column;align-items:center;gap:4px}
-.cat-arc{width:54px;height:30px;position:relative}
-.cat-arc svg{width:100%;height:100%;overflow:visible}
-.cat-name{font-size:9px;font-weight:700;color:var(--t3);text-align:center;text-transform:uppercase;letter-spacing:.4px}
-.cat-pct{font-family:var(--fm);font-size:11px;font-weight:500;color:var(--t2)}
+/* ── CATEGORY TUBE BARS ──────────────────────── */
+.cats-title{font-size:11px;font-weight:600;letter-spacing:.5px;text-transform:uppercase;color:var(--t3);margin-bottom:8px}
 
 /* ── ACTIVITY RINGS ──────────────────────────── */
-.w-rings{padding:16px 18px;display:flex;flex-direction:column;justify-content:center;min-height:210px}
+.w-rings{padding:14px 16px;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:210px}
+.w-cats{padding:14px 16px;display:flex;flex-direction:column;min-height:210px}
 .rings-title{font-size:11px;font-weight:600;letter-spacing:.5px;text-transform:uppercase;color:var(--t3);margin-bottom:10px}
-.rings-body{display:flex;align-items:center;gap:16px}
-.rings-svg{width:120px;height:120px;flex-shrink:0}
+.rings-body{display:flex;flex-direction:column;align-items:center;gap:10px;width:100%}
+.rings-svg{width:148px;height:148px;flex-shrink:0}
 .rings-svg svg{width:100%;height:100%}
-.rings-leg{flex:1;display:flex;flex-direction:column;gap:9px}
-@media(max-width:600px){
-  .rings-body{flex-direction:column;align-items:center;gap:10px}
-  .rings-svg{width:96px;height:96px}
-  .rings-leg{flex-direction:row;flex-wrap:wrap;justify-content:center;gap:4px 14px;width:100%}
-  .rleg-item{min-width:70px}
+.rings-leg{display:flex;flex-direction:row;justify-content:center;gap:10px;width:100%;flex-wrap:wrap}
+.rleg-item{display:flex;flex-direction:column;align-items:center;gap:2px;min-width:52px}
+.rleg-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-bottom:1px}
+.rleg-name{font-size:9px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.3px;text-align:center}
+.rleg-val{font-family:var(--fd);font-size:13px;font-weight:800;color:var(--t1);letter-spacing:-.2px;text-align:center}
+.rleg-sub{font-size:8px;color:var(--t4);text-align:center}
+
+/* ── CATEGORY TUBE BARS ──────────────────────── */
+.cat-tube-wrap{
+  display:flex;flex-direction:column;align-items:center;gap:4px;
+  flex:1;min-width:0;height:100%;justify-content:flex-end;
 }
+.cat-tube-track{
+  width:100%;flex:1;
+  background:var(--border2);border-radius:20px;
+  position:relative;overflow:hidden;min-height:20px;
+}
+.cat-tube-fill{
+  position:absolute;bottom:0;left:0;right:0;
+  border-radius:20px;
+  transition:height 1s cubic-bezier(.4,0,.2,1);
+}
+.cat-tube-label{
+  font-size:7px;font-weight:700;color:var(--t3);
+  text-transform:uppercase;letter-spacing:.3px;
+  text-align:center;white-space:nowrap;line-height:1.2;
+}
+.cat-tube-pct{
+  font-family:var(--fm);font-size:9px;font-weight:700;
+  text-align:center;line-height:1;
+}
+
+/* ── CATEGORY ARCS (legacy, keep for compat) ── */
+.cats-title{font-size:11px;font-weight:600;letter-spacing:.5px;text-transform:uppercase;color:var(--t3);margin-bottom:8px}
+.cats-grid{display:flex;gap:5px;align-items:flex-end}
+.cat-item{display:flex;flex-direction:column;align-items:center;gap:1px}
+.cat-arc{width:36px;height:20px;position:relative}
+.cat-arc svg{width:100%;height:100%;overflow:visible}
+.cat-name{font-size:7px;font-weight:700;color:var(--t3);text-align:center;text-transform:uppercase;letter-spacing:.2px}
+.cat-pct{font-family:var(--fm);font-size:9px;font-weight:700;color:var(--t2)}
 .rleg-item{display:flex;align-items:center;gap:7px}
 .rleg-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
 .rleg-name{font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.3px}
@@ -1011,15 +1038,23 @@ canvas{display:block}
         <!-- ══ ROW 1: Score · Rings · Categories ══ -->
         <div class="card w-score c1" id="w-score">
           <div class="clabel">Overall Score</div>
-          <div class="score-ring" style="margin:10px auto 8px">
-            <svg viewBox="0 0 118 118">
-              <circle class="sr-bg" cx="59" cy="59" r="49"/>
-              <circle class="sr-fill" id="sr-fill" cx="59" cy="59" r="49"
-                stroke-dasharray="307.9" stroke-dashoffset="307.9"/>
+          <div class="score-ring" style="margin:8px auto 6px">
+            <svg viewBox="0 0 160 160">
+              <!-- Outer ring track (workout bonus) -->
+              <circle cx="80" cy="80" r="74" fill="none" stroke="var(--border2)" stroke-width="6" id="sr-outer-bg" style="opacity:0;transition:opacity .4s"/>
+              <!-- Outer ring fill -->
+              <circle cx="80" cy="80" r="74" fill="none" stroke-width="6" stroke-linecap="round"
+                stroke-dasharray="464.96" stroke-dashoffset="464.96"
+                id="sr-outer-fill"
+                style="transition:stroke-dashoffset 1.1s cubic-bezier(.4,0,.2,1),stroke .4s,opacity .4s;opacity:0"/>
+              <!-- Inner ring: overall score (0-100) -->
+              <circle class="sr-bg" cx="80" cy="80" r="58"/>
+              <circle class="sr-fill" id="sr-fill" cx="80" cy="80" r="58"
+                stroke-dasharray="364.42" stroke-dashoffset="364.42"/>
             </svg>
             <div class="score-center">
               <div class="score-num" id="score-num">—</div>
-              <div class="score-sub">/ 100</div>
+              <div class="score-sub" id="score-sub-label" style="font-size:11px;font-weight:700;letter-spacing:.3px"></div>
             </div>
           </div>
           <div class="score-grade" id="score-grade" style="background:rgba(122,146,170,.12);color:var(--t3)">No data</div>
@@ -1029,14 +1064,14 @@ canvas{display:block}
         <div class="card w-rings c1" id="w-rings">
           <div class="clabel">Activity Rings</div>
           <div class="rings-body" style="margin-top:8px">
-            <div class="rings-svg"><svg viewBox="0 0 120 120" id="rings-svg" preserveAspectRatio="xMidYMid meet"></svg></div>
+            <div class="rings-svg"><svg viewBox="0 0 148 148" id="rings-svg" preserveAspectRatio="xMidYMid meet"></svg></div>
             <div class="rings-leg" id="rings-leg"></div>
           </div>
         </div>
 
         <div class="card w-cats c2" id="w-cats">
           <div class="clabel">Category Scores</div>
-          <div class="cats-grid" id="cats-grid" style="margin-top:8px"></div>
+          <div id="cats-grid" style="display:flex;align-items:flex-end;gap:4px;height:calc(100% - 28px);margin-top:8px;min-height:120px"></div>
         </div>
 
         <!-- ══ ROW 2: Active Cal · Steps · Standing · Exercise ══ -->
@@ -1711,6 +1746,12 @@ canvas{display:block}
 </script>
 <script>
 // ═══════════════════════════════════════════════
+// LINEAR SCORE KEYS (energy/activity fields with no upper cap)
+// ═══════════════════════════════════════════════
+const ENERGY_LINEAR_KEYS   = new Set(['google_fit_points','active_calories']);
+const ACTIVITY_LINEAR_KEYS = new Set(['standing_mins','exercise_mins','steps','distance_foot','stairs_climbed']);
+
+// ═══════════════════════════════════════════════
 // DATA SCHEMA
 // ═══════════════════════════════════════════════
 const M = {
@@ -1719,6 +1760,7 @@ energy:[
   {key:'active_calories',   label:'Active Calories',  unit:'kcal', bl:600, bh:null, bl2:250, bh2:null, scored:true},
   {key:'resting_calories',  label:'Resting Calories', unit:'kcal', bl:1700,bh:2100, bl2:1500,bh2:2500, scored:false},
   {key:'total_calories',    label:'Total Calories',   unit:'kcal', scored:false, computed:true},
+  {key:'net_energy_balance',label:'Net Energy',       unit:'kcal', bl:-200,bh:200, bl2:-700,bh2:700, scored:true, computed:true},
 ],
 activity:[
   {key:'standing_mins',     label:'Standing',         unit:'min',  bl:120, bh:null, bl2:30,  bh2:null, scored:true},
@@ -1778,22 +1820,22 @@ workout_strength:[
 workout_yoga:    [{key:'yoga_duration',     label:'Yoga',    unit:'min',bl:30,bh:null,bl2:10,bh2:null,scored:true}],
 workout_other:   [{key:'other_activity',    label:'Other',   unit:'min',bl:20,bh:null,bl2:5, bh2:null,scored:true}],
 vitals:[
-  {key:'heart_rate',        label:'Heart Rate',       unit:'bpm',  bl:55,bh:75,bl2:40,bh2:100,scored:true},
+  {key:'heart_rate',        label:'Heart Rate',       unit:'bpm',  bl:55,bh:75,bl2:40,bh2:100,scored:false},
   {key:'hr_high',           label:'High HR',          unit:'bpm',  scored:false},
   {key:'hr_low',            label:'Low HR',            unit:'bpm',  scored:false},
   {key:'resting_hr',        label:'Resting HR',       unit:'bpm',  bl:45,bh:60,bl2:35,bh2:80,scored:true},
-  {key:'walking_hr',        label:'Walking HR',       unit:'bpm',  bl:70,bh:95,bl2:55,bh2:120,scored:false},
+  {key:'walking_hr',        label:'Walking HR',       unit:'bpm',  bl:70,bh:95,bl2:55,bh2:120,scored:true},
   {key:'cardio_fitness',    label:'Cardio Fitness',   unit:'VO₂',  bl:45,  bh:null, bl2:25,  bh2:null, scored:true},
   {key:'cardio_recovery',   label:'Cardio Recovery',  unit:'bpm',  bl:20,  bh:null, bl2:5,   bh2:null, scored:true},
   {key:'hrv',               label:'HRV',              unit:'ms',   bl:60,  bh:null, bl2:20,  bh2:null, scored:true},
   {key:'blood_oxygen_high', label:'Blood Oxygen',     unit:'%',    bl:97,  bh:null, bl2:92,  bh2:null, scored:true},
   {key:'bp_systolic',       label:'BP Systolic',      unit:'mmHg', bl:null,bh:120, bl2:null,bh2:140,  scored:true},
   {key:'bp_diastolic',      label:'BP Diastolic',     unit:'mmHg', bl:null,bh:80,  bl2:null,bh2:90,   scored:true},
-  {key:'blood_glucose',     label:'Blood Glucose',    unit:'mg/dL',scored:false},
+  {key:'blood_glucose',     label:'Blood Glucose',    unit:'mg/dL',bl:70,  bh:100, bl2:54,  bh2:126,  scored:true},
   {key:'breath_high',       label:'Breath High',      unit:'brpm', scored:false},
   {key:'breath_low',        label:'Breath Low',       unit:'brpm', scored:false},
-  {key:'breath_avg',        label:'Breath Rate',      unit:'brpm', bl:12,bh:18,bl2:8,bh2:25, scored:false, computed:true},
-  {key:'hrr',               label:'HR Reserve',       unit:'bpm',  bl:60,bh:null,bl2:30,bh2:null, scored:false, computed:true},
+  {key:'breath_avg',        label:'Breath Rate',      unit:'brpm', bl:12,bh:18,bl2:8,bh2:25, scored:true, computed:true},
+  {key:'hrr',               label:'HR Reserve',       unit:'bpm',  bl:60,bh:null,bl2:30,bh2:null, scored:true, computed:true},
   {key:'fitness_age',       label:'Fitness Age',      unit:'yrs',  scored:false, computed:true},
   {key:'relative_effort',   label:'Relative Effort',  unit:'%',    bl:null,bh:70,bl2:null,bh2:85, scored:false, computed:true},
   {key:'vo2_efficiency',    label:'VO₂ Efficiency',   unit:'',     bl:0.5,bh:null,bl2:0.3,bh2:null, scored:false, computed:true},
@@ -1826,11 +1868,11 @@ body:[
   {key:'bmi',               label:'BMI',              unit:'',     bl:18.5,bh:25,  bl2:16,  bh2:30,   scored:true},
   {key:'body_fat_ratio',    label:'Body Fat',         unit:'%',    bl:null,bh:20,  bl2:null,bh2:30,   scored:true},
   {key:'muscle_rate',       label:'Muscle Rate',      unit:'%',    bl:72,  bh:null, bl2:60,  bh2:null, scored:true},
-  {key:'body_water',        label:'Body Water',       unit:'%',    bl:55,  bh:65,  bl2:45,  bh2:75,   scored:false},
+  {key:'body_water',        label:'Body Water',       unit:'%',    bl:55,  bh:65,  bl2:45,  bh2:75,   scored:true},
   {key:'bone_mass',         label:'Bone Mass',        unit:'kg',   scored:false},
   {key:'visceral_fat',      label:'Visceral Fat',     unit:'',     bl:null,bh:8,   bl2:null,bh2:15,   scored:true},
-  {key:'subcutaneous_fat',  label:'Subcut Fat',       unit:'%',    scored:false},
-  {key:'protein_mass',      label:'Protein',          unit:'%',    bl:16,  bh:null, bl2:10,  bh2:null, scored:false},
+  {key:'subcutaneous_fat',  label:'Subcut Fat',       unit:'%',    bl:null,bh:20,  bl2:null,bh2:30,   scored:true},
+  {key:'protein_mass',      label:'Protein',          unit:'%',    bl:16,  bh:null, bl2:10,  bh2:null, scored:true},
   {key:'muscle_mass',       label:'Muscle Mass',      unit:'kg',   scored:false},
   {key:'lean_body_mass',    label:'Lean Body Mass',   unit:'kg',   scored:false},
   {key:'waist_size',        label:'Waist',            unit:'cm',   bl:null,bh:90,  bl2:null,bh2:100,  scored:true},
@@ -1839,20 +1881,19 @@ body:[
 ],
 nutrition_macro:[
   {key:'water',             label:'Water',            unit:'L',    bl:2.5, bh:4,   bl2:1,   bh2:6,    scored:true},
-  {key:'dietary_calories',  label:'Dietary Calories', unit:'kcal', bl:1600,bh:2400,bl2:1000,bh2:3500, scored:false},
+  {key:'dietary_calories',  label:'Dietary Calories', unit:'kcal', bl:1600,bh:2400,bl2:1000,bh2:3500, scored:true},
   {key:'caffeine',          label:'Caffeine',         unit:'mg',   bl:null,bh:300, bl2:null,bh2:500,  scored:false},
   {key:'protein',           label:'Protein',          unit:'g',    bl:120, bh:null, bl2:40,  bh2:null, scored:true},
-  {key:'total_fats',          label:'Total Fats',       unit:'g',  bl:44,  bh:78,  bl2:20,  bh2:100, scored:false},
+  {key:'total_fats',          label:'Total Fats',       unit:'g',  bl:44,  bh:78,  bl2:20,  bh2:100, scored:true},
   {key:'saturated_fats',      label:'Saturated Fats',   unit:'g',  bl:null,bh:20,  bl2:null,bh2:30,  scored:false},
   {key:'monounsaturated_fats',label:'Mono Fats',        unit:'g',  bl:25,  bh:null,bl2:8,   bh2:null,scored:false},
   {key:'polyunsaturated_fats',label:'Poly Fats',        unit:'g',  bl:11,  bh:null,bl2:4,   bh2:null,scored:false},
   {key:'trans_fats',          label:'Trans Fats',       unit:'g',  bl:null,bh:2,   bl2:null,bh2:5,   scored:false},
-  {key:'carbohydrates',       label:'Carbs',            unit:'g',  bl:130, bh:325, bl2:50,  bh2:450, scored:false},
+  {key:'carbohydrates',       label:'Carbs',            unit:'g',  bl:130, bh:325, bl2:50,  bh2:450, scored:true},
   {key:'fiber',             label:'Fiber',            unit:'g',    bl:25,  bh:null, bl2:10,  bh2:null, scored:true},
-  {key:'sugar',             label:'Sugar',            unit:'g',  bl:null,bh:50,  bl2:null,bh2:90,  scored:false},
+  {key:'sugar',             label:'Sugar',            unit:'g',  bl:null,bh:50,  bl2:null,bh2:90,  scored:true},
   {key:'added_sugar',       label:'Added Sugar',      unit:'g',  bl:null,bh:25,  bl2:null,bh2:50,  scored:false},
-  {key:'cholesterol',       label:'Cholesterol',      unit:'mg', bl:null,bh:300, bl2:null,bh2:500, scored:false},
-  {key:'net_energy_balance',label:'Net Energy',       unit:'kcal', scored:false, computed:true},
+  {key:'cholesterol',       label:'Cholesterol',      unit:'mg', bl:null,bh:300, bl2:null,bh2:500, scored:true},
   {key:'carb_ratio',        label:'Carb Ratio',       unit:'%',    bl:45,bh:65,  bl2:20,bh2:80, scored:false, computed:true},
   {key:'fat_quality',       label:'Fat Quality',      unit:'%',    bl:70,bh:null,bl2:40,bh2:null,scored:false, computed:true},
   {key:'fiber_density',     label:'Fiber Density',    unit:'g/1000',bl:14,bh:null,bl2:7,bh2:null,scored:false, computed:true},
@@ -1861,35 +1902,35 @@ nutrition_macro:[
   {key:'fat_cal_pct',       label:'Fat Cal %',        unit:'%',    bl:20,bh:35,  bl2:10,bh2:50, scored:false, computed:true},
 ],
 minerals:[
-  {key:'calcium',   label:'Calcium',   unit:'mg', bl:1000,bh:2500,  bl2:500,  bh2:3000, scored:false},
+  {key:'calcium',   label:'Calcium',   unit:'mg', bl:1000,bh:2500,  bl2:500,  bh2:3000, scored:true},
   {key:'chloride',  label:'Chloride',  unit:'mg', bl:1800,bh:2300,  bl2:500,  bh2:3600, scored:false},
-  {key:'iron',      label:'Iron',      unit:'mg', bl:8,   bh:45,    bl2:3,    bh2:60,   scored:false},
-  {key:'magnesium', label:'Magnesium', unit:'mg', bl:320, bh:420,   bl2:100,  bh2:700,  scored:false},
+  {key:'iron',      label:'Iron',      unit:'mg', bl:8,   bh:45,    bl2:3,    bh2:60,   scored:true},
+  {key:'magnesium', label:'Magnesium', unit:'mg', bl:320, bh:420,   bl2:100,  bh2:700,  scored:true},
   {key:'phosphorus',label:'Phosphorus',unit:'mg', bl:700, bh:4000,  bl2:300,  bh2:5000, scored:false},
-  {key:'potassium', label:'Potassium', unit:'mg', bl:3500,bh:null,  bl2:1500, bh2:null, scored:false},
-  {key:'sodium',    label:'Sodium',    unit:'mg', bl:null,bh:2300,  bl2:null, bh2:3500, scored:false},
-  {key:'zinc',      label:'Zinc',      unit:'mg', bl:8,   bh:40,    bl2:3,    bh2:50,   scored:false},
+  {key:'potassium', label:'Potassium', unit:'mg', bl:3500,bh:null,  bl2:1500, bh2:null, scored:true},
+  {key:'sodium',    label:'Sodium',    unit:'mg', bl:null,bh:2300,  bl2:null, bh2:3500, scored:true},
+  {key:'zinc',      label:'Zinc',      unit:'mg', bl:8,   bh:40,    bl2:3,    bh2:50,   scored:true},
   {key:'chromium',  label:'Chromium',  unit:'mcg',bl:25,  bh:null,  bl2:10,   bh2:null, scored:false},
   {key:'copper',    label:'Copper',    unit:'mg', bl:0.9, bh:10,    bl2:0.3,  bh2:12,   scored:false},
-  {key:'iodine',    label:'Iodine',    unit:'mcg',bl:150, bh:1100,  bl2:50,   bh2:1500, scored:false},
+  {key:'iodine',    label:'Iodine',    unit:'mcg',bl:150, bh:1100,  bl2:50,   bh2:1500, scored:true},
   {key:'manganese', label:'Manganese', unit:'mg', bl:1.8, bh:11,    bl2:0.5,  bh2:14,   scored:false},
   {key:'molybdenum',label:'Molybdenum',unit:'mcg',bl:45,  bh:2000,  bl2:15,   bh2:2500, scored:false},
-  {key:'selenium',  label:'Selenium',  unit:'mcg',bl:55,  bh:400,   bl2:20,   bh2:500,  scored:false},
+  {key:'selenium',  label:'Selenium',  unit:'mcg',bl:55,  bh:400,   bl2:20,   bh2:500,  scored:true},
 ],
 vitamins:[
-  {key:'vitamin_a',          label:'Vitamin A',    unit:'mcg',bl:700,  bh:3000,  bl2:200,  bh2:4000,  scored:false},
-  {key:'vitamin_e',          label:'Vitamin E',    unit:'mg', bl:15,   bh:1000,  bl2:5,    bh2:1500,  scored:false},
-  {key:'vitamin_d',          label:'Vitamin D',    unit:'mcg',bl:15,   bh:100,   bl2:5,    bh2:150,   scored:false},
-  {key:'vitamin_c',          label:'Vitamin C',    unit:'mg', bl:75,   bh:2000,  bl2:20,   bh2:3000,  scored:false},
-  {key:'thiamin',            label:'Thiamin',      unit:'mg', bl:1.1,  bh:null,  bl2:0.4,  bh2:null,  scored:false},
-  {key:'riboflavin',         label:'Riboflavin',   unit:'mg', bl:1.1,  bh:null,  bl2:0.4,  bh2:null,  scored:false},
-  {key:'niacin',             label:'Niacin',       unit:'mg', bl:14,   bh:35,    bl2:5,    bh2:50,    scored:false},
-  {key:'pantothenic_acid',   label:'Pantothenic',  unit:'mg', bl:5,    bh:null,  bl2:1.5,  bh2:null,  scored:false},
-  {key:'vitamin_b6',         label:'Vitamin B6',   unit:'mg', bl:1.3,  bh:100,   bl2:0.4,  bh2:150,   scored:false},
-  {key:'biotin',             label:'Biotin',        unit:'mcg',bl:30,   bh:null,  bl2:10,   bh2:null,  scored:false},
-  {key:'folate',             label:'Folate',        unit:'mcg',bl:400,  bh:1000,  bl2:120,  bh2:1500,  scored:false},
-  {key:'vitamin_b12',        label:'Vitamin B12',  unit:'mcg',bl:2.4,  bh:null,  bl2:0.5,  bh2:null,  scored:false},
-  {key:'vitamin_k',          label:'Vitamin K',    unit:'mcg',bl:90,   bh:null,  bl2:30,   bh2:null,  scored:false},
+  {key:'vitamin_a',          label:'Vitamin A',    unit:'mcg',bl:700,  bh:3000,  bl2:200,  bh2:4000,  scored:true},
+  {key:'vitamin_e',          label:'Vitamin E',    unit:'mg', bl:15,   bh:1000,  bl2:5,    bh2:1500,  scored:true},
+  {key:'vitamin_d',          label:'Vitamin D',    unit:'mcg',bl:15,   bh:100,   bl2:5,    bh2:150,   scored:true},
+  {key:'vitamin_c',          label:'Vitamin C',    unit:'mg', bl:75,   bh:2000,  bl2:20,   bh2:3000,  scored:true},
+  {key:'thiamin',            label:'Thiamin',      unit:'mg', bl:1.1,  bh:null,  bl2:0.4,  bh2:null,  scored:true},
+  {key:'riboflavin',         label:'Riboflavin',   unit:'mg', bl:1.1,  bh:null,  bl2:0.4,  bh2:null,  scored:true},
+  {key:'niacin',             label:'Niacin',       unit:'mg', bl:14,   bh:35,    bl2:5,    bh2:50,    scored:true},
+  {key:'pantothenic_acid',   label:'Pantothenic',  unit:'mg', bl:5,    bh:null,  bl2:1.5,  bh2:null,  scored:true},
+  {key:'vitamin_b6',         label:'Vitamin B6',   unit:'mg', bl:1.3,  bh:100,   bl2:0.4,  bh2:150,   scored:true},
+  {key:'biotin',             label:'Biotin',        unit:'mcg',bl:30,   bh:null,  bl2:10,   bh2:null,  scored:true},
+  {key:'folate',             label:'Folate',        unit:'mcg',bl:400,  bh:1000,  bl2:120,  bh2:1500,  scored:true},
+  {key:'vitamin_b12',        label:'Vitamin B12',  unit:'mcg',bl:2.4,  bh:null,  bl2:0.5,  bh2:null,  scored:true},
+  {key:'vitamin_k',          label:'Vitamin K',    unit:'mcg',bl:90,   bh:null,  bl2:30,   bh2:null,  scored:true},
 ],
 screen:[
   {key:'book_time',      label:'Book',       unit:'min',bl:30,bh:null,bl2:5,bh2:null,scored:true},
@@ -1915,7 +1956,7 @@ movement:[
   {key:'vertical_oscillation', label:'Vertical Oscillation',unit:'cm',  bl:null,bh:8,   bl2:null,bh2:12,  scored:true},
   {key:'walk_asymmetry',       label:'Walk Asymmetry',     unit:'%',    bl:null,bh:3,   bl2:null,bh2:8,   scored:true},
   {key:'walking_step_length',  label:'Step Length',        unit:'cm',   bl:65,  bh:85,  bl2:50,  bh2:100, scored:true},
-  {key:'movement_score',       label:'Movement Score',     unit:'%',    bl:80,  bh:null, bl2:40, bh2:null, scored:true, computed:true},
+  {key:'movement_score',       label:'Movement Score',     unit:'%',    bl:80,  bh:null, bl2:40, bh2:null, scored:true},
 ],
 };
 
@@ -1966,6 +2007,13 @@ function scoreFieldV2(key, val){
   const {bl,bh,bl2,bh2} = f;
   // higher is better (bl = best_lo threshold)
   if(bl!=null&&bh==null){
+    // Energy & Activity linear keys: score grows linearly above 100 with no cap
+    if(ENERGY_LINEAR_KEYS.has(key) || ACTIVITY_LINEAR_KEYS.has(key)){
+      if(val < 0) return 0;
+      if(bl2!=null&&val<=bl2) return 0;
+      if(bl2!=null&&val<bl) return Math.round((val-bl2)/(bl-bl2)*100);
+      return Math.round(val < bl ? val/bl*100 : 100 + (val - bl)/bl*50); // half-rate above 100
+    }
     if(val>=bl) return 100;
     if(bl2!=null&&val<=bl2) return 0;
     if(bl2!=null) return Math.round((val-bl2)/(bl-bl2)*100);
@@ -1989,17 +2037,31 @@ function scoreFieldV2(key, val){
 
 function scoreColor(s){
   if(s==null) return 'var(--t3)';
-  if(s>=85) return 'var(--good)';
-  if(s>=60) return 'var(--accent)';
-  if(s>=35) return 'var(--warn)';
+  if(s>=150) return '#064E3B'; // super-elite: darkest green
+  if(s>=100) return '#047857'; // elite: dark green
+  if(s>=85)  return 'var(--good)';
+  if(s>=60)  return 'var(--accent)';
+  if(s>=35)  return 'var(--warn)';
+  return 'var(--danger)';
+}
+// Linear categories (energy/activity) — same tiers as scoreColor but no cap
+function scoreColorLinear(s){
+  if(s==null) return 'var(--t3)';
+  if(s>=150) return '#064E3B';  // darkest green
+  if(s>=100) return '#047857';  // dark green
+  if(s>=85)  return 'var(--good)';
+  if(s>=60)  return 'var(--accent)';
+  if(s>=35)  return 'var(--warn)';
   return 'var(--danger)';
 }
 // Canvas cannot use CSS variables — resolve to real hex
 function scoreColorHex(s){
   if(s==null) return '#9CA3AF';
-  if(s>=85) return '#10B981';
-  if(s>=60) return '#3B82F6';
-  if(s>=35) return '#F59E0B';
+  if(s>=150) return '#064E3B'; // super-elite
+  if(s>=100) return '#047857'; // elite
+  if(s>=85)  return '#10B981';
+  if(s>=60)  return '#3B82F6';
+  if(s>=35)  return '#F59E0B';
   return '#EF4444';
 }
 
@@ -2032,12 +2094,14 @@ function _toHex(cssVar){
 }
 
 function gradeFromScore(s){
-  if(s==null) return {label:'No data',bg:'rgba(122,146,170,.12)',c:'var(--t3)'};
-  if(s>=90) return {label:'Excellent',bg:'rgba(16,185,129,.12)',c:'var(--good)'};
-  if(s>=75) return {label:'Great',    bg:'rgba(16,185,129,.1)', c:'var(--good)'};
-  if(s>=60) return {label:'Good',     bg:'rgba(59,130,246,.1)', c:'var(--accent)'};
-  if(s>=40) return {label:'Fair',     bg:'rgba(245,158,11,.1)', c:'var(--warn)'};
-  return             {label:'Needs work',bg:'rgba(239,68,68,.1)',c:'var(--danger)'};
+  if(s==null)  return {label:'No data',    bg:'rgba(122,146,170,.12)', c:'var(--t3)'};
+  if(s>=150)   return {label:'Super Elite',bg:'rgba(6,78,59,.18)',     c:'#064E3B'};
+  if(s>=100)   return {label:'Elite',      bg:'rgba(4,120,87,.15)',    c:'#047857'};
+  if(s>=90)    return {label:'Excellent',  bg:'rgba(16,185,129,.12)',  c:'var(--good)'};
+  if(s>=75)    return {label:'Great',      bg:'rgba(16,185,129,.1)',   c:'var(--good)'};
+  if(s>=60)    return {label:'Good',       bg:'rgba(59,130,246,.1)',   c:'var(--accent)'};
+  if(s>=40)    return {label:'Fair',       bg:'rgba(245,158,11,.1)',   c:'var(--warn)'};
+  return               {label:'Needs work', bg:'rgba(239,68,68,.1)',   c:'var(--danger)'};
 }
 
 
@@ -2351,14 +2415,58 @@ function renderLocalInsightsHtml(catId, dates){
   </div>`;
 }
 
+// ─────────────────────────────────────────────────────────────
+// NEW WORKOUT SCORING (sub-metric weighted, no upper cap)
+// Activities scored in order: Walk, Cycle, Strength, Run, Yoga, Others
+// Score table: 1→50, 2→100, 3→125, 4→150, 5→200, 6→300, 7+→+100 each
+// ─────────────────────────────────────────────────────────────
+const _WACT_WEIGHTS = {
+  walk:     [{key:'walk_distance',pts:30},{key:'walk_elevation',pts:5},{key:'walk_best_pace',pts:5},{key:'walk_avg_pace',pts:5},{key:'walk_spm',pts:5}],
+  cycle:    [{key:'cycle_distance',pts:30},{key:'cycle_elevation',pts:5},{key:'cycle_cadence',pts:5},{key:'cycle_best_pace',pts:5},{key:'cycle_avg_pace',pts:5}],
+  strength: [{key:'strength_training',pts:50}],
+  run:      [{key:'run_distance',pts:30},{key:'run_elevation',pts:5},{key:'run_cadence',pts:5},{key:'run_avg_pace',pts:5},{key:'run_best_pace',pts:5}],
+  yoga:     [{key:'yoga_duration',pts:50}],
+  other:    [{key:'other_activity',pts:50}],
+};
+const _WACT_ORDER = ['walk','cycle','strength','run','yoga','other'];
+const _WACT_BONUS = [0,50,100,125,150,200,300]; // max score per activity count (index=count)
+
+function _scoreActivity(actKey, e){
+  const metrics = _WACT_WEIGHTS[actKey];
+  if(!metrics) return 0;
+  const pv = e[metrics[0].key];
+  if(pv==null||pv<=0) return 0;
+  let earned=0;
+  for(const {key,pts} of metrics){
+    const val=e[key]; if(val==null||val<=0) continue;
+    const s=scoreFieldV2(key,val);
+    earned += s!=null ? (s/100)*pts : pts*0.5;
+  }
+  return Math.min(50,Math.round(earned));
+}
+
+function computeWorkoutScore(e){
+  const results = _WACT_ORDER.map(act=>({act, score50:_scoreActivity(act,e)}));
+  const completed = results.filter(r=>r.score50>0);
+  const n = completed.length;
+  if(n===0) return {wScore:0,wRaw:0,wCompleted:0,workoutElite:false,activityScores:results};
+  const bonusIdx = Math.min(n, _WACT_BONUS.length-1);
+  let maxPossible = _WACT_BONUS[bonusIdx];
+  if(n>6) maxPossible += (n-6)*100;
+  const avgPct = completed.reduce((sum,r)=>sum+r.score50/50,0)/n;
+  const wRaw = Math.round(avgPct*maxPossible);
+  return {wScore:wRaw, wRaw, wCompleted:n, workoutElite:wRaw>100, activityScores:results};
+}
+// ─────────────────────────────────────────────────────────────
+
 function computeScore(date){
   if(isRestDay && isRestDay(date)) return {overall:null, catScores:{}, workoutBonus:0, workoutTypes:0, workoutElite:false, wCompleted:0};
   const e = computeAllFields(getEntry(date));
-  const catW = {energy:10,activity:12,workout:12,vitals:15,sleep:15,physique:15,nutrition:10,screen:5,habits:8};
+  const catW = {energy:10,activity:12,workout:12,vitals:15,sleep:15,physique:12,nutrition:12,screen:5,habits:7};
   let totalW=0, totalS=0;
   const catScores = {};
   CATS.forEach(cat=>{
-    const fields = cat.sections.flatMap(s=>M[s]||[]).filter(f=>f.scored&&!f.computed);
+    const fields = cat.sections.flatMap(s=>M[s]||[]).filter(f=>f.scored);
     const scores = fields.map(f=>{
       // Use date-aware scoring for schedule categories
       if(typeof scoreFieldForDate === 'function' && SCHEDULE_CATS && SCHEDULE_CATS.has(f.key))
@@ -2367,22 +2475,10 @@ function computeScore(date){
     }).filter(s=>s!=null);
     if(scores.length){ const sc=Math.round(scores.reduce((a,b)=>a+b,0)/scores.length); catScores[cat.id]=sc; const w=catW[cat.id]||5; totalS+=sc*w; totalW+=w; }
   });
-  // Workout scoring (out of 50 per activity):
-  // scoreWorkoutField returns 0–50. Sum them all — no cap during accumulation.
-  // wRawTotal > 100 → ELITE dark green. Display always capped at 100.
-  // Adding any workout can only increase the total, never decrease it.
-  const WACT_KEYS = ['walk_distance','run_distance','cycle_distance','strength_training','yoga_duration','other_activity'];
-  const wActScores50 = WACT_KEYS.map(k => {
-    const v = e[k]; if(v==null||v<=0) return 0;
-    const s = scoreWorkoutField(k, v);
-    return s != null ? s : 25; // no score fn → any logged value = 25/50
-  });
-  const wRawTotal = wActScores50.reduce((sum, s) => sum + s, 0); // each already out of 50
-  const wScore = Math.min(100, Math.round(wRawTotal));
-  const workoutElite = wRawTotal > 100;
+  // Workout scoring — new sub-metric weighted system, no upper cap
+  const {wScore, wRaw, wCompleted, workoutElite, activityScores} = computeWorkoutScore(e);
   catScores.workout = wScore;
-  const wTypes = WACT_KEYS.filter(k=>{ const v=e[k]; return v!=null&&v>0; }).length;
-  const wCompleted = wActScores50.filter(s=>s>0).length;
+  const wTypes = wCompleted;
   const workoutBonus = workoutElite ? 5 : wCompleted>=2 ? 3 : 0;
   // Recalculate overall with updated workout score
   let totalW2=0, totalS2=0;
@@ -2390,9 +2486,26 @@ function computeScore(date){
     const s = catScores[cat.id];
     if(s!=null){ const w=catW[cat.id]||5; totalS2+=s*w; totalW2+=w; }
   });
-  const base = totalW2>0 ? Math.round(totalS2/totalW2) : null;
-  const overall = base!=null ? Math.min(100,base+workoutBonus) : null;
-  return {overall, catScores, workoutBonus, workoutTypes:wTypes, workoutElite, wCompleted};
+  // Cap energy & activity at 100 for overall — excess goes to outer ring only
+  const cappedCatScores = {};
+  Object.entries(catScores).forEach(([k,v]) => {
+    cappedCatScores[k] = (k==='energy'||k==='activity') ? Math.min(100, v??0) : v;
+  });
+  let totalW3=0, totalS3=0;
+  CATS.forEach(cat=>{
+    const s = cappedCatScores[cat.id];
+    if(s!=null){ const w=catW[cat.id]||5; totalS3+=s*w; totalW3+=w; }
+  });
+  const base = totalW3>0 ? Math.round(totalS3/totalW3) : null;
+  const overall = base!=null ? base + workoutBonus : null;
+  // Raw (uncapped) total for outer ring display
+  const energyCatRaw   = catScores.energy   ?? null;
+  const activityCatRaw = catScores.activity ?? null;
+  const energyOver  = energyCatRaw   != null ? Math.max(0, energyCatRaw   - 100) : 0;
+  const activityOver= activityCatRaw != null ? Math.max(0, activityCatRaw - 100) : 0;
+  // maxScore = what the score would be if excess also counted fully (for display under ring)
+  const maxScore = overall!=null ? overall + Math.round(energyOver/2) + Math.round(activityOver/2) : null;
+  return {overall, catScores, workoutBonus, workoutTypes:wTypes, workoutElite, wCompleted, energyOver, activityOver, maxScore};
 }
 
 // ── PERIOD STATE ─────────────────────────────
@@ -2419,12 +2532,30 @@ function setPeriod(p, btn){
   pr.style.display = p==='range'?'flex':'none';
   if(p!=='date'&&p!=='range'){ periodFrom=null; periodTo=null; }
   renderDashboard();
+  _syncAHDashboardPages();
 }
-function onDatePick(){ periodFrom = document.getElementById('pd-date-inp').value; renderDashboard(); }
+function onDatePick(){ periodFrom = document.getElementById('pd-date-inp').value; renderDashboard(); _syncAHDashboardPages(); }
 function applyRange(){
   periodFrom = document.getElementById('pr-from').value;
   periodTo   = document.getElementById('pr-to').value;
-  if(periodFrom&&periodTo) renderDashboard();
+  if(periodFrom&&periodTo){ renderDashboard(); _syncAHDashboardPages(); }
+}
+
+// Re-render any AH page that is currently visible AND in Dashboard sync mode
+function _syncAHDashboardPages(){
+  const ahPageMap = {
+    'ah-energy':'energy','ah-activity':'activity','ah-workout':'workout',
+    'ah-vitals':'vitals','ah-sleep':'sleep','ah-physique':'physique',
+    'ah-nutrition':'nutrition','ah-screen':'screen','ah-habits':'habits',
+  };
+  Object.entries(ahPageMap).forEach(([pageElId, ahId])=>{
+    const el = document.getElementById('page-'+pageElId);
+    if(el && el.classList.contains('on')){
+      // Only re-render if this page is in Dashboard mode (or not yet set = defaults to Dashboard)
+      const sort = ahSortState[ahId] || 'Dashboard';
+      if(sort === 'Dashboard') renderAHPage(ahId);
+    }
+  });
 }
 
 // ── FORMAT HELPERS ───────────────────────────
@@ -3060,7 +3191,7 @@ function renderDashboard(){
   // ── Score — average across selected period, not just latest ──
   let scoreData;
   if(single){
-    scoreData = latest ? computeScore(latest) : {overall:null,catScores:{},workoutBonus:0,workoutTypes:0,workoutElite:false,wCompleted:0};
+    scoreData = latest ? computeScore(latest) : {overall:null,catScores:{},workoutBonus:0,workoutTypes:0,workoutElite:false,wCompleted:0,energyOver:0,activityOver:0,maxScore:null};
   } else {
     // Average catScores across all dates in period
     const periodScores = dates.map(d=>computeScore(d)).filter(s=>s.overall!=null);
@@ -3070,58 +3201,114 @@ function renderDashboard(){
         const vals = periodScores.map(s=>s.catScores[cat]).filter(v=>v!=null);
         if(vals.length) avgCat[cat] = Math.round(vals.reduce((a,b)=>a+b,0)/vals.length);
       });
-      const catW = {energy:10,activity:12,workout:12,vitals:15,sleep:15,physique:15,nutrition:10,screen:5,habits:8};
+      const catW = {energy:10,activity:12,workout:12,vitals:15,sleep:15,physique:12,nutrition:12,screen:5,habits:7};
       let tw=0,ts=0;
       Object.entries(avgCat).forEach(([k,v])=>{ const w=catW[k]||5; ts+=v*w; tw+=w; });
       const avgOverall = tw>0 ? Math.round(ts/tw) : null;
-      scoreData = {overall:avgOverall, catScores:avgCat, workoutBonus:0, workoutTypes:0, workoutElite:periodScores.some(s=>s.workoutElite), wCompleted:0};
+      const avgEO = Math.round(periodScores.map(s=>s.energyOver||0).reduce((a,b)=>a+b,0)/periodScores.length);
+      const avgAO = Math.round(periodScores.map(s=>s.activityOver||0).reduce((a,b)=>a+b,0)/periodScores.length);
+      const avgMax = avgOverall!=null ? avgOverall + Math.round(avgEO/2) + Math.round(avgAO/2) : null;
+      scoreData = {overall:avgOverall, catScores:avgCat, workoutBonus:0, workoutTypes:0, workoutElite:periodScores.some(s=>s.workoutElite), wCompleted:0, energyOver:avgEO, activityOver:avgAO, maxScore:avgMax};
     } else {
-      scoreData = {overall:null,catScores:{},workoutBonus:0,workoutTypes:0,workoutElite:false,wCompleted:0};
+      scoreData = {overall:null,catScores:{},workoutBonus:0,workoutTypes:0,workoutElite:false,wCompleted:0,energyOver:0,activityOver:0,maxScore:null};
     }
   }
-  const {overall, catScores, workoutBonus, workoutTypes, workoutElite, wCompleted} = scoreData;
-  const circ = 307.9;
-  const fill = overall!=null ? circ*(1-overall/100) : circ;
+  const {overall, catScores, workoutBonus, workoutTypes, workoutElite, wCompleted, energyOver=0, activityOver=0, maxScore=null} = scoreData;
+  const innerCirc = 364.42; // 2π×58 — inner ring
+  const outerCirc = 464.96; // 2π×74 — outer ring (workout bonus)
+
+  // Inner ring: overall score capped visually at 100
+  const arcPct = overall!=null ? Math.min(overall, 100) : 0;
+  const fill = overall!=null ? innerCirc*(1-arcPct/100) : innerCirc;
   const grade = gradeFromScore(overall);
   const srf = document.getElementById('sr-fill');
   srf.style.stroke = grade.c;
   srf.style.strokeDashoffset = fill;
   document.getElementById('score-num').textContent = overall??'—';
   document.getElementById('score-num').style.color = grade.c;
+  // Sub-label under number: show maxScore (with bonus) if it exceeds overall
+  const subLbl = document.getElementById('score-sub-label');
+  if(subLbl) subLbl.textContent = (maxScore!=null && maxScore > overall) ? maxScore : '';
   const sg = document.getElementById('score-grade');
-  sg.textContent=grade.label; sg.style.background=grade.bg; sg.style.color=grade.c;
+  sg.textContent = overall!=null ? `Agg Score: ${overall}` : grade.label;
+  sg.style.background=grade.bg; sg.style.color=grade.c;
+
+  // Outer ring: workout + energy excess + activity excess combined
+  const wVal  = catScores&&catScores.workout!=null ? catScores.workout : 0;
+  const eOver = energyOver;
+  const aOver = activityOver;
+  // Workout scored out of 300; energy/activity excess each weighted ×1.5 → combined out of 450
+  const outerCombined = wVal + eOver * 1.5 + aOver * 1.5;
+  const outerBg  = document.getElementById('sr-outer-bg');
+  const outerFill = document.getElementById('sr-outer-fill');
+  const subLabel  = document.getElementById('score-sub-label');
+  if(outerCombined > 0){
+    const isSuperElite = outerCombined >= 300;
+    const isElite      = outerCombined >= 150;
+    const outerColor   = isSuperElite ? '#064E3B'
+      : isElite         ? '#047857'
+      : (eOver>0||aOver>0) ? '#FF6B35'
+      : '#10B981';
+    const outerPct    = Math.min(outerCombined / 450, 1);
+    const outerOffset = outerCirc * (1 - outerPct);
+    outerBg.style.opacity  = '1';
+    outerFill.style.opacity = '1';
+    outerFill.style.stroke  = outerColor;
+    outerFill.style.strokeDashoffset = outerOffset;
+    if(subLabel) subLabel.textContent = 'Overall';
+  } else {
+    outerBg.style.opacity  = '0';
+    outerFill.style.opacity = '0';
+    outerFill.style.strokeDashoffset = outerCirc;
+    if(subLabel) subLabel.textContent = 'Overall';
+  }
   const bb=document.getElementById('workout-bonus-badge');
   if(bb){
-    const {workoutElite:we, wCompleted:wc, workoutBonus:wb, workoutTypes:wt} = scoreData;
-    if(wb>0||wt>0){
-      if(we){ bb.innerHTML=`<span style="color:#047857;font-weight:800">🏆 ELITE — ${wc}+ activities completed!</span>`; }
-      else if(wc>=2){ bb.innerHTML=`<span>✅ ${wc} activities completed</span>`; }
-      else if(wc===1){ bb.innerHTML=`<span style="color:var(--warn,#F59E0B)">💪 ${wt} activity — complete 1 more for full score</span>`; }
-      else { bb.innerHTML=`<span>💪 ${wt} activities tracked</span>`; }
+    const {workoutElite:we, wCompleted:wc, workoutBonus:wb, energyOver:_eo=0, activityOver:_ao=0} = scoreData;
+    const _eb = Math.round(_eo/2), _ab = Math.round(_ao/2);
+    const extraParts=[];
+    if(_eb>0) extraParts.push(`⚡ Energy +${_eb}`);
+    if(_ab>0) extraParts.push(`🏃 Activity +${_ab}`);
+    const extraStr = extraParts.length ? ' · '+extraParts.join(' · ') : '';
+    if(wc>0 || _eb>0 || _ab>0){
+      if(outerCombined>=300){ bb.innerHTML=`<span style="color:#064E3B;font-weight:800">🌟 SUPER ELITE — ${wc} activities · ${wVal}pts${extraStr}</span>`; }
+      else if(we||outerCombined>=150){ bb.innerHTML=`<span style="color:#047857;font-weight:800">🏆 ELITE — ${wc} activities · ${wVal}pts${extraStr}</span>`; }
+      else if(wc>=2){ bb.innerHTML=`<span>✅ ${wc} activities completed${extraStr}</span>`; }
+      else if(wc===1){ bb.innerHTML=`<span style="color:var(--warn,#F59E0B)">💪 1 activity — add more for bonus${extraStr}</span>`; }
+      else { bb.innerHTML=`<span style="color:var(--ce,#FF6B35);font-weight:700">${extraParts.join(' · ')}</span>`; }
       bb.style.display='inline-block';
     } else { bb.style.display='none'; }
   }
 
-  // ── Category arcs ──
+  // ── Category tube bars ──
   const {workoutElite:_wElite} = scoreData;
   document.getElementById('cats-grid').innerHTML = CATS.map(cat=>{
     const s = catScores[cat.id]??null;
-    const col = (s!=null && s>=100) ? '#047857' : scoreColor(s);
-    const r=22;
-    const circumference = Math.PI*r;
-    const offset = circumference*(1-(s??0)/100);
-    return `<div class="cat-item">
-      <div class="cat-arc">
-        <svg viewBox="0 0 54 30" width="54" height="30">
-          <path d="M5,28 A22,22 0 0,1 49,28" fill="none" stroke="var(--border2)" stroke-width="5" stroke-linecap="round"/>
-          <path d="M5,28 A22,22 0 0,1 49,28" fill="none" stroke="${col}" stroke-width="5"
-            stroke-linecap="round" stroke-dasharray="${circumference}" stroke-dashoffset="${offset}"
-            style="transition:stroke-dashoffset .9s cubic-bezier(.4,0,.2,1)"/>
-        </svg>
+    // Energy & Activity bars can exceed 100 — scale bar to 200 max for visual overflow
+    const isLinearCat = cat.id==='energy' || cat.id==='activity';
+    const barMax = isLinearCat ? 200 : 100;
+    const pct = s!=null ? Math.min(s, barMax) / barMax * 100 : 0;
+    const col = s==null ? 'var(--border2)'
+      : s>=150 ? '#064E3B'
+      : s>=100 ? (isLinearCat ? '#FF6B35' : '#047857')
+      : s>=85  ? '#10B981'
+      : s>=60  ? '#3B82F6'
+      : s>=35  ? '#F59E0B'
+      : '#EF4444';
+    const bgCol = s==null ? 'rgba(122,146,170,.08)'
+      : s>=150 ? 'rgba(4,120,87,.12)'
+      : s>=100 ? 'rgba(4,120,87,.12)'
+      : s>=85  ? 'rgba(16,185,129,.1)'
+      : s>=60  ? 'rgba(59,130,246,.1)'
+      : s>=35  ? 'rgba(245,158,11,.1)'
+      : 'rgba(239,68,68,.1)';
+    const scoreLbl = s!=null ? (s>100 && isLinearCat ? `${s}⚡` : s) : '—';
+    return `<div class="cat-tube-wrap">
+      <div class="cat-tube-pct" style="color:${col}">${scoreLbl}</div>
+      <div class="cat-tube-track" style="background:${bgCol}">
+        <div class="cat-tube-fill" style="height:${pct}%;background:${col};opacity:0.85"></div>
       </div>
-      <div style="width:16px;height:16px;margin:0 auto 1px"><img src="${cat.icon}" width="16" height="16" style="border-radius:2px"></div>
-      <div class="cat-name">${cat.label}</div>
-      <div class="cat-pct" style="color:${col}">${s!=null?s+'%':'—'}</div>
+      <div class="cat-tube-label">${cat.label}</div>
     </div>`;
   }).join('');
 
@@ -3152,47 +3339,45 @@ function renderDashboard(){
   // On rest days, override colours to grey
   const _restGrey = '#8899AA';
   const ringDefs = [
-    {key:'move',     label:'Move',  val:ringVals.move,     target:moveTarget,     elite:moveElite,     unit:'kcal',  lightColor:isRestDayView?_restGrey:(lookColors.ringMoveLight||'#FFB3C1'),  darkColor:isRestDayView?_restGrey:(lookColors.ringMoveDark||'#D81B60'),  radius:52},
-    {key:'exercise', label:'Exer',  val:ringVals.exercise, target:exerciseTarget, elite:exerciseElite, unit:'min',   lightColor:isRestDayView?_restGrey:(lookColors.ringExerLight||'#88FC03'),  darkColor:isRestDayView?_restGrey:(lookColors.ringExerDark||'#77C71C'),  radius:40},
-    {key:'steps',    label:'Steps', val:ringVals.steps,    target:stepsTarget,    elite:stepsElite,    unit:'steps', lightColor:isRestDayView?_restGrey:(lookColors.ringStepsLight||'#00F5F5'), darkColor:isRestDayView?_restGrey:(lookColors.ringStepsDark||'#38BABA'), radius:28},
+    {key:'move',     label:'Move',     val:ringVals.move,     target:moveTarget,     elite:moveElite,     unit:'kcal',  lightColor:isRestDayView?_restGrey:(lookColors.ringMoveLight||'#FFB3C1'),  darkColor:isRestDayView?_restGrey:(lookColors.ringMoveDark||'#D81B60'),  radius:60},
+    {key:'exercise', label:'Exercise', val:ringVals.exercise, target:exerciseTarget, elite:exerciseElite, unit:'min',   lightColor:isRestDayView?_restGrey:(lookColors.ringExerLight||'#88FC03'),  darkColor:isRestDayView?_restGrey:(lookColors.ringExerDark||'#77C71C'),  radius:46},
+    {key:'steps',    label:'Steps',    val:ringVals.steps,    target:stepsTarget,    elite:stepsElite,    unit:'steps', lightColor:isRestDayView?_restGrey:(lookColors.ringStepsLight||'#00F5F5'), darkColor:isRestDayView?_restGrey:(lookColors.ringStepsDark||'#38BABA'), radius:32},
   ];
   
-  // Render nested SVG rings
-  const CX = 60, CY = 60;
+  // Render nested SVG rings — larger, thicker
+  const CX = 74, CY = 74;
   document.getElementById('rings-svg').innerHTML = ringDefs.map(rg=>{
     const pctRaw = rg.val / rg.target;
-    const pctCapped = Math.min(pctRaw, 1); // 0-100% at most
-    // below target: light colour at reduced opacity (handled via stroke opacity on track)
-    // at target (>=100%): light colour; at elite: dark colour
+    const pctCapped = Math.min(pctRaw, 1);
     const isElite  = rg.elite  > 0 && rg.val >= rg.elite;
     const ringColor = isElite ? rg.darkColor : rg.lightColor;
     const circumference = 2 * Math.PI * rg.radius;
     const strokeDash = pctCapped * circumference;
-    
     return `
-      <circle cx="${CX}" cy="${CY}" r="${rg.radius}" fill="none" stroke="${ringColor}22" stroke-width="6"/>
-      <circle cx="${CX}" cy="${CY}" r="${rg.radius}" fill="none" stroke="${ringColor}" stroke-width="6"
+      <circle cx="${CX}" cy="${CY}" r="${rg.radius}" fill="none" stroke="${ringColor}22" stroke-width="10"/>
+      <circle cx="${CX}" cy="${CY}" r="${rg.radius}" fill="none" stroke="${ringColor}" stroke-width="10"
         stroke-linecap="round" stroke-dasharray="${circumference}" stroke-dashoffset="${circumference - strokeDash}"
         style="transition:stroke-dashoffset .9s cubic-bezier(.4,0,.2,1);transform-origin:${CX}px ${CY}px;transform:rotate(-90deg)"/>
     `;
   }).join('');
   
-  // Render legend
+  // Render legend — centred row below the ring: Move · Exercise · Steps
   document.getElementById('rings-leg').innerHTML = ringDefs.map(rg=>{
     const pctD = rg.val > 0 ? Math.round((rg.val / rg.target) * 100) : 0;
     const isElite  = rg.elite  > 0 && rg.val >= rg.elite;
     const ringColor = isElite ? rg.darkColor : rg.lightColor;
-    const dispVal = rg.key === 'steps' ? rg.val.toLocaleString() : rg.key === 'exercise' ? fmtTime(rg.val) : Math.round(rg.val).toLocaleString();
+    const dispVal = rg.key === 'steps'
+      ? Math.round(rg.val).toLocaleString()
+      : rg.key === 'exercise'
+        ? fmtTime(rg.val)
+        : Math.round(rg.val).toLocaleString();
     const eliteLabel = isElite ? ' 🏆' : '';
-    
-    const pctLabel = isRestDayView ? 'Rest day' : (pctD > 100 ? `${pctD}% of goal 🔥` : `${pctD}% of goal`);
+    const pctLabel = isRestDayView ? 'Rest' : `${pctD}%`;
     return `<div class="rleg-item">
       <div class="rleg-dot" style="background:${ringColor}"></div>
-      <div>
-        <div class="rleg-name">${rg.label}${eliteLabel}</div>
-        <div class="rleg-val" style="color:${ringColor}">${dispVal}<span style="font-size:10px;color:var(--t4);margin-left:3px">${rg.unit}</span></div>
-        <div class="rleg-sub">${pctLabel}</div>
-      </div>
+      <div class="rleg-name">${rg.label}${eliteLabel}</div>
+      <div class="rleg-val" style="color:${ringColor}">${dispVal}</div>
+      <div class="rleg-sub">${pctLabel} of goal</div>
     </div>`;
   }).join('');
 
@@ -3582,6 +3767,13 @@ function scoreFieldV2(key, val){
   }
   // Only lo (higher is better)
   if(lo != null && hi == null){
+    // Energy & Activity linear keys: score grows linearly above 100 with no cap
+    if(ENERGY_LINEAR_KEYS.has(key) || ACTIVITY_LINEAR_KEYS.has(key)){
+      if(val < 0) return 0;
+      if(w1 != null && val <= w1) return 0;
+      if(w1 != null && val < lo) return Math.round((val - w1) / (lo - w1) * 100);
+      return Math.round(val < lo ? val / lo * 100 : 100 + (val - lo) / lo * 50); // half-rate above 100
+    }
     if(val >= lo) return 100;
     if(w1 != null && val <= w1) return 0;
     if(w1 != null) return Math.round((val - w1) / (lo - w1) * 100);
@@ -5864,6 +6056,11 @@ window.addEventListener('load', ()=>{
 .ah-sort-btn.on {
   background:var(--accent); color:#fff; border-color:transparent;
 }
+/* Dashboard sync button gets a special teal style when active */
+.ah-sort-btn.on[onclick*="'Dashboard'"] {
+  background:linear-gradient(135deg,#0891B2,#0EA5E9);
+  box-shadow:0 2px 10px rgba(8,145,178,.3);
+}
 
 /* Score banner */
 .ah-score-banner {
@@ -6040,13 +6237,22 @@ window.addEventListener('load', ()=>{
 // ═══════════════════════════════════════════════
 // AH SORT STATE
 // ═══════════════════════════════════════════════
-const AH_SORTS = ['Latest','Last 7','Last 30'];
+const AH_SORTS = ['Dashboard','Latest','Last 7','Last 30'];
 let ahSortState = {};  // pageId -> sort label
 
 function getAHDates(pageId){
-  const sort = ahSortState[pageId] || 'Latest';
+  const sort = ahSortState[pageId] || 'Dashboard';
   const all  = allDates();
   if(!all.length) return [];
+  // Dashboard: mirror the dashboard period selection exactly
+  if(sort === 'Dashboard'){
+    if(period === 'latest') return [all[all.length-1]];
+    if(period === '7')  return all.slice(-7);
+    if(period === '30') return all.slice(-30);
+    if(period === 'date' && periodFrom) return all.filter(d => d === periodFrom);
+    if(period === 'range' && periodFrom && periodTo) return all.filter(d => d >= periodFrom && d <= periodTo);
+    return [all[all.length-1]];
+  }
   if(sort === 'Latest')  return [all[all.length-1]];
   if(sort === 'Last 7')  return all.slice(-7);
   if(sort === 'Last 30') return all.slice(-30);
@@ -6054,9 +6260,18 @@ function getAHDates(pageId){
 }
 
 function ahSortBar(pageId){
-  const cur   = ahSortState[pageId] || 'Latest';
+  const cur   = ahSortState[pageId] || 'Dashboard';
   const dates = getAHDates(pageId);
   let dateLabel = '';
+  // Show what the dashboard period is when Dashboard mode is active
+  let dashSuffix = '';
+  if(cur === 'Dashboard'){
+    if(period === 'latest')      dashSuffix = ' · Latest';
+    else if(period === '7')      dashSuffix = ' · Last 7d';
+    else if(period === '30')     dashSuffix = ' · Last 30d';
+    else if(period === 'date' && periodFrom)  dashSuffix = ` · ${periodFrom}`;
+    else if(period === 'range' && periodFrom && periodTo) dashSuffix = ` · ${periodFrom} → ${periodTo}`;
+  }
   if(dates.length === 1){
     const d    = new Date(dates[0] + 'T00:00:00');
     const day  = d.toLocaleDateString('en-IN', {weekday:'short'});
@@ -6070,7 +6285,7 @@ function ahSortBar(pageId){
   return `<div class="ah-sortbar" style="display:flex;align-items:center;flex-wrap:wrap;gap:6px">
     <div style="display:flex;gap:4px;flex-wrap:wrap">
     ${AH_SORTS.map(s => `<button class="ah-sort-btn${s===cur?' on':''}"
-      onclick="setAHSort('${pageId}','${s}',this)">${s}</button>`).join('')}
+      onclick="setAHSort('${pageId}','${s}',this)">${s}${s==='Dashboard'&&cur==='Dashboard'?dashSuffix:''}</button>`).join('')}
     </div>
     ${dateLabel}
   </div>`;
@@ -6092,7 +6307,7 @@ function ahScoreBanner(catId, dates){
   const cat = CATS.find(c => c.id === catId);
   if(!cat) return '';
   const isWorkout = catId === 'workout';
-  const fields = cat.sections.flatMap(s => M[s]||[]).filter(f => f.scored && !f.computed);
+  const fields = cat.sections.flatMap(s => M[s]||[]).filter(f => f.scored);
   const scores = [];
   fields.forEach(f => {
     const vals = dates.map(d => computeAllFields(getEntry(d))[f.key]).filter(v=>v!=null&&!isNaN(v));
@@ -6114,22 +6329,33 @@ function ahScoreBanner(catId, dates){
   if(isWorkout){
     overallRaw = scores.filter(s=>s.maxSc===50).reduce((a,s)=>a+s.sc,0);
     isEliteOverall = overallRaw > 100;
-    overall = Math.min(100, Math.round(overallRaw));
+    overall = Math.round(overallRaw); // no cap — can exceed 100
   } else {
     // Check if any field individually hits elite threshold
     const eliteHits = scores.filter(s => isElite(s.key, s.avg));
+    const isLinearBanner = catId === 'energy' || catId === 'activity';
     const allAbove = scores.length > 0 && scores.every(s => s.sc >= 100);
     isEliteOverall = allAbove && scores.length >= 2; // all fields at 100 = elite
     overallRaw = scores.length ? scores.reduce((a,b)=>a+b.sc,0)/scores.length : null;
-    overall = overallRaw != null ? Math.min(100, Math.round(overallRaw)) : null;
-    // If all scored fields are at 100, show dark green
-    if(isEliteOverall) overall = 100;
+    // Energy & Activity: no cap — score grows above 100 linearly
+    overall = overallRaw != null ? (isLinearBanner ? Math.round(overallRaw) : Math.min(100, Math.round(overallRaw))) : null;
+    // If all scored fields are at 100 (and not a linear cat already above), show dark green
+    if(isEliteOverall && !isLinearBanner) overall = 100;
   }
   if(overall == null) return '';
   const circ = 2*Math.PI*33;
-  const col  = isEliteOverall ? ELITE_COLOR_CSS : scoreColor(overall);
+  const isSuperElite = overall >= 150;
+  const isLinearBannerCol = catId === 'energy' || catId === 'activity';
+  const col  = isSuperElite ? '#064E3B' : (isLinearBannerCol ? scoreColorLinear(overall) : (isEliteOverall ? ELITE_COLOR_CSS : scoreColor(overall)));
   const grade = gradeFromScore(overall);
-  const eliteBadge = isEliteOverall ? `<div style="font-size:10px;font-weight:700;color:${ELITE_COLOR_CSS};background:#04785715;border-radius:20px;padding:2px 8px;margin-top:4px">🏆 ELITE</div>` : '';
+  const isLinearBannerArc = catId === 'energy' || catId === 'activity';
+  // For linear cats: arc fills fully at 100, colour shifts above; for others cap at 100
+  const arcPct = isLinearBannerArc ? Math.min(overall??0, 100) : Math.min(overall??0, 100);
+  const eliteBadge = isSuperElite
+    ? `<div style="font-size:10px;font-weight:700;color:#064E3B;background:#064E3B18;border-radius:20px;padding:2px 8px;margin-top:4px">🌟 SUPER ELITE</div>`
+    : isEliteOverall
+    ? `<div style="font-size:10px;font-weight:700;color:${ELITE_COLOR_CSS};background:#04785715;border-radius:20px;padding:2px 8px;margin-top:4px">🏆 ELITE</div>`
+    : '';
 
   return `<div class="ah-score-banner">
     <div class="ah-score-ring">
@@ -6138,7 +6364,7 @@ function ahScoreBanner(catId, dates){
         <circle cx="40" cy="40" r="33" fill="none" stroke="${col}" stroke-width="8"
           stroke-linecap="round"
           stroke-dasharray="${circ}"
-          stroke-dashoffset="${circ*(1-(overall??0)/100)}"
+          stroke-dashoffset="${circ*(1-arcPct/100)}"
           style="transition:stroke-dashoffset .9s ease"/>
       </svg>
       <div class="ah-score-ring-center">
@@ -6149,10 +6375,14 @@ function ahScoreBanner(catId, dates){
     <div class="ah-score-breakdown">
       ${eliteBadge}
       ${scores.map(s => {
-        const fieldElite = isElite(s.key, s.avg) || (s.maxSc===50 && isEliteOverall) || (s.maxSc===100 && s.sc>=100);
-        const sc = fieldElite ? ELITE_COLOR_CSS : scoreColor(s.maxSc===50 ? Math.round(s.sc*2) : s.sc);
-        const barPct = Math.min(100, Math.round((s.sc/s.maxSc)*100));
-        const scoreLabel = s.maxSc===50 ? s.sc+'/50' : s.sc+'%';
+        const isLinearField = ENERGY_LINEAR_KEYS.has(s.key) || ACTIVITY_LINEAR_KEYS.has(s.key);
+        const fieldElite = isElite(s.key, s.avg) || (s.maxSc===50 && isEliteOverall) || (s.maxSc===100 && s.sc>=100 && !isLinearField);
+        const sc = fieldElite ? ELITE_COLOR_CSS : (isLinearField ? scoreColorLinear(s.sc) : scoreColor(s.maxSc===50 ? Math.round(s.sc*2) : s.sc));
+        // Linear fields: bar overflows beyond 100% (capped at 200 for visual), others cap at 100
+        const barPct = isLinearField
+          ? Math.min(200, Math.round((s.sc / s.maxSc) * 100)) / 2  // scale to 200 max → 0-100% display
+          : Math.min(100, Math.round((s.sc/s.maxSc)*100));
+        const scoreLabel = s.maxSc===50 ? s.sc+'/50' : (isLinearField && s.sc>100 ? s.sc+'⚡' : s.sc+'%');
         return `<div class="ah-score-field">
           <div class="ah-score-field-label">${s.label}</div>
           <div class="ah-score-field-val" style="color:${sc}">${fmtVal(s.avg,s.key)}<span style="font-size:9px;color:var(--t4);margin-left:2px">${s.unit}</span></div>
@@ -6207,7 +6437,8 @@ function ahCard(key, dates, sizeClass, opts={}){
   const sc    = dispVal != null ? (isWF ? scoreWorkoutField(key, dispVal) : scoreFieldV2(key, dispVal)) : null;
   const tgtSc = sc;
   const eliteNow = isElite(key, dispVal); // elite target (user-set above-target threshold)
-  const col   = eliteNow ? ELITE_COLOR_CSS : scoreColor(isWF && sc!=null ? Math.round(sc*2) : tgtSc);
+  const isLinearCard = ENERGY_LINEAR_KEYS.has(key) || ACTIVITY_LINEAR_KEYS.has(key);
+  const col   = eliteNow ? ELITE_COLOR_CSS : (isLinearCard ? scoreColorLinear(tgtSc) : scoreColor(isWF && sc!=null ? Math.round(sc*2) : tgtSc));
 
   const isBig = sizeClass.includes('ah-w3') || sizeClass.includes('ah-w4') || opts.big;
   const displayStr = (lastVal!=null) ? fmtVal(lastVal,key) : (dispVal!=null ? fmtVal(dispVal,key) : '—');
@@ -6244,7 +6475,7 @@ function ahCard(key, dates, sizeClass, opts={}){
       `}
     </div>
     ${tgtSc!=null?`<div class="ah-card-bar">
-      <div class="ah-card-bar-fill" style="width:${isWF ? Math.min(100,Math.round((tgtSc||0)*2)) : Math.min(100,tgtSc||0)}%;background:${col}"></div>
+      <div class="ah-card-bar-fill" style="width:${isWF ? Math.min(100,Math.round((tgtSc||0)*2)) : ((ENERGY_LINEAR_KEYS.has(key)||ACTIVITY_LINEAR_KEYS.has(key)) ? Math.min(100,(tgtSc||0)/2) : Math.min(100,tgtSc||0))}%;background:${col}"></div>
     </div>`:''}
   </div>`;
 }
@@ -9884,7 +10115,7 @@ function updateProfileInTopbar(){
 // 1. TARGETS
 // ═══════════════════════════════════════════════
 const TARGET_SECTIONS = [
-  {label:'🔋 Energy',       keys:['active_calories','resting_calories','google_fit_points']},
+  {label:'🔋 Energy',       keys:['active_calories','resting_calories','net_energy_balance','google_fit_points']},
   {label:'🏃 Activity',     keys:['steps','distance_foot','exercise_mins','standing_mins','stairs_climbed']},
   {label:'🚶 Walk',         keys:['walk_distance','walk_elevation']},
   {label:'🏃 Run',          keys:['run_distance','run_elevation','run_cadence']},
@@ -9938,7 +10169,7 @@ function renderStgTargets(){
         <input class="tgt-inp" type="number" step="any" placeholder="—" value="${t.lo??''}" id="tlo-${key}" title="Perfect Low / Start">
         <input class="tgt-inp tgt-hi" type="number" step="any" placeholder="—" value="${t.hi??''}" id="thi-${key}" title="Perfect High / End">
         <input class="tgt-inp tgt-w2" type="number" step="any" placeholder="—" value="${t.w2??''}" id="tw2-${key}" title="Worst High">
-        ${isEliteField(key)?`<input class="tgt-inp tgt-elite" type="number" step="any" placeholder="—" value="${t.elite??''}" id="telite-${key}" title="Above Target (elite)" style="border-color:#04785740">`:'<span class="tgt-elite" style="opacity:.2;font-size:10px;text-align:center;color:var(--t4)">—</span>'}
+        ${isEliteField(key)?`<input class="tgt-inp tgt-elite" type="number" step="any" placeholder="—" value="${t.elite??''}" id="telite-${key}" title="${key==='net_energy_balance'?'Elite: |Balance| ≤ this value (e.g. 50 = within ±50 kcal)':'Above Target (elite)'}" style="border-color:#04785740">`:'<span class="tgt-elite" style="opacity:.2;font-size:10px;text-align:center;color:var(--t4)">—</span>'}
       </div>`;
     });
   });
@@ -9966,7 +10197,7 @@ function renderStgTargets(){
 // ── ELITE TARGET FIELDS ──────────────────────────────────────────────────
 // Fields that support an "Above Target" / elite level (positive-direction only)
 const ELITE_KEYS = new Set([
-  'active_calories','google_fit_points','steps','distance_foot','exercise_mins',
+  'active_calories','net_energy_balance','google_fit_points','steps','distance_foot','exercise_mins',
   'standing_mins','stairs_climbed','walk_distance','run_distance','cycle_distance',
   'strength_training','yoga_duration','other_activity','total_workout',
   'walk_elevation','run_elevation','cycle_elevation',
@@ -9978,19 +10209,23 @@ function isEliteField(key){ return ELITE_KEYS.has(key); }
 function isElite(key, val){
   if(!isEliteField(key)||val==null) return false;
   const t = targets[key]||DEFAULT_TARGETS[key]||{};
-  return t.elite!=null && val >= t.elite;
+  if(t.elite==null) return false;
+  // net_energy_balance: elite means |balance| <= elite threshold (closer to zero = better)
+  if(key==='net_energy_balance') return Math.abs(val) <= t.elite;
+  return val >= t.elite;
 }
 // Dark emerald for elite
 const ELITE_COLOR     = '#047857';
 const ELITE_COLOR_CSS = '#047857';
 
-// Workout fields scored out of 50 (not 100). Two full workouts = 100. 3+ = elite.
+// Workout fields scored out of 50 (not 100).
 const WORKOUT_SCORED_KEYS = new Set(['walk_distance','run_distance','cycle_distance','strength_training','yoga_duration','other_activity']);
+
 function scoreWorkoutField(key, val){
-  // Returns 0–50. Full score (50) when the field hits its target (scoreFieldV2 = 100).
+  // Returns 0–50. Used for per-field display in workout detail views.
   const s = scoreFieldV2(key, val);
   if(s == null) return null;
-  return Math.round(s * 0.5); // 0-100 → 0-50
+  return Math.round(s * 0.5);
 }
 function isWorkoutScoredField(key){ return WORKOUT_SCORED_KEYS.has(key); }
 
@@ -10107,6 +10342,13 @@ function scoreFieldForDate(key, val, date){
   const {lo, hi, w1, w2} = et;
   if(val==null||isNaN(val)) return null;
   if(lo!=null&&hi==null){
+    // Energy & Activity linear keys: score grows linearly above 100 with no cap
+    if(ENERGY_LINEAR_KEYS.has(key) || ACTIVITY_LINEAR_KEYS.has(key)){
+      if(val < 0) return 0;
+      if(w1!=null&&val<=w1) return 0;
+      if(w1!=null&&val<lo) return Math.round((val-w1)/(lo-w1)*100);
+      return Math.round(val < lo ? val/lo*100 : 100 + (val - lo)/lo*50); // half-rate above 100
+    }
     if(val>=lo) return 100;
     if(w1!=null&&val<=w1) return 0;
     if(w1!=null) return Math.round((val-w1)/(lo-w1)*100);
