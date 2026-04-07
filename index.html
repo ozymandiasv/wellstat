@@ -2147,7 +2147,11 @@ function generateLocalInsights(catId, dates){
       range.push(d.toISOString().split('T')[0]);
     }
     let s=0;
-    for(let i=range.length-1;i>=0;i--){ const v=computeAllFields(getEntry(range[i]))[key]; if(v!=null&&v>0) s++; else break; }
+    for(let i=range.length-1;i>=0;i--){
+      const d=range[i];
+      if(typeof isRestDay==='function' && isRestDay(d)) continue; // rest day: skip entirely
+      const v=computeAllFields(getEntry(d))[key]; if(v!=null&&v>0) s++; else break;
+    }
     return s;
   }
   function v(key){ return e[key]||0; }
@@ -2460,8 +2464,9 @@ function computeWorkoutScore(e){
 // ─────────────────────────────────────────────────────────────
 
 function computeScore(date){
-  // Rest days: still compute score from vitals/sleep/nutrition — only skip workout bonus
+  // Rest days: skip ALL scoring entirely — return null so the day is excluded from averages and streaks
   const _isRest = typeof isRestDay === 'function' && isRestDay(date);
+  if(_isRest) return {overall:null, catScores:{}, workoutBonus:0, workoutTypes:0, workoutElite:false, wCompleted:0, energyOver:0, activityOver:0, maxScore:null, isRestDay:true};
   const e = computeAllFields(getEntry(date));
   const catW = {energy:10,activity:12,workout:12,vitals:15,sleep:15,physique:12,nutrition:12,screen:5,habits:7};
   let totalW=0, totalS=0;
@@ -3496,7 +3501,7 @@ function renderDashboard(){
     }
     let s=0;
     for(let i=range2.length-1;i>=0;i--){
-      if(isRestDay&&isRestDay(range2[i])){ s++; continue; }
+      if(isRestDay&&isRestDay(range2[i])){ continue; } // rest day: skip entirely, don't count or break
       const v=computeAllFields(getEntry(range2[i]))[key];
       if(v!=null&&v>0) s++; else break;
     }
@@ -9180,7 +9185,7 @@ function buildStreakCalendar(rowDefs, nDays){
       for(let i=allHistDates.length-1; i>=0; i--){
         const d = allHistDates[i];
         if(d > lastLoggedDate) continue;
-        if(typeof isRestDay==='function' && isRestDay(d)) { curStreak++; continue; } // rest day = free pass
+        if(typeof isRestDay==='function' && isRestDay(d)) { continue; } // rest day: skip entirely, invisible to streak
         const val = (allData[d]||{})[hd.key];
         const ok  = hd.done ? hd.done(val,d) : (val!=null&&val!==undefined&&habitDone(hd,val));
         if(ok === null) { curStreak++; continue; } // null = opt-out free pass (streak continues)
@@ -9192,9 +9197,10 @@ function buildStreakCalendar(rowDefs, nDays){
     let longestStreak=0, longestEnd='', runLen=0, runEnd='';
     allHistDates.forEach(d=>{
       const rest = typeof isRestDay==='function' && isRestDay(d);
+      if(rest) return; // rest day: skip entirely — invisible to streak counting
       const val=(allData[d]||{})[hd.key];
-      const ok = rest || (hd.done ? hd.done(val,d) : (val!=null&&val!==undefined&&habitDone(hd,val)));
-      if(ok === true || ok === null || ok === undefined && rest){ runLen++; runEnd=d; if(runLen>longestStreak){ longestStreak=runLen; longestEnd=d; } }
+      const ok = hd.done ? hd.done(val,d) : (val!=null&&val!==undefined&&habitDone(hd,val));
+      if(ok === true || ok === null){ runLen++; runEnd=d; if(runLen>longestStreak){ longestStreak=runLen; longestEnd=d; } }
       else if(ok){ runLen++; runEnd=d; if(runLen>longestStreak){ longestStreak=runLen; longestEnd=d; } }
       else { runLen=0; }
     });
@@ -9312,13 +9318,16 @@ function buildHabitWidget(key, label, iconHtml, doneFunc, startDate, endDate){
   // Current streak
   let streak = 0, longestStreak = 0, cur = 0;
   contiguousDates.forEach(d=>{
+    if(typeof isRestDay==='function' && isRestDay(d)) return; // skip rest days entirely
     const ok = doneFunc((allData[d]||{})[key], d);
     if(ok===true||ok===null){ cur++; } else { longestStreak=Math.max(longestStreak,cur); cur=0; }
   });
   longestStreak = Math.max(longestStreak, cur);
   // streak from today backwards through contiguous range
   for(let i=contiguousDates.length-1;i>=0;i--){
-    const ok = doneFunc((allData[contiguousDates[i]]||{})[key], contiguousDates[i]);
+    const d = contiguousDates[i];
+    if(typeof isRestDay==='function' && isRestDay(d)) continue; // skip rest days entirely
+    const ok = doneFunc((allData[d]||{})[key], d);
     if(ok===true||ok===null) streak++; else break;
   }
 
@@ -9341,15 +9350,17 @@ function buildHabitWidget(key, label, iconHtml, doneFunc, startDate, endDate){
     `<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:3px">${week.map(d=>{
       if(!d) return `<div></div>`;
       const val = (allData[d]||{})[key];
-      const ok  = doneFunc(val,d);
+      const isRestD = typeof isRestDay==='function' && isRestDay(d);
+      const ok  = isRestD ? null : doneFunc(val,d);
       const hasData = val!=null;
       const isToday = d===today;
       const day = parseInt(d.slice(8));
-      let bg='var(--surface3)', col='var(--t4)', brd='transparent';
-      if(ok===true){                    bg='var(--good)';              col='#fff'; }
+      let bg='var(--surface3)', col='var(--t4)', brd='transparent', inner=String(day);
+      if(isRestD){                       bg='var(--border)';            col='var(--t4)'; inner='🛌'; }
+      else if(ok===true){               bg='var(--good)';              col='#fff'; }
       else if(ok===false&&hasData){     bg='rgba(239,68,68,.18)';      col='var(--danger)'; brd='rgba(239,68,68,.4)'; }
       else if(ok===null){               bg='rgba(245,158,11,.22)';     col='#C07B0E'; brd='rgba(245,158,11,.5)'; }
-      return `<div style="aspect-ratio:1;border-radius:4px;background:${bg};border:1px solid ${brd};display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:${isToday?900:600};color:${col};${isToday?'box-shadow:0 0 0 2px var(--accent)':''}" title="${d}">${day}</div>`;
+      return `<div style="aspect-ratio:1;border-radius:4px;background:${bg};border:1px solid ${brd};display:flex;align-items:center;justify-content:center;font-size:${isRestD?'9px':'10px'};font-weight:${isToday?900:600};color:${col};${isToday?'box-shadow:0 0 0 2px var(--accent)':''}" title="${isRestD?'Rest day':d}">${inner}</div>`;
     }).join('')}</div>`
   ).join('');
 
@@ -10291,23 +10302,26 @@ const SCHEDULE_CATS = new Set([
 
 const ENERGY_CATS = new Set(['active_calories','resting_calories','google_fit_points']);
 
-let dowTargets    = {0:100,1:100,2:100,3:100,4:100,5:100,6:100};
-let restDays      = {};
+let dowTargets      = {0:100,1:100,2:100,3:100,4:100,5:100,6:100};
+let restDays        = {};
+let restDayReasons  = {}; // date → reason string
 let energyOptDays   = {};
 let activityOptDays = {};
 
 function loadSchedule(){
   try { dowTargets    = Object.assign({0:100,1:100,2:100,3:100,4:100,5:100,6:100}, JSON.parse(localStorage.getItem('ws2_dow')||'{}')); } catch(e){}
   try { restDays      = JSON.parse(localStorage.getItem('ws2_rest')||'{}'); } catch(e){ restDays={}; }
+  try { restDayReasons= JSON.parse(localStorage.getItem('ws2_rest_reasons')||'{}'); } catch(e){ restDayReasons={}; }
   try { energyOptDays   = JSON.parse(localStorage.getItem('ws2_energy_opt')||'{}'); } catch(e){ energyOptDays={}; }
   try { activityOptDays = JSON.parse(localStorage.getItem('ws2_activity_opt')||'{}'); } catch(e){ activityOptDays={}; }
   if(typeof loadWorkoutOpts==='function') loadWorkoutOpts();
 }
 function saveSchedule(){
-  localStorage.setItem('ws2_dow',          JSON.stringify(dowTargets));
-  localStorage.setItem('ws2_rest',         JSON.stringify(restDays));
-  localStorage.setItem('ws2_energy_opt',   JSON.stringify(energyOptDays));
-  localStorage.setItem('ws2_activity_opt', JSON.stringify(activityOptDays));
+  localStorage.setItem('ws2_dow',           JSON.stringify(dowTargets));
+  localStorage.setItem('ws2_rest',          JSON.stringify(restDays));
+  localStorage.setItem('ws2_rest_reasons',  JSON.stringify(restDayReasons));
+  localStorage.setItem('ws2_energy_opt',    JSON.stringify(energyOptDays));
+  localStorage.setItem('ws2_activity_opt',  JSON.stringify(activityOptDays));
 }
 function isRestDay(date){ return !!(restDays && restDays[date]); }
 
@@ -10576,15 +10590,21 @@ function renderUnifiedSchedCal(){
     const dotWorkout = anyWkOpt                       ? '<span style="width:5px;height:5px;border-radius:50%;background:var(--danger);display:inline-block;flex-shrink:0"></span>' : '<span style="width:5px;height:5px;border-radius:50%;background:var(--border2);display:inline-block;flex-shrink:0;opacity:0.35"></span>';
 
     const hasAnyOpt = isRest || ePct<100 || aPct<100 || anyWkOpt;
-    const dayColor = isToday ? 'var(--accent)' : hasData ? 'var(--t1)' : 'var(--t3)';
-    const border = isToday ? '2px solid var(--accent)' : hasAnyOpt ? '1px solid var(--border2)' : 'none';
-    const bg = hasAnyOpt ? 'var(--surface3)' : 'transparent';
-    const fw = hasData || hasAnyOpt ? '700' : '400';
+    const isSelected = ds === selectedScheduleDate;
+    const dayColor = isSelected ? '#fff' : isToday ? 'var(--accent)' : hasData ? 'var(--t1)' : 'var(--t3)';
+    const border = isSelected ? '2px solid #8B5CF6' : isToday ? '2px solid var(--accent)' : hasAnyOpt ? '1px solid var(--border2)' : 'none';
+    const bg = isSelected ? 'linear-gradient(135deg,#8B5CF6,#6366F1)' : hasAnyOpt ? 'var(--surface3)' : 'transparent';
+    const fw = hasData || hasAnyOpt || isSelected ? '700' : '400';
+
+    // Show rest reason emoji in cell if set
+    const reasonKey = restDayReasons[ds];
+    const reasonEntry = reasonKey ? REST_DAY_REASONS.find(r=>r.key===reasonKey) : null;
+    const reasonEmoji = reasonEntry ? reasonEntry.label.split(' ')[0] : (isRest ? '🛌' : '');
 
     cells += `<button onclick="unifiedDayClick('${ds}')"
       style="padding:2px 1px;border-radius:5px;cursor:pointer;background:${bg};border:${border};width:100%;font-family:var(--fb);transition:all .12s;display:flex;flex-direction:column;align-items:center;gap:2px"
       title="Click to edit opt-outs for ${ds}">
-      <span style="font-size:11px;font-weight:${fw};color:${dayColor};line-height:1.2">${d}</span>
+      <span style="font-size:11px;font-weight:${fw};color:${dayColor};line-height:1.2">${isRest && reasonEmoji ? reasonEmoji : d}</span>
       <div style="display:flex;gap:2px;justify-content:center">${dotRest}${dotEnergy}${dotActivity}${dotWorkout}</div>
     </button>`;
   }
@@ -10603,28 +10623,82 @@ function renderUnifiedSchedCal(){
 function unifiedCalPrev(){ unifiedCalMonth--; if(unifiedCalMonth<0){unifiedCalMonth=11;unifiedCalYear--;} renderUnifiedSchedCal(); }
 function unifiedCalNext(){ unifiedCalMonth++; if(unifiedCalMonth>11){unifiedCalMonth=0;unifiedCalYear++;} renderUnifiedSchedCal(); }
 
+// Track which date is currently selected in the schedule calendar
+let selectedScheduleDate = null;
+
+const REST_DAY_REASONS = [
+  {key:'fever',       label:'🤒 Fever',       },
+  {key:'family',      label:'👨‍👩‍👧 Family',      },
+  {key:'friends',     label:'🎉 Friends',      },
+  {key:'commitments', label:'📋 Commitments',  },
+  {key:'vacation',    label:'✈️ Vacation',      },
+  {key:'fatigue',     label:'😴 Fatigue',       },
+  {key:'other',       label:'💬 Other',         },
+];
+
+function setRestDayReason(date, key){
+  if(!restDays[date]) return; // only set reason if it's actually a rest day
+  if(restDayReasons[date] === key){
+    delete restDayReasons[date]; // tap again to deselect
+  } else {
+    restDayReasons[date] = key;
+  }
+  saveSchedule();
+  renderUnifiedSchedCal();
+  unifiedDayClick(date);
+}
+
+function getRestDayReasonLabel(date){
+  const key = restDayReasons[date];
+  if(!key) return null;
+  const r = REST_DAY_REASONS.find(r=>r.key===key);
+  return r ? r.label : null;
+}
 function unifiedDayClick(date){
   const panel = document.getElementById('unified-day-panel');
   if(!panel) return;
 
+  // Track selected date and re-render calendar to show highlight
+  if(selectedScheduleDate !== date){
+    selectedScheduleDate = date;
+    renderUnifiedSchedCal();
+  }
+
   const isRest = !!restDays[date];
+  const currentReason = restDayReasons[date] || null;
   const ePct   = getEnergyOptPct(date);
   const aPct   = getActivityOptPct(date);
-  const eCycle = [100,0,25,50,75];
-  const aCycle = [100,0,25,50,75];
 
   function pctLabel(p){ return p===0?'<span style="color:var(--danger);font-weight:700">Skip (0%)</span>':p===100?'<span style="color:var(--good);font-weight:600">Normal</span>':'<span style="color:var(--warn);font-weight:700">'+p+'%</span>'; }
 
+  const dateObj = new Date(date+'T00:00:00');
+  const niceDateStr = dateObj.toLocaleString('default',{weekday:'short',month:'short',day:'numeric',year:'numeric'});
+
   let html = `<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid var(--border)">
-    <span style="font-size:12px;font-weight:700;color:var(--t1)">📅 ${date}</span>
-    <button onclick="document.getElementById('unified-day-panel').style.display='none'" style="font-size:11px;color:var(--t4);background:none;border:none;cursor:pointer;padding:2px 6px">✕</button>
+    <span style="font-size:12px;font-weight:700;color:var(--t1)">📅 ${niceDateStr}</span>
+    <button onclick="selectedScheduleDate=null;renderUnifiedSchedCal();document.getElementById('unified-day-panel').style.display='none'" style="font-size:11px;color:var(--t4);background:none;border:none;cursor:pointer;padding:2px 6px">✕</button>
   </div>`;
 
-  // Rest toggle
-  html += `<div style="display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border)">
-    <span style="font-size:11px;color:var(--t2);display:flex;align-items:center;gap:6px"><span style="width:8px;height:8px;border-radius:50%;background:#8B5CF6;display:inline-block"></span>🛌 Rest Day</span>
-    <button onclick="toggleRestDayUnified('${date}')" style="font-size:10px;font-weight:700;padding:3px 12px;border-radius:8px;border:1px solid var(--border);background:var(--surface);color:${isRest?'#8B5CF6':'var(--t3)'};cursor:pointer">${isRest?'✓ Rest':'Off'}</button>
-  </div>`;
+  // Rest toggle + reason chips
+  html += `<div style="padding:7px 0;border-bottom:1px solid var(--border)">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:${isRest?'10px':'0'}">
+      <span style="font-size:11px;color:var(--t2);display:flex;align-items:center;gap:6px"><span style="width:8px;height:8px;border-radius:50%;background:#8B5CF6;display:inline-block"></span>🛌 Rest Day</span>
+      <button onclick="toggleRestDayUnified('${date}')" style="font-size:10px;font-weight:700;padding:3px 12px;border-radius:8px;border:1px solid ${isRest?'#8B5CF6':'var(--border)'};background:${isRest?'rgba(139,92,246,.12)':'var(--surface)'};color:${isRest?'#8B5CF6':'var(--t3)'};cursor:pointer;transition:all .15s">${isRest?'✓ Rest':'Off'}</button>
+    </div>`;
+  if(isRest){
+    html += `<div style="font-size:9px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--t4);margin-bottom:6px">Why rest?</div>
+    <div style="display:flex;flex-wrap:wrap;gap:5px">`;
+    REST_DAY_REASONS.forEach(r=>{
+      const active = currentReason === r.key;
+      html += `<button onclick="setRestDayReason('${date}','${r.key}')"
+        style="font-size:10px;font-weight:600;padding:4px 9px;border-radius:20px;cursor:pointer;transition:all .15s;
+          border:1px solid ${active?'#8B5CF6':'var(--border2)'};
+          background:${active?'rgba(139,92,246,.18)':'var(--surface2)'};
+          color:${active?'#8B5CF6':'var(--t3)'}">${r.label}</button>`;
+    });
+    html += `</div>`;
+  }
+  html += `</div>`;
 
   // Energy opt
   html += `<div style="display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border)">
@@ -10655,7 +10729,12 @@ function unifiedDayClick(date){
 }
 
 function toggleRestDayUnified(date){
-  if(restDays[date]) delete restDays[date]; else restDays[date]=true;
+  if(restDays[date]){
+    delete restDays[date];
+    delete restDayReasons[date]; // clear reason when un-marking rest day
+  } else {
+    restDays[date] = true;
+  }
   saveSchedule();
   renderUnifiedSchedCal();
   unifiedDayClick(date);
