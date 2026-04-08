@@ -10158,6 +10158,7 @@ function renderStgTargets(){
       <button class="stg-btn primary" onclick="saveTargetsUI()">💾 Save Targets</button>
       <button class="stg-btn primary" onclick="saveTargetsFromDate()">📅Save From Date</button>
       <button class="stg-btn" onclick="resetTargets()">↩ Reset to defaults</button>
+      <button class="stg-btn" onclick="saveTargetsUI();gistPush();showToast('✅ Targets saved &amp; pushed to Gist')" style="margin-left:auto">⬆ Push to Gist</button>
     </div>
     <div class="tgt-hdr">
       <span>Field</span>
@@ -10453,6 +10454,7 @@ function renderStgSchedule(){
     +'<button class="stg-btn" onclick="clearAllEnergyOpts()">✕ Clear energy</button>'
     +'<button class="stg-btn" onclick="clearAllActivityOpts()">✕ Clear activity</button>'
     +'<button class="stg-btn" onclick="workoutOptDays={};saveWorkoutOpts();renderUnifiedSchedCal();showToast(\'Workout opt-outs cleared\')">✕ Clear workout</button>'
+    +'<button class="stg-btn" onclick="gistPush();showToast(\'✅ Schedule &amp; opt-outs pushed to Gist\')" style="margin-left:auto">⬆ Push to Gist</button>'
     +'</div>'
     +'</div>';
 
@@ -12698,8 +12700,14 @@ function gistBuildPayload(){
     ai_active:  localStorage.getItem('ws2_ai_active')  || null,
     ai:         localStorage.getItem('ws2_ai')         || null,
     navicons:   localStorage.getItem('ws2_navicons')   || null,
-    dow:        localStorage.getItem('ws2_dow')         || null,
-    rest:       localStorage.getItem('ws2_rest')        || null,
+    dow:              localStorage.getItem('ws2_dow')              || null,
+    rest:             localStorage.getItem('ws2_rest')             || null,
+    rest_reasons:     localStorage.getItem('ws2_rest_reasons')     || null,
+    energy_opt:       localStorage.getItem('ws2_energy_opt')       || null,
+    activity_opt:     localStorage.getItem('ws2_activity_opt')     || null,
+    workout_opt:      localStorage.getItem('ws2_workout_opt')      || null,
+    workout_week:     localStorage.getItem('ws2_workout_week')     || null,
+    global_percentiles: localStorage.getItem('ws2_global_percentiles') || null,
     // ws2_wimgs: only sync URL-based images (not base64 uploads — too large)
     wimgs_urls: (() => {
       try {
@@ -12710,7 +12718,7 @@ function gistBuildPayload(){
       } catch(e){ return null; }
     })(),
   };
-  return { version:3, pushed: new Date().toISOString(), days: Object.keys(clean).length, data: clean, settings };
+  return { version:4, pushed: new Date().toISOString(), days: Object.keys(clean).length, data: clean, settings };
 }
 
 function gistApplyPayload(payload){
@@ -12738,8 +12746,14 @@ function gistApplyPayload(payload){
     if(s.temphabits) localStorage.setItem('ws2_temphabits', s.temphabits);
     if(s.icons)      localStorage.setItem('ws2_icons',      s.icons);
     if(s.navicons)   localStorage.setItem('ws2_navicons',   s.navicons);
-    if(s.dow)        localStorage.setItem('ws2_dow',         s.dow);
-    if(s.rest)       localStorage.setItem('ws2_rest',        s.rest);
+    if(s.dow)               localStorage.setItem('ws2_dow',                s.dow);
+    if(s.rest)              localStorage.setItem('ws2_rest',               s.rest);
+    if(s.rest_reasons)      localStorage.setItem('ws2_rest_reasons',       s.rest_reasons);
+    if(s.energy_opt)        localStorage.setItem('ws2_energy_opt',         s.energy_opt);
+    if(s.activity_opt)      localStorage.setItem('ws2_activity_opt',       s.activity_opt);
+    if(s.workout_opt)       localStorage.setItem('ws2_workout_opt',        s.workout_opt);
+    if(s.workout_week)      localStorage.setItem('ws2_workout_week',       s.workout_week);
+    if(s.global_percentiles)localStorage.setItem('ws2_global_percentiles', s.global_percentiles);
     if(s.sync)       localStorage.setItem('ws2_sync',       s.sync);
     if(s.ai_active)  localStorage.setItem('ws2_ai_active',  s.ai_active);
     if(s.ai)         localStorage.setItem('ws2_ai',         s.ai);
@@ -13060,6 +13074,7 @@ function renderStgPercentiles(){
       <button class="stg-btn" onclick="resetGlobalPercentilestoDefaults()">🔄 Reset to Defaults</button>
       <button class="stg-btn" onclick="exportGlobalPercentiles()">📥 Export</button>
       <button class="stg-btn" onclick="document.getElementById('import-percentiles-file').click()">📤 Import</button>
+      <button class="stg-btn" onclick="saveGlobalPercentilesSettings();gistPush();showToast('✅ Percentiles saved &amp; pushed to Gist')" style="margin-left:auto">⬆ Push to Gist</button>
       <input type="file" id="import-percentiles-file" accept=".json" style="display:none" onchange="importGlobalPercentiles(this.files[0])">
     </div>
     
