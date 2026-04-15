@@ -178,6 +178,7 @@ body{font-family:var(--fn);background:var(--bg);color:var(--tx);min-height:100vh
     </div>
   </div>
   <div class="snav">
+    <a href="index.html" style="display:flex;align-items:center;gap:9px;padding:7px 10px;border-radius:7px;background:var(--sur2);color:var(--tx2);font-size:13px;text-decoration:none;margin-bottom:4px;transition:all var(--t)" onmouseover="this.style.color='var(--tx)'" onmouseout="this.style.color='var(--tx2)'"><span class="ic">🏠</span>WellStat — Home</a>
     <div class="ni act" id="nav-log" onclick="showPage('log')"><span class="ic">📋</span>Food Log</div>
     <div class="ni" id="nav-nutrition" onclick="showPage('nutrition')"><span class="ic">🔬</span>Nutrients</div>
     <div class="ni" id="nav-history" onclick="showPage('history')"><span class="ic">📅</span>History</div>
@@ -548,7 +549,16 @@ var currentNutSection = 'Energy & Macros';
 var pendingNutrients = {};
 
 // ── STORAGE ──
-function save(){try{localStorage.setItem('ritual_nutrition_v2',JSON.stringify(S));}catch(e){}}
+function save(){
+  // Sync gist config back to shared ws2_gist key so index.html can read it
+  try{
+    var gc = JSON.parse(localStorage.getItem('ws2_gist')||'{}');
+    if(S.cfg.ghToken) gc.token = S.cfg.ghToken;
+    if(S.cfg.gistId)  gc.gistId = S.cfg.gistId;
+    localStorage.setItem('ws2_gist', JSON.stringify(gc));
+  }catch(e){}
+  try{localStorage.setItem('ritual_nutrition_v2',JSON.stringify(S));}catch(e){}
+}
 function load(){
   try{
     var raw=localStorage.getItem('ritual_nutrition_v2');
@@ -569,6 +579,12 @@ function load(){
         ];
       }
     }
+  }catch(e){}
+  // Overlay shared Gist config from index.html (ws2_gist key)
+  try{
+    var sgc = JSON.parse(localStorage.getItem('ws2_gist')||'{}');
+    if(sgc.token && !S.cfg.ghToken) S.cfg.ghToken = sgc.token;
+    if(sgc.gistId && !S.cfg.gistId) S.cfg.gistId = sgc.gistId;
   }catch(e){}
 }
 
@@ -1490,6 +1506,43 @@ function gistDayToNutKeys(gistDay) {
   return out;
 }
 
+// ── BRIDGE: push nutrition fields into wellstat-data.json ──
+function bridgeNutritionToWellstat(gistId, token, healthLogDays) {
+  if (!gistId || !token) return;
+  var headers = { 'Authorization': 'token ' + token, 'Content-Type': 'application/json', 'Accept': 'application/vnd.github.v3+json' };
+  // First fetch existing wellstat-data.json
+  fetch('https://api.github.com/gists/' + gistId, { headers: headers })
+    .then(function(r) { return r.json(); })
+    .then(function(gistData) {
+      var wsPayload = { version:4, pushed: new Date().toISOString(), days:0, data:{}, settings:null };
+      try {
+        var wsFile = gistData.files && gistData.files['wellstat-data.json'];
+        if (wsFile && wsFile.content) wsPayload = JSON.parse(wsFile.content);
+      } catch(e) {}
+      if (!wsPayload.data) wsPayload.data = {};
+      // Merge nutrition fields into wellstat data
+      var hlMap = { dietary_calories:'dietary_calories', protein:'protein', carbs:'carbs', fat:'fat',
+                    water:'water', alcohol:'alcohol', fiber:'fiber', sodium:'sodium', sugar:'sugar',
+                    sat_fat:'sat_fat', caffeine:'caffeine' };
+      Object.keys(healthLogDays).forEach(function(ds) {
+        if (!wsPayload.data[ds]) wsPayload.data[ds] = {};
+        var hl = healthLogDays[ds];
+        Object.keys(hlMap).forEach(function(hk) {
+          if (hl[hk] !== undefined && hl[hk] !== null && hl[hk] !== 0) {
+            wsPayload.data[ds][hlMap[hk]] = hl[hk];
+          }
+        });
+      });
+      wsPayload.days = Object.keys(wsPayload.data).length;
+      wsPayload.pushed = new Date().toISOString();
+      return fetch('https://api.github.com/gists/' + gistId, {
+        method: 'PATCH', headers: headers,
+        body: JSON.stringify({ files: { 'wellstat-data.json': { content: JSON.stringify(wsPayload, null, 2) } } })
+      });
+    })
+    .catch(function(e) { console.warn('WellStat bridge push failed:', e.message); });
+}
+
 window.pushGist = function(silent) {
   var token = S.cfg.ghToken;
   if (!token) {
@@ -1539,6 +1592,8 @@ window.pushGist = function(silent) {
       .then(function(data) {
         if (data.id) {
           S.cfg.gistId = data.id; save(); renderSettings();
+          // Also bridge nutrition data into wellstat-data.json for index.html
+          bridgeNutritionToWellstat(data.id, token, sorted);
           if (!silent) {
             var gb = document.getElementById('gist-body');
             if (gb) gb.innerHTML =

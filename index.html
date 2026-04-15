@@ -27,12 +27,12 @@
   --fb: -apple-system, "SF Pro Text", "Helvetica Neue", ui-sans-serif, sans-serif;
   --fm: "SF Mono", ui-monospace, "Cascadia Code", "Fira Code", Menlo, monospace;
   --bg:#EEF3FB;
-  --surface:rgba(255,255,255,.84);
-  --surface2:rgba(255,255,255,.55);
-  --surface3:rgba(238,243,251,.7);
+  --surface:rgba(255,255,255,1);
+  --surface2:rgba(240,244,251,1);
+  --surface3:rgba(238,243,251,1);
   --solidbg:#fff;
-  --border:rgba(180,200,230,.35);
-  --border2:rgba(150,180,220,.5);
+  --border:rgba(180,200,230,.5);
+  --border2:rgba(150,180,220,.65);
   --t1:#0F1923;--t2:#2D3E52;--t3:#7A92AA;--t4:#A8BDD0;
   --sh:0 2px 16px rgba(80,120,180,.1);
   --sh2:0 4px 32px rgba(80,120,180,.15);
@@ -47,8 +47,8 @@
   --grad:linear-gradient(135deg,#C8DCFA 0%,#D8E8FF 30%,#EEF3FB 65%,#E0EEFF 100%);
 }
 [data-theme=dark]{
-  --bg:#0D1117;--surface:rgba(22,27,34,.92);--surface2:rgba(30,38,50,.7);
-  --surface3:rgba(22,27,34,.6);--solidbg:#161B22;
+  --bg:#0D1117;--surface:#161B22;--surface2:#1C2230;
+  --surface3:#161B22;--solidbg:#161B22;
   --border:rgba(48,64,84,.6);--border2:rgba(64,84,110,.7);
   --t1:#F0F6FF;--t2:#BDD0E8;--t3:#6B7E96;--t4:#4A5E74;
   --sh:0 2px 16px rgba(0,0,0,.35);--sh2:0 4px 32px rgba(0,0,0,.45);--sh3:0 8px 48px rgba(0,0,0,.55);
@@ -56,7 +56,7 @@
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html,body{height:100%;overflow:hidden}
-body{font-family:var(--fb);background:var(--grad);color:var(--t1);font-size:14px;line-height:1.5;
+body{font-family:var(--fb);background:var(--bg);color:var(--t1);font-size:14px;line-height:1.5;
   /* iOS safe area for notch/home bar */
   padding-top: env(safe-area-inset-top);
   padding-bottom: env(safe-area-inset-bottom);
@@ -84,8 +84,7 @@ input,select{font-family:var(--fb);outline:none}
 /* ── SIDEBAR ─────────────────────────────────── */
 .sb{
   width:var(--sw);flex-shrink:0;
-  background:var(--surface);
-  backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);
+  background:var(--solidbg);
   border-right:1px solid var(--border);
   display:flex;flex-direction:column;overflow:hidden;z-index:10;
   transition:width .3s cubic-bezier(.4,0,.2,1);
@@ -229,8 +228,7 @@ input,select{font-family:var(--fb);outline:none}
 
 /* ── CARD ─────────────────────────────────────── */
 .card{
-  background:var(--surface);
-  backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  background:var(--solidbg);
   border:1px solid var(--border);border-radius:var(--r);
   box-shadow:var(--sh);
   padding:14px 16px;
@@ -259,8 +257,7 @@ input,select{font-family:var(--fb);outline:none}
 .dgrid{
   display:grid;
   grid-template-columns:repeat(4,1fr);
-  grid-template-rows:auto;
-  grid-auto-rows:minmax(140px,auto);
+  grid-template-rows:54px 220px repeat(auto-fill, 210px);
   gap:13px;
   align-items:stretch;
   width:100%;
@@ -270,40 +267,51 @@ input,select{font-family:var(--fb);outline:none}
 .c1{grid-column:span 1}.c2{grid-column:span 2}
 .c3{grid-column:span 3}.c4{grid-column:span 4}
 .r2{grid-row:span 2}
-/* Row 1 - score ring, activity rings, category bars */
-.w-score,.w-rings,.w-cats{ min-height:210px; }
-/* Metric widgets consistent feel */
-.w-metric{ min-height:140px; }
+/* Row 1 (score/rings/cats): taller */
+.w-score,.w-rings,.w-cats{ min-height:220px; height:auto!important; }
+/* Metric widgets: uniform 210px */
+.dgrid .card{ min-height:210px; }
 /* Screen widget fills its 2-row span */
 .w-screen{ display:flex;flex-direction:column; }
 #screen-bars{ flex:1;overflow:hidden; }
-/* Quick stats strip: auto height, no min */
-.dgrid > .c4:first-child { grid-row:1; min-height:0; align-self:center; }
+/* Quick stats strip: explicit height */
+.dgrid > .c4:first-child { min-height:0!important;height:54px!important;align-self:center; }
+/* All dashboard cards: flex column, centred, relative for absolute children */
+.dgrid .card{
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  text-align:center;
+  position:relative;
+  overflow:hidden;
+  box-sizing:border-box;
+}
 
 /* mini progress bar */
 .mbar{height:4px;background:var(--border2);border-radius:10px;margin-top:9px;overflow:hidden}
 .mbar-fill{height:100%;border-radius:10px;transition:width .9s cubic-bezier(.4,0,.2,1)}
 
 /* ── SCORE WIDGET ────────────────────────────── */
-.w-score{padding:16px 14px;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:210px}
-.score-ring{position:relative;width:160px;height:160px;margin:0 auto 8px}
+.w-score{padding:14px 16px;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.score-ring{position:relative;width:170px;height:170px;margin:4px auto 4px}
 .score-ring svg{width:100%;height:100%;transform:rotate(-90deg)}
 .sr-bg{fill:none;stroke:var(--border2);stroke-width:13}
 .sr-fill{fill:none;stroke-width:13;stroke-linecap:round;transition:stroke-dashoffset 1.1s cubic-bezier(.4,0,.2,1)}
-.score-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.score-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px}
 .score-num{font-family:var(--fd);font-size:42px;font-weight:900;letter-spacing:-2px;line-height:1}
-.score-sub{font-size:10px;color:var(--t3);font-weight:500;margin-top:2px}
+.score-agg{font-size:11px;font-weight:700;color:var(--t3);letter-spacing:.2px;line-height:1.2}
+.score-sub{font-size:10px;color:var(--t3);font-weight:500;margin-top:1px}
+.score-avg{font-size:9px;font-weight:600;color:var(--t3);letter-spacing:.3px;line-height:1}
 .score-grade{
   font-size:11px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;
-  margin-top:6px;padding:3px 12px;border-radius:20px;
+  margin-top:4px;padding:3px 12px;border-radius:20px;
 }
 
 /* ── CATEGORY TUBE BARS ──────────────────────── */
 .cats-title{font-size:11px;font-weight:600;letter-spacing:.5px;text-transform:uppercase;color:var(--t3);margin-bottom:8px}
 
 /* ── ACTIVITY RINGS ──────────────────────────── */
-.w-rings{padding:14px 16px;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:210px}
-.w-cats{padding:14px 16px;display:flex;flex-direction:column;min-height:210px}
+.w-rings{padding:14px 16px;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.w-cats{padding:10px 12px 8px;display:flex;flex-direction:column;height:100%;box-sizing:border-box;}
 .rings-title{font-size:11px;font-weight:600;letter-spacing:.5px;text-transform:uppercase;color:var(--t3);margin-bottom:10px}
 .rings-body{display:flex;flex-direction:column;align-items:center;gap:10px;width:100%}
 .rings-svg{width:148px;height:148px;flex-shrink:0}
@@ -315,33 +323,49 @@ input,select{font-family:var(--fb);outline:none}
 .rleg-val{font-family:var(--fd);font-size:13px;font-weight:800;color:var(--t1);letter-spacing:-.2px;text-align:center}
 .rleg-sub{font-size:8px;color:var(--t4);text-align:center}
 
-/* ── CATEGORY TUBE BARS ──────────────────────── */
-.cat-tube-wrap{
-  display:flex;flex-direction:column;align-items:center;gap:4px;
-  flex:1;min-width:0;height:100%;justify-content:flex-end;
+/* ── CATEGORY VERTICAL BARS (wide rounded style) ── */
+#cats-grid{
+  display:flex;flex-direction:row;align-items:flex-end;
+  gap:8px;width:100%;height:100%;box-sizing:border-box;
 }
-.cat-tube-track{
+.cat-col{
+  display:flex;flex-direction:row;align-items:flex-end;
+  flex:1;min-width:0;gap:3px;
+}
+/* Score number sits above the bar track — use a wrapper */
+.cat-col-inner{
+  display:flex;flex-direction:column;align-items:center;
+  flex:1;min-width:0;gap:3px;height:100%;
+}
+.cat-col-score{
+  font-family:var(--fm);font-size:8px;font-weight:700;
+  text-align:center;line-height:1;flex-shrink:0;
+}
+/* Vertical bar track — wide, rounded pill, fills height */
+.cat-col-track{
   width:100%;flex:1;
-  background:var(--border2);border-radius:20px;
-  position:relative;overflow:hidden;min-height:20px;
+  background:rgba(122,146,170,.18);
+  border-radius:12px;
+  position:relative;overflow:hidden;
+  min-height:30px;
 }
-.cat-tube-fill{
+.cat-col-fill{
   position:absolute;bottom:0;left:0;right:0;
-  border-radius:20px;
+  border-radius:12px;
   transition:height 1s cubic-bezier(.4,0,.2,1);
 }
-.cat-tube-label{
-  font-size:7px;font-weight:700;color:var(--t3);
-  text-transform:uppercase;letter-spacing:.3px;
-  text-align:center;white-space:nowrap;line-height:1.2;
-}
-.cat-tube-pct{
-  font-family:var(--fm);font-size:9px;font-weight:700;
-  text-align:center;line-height:1;
+/* Label: vertical text alongside bar on the left, bottom-aligned, reads upward */
+.cat-col-label{
+  font-size:7px;font-weight:700;
+  text-transform:uppercase;letter-spacing:.5px;
+  writing-mode:vertical-rl;
+  transform:rotate(180deg);
+  white-space:nowrap;line-height:1;
+  flex-shrink:0;align-self:flex-end;
+  margin-bottom:2px;
 }
 
 /* ── CATEGORY ARCS (legacy, keep for compat) ── */
-.cats-title{font-size:11px;font-weight:600;letter-spacing:.5px;text-transform:uppercase;color:var(--t3);margin-bottom:8px}
 .cats-grid{display:flex;gap:5px;align-items:flex-end}
 .cat-item{display:flex;flex-direction:column;align-items:center;gap:1px}
 .cat-arc{width:36px;height:20px;position:relative}
@@ -355,17 +379,36 @@ input,select{font-family:var(--fb);outline:none}
 .rleg-sub{font-size:9px;color:var(--t4)}
 
 /* ── METRIC WIDGET ───────────────────────────── */
-.w-metric{padding:16px 18px;min-height:155px;display:flex;flex-direction:column;justify-content:space-between}
-.wm-top{display:flex;align-items:flex-start;justify-content:space-between}
+.w-metric{padding:14px 16px;display:flex;flex-direction:column;justify-content:space-between}
+.wm-top{display:flex;align-items:flex-start;justify-content:space-between;width:100%}
 .wm-ic{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
-.wm-bot{margin-top:auto;padding-top:10px}
-.wm-stats{display:flex;gap:12px;margin-top:5px}
-.wm-stat{display:flex;flex-direction:column}
+.wm-bot{margin-top:auto;padding-top:10px;width:100%}
+.wm-stats{display:flex;gap:12px;margin-top:5px;justify-content:center}
+.wm-stat{display:flex;flex-direction:column;align-items:center}
 .wm-slabel{font-size:9px;color:var(--t4);font-weight:600;text-transform:uppercase;letter-spacing:.3px}
 .wm-sval{font-size:11px;font-weight:600;color:var(--t3);font-family:var(--fm)}
 
+/* ── UNIFORM WIDGET INNER LAYOUT ────────────── */
+/* Label at top-left, icon at top-right */
+.dw-header{width:100%;display:flex;align-items:center;justify-content:space-between;position:absolute;top:14px;left:0;padding:0 16px;box-sizing:border-box;}
+/* Main value + sub-stats in centre zone */
+.dw-center{display:flex;flex-direction:column;align-items:center;justify-content:center;width:100%;gap:4px;padding:36px 16px 54px;box-sizing:border-box;}
+/* Two flanking side stats (elevation/pace etc.) just above footer */
+.dw-sides{width:100%;display:flex;justify-content:space-between;align-items:flex-end;position:absolute;bottom:46px;left:0;padding:0 16px;box-sizing:border-box;}
+.dw-side-stat{display:flex;flex-direction:column;align-items:center;gap:1px}
+.dw-side-label{font-size:8px;color:var(--t4);font-weight:600;text-transform:uppercase;letter-spacing:.3px}
+.dw-side-val{font-size:12px;font-weight:700;color:var(--t3);font-family:var(--fm)}
+/* Bottom footer: 7D/30D avg pills + optional counts — pinned to very bottom */
+.dw-footer{width:100%;position:absolute;bottom:0;left:0;padding:6px 10px;box-sizing:border-box;display:flex;gap:4px;border-top:1px solid var(--border);background:var(--solidbg);}
+.dw-avg-pill{flex:1;text-align:center;padding:2px 3px;}
+.dw-avg-label{font-size:8px;color:var(--t4);line-height:1.2}
+.dw-avg-val{font-size:11px;font-weight:700;color:var(--t2);line-height:1.2}
+/* Progress bar — full width inside dw-center */
+.dw-mbar{height:4px;width:100%;background:var(--border2);border-radius:10px;overflow:hidden;margin-top:2px;}
+.dw-mbar-fill{height:100%;border-radius:10px;transition:width .9s cubic-bezier(.4,0,.2,1)}
+
 /* ── SLEEP WIDGET ────────────────────────────── */
-.w-sleep{padding:16px 18px;min-height:155px}
+.w-sleep{padding:14px 16px;display:flex;flex-direction:column;align-items:center;justify-content:center}
 .sleep-bar{display:flex;height:9px;border-radius:10px;overflow:hidden;margin:10px 0 7px}
 .sleep-seg{transition:width .9s cubic-bezier(.4,0,.2,1)}
 .sleep-leg{display:flex;gap:9px;flex-wrap:wrap}
@@ -373,9 +416,9 @@ input,select{font-family:var(--fb);outline:none}
 .sleg-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
 
 /* ── SCREEN WIDGET (tall) ────────────────────── */
-.w-screen{padding:16px 18px;display:flex;flex-direction:column;gap:10px}
-.scrn-item{display:flex;flex-direction:column;gap:3px}
-.scrn-row{display:flex;justify-content:space-between;align-items:center}
+.w-screen{padding:14px 16px;display:flex;flex-direction:column;gap:6px;overflow:hidden;}
+.scrn-item{display:flex;flex-direction:column;gap:3px;width:100%}
+.scrn-row{display:flex;justify-content:space-between;align-items:center;width:100%}
 .scrn-name{font-size:11px;font-weight:500;color:var(--t2)}
 .scrn-val{font-family:var(--fm);font-size:10px;color:var(--t3)}
 
@@ -899,6 +942,14 @@ canvas{display:block}
   }
   .log-left-panel .lni-ic { display: none; }
   .log-right-panel { min-height: 0; }
+  /* Dashboard: 2-col on mobile */
+  .dgrid { grid-template-columns: repeat(2,1fr); }
+  .c1 { grid-column: span 1; }
+  .c2 { grid-column: span 2; }
+  .c4 { grid-column: span 2; }
+  /* Screen & Book: single row (not r2) on mobile */
+  #w-screen { grid-column: span 2 !important; grid-row: span 1 !important; height: auto !important; min-height: 180px !important; }
+  #screen-bars { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
 }
 
 
@@ -1006,6 +1057,10 @@ canvas{display:block}
         <div style="flex:1;min-width:0">
           <div id="dw-greeting" style="font-family:var(--fd);font-size:18px;font-weight:800;color:var(--t1)">Welcome!</div>
           <div id="dw-date" style="font-size:12px;color:var(--t3);margin-top:1px"></div>
+          <div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap">
+            <a href="habit-tracker.html" style="display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:20px;background:var(--surface2);border:1px solid var(--border);color:var(--t2);font-size:11px;font-weight:500;text-decoration:none;transition:all .15s" onmouseover="this.style.background='var(--surface3)'" onmouseout="this.style.background='var(--surface2)'">🌿 Habit Tracker</a>
+            <a href="nutrition.html" style="display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:20px;background:var(--surface2);border:1px solid var(--border);color:var(--t2);font-size:11px;font-weight:500;text-decoration:none;transition:all .15s" onmouseover="this.style.background='var(--surface3)'" onmouseout="this.style.background='var(--surface2)'">🥗 Nutrition</a>
+          </div>
         </div>
         <div id="dw-score-badge" style="flex-shrink:0;text-align:center">
           <div id="dw-score-num" style="font-family:var(--fd);font-size:26px;font-weight:900;color:var(--t4)">—</div>
@@ -1038,23 +1093,23 @@ canvas{display:block}
         <!-- ══ ROW 1: Score · Rings · Categories ══ -->
         <div class="card w-score c1" id="w-score">
           <div class="clabel">Overall Score</div>
-          <div class="score-ring" style="margin:8px auto 6px">
-            <svg viewBox="0 0 160 160">
+          <div class="score-ring" style="margin:4px auto 4px">
+            <svg viewBox="0 0 200 200">
               <!-- Outer ring track (workout bonus) -->
-              <circle cx="80" cy="80" r="74" fill="none" stroke="var(--border2)" stroke-width="6" id="sr-outer-bg" style="opacity:0;transition:opacity .4s"/>
+              <circle cx="100" cy="100" r="93" fill="none" stroke="var(--border2)" stroke-width="6" id="sr-outer-bg" style="opacity:0;transition:opacity .4s"/>
               <!-- Outer ring fill -->
-              <circle cx="80" cy="80" r="74" fill="none" stroke-width="6" stroke-linecap="round"
-                stroke-dasharray="464.96" stroke-dashoffset="464.96"
+              <circle cx="100" cy="100" r="93" fill="none" stroke-width="6" stroke-linecap="round"
+                stroke-dasharray="584.34" stroke-dashoffset="584.34"
                 id="sr-outer-fill"
                 style="transition:stroke-dashoffset 1.1s cubic-bezier(.4,0,.2,1),stroke .4s,opacity .4s;opacity:0"/>
               <!-- Inner ring: overall score (0-100) -->
-              <circle class="sr-bg" cx="80" cy="80" r="58"/>
-              <circle class="sr-fill" id="sr-fill" cx="80" cy="80" r="58"
-                stroke-dasharray="364.42" stroke-dashoffset="364.42"/>
+              <circle class="sr-bg" cx="100" cy="100" r="76"/>
+              <circle class="sr-fill" id="sr-fill" cx="100" cy="100" r="76"
+                stroke-dasharray="477.52" stroke-dashoffset="477.52"/>
             </svg>
             <div class="score-center">
               <div class="score-num" id="score-num">—</div>
-              <div class="score-sub" id="score-sub-label" style="font-size:11px;font-weight:700;letter-spacing:.3px"></div>
+              <div class="score-agg" id="score-agg-label"></div>
             </div>
           </div>
           <div class="score-grade" id="score-grade" style="background:rgba(122,146,170,.12);color:var(--t3)">No data</div>
@@ -1069,423 +1124,417 @@ canvas{display:block}
           </div>
         </div>
 
-        <div class="card w-cats c2" id="w-cats">
+        <div class="card w-cats c2" id="w-cats" style="overflow:hidden;">
           <div class="clabel">Category Scores</div>
-          <div id="cats-grid" style="display:flex;align-items:flex-end;gap:4px;height:calc(100% - 28px);margin-top:8px;min-height:120px"></div>
+          <div id="cats-grid" style="flex:1;margin-top:6px;min-height:0;"></div>
         </div>
 
         <!-- ══ ROW 2: Active Cal · Steps · Standing · Exercise ══ -->
-        <div class="card w-metric c1 click" onclick="openPopup('active_calories')" id="w-acal">
-          <div class="wm-top">
+        <div class="card w-metric c1 click" onclick="openPopup('active_calories')" id="w-acal" style="position:relative;padding:0;">
+          <div class="dw-header">
             <div class="clabel">Active Cal</div>
             <div class="wm-ic" style="background:rgba(255,59,92,.12)">🔥</div>
           </div>
-          <div class="wm-bot">
-            <div style="display:flex;align-items:flex-end;gap:3px">
+          <div class="dw-center">
+            <div style="display:flex;align-items:flex-end;gap:3px;justify-content:center">
               <div class="cval" id="v-acal">—</div>
               <div class="cunit" style="margin-bottom:4px">kcal</div>
             </div>
-            <div class="wm-stats">
-              <div class="wm-stat"><div class="wm-slabel">Resting</div><div class="wm-sval" id="v-rest-cal">—</div></div>
-              <div class="wm-stat"><div class="wm-slabel">Total</div><div class="wm-sval" id="v-total-cal">—</div></div>
+            <div class="dw-mbar"><div class="dw-mbar-fill" id="bar-acal" style="background:var(--move);width:0%"></div></div>
+          </div>
+          <div class="dw-sides">
+            <div class="dw-side-stat">
+              <div class="dw-side-label">Resting</div>
+              <div class="dw-side-val" id="v-rest-cal">—</div>
             </div>
-            <div style="display:flex;gap:6px;margin-top:6px">
-              <div style="flex:1;background:var(--surface2);border-radius:6px;padding:3px 5px;text-align:center">
-                <div style="font-size:9px;color:var(--t4)">7D avg</div>
-                <div style="font-size:11px;font-weight:700;color:var(--t2)" id="acal-7d">—</div>
-              </div>
-              <div style="flex:1;background:var(--surface2);border-radius:6px;padding:3px 5px;text-align:center">
-                <div style="font-size:9px;color:var(--t4)">30D avg</div>
-                <div style="font-size:11px;font-weight:700;color:var(--t2)" id="acal-30d">—</div>
-              </div>
+            <div class="dw-side-stat">
+              <div class="dw-side-label">Total</div>
+              <div class="dw-side-val" id="v-total-cal">—</div>
             </div>
-            <div class="mbar" style="margin-top:6px"><div class="mbar-fill" id="bar-acal" style="background:var(--move);width:0%"></div></div>
+          </div>
+          <div class="dw-footer">
+            <div class="dw-avg-pill"><div class="dw-avg-label">7D avg</div><div class="dw-avg-val" id="acal-7d">—</div></div>
+            <div class="dw-avg-pill"><div class="dw-avg-label">30D avg</div><div class="dw-avg-val" id="acal-30d">—</div></div>
           </div>
         </div>
 
-        <div class="card w-metric c1 click" onclick="openPopup('steps')" id="w-steps">
-          <div class="wm-top">
+        <div class="card w-metric c1 click" onclick="openPopup('steps')" id="w-steps" style="position:relative;padding:0;">
+          <div class="dw-header">
             <div class="clabel">Steps</div>
             <div class="wm-ic" style="background:rgba(255,204,0,.12)">👟</div>
           </div>
-          <div class="wm-bot">
+          <div class="dw-center">
             <div class="cval" id="v-steps">—</div>
-            <div class="wm-stats" style="margin-top:4px">
-              <div class="wm-stat"><div class="wm-slabel">Distance</div><div class="wm-sval" id="steps-dist">—</div></div>
+            <div class="dw-mbar"><div class="dw-mbar-fill" id="bar-steps" style="background:var(--steps-c);width:0%"></div></div>
+          </div>
+          <div class="dw-sides">
+            <div class="dw-side-stat">
+              <div class="dw-side-label">Distance</div>
+              <div class="dw-side-val" id="steps-dist">—</div>
             </div>
-            <div style="display:flex;gap:6px;margin-top:6px">
-              <div style="flex:1;background:var(--surface2);border-radius:6px;padding:3px 5px;text-align:center">
-                <div style="font-size:9px;color:var(--t4)">7D avg</div>
-                <div style="font-size:11px;font-weight:700;color:var(--t2)" id="steps-7d">—</div>
-              </div>
-              <div style="flex:1;background:var(--surface2);border-radius:6px;padding:3px 5px;text-align:center">
-                <div style="font-size:9px;color:var(--t4)">30D avg</div>
-                <div style="font-size:11px;font-weight:700;color:var(--t2)" id="steps-30d">—</div>
-              </div>
+            <div class="dw-side-stat">
+              <div class="dw-side-label">Step Len</div>
+              <div class="dw-side-val" id="steps-steplen">—</div>
             </div>
-            <div class="mbar" style="margin-top:6px"><div class="mbar-fill" id="bar-steps" style="background:var(--steps-c);width:0%"></div></div>
+          </div>
+          <div class="dw-footer">
+            <div class="dw-avg-pill"><div class="dw-avg-label">7D avg</div><div class="dw-avg-val" id="steps-7d">—</div></div>
+            <div class="dw-avg-pill"><div class="dw-avg-label">30D avg</div><div class="dw-avg-val" id="steps-30d">—</div></div>
           </div>
         </div>
 
-        <div class="card w-metric c1 click" onclick="openPopup('standing_mins')" id="w-stand">
-          <div class="wm-top">
+        <div class="card w-metric c1 click" onclick="openPopup('standing_mins')" id="w-stand" style="position:relative;padding:0;">
+          <div class="dw-header">
             <div class="clabel">Standing</div>
             <div class="wm-ic" style="background:rgba(59,130,246,.12)">🧍</div>
           </div>
-          <div class="wm-bot">
-            <div style="display:flex;align-items:flex-end;gap:3px">
+          <div class="dw-center">
+            <div style="display:flex;align-items:flex-end;gap:3px;justify-content:center">
               <div class="cval" id="v-stand">—</div>
               <div class="cunit" style="margin-bottom:4px">min</div>
             </div>
-            <div class="wm-stats">
-              <div class="wm-stat"><div class="wm-slabel">Stairs</div><div class="wm-sval" id="v-stairs">—</div></div>
+            <div class="dw-mbar"><div class="dw-mbar-fill" id="bar-stand" style="background:var(--ca);width:0%"></div></div>
+          </div>
+          <div class="dw-sides">
+            <div class="dw-side-stat">
+              <div class="dw-side-label">Stairs</div>
+              <div class="dw-side-val" id="v-stairs">—</div>
             </div>
-            <div style="display:flex;gap:6px;margin-top:6px">
-              <div style="flex:1;background:var(--surface2);border-radius:6px;padding:3px 5px;text-align:center">
-                <div style="font-size:9px;color:var(--t4)">7D avg</div>
-                <div style="font-size:11px;font-weight:700;color:var(--t2)" id="stand-7d">—</div>
-              </div>
-              <div style="flex:1;background:var(--surface2);border-radius:6px;padding:3px 5px;text-align:center">
-                <div style="font-size:9px;color:var(--t4)">30D avg</div>
-                <div style="font-size:11px;font-weight:700;color:var(--t2)" id="stand-30d">—</div>
-              </div>
+            <div class="dw-side-stat">
+              <div class="dw-side-label">Stand Hrs</div>
+              <div class="dw-side-val" id="v-stand-hrs">—</div>
             </div>
-            <div class="mbar" style="margin-top:6px"><div class="mbar-fill" id="bar-stand" style="background:var(--ca);width:0%"></div></div>
+          </div>
+          <div class="dw-footer">
+            <div class="dw-avg-pill"><div class="dw-avg-label">7D avg</div><div class="dw-avg-val" id="stand-7d">—</div></div>
+            <div class="dw-avg-pill"><div class="dw-avg-label">30D avg</div><div class="dw-avg-val" id="stand-30d">—</div></div>
           </div>
         </div>
 
-        <div class="card w-metric c1 click" onclick="openPopup('exercise_mins')" id="w-exer">
-          <div class="wm-top">
+        <div class="card w-metric c1 click" onclick="openPopup('exercise_mins')" id="w-exer" style="position:relative;padding:0;">
+          <div class="dw-header">
             <div class="clabel">Exercise</div>
             <div class="wm-ic" style="background:rgba(52,199,89,.12)">⚡</div>
           </div>
-          <div class="wm-bot">
-            <div style="display:flex;align-items:flex-end;gap:3px">
+          <div class="dw-center">
+            <div style="display:flex;align-items:flex-end;gap:3px;justify-content:center">
               <div class="cval" id="v-exer">—</div>
               <div class="cunit" style="margin-bottom:4px">min</div>
             </div>
-            <div class="wm-stats">
-              <div class="wm-stat"><div class="wm-slabel">Workouts</div><div class="wm-sval" id="v-workout-count">—</div></div>
+            <div class="dw-mbar"><div class="dw-mbar-fill" id="bar-exer" style="background:var(--exer);width:0%"></div></div>
+          </div>
+          <div class="dw-sides">
+            <div class="dw-side-stat">
+              <div class="dw-side-label">Workouts</div>
+              <div class="dw-side-val" id="v-workout-count">—</div>
             </div>
-            <div style="display:flex;gap:6px;margin-top:6px">
-              <div style="flex:1;background:var(--surface2);border-radius:6px;padding:3px 5px;text-align:center">
-                <div style="font-size:9px;color:var(--t4)">7D avg</div>
-                <div style="font-size:11px;font-weight:700;color:var(--t2)" id="exer-7d">—</div>
-              </div>
-              <div style="flex:1;background:var(--surface2);border-radius:6px;padding:3px 5px;text-align:center">
-                <div style="font-size:9px;color:var(--t4)">30D avg</div>
-                <div style="font-size:11px;font-weight:700;color:var(--t2)" id="exer-30d">—</div>
-              </div>
+            <div class="dw-side-stat">
+              <div class="dw-side-label">HR Zone</div>
+              <div class="dw-side-val" id="v-hr-zone">—</div>
             </div>
-            <div class="mbar" style="margin-top:6px"><div class="mbar-fill" id="bar-exer" style="background:var(--exer);width:0%"></div></div>
+          </div>
+          <div class="dw-footer">
+            <div class="dw-avg-pill"><div class="dw-avg-label">7D avg</div><div class="dw-avg-val" id="exer-7d">—</div></div>
+            <div class="dw-avg-pill"><div class="dw-avg-label">30D avg</div><div class="dw-avg-val" id="exer-30d">—</div></div>
+            <div class="dw-avg-pill"><div class="dw-avg-label">This Mo</div><div class="dw-avg-val" id="exer-mo-count" style="color:var(--accent)">—</div></div>
+            <div class="dw-avg-pill"><div class="dw-avg-label">This Yr</div><div class="dw-avg-val" id="exer-yr-count" style="color:var(--accent2)">—</div></div>
           </div>
         </div>
 
-        <!-- ══ ROW 3: Outdoor Walk · Cycle · Run · Screen (r2) ══ -->
-        <div class="card c1 click" onclick="openPopup('walk_distance')" id="w-dist">
-          <div class="wm-top">
-            <div class="clabel" style="display:flex;align-items:center;gap:5px">
-              <span id="w-dist-ic">🚶</span> Outdoor Walk
-            </div>
-            
+        <!-- ══ ROW 3: Outdoor Walk · Cycle · Run · Strength | Screen r2 col4 ══ -->
+        <div class="card c1 click" onclick="openPopup('walk_distance')" id="w-dist" style="position:relative;padding:0;">
+          <div class="dw-header">
+            <div class="clabel" style="display:flex;align-items:center;gap:5px"><span id="w-dist-ic">🚶</span> Outdoor Walk</div>
           </div>
-          <div>
-            <div style="display:flex;align-items:flex-end;gap:3px;margin-top:4px">
+          <div class="dw-center">
+            <div style="display:flex;align-items:flex-end;gap:3px;justify-content:center">
               <div class="cval" id="v-dist">—</div>
               <div class="cunit" style="margin-bottom:4px">km</div>
             </div>
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-top:6px">
-              <div><div class="wm-slabel">↑ Elev</div><div class="wm-sval" id="v-elev">—</div></div>
-              <div><div class="wm-slabel">Avg Pace</div><div class="wm-sval" id="v-walk-avg">—</div></div>
+            <div class="dw-mbar"><div class="dw-mbar-fill" id="bar-walk" style="background:var(--accent);width:0%"></div></div>
+          </div>
+          <div class="dw-sides">
+            <div class="dw-side-stat">
+              <div class="dw-side-label">↑ Elev</div>
+              <div class="dw-side-val" id="v-elev">—</div>
             </div>
-            <div style="margin-top:6px;display:flex;gap:5px">
-              <div style="flex:1;background:var(--surface2);border-radius:6px;padding:4px 4px;text-align:center">
-                <div style="font-size:9px;color:var(--t4)">7D avg</div>
-                <div style="font-size:11px;font-weight:700;color:var(--t2)" id="walk-7d">—</div>
-              </div>
-              <div style="flex:1;background:var(--surface2);border-radius:6px;padding:4px 4px;text-align:center">
-                <div style="font-size:9px;color:var(--t4)">30D avg</div>
-                <div style="font-size:11px;font-weight:700;color:var(--t2)" id="walk-30d">—</div>
-              </div>
-              <div style="flex:1;background:var(--surface2);border-radius:6px;padding:4px 4px;text-align:center">
-                <div style="font-size:9px;color:var(--t4)">Mo</div>
-                <div style="font-size:11px;font-weight:700;color:var(--accent)" id="walk-mo-count">—</div>
-              </div>
-              <div style="flex:1;background:var(--surface2);border-radius:6px;padding:4px 4px;text-align:center">
-                <div style="font-size:9px;color:var(--t4)">Yr</div>
-                <div style="font-size:11px;font-weight:700;color:var(--accent2)" id="walk-yr-count">—</div>
-              </div>
+            <div class="dw-side-stat">
+              <div class="dw-side-label">Avg Pace</div>
+              <div class="dw-side-val" id="v-walk-avg">—</div>
             </div>
+          </div>
+          <div class="dw-footer">
+            <div class="dw-avg-pill"><div class="dw-avg-label">7D avg</div><div class="dw-avg-val" id="walk-7d">—</div></div>
+            <div class="dw-avg-pill"><div class="dw-avg-label">30D avg</div><div class="dw-avg-val" id="walk-30d">—</div></div>
+            <div class="dw-avg-pill"><div class="dw-avg-label">This Mo</div><div class="dw-avg-val" id="walk-mo-count" style="color:var(--accent)">—</div></div>
+            <div class="dw-avg-pill"><div class="dw-avg-label">This Yr</div><div class="dw-avg-val" id="walk-yr-count" style="color:var(--accent2)">—</div></div>
           </div>
         </div>
 
-        <div class="card c1 click" onclick="openPopup('cycle_distance')" id="w-cycle">
-          <div class="wm-top">
-            <div class="clabel" style="display:flex;align-items:center;gap:5px">
-              <span id="w-cycle-ic">🚴</span> Cycle
-            </div>
-            
+        <div class="card c1 click" onclick="openPopup('cycle_distance')" id="w-cycle" style="position:relative;padding:0;">
+          <div class="dw-header">
+            <div class="clabel" style="display:flex;align-items:center;gap:5px"><span id="w-cycle-ic">🚴</span> Cycle</div>
           </div>
-          <div>
-            <div style="display:flex;align-items:flex-end;gap:3px;margin-top:4px">
+          <div class="dw-center">
+            <div style="display:flex;align-items:flex-end;gap:3px;justify-content:center">
               <div class="cval" id="v-cycle">—</div>
               <div class="cunit" style="margin-bottom:4px">km</div>
             </div>
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-top:6px">
-              <div><div class="wm-slabel">↑ Elev</div><div class="wm-sval" id="v-cycle-elev">—</div></div>
-              <div><div class="wm-slabel">Avg Pace</div><div class="wm-sval" id="v-cycle-pace">—</div></div>
+            <div class="dw-mbar"><div class="dw-mbar-fill" id="bar-cycle" style="background:#F59E0B;width:0%"></div></div>
+          </div>
+          <div class="dw-sides">
+            <div class="dw-side-stat">
+              <div class="dw-side-label">↑ Elev</div>
+              <div class="dw-side-val" id="v-cycle-elev">—</div>
             </div>
-            <div style="margin-top:6px;display:flex;gap:5px">
-              <div style="flex:1;background:var(--surface2);border-radius:6px;padding:4px 4px;text-align:center">
-                <div style="font-size:9px;color:var(--t4)">7D avg</div>
-                <div style="font-size:11px;font-weight:700;color:var(--t2)" id="cycle-7d">—</div>
-              </div>
-              <div style="flex:1;background:var(--surface2);border-radius:6px;padding:4px 4px;text-align:center">
-                <div style="font-size:9px;color:var(--t4)">30D avg</div>
-                <div style="font-size:11px;font-weight:700;color:var(--t2)" id="cycle-30d">—</div>
-              </div>
-              <div style="flex:1;background:var(--surface2);border-radius:6px;padding:4px 4px;text-align:center">
-                <div style="font-size:9px;color:var(--t4)">Mo</div>
-                <div style="font-size:11px;font-weight:700;color:var(--accent)" id="cycle-mo-count">—</div>
-              </div>
-              <div style="flex:1;background:var(--surface2);border-radius:6px;padding:4px 4px;text-align:center">
-                <div style="font-size:9px;color:var(--t4)">Yr</div>
-                <div style="font-size:11px;font-weight:700;color:var(--accent2)" id="cycle-yr-count">—</div>
-              </div>
+            <div class="dw-side-stat">
+              <div class="dw-side-label">Avg Pace</div>
+              <div class="dw-side-val" id="v-cycle-pace">—</div>
             </div>
+          </div>
+          <div class="dw-footer">
+            <div class="dw-avg-pill"><div class="dw-avg-label">7D avg</div><div class="dw-avg-val" id="cycle-7d">—</div></div>
+            <div class="dw-avg-pill"><div class="dw-avg-label">30D avg</div><div class="dw-avg-val" id="cycle-30d">—</div></div>
+            <div class="dw-avg-pill"><div class="dw-avg-label">This Mo</div><div class="dw-avg-val" id="cycle-mo-count" style="color:var(--accent)">—</div></div>
+            <div class="dw-avg-pill"><div class="dw-avg-label">This Yr</div><div class="dw-avg-val" id="cycle-yr-count" style="color:var(--accent2)">—</div></div>
           </div>
         </div>
 
-        <div class="card c1 click" onclick="openPopup('run_distance')" id="w-run">
-          <div class="wm-top">
-            <div class="clabel" style="display:flex;align-items:center;gap:5px">
-              <span id="w-run-ic">🏃</span> Run
-            </div>
-            
+        <div class="card c1 click" onclick="openPopup('run_distance')" id="w-run" style="position:relative;padding:0;">
+          <div class="dw-header">
+            <div class="clabel" style="display:flex;align-items:center;gap:5px"><span id="w-run-ic">🏃</span> Run</div>
           </div>
-          <div>
-            <div style="display:flex;align-items:flex-end;gap:3px;margin-top:4px">
+          <div class="dw-center">
+            <div style="display:flex;align-items:flex-end;gap:3px;justify-content:center">
               <div class="cval" id="v-run">—</div>
               <div class="cunit" style="margin-bottom:4px">km</div>
             </div>
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-top:6px">
-              <div><div class="wm-slabel">↑ Elev</div><div class="wm-sval" id="v-run-elev">—</div></div>
-              <div><div class="wm-slabel">Avg Pace</div><div class="wm-sval" id="v-run-avg">—</div></div>
+            <div class="dw-mbar"><div class="dw-mbar-fill" id="bar-run" style="background:#EC4899;width:0%"></div></div>
+          </div>
+          <div class="dw-sides">
+            <div class="dw-side-stat">
+              <div class="dw-side-label">↑ Elev</div>
+              <div class="dw-side-val" id="v-run-elev">—</div>
             </div>
-            <div style="margin-top:6px;display:flex;gap:5px">
-              <div style="flex:1;background:var(--surface2);border-radius:6px;padding:4px 4px;text-align:center">
-                <div style="font-size:9px;color:var(--t4)">7D avg</div>
-                <div style="font-size:11px;font-weight:700;color:var(--t2)" id="run-7d">—</div>
-              </div>
-              <div style="flex:1;background:var(--surface2);border-radius:6px;padding:4px 4px;text-align:center">
-                <div style="font-size:9px;color:var(--t4)">30D avg</div>
-                <div style="font-size:11px;font-weight:700;color:var(--t2)" id="run-30d">—</div>
-              </div>
-              <div style="flex:1;background:var(--surface2);border-radius:6px;padding:4px 4px;text-align:center">
-                <div style="font-size:9px;color:var(--t4)">Mo</div>
-                <div style="font-size:11px;font-weight:700;color:var(--accent)" id="run-mo-count">—</div>
-              </div>
-              <div style="flex:1;background:var(--surface2);border-radius:6px;padding:4px 4px;text-align:center">
-                <div style="font-size:9px;color:var(--t4)">Yr</div>
-                <div style="font-size:11px;font-weight:700;color:var(--accent2)" id="run-yr-count">—</div>
-              </div>
+            <div class="dw-side-stat">
+              <div class="dw-side-label">Avg Pace</div>
+              <div class="dw-side-val" id="v-run-avg">—</div>
             </div>
+          </div>
+          <div class="dw-footer">
+            <div class="dw-avg-pill"><div class="dw-avg-label">7D avg</div><div class="dw-avg-val" id="run-7d">—</div></div>
+            <div class="dw-avg-pill"><div class="dw-avg-label">30D avg</div><div class="dw-avg-val" id="run-30d">—</div></div>
+            <div class="dw-avg-pill"><div class="dw-avg-label">This Mo</div><div class="dw-avg-val" id="run-mo-count" style="color:var(--accent)">—</div></div>
+            <div class="dw-avg-pill"><div class="dw-avg-label">This Yr</div><div class="dw-avg-val" id="run-yr-count" style="color:var(--accent2)">—</div></div>
           </div>
         </div>
 
         <!-- Screen widget — r2 spanning rows 3+4, col 4 -->
-        <div class="card w-screen c1 r2" id="w-screen" style="min-height:0">
-          <div class="clabel" style="display:flex;align-items:center;gap:5px">
+        <div class="card w-screen c1 r2" id="w-screen" style="min-height:0;padding:14px 16px;align-items:flex-start;justify-content:flex-start;">
+          <div class="clabel" style="display:flex;align-items:center;gap:5px;width:100%">
             📱 Screen & 📚 Book
           </div>
-          <div id="screen-bars" style="margin-top:8px"></div>
+          <div id="screen-bars" style="margin-top:8px;width:100%;flex:1;overflow:hidden;"></div>
         </div>
 
-        <!-- ══ ROW 4: Strength · Yoga · Mindful (same row as screen 2nd half) ══ -->
-        <div class="card c1 click" onclick="openPopup('strength_training')" id="w-str">
-          <div class="wm-top">
-            <div class="clabel" style="display:flex;align-items:center;gap:5px">
-              <span id="w-str-ic">💪</span> Strength
-            </div>
-            
+        <!-- ══ ROW 4: Strength · Yoga · Mindful ══ -->
+        <div class="card c1 click" onclick="openPopup('strength_training')" id="w-str" style="position:relative;padding:0;">
+          <div class="dw-header">
+            <div class="clabel" style="display:flex;align-items:center;gap:5px"><span id="w-str-ic">💪</span> Strength</div>
           </div>
-          <div class="wm-bot">
-            <div style="display:flex;align-items:flex-end;gap:3px">
+          <div class="dw-center">
+            <div style="display:flex;align-items:flex-end;gap:3px;justify-content:center">
               <div class="cval" id="v-str">—</div>
               <div class="cunit" style="margin-bottom:4px">min</div>
             </div>
-            <div style="margin-top:6px;display:flex;gap:6px">
-              <div style="flex:1;background:var(--surface2);border-radius:6px;padding:4px 6px;text-align:center">
-                <div style="font-size:9px;color:var(--t4)">7D avg</div>
-                <div style="font-size:12px;font-weight:700;color:var(--t2)" id="str-7d">—</div>
-              </div>
-              <div style="flex:1;background:var(--surface2);border-radius:6px;padding:4px 6px;text-align:center">
-                <div style="font-size:9px;color:var(--t4)">30D avg</div>
-                <div style="font-size:12px;font-weight:700;color:var(--t2)" id="str-30d">—</div>
-              </div>
-              <div style="flex:1;background:var(--surface2);border-radius:6px;padding:4px 6px;text-align:center">
-                <div style="font-size:9px;color:var(--t4)">This Mo</div>
-                <div style="font-size:12px;font-weight:700;color:var(--accent)" id="str-mo-count">—</div>
-              </div>
-              <div style="flex:1;background:var(--surface2);border-radius:6px;padding:4px 6px;text-align:center">
-                <div style="font-size:9px;color:var(--t4)">This Yr</div>
-                <div style="font-size:12px;font-weight:700;color:var(--accent2)" id="str-yr-count">—</div>
-              </div>
+            <div class="dw-mbar"><div class="dw-mbar-fill" id="bar-str" style="background:#8B5CF6;width:0%"></div></div>
+          </div>
+          <div class="dw-sides">
+            <div class="dw-side-stat">
+              <div class="dw-side-label">Muscle Mass</div>
+              <div class="dw-side-val" id="v-muscle-mass">—</div>
             </div>
+            <div class="dw-side-stat">
+              <div class="dw-side-label">Muscle Rate</div>
+              <div class="dw-side-val" id="v-muscle-rate">—</div>
+            </div>
+          </div>
+          <div class="dw-footer">
+            <div class="dw-avg-pill"><div class="dw-avg-label">7D avg</div><div class="dw-avg-val" id="str-7d">—</div></div>
+            <div class="dw-avg-pill"><div class="dw-avg-label">30D avg</div><div class="dw-avg-val" id="str-30d">—</div></div>
+            <div class="dw-avg-pill"><div class="dw-avg-label">This Mo</div><div class="dw-avg-val" id="str-mo-count" style="color:var(--accent)">—</div></div>
+            <div class="dw-avg-pill"><div class="dw-avg-label">This Yr</div><div class="dw-avg-val" id="str-yr-count" style="color:var(--accent2)">—</div></div>
           </div>
         </div>
 
-        <div class="card c1 click" onclick="openPopup('yoga_duration')" id="w-yoga">
-          <div class="wm-top">
-            <div class="clabel" style="display:flex;align-items:center;gap:5px">
-              <span id="w-yoga-ic">🧘</span> Yoga
-            </div>
-            
+        <div class="card c1 click" onclick="openPopup('yoga_duration')" id="w-yoga" style="position:relative;padding:0;">
+          <div class="dw-header">
+            <div class="clabel" style="display:flex;align-items:center;gap:5px"><span id="w-yoga-ic">🧘</span> Yoga</div>
           </div>
-          <div class="wm-bot">
-            <div style="display:flex;align-items:flex-end;gap:3px">
+          <div class="dw-center">
+            <div style="display:flex;align-items:flex-end;gap:3px;justify-content:center">
               <div class="cval" id="v-yoga">—</div>
               <div class="cunit" style="margin-bottom:4px">min</div>
             </div>
-            <div style="margin-top:6px;display:flex;gap:6px">
-              <div style="flex:1;background:var(--surface2);border-radius:6px;padding:4px 6px;text-align:center">
-                <div style="font-size:9px;color:var(--t4)">7D avg</div>
-                <div style="font-size:12px;font-weight:700;color:var(--t2)" id="yoga-7d">—</div>
-              </div>
-              <div style="flex:1;background:var(--surface2);border-radius:6px;padding:4px 6px;text-align:center">
-                <div style="font-size:9px;color:var(--t4)">30D avg</div>
-                <div style="font-size:12px;font-weight:700;color:var(--t2)" id="yoga-30d">—</div>
-              </div>
-              <div style="flex:1;background:var(--surface2);border-radius:6px;padding:4px 6px;text-align:center">
-                <div style="font-size:9px;color:var(--t4)">This Mo</div>
-                <div style="font-size:12px;font-weight:700;color:var(--accent)" id="yoga-mo-count">—</div>
-              </div>
-              <div style="flex:1;background:var(--surface2);border-radius:6px;padding:4px 6px;text-align:center">
-                <div style="font-size:9px;color:var(--t4)">This Yr</div>
-                <div style="font-size:12px;font-weight:700;color:var(--accent2)" id="yoga-yr-count">—</div>
-              </div>
+            <div class="dw-mbar"><div class="dw-mbar-fill" id="bar-yoga" style="background:#10B981;width:0%"></div></div>
+          </div>
+          <div class="dw-sides">
+            <div class="dw-side-stat">
+              <div class="dw-side-label">Visceral Fat</div>
+              <div class="dw-side-val" id="v-visceral-fat">—</div>
             </div>
+            <div class="dw-side-stat">
+              <div class="dw-side-label">Subcut. Fat</div>
+              <div class="dw-side-val" id="v-subcut-fat">—</div>
+            </div>
+          </div>
+          <div class="dw-footer">
+            <div class="dw-avg-pill"><div class="dw-avg-label">7D avg</div><div class="dw-avg-val" id="yoga-7d">—</div></div>
+            <div class="dw-avg-pill"><div class="dw-avg-label">30D avg</div><div class="dw-avg-val" id="yoga-30d">—</div></div>
+            <div class="dw-avg-pill"><div class="dw-avg-label">This Mo</div><div class="dw-avg-val" id="yoga-mo-count" style="color:var(--accent)">—</div></div>
+            <div class="dw-avg-pill"><div class="dw-avg-label">This Yr</div><div class="dw-avg-val" id="yoga-yr-count" style="color:var(--accent2)">—</div></div>
           </div>
         </div>
 
-        <div class="card c1 click" onclick="openPopup('mindful_mins')" id="w-mindful">
-          <div class="wm-top">
-            <div class="clabel" style="display:flex;align-items:center;gap:5px">
-              <span id="w-mindful-ic">🧘</span> Mindful
-            </div>
-            
+        <div class="card c1 click" onclick="openPopup('mindful_mins')" id="w-mindful" style="position:relative;padding:0;">
+          <div class="dw-header">
+            <div class="clabel" style="display:flex;align-items:center;gap:5px"><span id="w-mindful-ic">🧘</span> Mindful</div>
           </div>
-          <div class="wm-bot">
-            <div style="display:flex;align-items:flex-end;gap:3px">
+          <div class="dw-center">
+            <div style="display:flex;align-items:flex-end;gap:3px;justify-content:center">
               <div class="cval" id="v-mindful">—</div>
               <div class="cunit" style="margin-bottom:4px">min</div>
             </div>
-            <div style="margin-top:6px;display:flex;gap:6px">
-              <div style="flex:1;background:var(--surface2);border-radius:6px;padding:4px 6px;text-align:center">
-                <div style="font-size:9px;color:var(--t4)">7D avg</div>
-                <div style="font-size:12px;font-weight:700;color:var(--t2)" id="mindful-7d">—</div>
-              </div>
-              <div style="flex:1;background:var(--surface2);border-radius:6px;padding:4px 6px;text-align:center">
-                <div style="font-size:9px;color:var(--t4)">30D avg</div>
-                <div style="font-size:12px;font-weight:700;color:var(--t2)" id="mindful-30d">—</div>
-              </div>
-              <div style="flex:1;background:var(--surface2);border-radius:6px;padding:4px 6px;text-align:center">
-                <div style="font-size:9px;color:var(--t4)">This Mo</div>
-                <div style="font-size:12px;font-weight:700;color:var(--accent)" id="mindful-mo-count">—</div>
-              </div>
-              <div style="flex:1;background:var(--surface2);border-radius:6px;padding:4px 6px;text-align:center">
-                <div style="font-size:9px;color:var(--t4)">This Yr</div>
-                <div style="font-size:12px;font-weight:700;color:var(--accent2)" id="mindful-yr-count">—</div>
-              </div>
+            <div class="dw-mbar"><div class="dw-mbar-fill" id="bar-mindful" style="background:#06B6D4;width:0%"></div></div>
+          </div>
+          <div class="dw-sides">
+            <div class="dw-side-stat">
+              <div class="dw-side-label">State of Mind</div>
+              <div class="dw-side-val" id="v-state-of-mind">—</div>
             </div>
+            <div class="dw-side-stat">
+              <div class="dw-side-label">Sound Level</div>
+              <div class="dw-side-val" id="v-sound-level">—</div>
+            </div>
+          </div>
+          <div class="dw-footer">
+            <div class="dw-avg-pill"><div class="dw-avg-label">7D avg</div><div class="dw-avg-val" id="mindful-7d">—</div></div>
+            <div class="dw-avg-pill"><div class="dw-avg-label">30D avg</div><div class="dw-avg-val" id="mindful-30d">—</div></div>
+            <div class="dw-avg-pill"><div class="dw-avg-label">This Mo</div><div class="dw-avg-val" id="mindful-mo-count" style="color:var(--accent)">—</div></div>
+            <div class="dw-avg-pill"><div class="dw-avg-label">This Yr</div><div class="dw-avg-val" id="mindful-yr-count" style="color:var(--accent2)">—</div></div>
           </div>
         </div>
 
         <!-- ══ ROW 5: Sleep · HR · Cardio · HRV ══ -->
-        <div class="card c1 click" onclick="openPopup('total_sleep')" id="w-sleep">
-          <div style="display:flex;align-items:center;justify-content:space-between">
-            <div class="clabel"><span id="w-sleep-ic">🌙</span> Sleep</div>
+        <div class="card c1 click" onclick="openPopup('total_sleep')" id="w-sleep" style="position:relative;padding:0;">
+          <div class="dw-header">
+            <div class="clabel" style="display:flex;align-items:center;gap:5px"><span id="w-sleep-ic">🌙</span> Sleep</div>
             <div class="cval-sm" id="v-sleep" style="color:var(--csl)">—</div>
           </div>
-          <div class="sleep-bar" id="sleep-bar" style="margin-top:8px">
-            <div class="sleep-seg" style="background:#FF6B6B;width:0%"></div>
-            <div class="sleep-seg" style="background:#6366F1;width:0%"></div>
-            <div class="sleep-seg" style="background:#0EA5E9;width:0%"></div>
-            <div class="sleep-seg" style="background:#1B4F6E;width:0%"></div>
-            <div class="sleep-seg" style="background:#636366;width:0%"></div>
+          <div class="dw-center" style="padding-bottom:44px;">
+            <div class="sleep-bar" id="sleep-bar" style="width:100%;margin:0 0 6px;">
+              <div class="sleep-seg" style="background:#FF6B6B;width:0%"></div>
+              <div class="sleep-seg" style="background:#6366F1;width:0%"></div>
+              <div class="sleep-seg" style="background:#0EA5E9;width:0%"></div>
+              <div class="sleep-seg" style="background:#1B4F6E;width:0%"></div>
+              <div class="sleep-seg" style="background:#636366;width:0%"></div>
+            </div>
+            <div class="sleep-leg" style="justify-content:center;flex-wrap:wrap;gap:6px;">
+              <div class="sleg"><div class="sleg-dot" style="background:#FF6B6B"></div><span id="sl-awk">Awake —</span></div>
+              <div class="sleg"><div class="sleg-dot" style="background:#6366F1"></div><span id="sl-rem">REM —</span></div>
+              <div class="sleg"><div class="sleg-dot" style="background:#0EA5E9"></div><span id="sl-core">Core —</span></div>
+              <div class="sleg"><div class="sleg-dot" style="background:#1B4F6E"></div><span id="sl-deep">Deep —</span></div>
+            </div>
           </div>
-          <div class="sleep-leg" style="margin-top:6px">
-            <div class="sleg"><div class="sleg-dot" style="background:#FF6B6B"></div><span id="sl-awk">Awake —</span></div>
-            <div class="sleg"><div class="sleg-dot" style="background:#6366F1"></div><span id="sl-rem">REM —</span></div>
-            <div class="sleg"><div class="sleg-dot" style="background:#0EA5E9"></div><span id="sl-core">Core —</span></div>
-            <div class="sleg"><div class="sleg-dot" style="background:#1B4F6E"></div><span id="sl-deep">Deep —</span></div>
+          <div class="dw-footer">
+            <div class="dw-avg-pill"><div class="dw-avg-label">7D avg</div><div class="dw-avg-val" id="sleep-7d">—</div></div>
+            <div class="dw-avg-pill"><div class="dw-avg-label">30D avg</div><div class="dw-avg-val" id="sleep-30d">—</div></div>
           </div>
         </div>
 
-        <div class="card c1 click" onclick="openPopup('heart_rate')" id="w-hr">
-          <div class="wm-top">
+        <div class="card c1 click" onclick="openPopup('heart_rate')" id="w-hr" style="position:relative;padding:0;">
+          <div class="dw-header">
             <div class="clabel">Heart Rate</div>
             <div class="wm-ic" style="background:rgba(239,68,68,.12)">❤️</div>
           </div>
-          <div class="wm-bot">
-            <div style="display:flex;align-items:flex-end;gap:3px">
+          <div class="dw-center">
+            <div style="display:flex;align-items:flex-end;gap:3px;justify-content:center">
               <div class="cval" id="v-hr">—</div>
               <div class="cunit" style="margin-bottom:4px">bpm</div>
             </div>
-            <div class="wm-stats">
-              <div class="wm-stat"><div class="wm-slabel">Resting</div><div class="wm-sval" id="v-resting-hr">—</div></div>
-              <div class="wm-stat"><div class="wm-slabel">Walking</div><div class="wm-sval" id="v-walking-hr">—</div></div>
+            <div class="dw-mbar"><div class="dw-mbar-fill" id="bar-hr" style="background:var(--danger);width:0%"></div></div>
+          </div>
+          <div class="dw-sides">
+            <div class="dw-side-stat">
+              <div class="dw-side-label">Resting</div>
+              <div class="dw-side-val" id="v-resting-hr">—</div>
             </div>
-            <div style="display:flex;gap:6px;margin-top:6px">
-              <div style="flex:1;background:var(--surface2);border-radius:6px;padding:3px 5px;text-align:center">
-                <div style="font-size:9px;color:var(--t4)">7D avg</div>
-                <div style="font-size:11px;font-weight:700;color:var(--t2)" id="hr-7d">—</div>
-              </div>
-              <div style="flex:1;background:var(--surface2);border-radius:6px;padding:3px 5px;text-align:center">
-                <div style="font-size:9px;color:var(--t4)">30D avg</div>
-                <div style="font-size:11px;font-weight:700;color:var(--t2)" id="hr-30d">—</div>
-              </div>
+            <div class="dw-side-stat">
+              <div class="dw-side-label">Walking</div>
+              <div class="dw-side-val" id="v-walking-hr">—</div>
             </div>
+          </div>
+          <div class="dw-footer">
+            <div class="dw-avg-pill"><div class="dw-avg-label">High</div><div class="dw-avg-val" id="v-hr-high" style="color:var(--danger)">—</div></div>
+            <div class="dw-avg-pill"><div class="dw-avg-label">Low</div><div class="dw-avg-val" id="v-hr-low" style="color:var(--good)">—</div></div>
+            <div class="dw-avg-pill"><div class="dw-avg-label">7D avg</div><div class="dw-avg-val" id="hr-7d">—</div></div>
+            <div class="dw-avg-pill"><div class="dw-avg-label">30D avg</div><div class="dw-avg-val" id="hr-30d">—</div></div>
           </div>
         </div>
 
-        <div class="card c1 click" onclick="openPopup('cardio_fitness')" id="w-cardio">
-          <div class="wm-top">
+        <div class="card c1 click" onclick="openPopup('cardio_fitness')" id="w-cardio" style="position:relative;padding:0;">
+          <div class="dw-header">
             <div class="clabel">Cardio VO₂</div>
             <div class="wm-ic" style="background:rgba(59,130,246,.12)">🫀</div>
           </div>
-          <div class="wm-bot">
-            <div style="display:flex;align-items:flex-end;gap:3px">
+          <div class="dw-center">
+            <div style="display:flex;align-items:flex-end;gap:3px;justify-content:center">
               <div class="cval" id="v-cardio">—</div>
               <div class="cunit" style="margin-bottom:4px">VO₂</div>
             </div>
-            <div style="margin-top:8px;background:var(--surface2);border-radius:8px;padding:6px 10px;display:flex;align-items:center;justify-content:space-between">
-              <div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--t4)">Last 30D avg</div>
-              <div style="font-size:14px;font-weight:800;color:var(--accent);font-family:var(--fd);letter-spacing:-.3px" id="cardio-30d">—</div>
+            <div class="dw-mbar"><div class="dw-mbar-fill" id="bar-cardio" style="background:var(--accent);width:0%"></div></div>
+          </div>
+          <div class="dw-sides">
+            <div class="dw-side-stat">
+              <div class="dw-side-label">Breath Rate</div>
+              <div class="dw-side-val" id="v-breath-rate">—</div>
             </div>
+            <div class="dw-side-stat">
+              <div class="dw-side-label">Blood O₂</div>
+              <div class="dw-side-val" id="v-blood-oxygen">—</div>
+            </div>
+          </div>
+          <div class="dw-footer">
+            <div class="dw-avg-pill"><div class="dw-avg-label">7D avg</div><div class="dw-avg-val" id="cardio-7d">—</div></div>
+            <div class="dw-avg-pill"><div class="dw-avg-label">30D avg</div><div class="dw-avg-val" id="cardio-30d">—</div></div>
           </div>
         </div>
 
-        <div class="card c1 click" onclick="openPopup('hrv')" id="w-hrv">
-          <div class="wm-top">
+        <div class="card c1 click" onclick="openPopup('hrv')" id="w-hrv" style="position:relative;padding:0;">
+          <div class="dw-header">
             <div class="clabel">HRV</div>
             <div class="wm-ic" style="background:rgba(99,102,241,.12)">📡</div>
           </div>
-          <div class="wm-bot">
-            <div style="display:flex;align-items:flex-end;gap:3px">
+          <div class="dw-center">
+            <div style="display:flex;align-items:flex-end;gap:3px;justify-content:center">
               <div class="cval" id="v-hrv">—</div>
               <div class="cunit" style="margin-bottom:4px">ms</div>
             </div>
-            <div style="display:flex;gap:6px;margin-top:6px">
-              <div style="flex:1;background:var(--surface2);border-radius:6px;padding:3px 5px;text-align:center">
-                <div style="font-size:9px;color:var(--t4)">7D avg</div>
-                <div style="font-size:11px;font-weight:700;color:var(--t2)" id="hrv-7d">—</div>
-              </div>
-              <div style="flex:1;background:var(--surface2);border-radius:6px;padding:3px 5px;text-align:center">
-                <div style="font-size:9px;color:var(--t4)">30D avg</div>
-                <div style="font-size:11px;font-weight:700;color:var(--t2)" id="hrv-30d">—</div>
-              </div>
+            <div class="dw-mbar"><div class="dw-mbar-fill" id="bar-hrv" style="background:var(--accent2);width:0%"></div></div>
+          </div>
+          <div class="dw-sides">
+            <div class="dw-side-stat">
+              <div class="dw-side-label">HR Reserve</div>
+              <div class="dw-side-val" id="v-hr-reserve">—</div>
             </div>
+            <div class="dw-side-stat">
+              <div class="dw-side-label">Fitness Age</div>
+              <div class="dw-side-val" id="v-fitness-age">—</div>
+            </div>
+          </div>
+          <div class="dw-footer">
+            <div class="dw-avg-pill"><div class="dw-avg-label">7D avg</div><div class="dw-avg-val" id="hrv-7d">—</div></div>
+            <div class="dw-avg-pill"><div class="dw-avg-label">30D avg</div><div class="dw-avg-val" id="hrv-30d">—</div></div>
           </div>
         </div>
 
@@ -2725,7 +2774,7 @@ function _drawYAxis(canvasId, mn, mx, unit, H, padT, ch, labelCol){
   const yctx = yc.getContext('2d');
   yctx.clearRect(0, 0, 44, H);
   // Background to match theme
-  yctx.fillStyle = _isDark() ? 'rgba(13,17,23,0.95)' : 'rgba(255,255,255,0.95)';
+  yctx.fillStyle = _isDark() ? '#161B22' : '#ffffff';
   yctx.fillRect(0, 0, 44, H);
   yctx.fillStyle = labelCol;
   yctx.font = '9px DM Mono, monospace';
@@ -2868,7 +2917,7 @@ function drawLineChart(canvasId, labels, data, color, targetVal, W, unit, yAxisI
 }
 
 // ── BAR CHART — V1 style (left Y labels, gradient bars) ──────────
-function drawBarChart(canvasId, labels, data, color, W, unit, yAxisId){
+function drawBarChart(canvasId, labels, data, color, W, unit, yAxisId, scoreKey){
   const canvas = document.getElementById(canvasId);
   if(!canvas) return;
   const H = canvas.height || 160;
@@ -2900,16 +2949,19 @@ function drawBarChart(canvasId, labels, data, color, W, unit, yAxisId){
     ctx.beginPath(); ctx.moveTo(pad.l, y); ctx.lineTo(pad.l + cw, y); ctx.stroke();
   }
 
-  // Bars
+  // Bars — solid flat color, score-colored per bar when scoreKey provided
   data.forEach((v, i) => {
     if(v === null || v <= 0) return;
     const barH = Math.max(2, (v / maxV) * ch);
     const x = pad.l + i * slotW + (slotW - barW) / 2;
     const y = pad.t + ch - barH;
-    const grad = ctx.createLinearGradient(0, y, 0, y + barH);
-    grad.addColorStop(0, col);
-    grad.addColorStop(1, col + '44');
-    ctx.fillStyle = grad;
+    // Use score color per bar if a scoreKey is given, otherwise use the passed color
+    let barCol = col;
+    if(scoreKey){
+      const sc = scoreFieldV2(scoreKey, v);
+      barCol = isElite(scoreKey, v) ? '#047857' : scoreColorHex(sc);
+    }
+    ctx.fillStyle = barCol;
     ctx.beginPath();
     if(ctx.roundRect){
       ctx.roundRect(x, y, barW, barH, [3, 3, 0, 0]);
@@ -3106,7 +3158,7 @@ function openPopup(key){
       '<div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--t3)">'+f.label+' over time</div>'+
     '</div>'+
     // ── Chart (scrollable for long histories) ──
-    '<div style="display:flex;margin-bottom:16px;border-radius:var(--rs);overflow:hidden">'+
+    '<div style="display:flex;margin-bottom:16px;border-radius:var(--rs);overflow:hidden;background:var(--solidbg)">'+
       '<canvas id="pop-yaxis" width="44" height="180" style="display:block;flex-shrink:0;height:180px"></canvas>'+
       '<div id="pop-chart-wrap" style="overflow-x:auto;overflow-y:hidden;cursor:grab;flex:1;min-height:180px">'+
         '<canvas id="pop-canvas" height="180" style="display:block;height:180px"></canvas>'+
@@ -3148,14 +3200,14 @@ function openPopup(key){
     const tgt       = getTarget(key);
     const targetLine = tgt ? (parseFloat(tgt.hi || tgt.lo) || null) : null;
 
-    if(useBar) drawBarChart('pop-canvas', allD, chartVals, col, totalW, f.unit, 'pop-yaxis');
+    if(useBar) drawBarChart('pop-canvas', allD, chartVals, col, totalW, f.unit, 'pop-yaxis', key);
     else       drawLineChart('pop-canvas', allD, chartVals, col, targetLine, totalW, f.unit, 'pop-yaxis');
   }, 150);
 }
 
 function _popStat(label, value, color){
-  return '<div style="background:var(--surface2);border-radius:var(--rs);padding:10px 12px">'+
-    '<div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--t4);margin-bottom:3px">'+label+'</div>'+
+  return '<div style="background:var(--solidbg);border:1px solid var(--border);border-radius:var(--rs);padding:10px 12px">'+
+    '<div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--t3);margin-bottom:3px">'+label+'</div>'+
     '<div style="font-size:16px;font-weight:800;font-family:var(--fd);color:'+(color||'var(--t1)')+';letter-spacing:-.3px">'+value+'</div>'+
   '</div>';
 }
@@ -3220,8 +3272,8 @@ function renderDashboard(){
     }
   }
   const {overall, catScores, workoutBonus, workoutTypes, workoutElite, wCompleted, energyOver=0, activityOver=0, maxScore=null} = scoreData;
-  const innerCirc = 364.42; // 2π×58 — inner ring
-  const outerCirc = 464.96; // 2π×74 — outer ring (workout bonus)
+  const innerCirc = 477.52; // 2π×76 — inner ring (r=76)
+  const outerCirc = 584.34; // 2π×93 — outer ring (r=93)
 
   // Inner ring: overall score capped visually at 100
   const arcPct = overall!=null ? Math.min(overall, 100) : 0;
@@ -3232,11 +3284,18 @@ function renderDashboard(){
   srf.style.strokeDashoffset = fill;
   document.getElementById('score-num').textContent = overall??'—';
   document.getElementById('score-num').style.color = grade.c;
-  // Sub-label under number: show maxScore (with bonus) if it exceeds overall
-  const subLbl = document.getElementById('score-sub-label');
-  if(subLbl) subLbl.textContent = (maxScore!=null && maxScore > overall) ? maxScore : '';
+  // Agg score (can exceed 100 with bonuses) shown below overall inside circle
+  const aggEl = document.getElementById('score-agg-label');
+  if(aggEl){
+    if(maxScore!=null && maxScore > (overall??0)){
+      aggEl.textContent = `Agg ${maxScore}`;
+      aggEl.style.color = grade.c;
+    } else {
+      aggEl.textContent = '';
+    }
+  }
   const sg = document.getElementById('score-grade');
-  sg.textContent = overall!=null ? `Agg Score: ${overall}` : grade.label;
+  sg.textContent = overall!=null ? grade.label : 'No data';
   sg.style.background=grade.bg; sg.style.color=grade.c;
 
   // Outer ring: workout + energy excess + activity excess combined
@@ -3286,12 +3345,10 @@ function renderDashboard(){
     } else { bb.style.display='none'; }
   }
 
-  // ── Category tube bars ──
+  // ── Category vertical bars — wide rounded, label vertical left of bar ──
   const {workoutElite:_wElite} = scoreData;
   document.getElementById('cats-grid').innerHTML = CATS.map(cat=>{
     const s = catScores[cat.id]??null;
-    // Bars fill proportionally up to 100; at 100+ always full — only colour and label change
-    const isLinearCat = cat.id==='energy' || cat.id==='activity';
     const pct = s!=null ? Math.min(s, 100) : 0;
     const col = s==null ? 'var(--border2)'
       : s>=150 ? '#064E3B'
@@ -3300,20 +3357,15 @@ function renderDashboard(){
       : s>=60  ? '#3B82F6'
       : s>=35  ? '#F59E0B'
       : '#EF4444';
-    const bgCol = s==null ? 'rgba(122,146,170,.08)'
-      : s>=150 ? 'rgba(4,120,87,.12)'
-      : s>=100 ? 'rgba(4,120,87,.12)'
-      : s>=85  ? 'rgba(16,185,129,.1)'
-      : s>=60  ? 'rgba(59,130,246,.1)'
-      : s>=35  ? 'rgba(245,158,11,.1)'
-      : 'rgba(239,68,68,.1)';
     const scoreLbl = s!=null ? (s>100 ? `${s}⚡` : s) : '—';
-    return `<div class="cat-tube-wrap">
-      <div class="cat-tube-pct" style="color:${col}">${scoreLbl}</div>
-      <div class="cat-tube-track" style="background:${bgCol}">
-        <div class="cat-tube-fill" style="height:${pct}%;background:${col};opacity:0.85"></div>
+    return `<div class="cat-col" style="height:100%;">
+      <div class="cat-col-label" style="color:${s!=null?col:'var(--t4)'}">${cat.label}</div>
+      <div class="cat-col-inner">
+        <div class="cat-col-score" style="color:${col}">${scoreLbl}</div>
+        <div class="cat-col-track">
+          <div class="cat-col-fill" style="height:${pct}%;background:${col};opacity:0.9"></div>
+        </div>
       </div>
-      <div class="cat-tube-label">${cat.label}</div>
     </div>`;
   }).join('');
 
@@ -3508,27 +3560,32 @@ function renderDashboard(){
     return s;
   }
 
-  // ── Row 3: Outdoor Walk ──
-  const footDist=dv('distance_foot'), walkElev=dv('walk_elevation');
+  // ── Row 3: Outdoor Walk — workout distance only (not total distance_foot) ──
+  const walkDist=dv('walk_distance'), walkElev=dv('walk_elevation');
   const walkAvg=dv('walk_avg_pace');
-  setEl('v-dist',      fmtNum(footDist,2));
+  setEl('v-dist',      walkDist ? fmtNum(walkDist,2) : '—');
   setEl('v-elev',      walkElev ? fmtNum(walkElev,0)+' m' : '—');
   setEl('v-walk-avg',  walkAvg  ? fmtNum(walkAvg,2)+' /km' : '—');
-  setEl('walk-7d',     rollingAvgDash('distance_foot',7)  ? fmtNum(rollingAvgDash('distance_foot',7),1)+' km' : '—');
-  setEl('walk-30d',    rollingAvgDash('distance_foot',30) ? fmtNum(rollingAvgDash('distance_foot',30),1)+' km' : '—');
+  // bar: % of 10km target
+  const walkTarget = getTarget&&getTarget('walk_distance'); const walkTgt = walkTarget?.lo||10;
+  const walkBar = document.getElementById('bar-walk'); if(walkBar) walkBar.style.width=Math.min(100,Math.round((walkDist||0)/walkTgt*100))+'%';
+  setEl('walk-7d',     rollingAvgDash('walk_distance',7)  ? fmtNum(rollingAvgDash('walk_distance',7),1)+' km' : '—');
+  setEl('walk-30d',    rollingAvgDash('walk_distance',30) ? fmtNum(rollingAvgDash('walk_distance',30),1)+' km' : '—');
 
   // Month/Year count helpers
   function moCount(key){ const now=new Date(); const ym=now.getFullYear()+'-'+(String(now.getMonth()+1).padStart(2,'0')); return allDates().filter(d=>d.startsWith(ym)&&(computeAllFields(getEntry(d))[key]||0)>0).length; }
   function yrCount(key){ const yr=new Date().getFullYear().toString(); return allDates().filter(d=>d.startsWith(yr)&&(computeAllFields(getEntry(d))[key]||0)>0).length; }
 
-  setEl('walk-mo-count', moCount('distance_foot') > 0 ? moCount('distance_foot')+'x' : '—');
-  setEl('walk-yr-count', yrCount('distance_foot') > 0 ? yrCount('distance_foot')+'x' : '—');
+  setEl('walk-mo-count', moCount('walk_distance') > 0 ? moCount('walk_distance')+'x' : '—');
+  setEl('walk-yr-count', yrCount('walk_distance') > 0 ? yrCount('walk_distance')+'x' : '—');
 
   // ── Row 3: Cycle ──
   const cycleDist=dv('cycle_distance'), cycleElev=dv('cycle_elevation'), cycAvg=dv('cycle_avg_pace');
   setEl('v-cycle',      fmtNum(cycleDist,2));
   setEl('v-cycle-elev', cycleElev ? fmtNum(cycleElev,0)+' m' : '—');
   setEl('v-cycle-pace', cycAvg ? fmtNum(cycAvg,1)+' km/h' : '—');
+  const cycTarget = getTarget&&getTarget('cycle_distance'); const cycTgt = cycTarget?.lo||30;
+  const cycBar = document.getElementById('bar-cycle'); if(cycBar) cycBar.style.width=Math.min(100,Math.round((cycleDist||0)/cycTgt*100))+'%';
   setEl('cycle-7d',     rollingAvgDash('cycle_distance',7)  ? fmtNum(rollingAvgDash('cycle_distance',7),1)+' km' : '—');
   setEl('cycle-30d',    rollingAvgDash('cycle_distance',30) ? fmtNum(rollingAvgDash('cycle_distance',30),1)+' km' : '—');
   setEl('cycle-mo-count', moCount('cycle_distance') > 0 ? moCount('cycle_distance')+'x' : '—');
@@ -3540,6 +3597,8 @@ function renderDashboard(){
   setEl('v-run',       fmtNum(runDist,2));
   setEl('v-run-elev',  runElev ? fmtNum(runElev,0)+' m' : '—');
   setEl('v-run-avg',   runAvg  ? fmtNum(runAvg,2)+' /km' : '—');
+  const runTarget = getTarget&&getTarget('run_distance'); const runTgt = runTarget?.lo||10;
+  const runBar = document.getElementById('bar-run'); if(runBar) runBar.style.width=Math.min(100,Math.round((runDist||0)/runTgt*100))+'%';
   setEl('run-7d',      rollingAvgDash('run_distance',7)  ? fmtNum(rollingAvgDash('run_distance',7),1)+' km' : '—');
   setEl('run-30d',     rollingAvgDash('run_distance',30) ? fmtNum(rollingAvgDash('run_distance',30),1)+' km' : '—');
   setEl('run-mo-count', moCount('run_distance') > 0 ? moCount('run_distance')+'x' : '—');
@@ -3548,6 +3607,12 @@ function renderDashboard(){
   // ── Row 4: Strength / Yoga / Mindful with 7d, 30d, month count, year count ──
   setMetricWidget({vId:'v-str',barId:null,sumId:null,sumLblId:null,ytdId:null,key:'strength_training',target:null});
   setMetricWidget({vId:'v-yoga',barId:null,sumId:null,sumLblId:null,ytdId:null,key:'yoga_duration',target:null});
+  // Strength bar
+  const strVal=dv('strength_training')||0; const strTgt=(getTarget&&getTarget('strength_training')?.lo)||30;
+  const strBar=document.getElementById('bar-str'); if(strBar) strBar.style.width=Math.min(100,Math.round(strVal/strTgt*100))+'%';
+  // Yoga bar
+  const yogaVal=dv('yoga_duration')||0; const yogaTgt=(getTarget&&getTarget('yoga_duration')?.lo)||30;
+  const yogaBar=document.getElementById('bar-yoga'); if(yogaBar) yogaBar.style.width=Math.min(100,Math.round(yogaVal/yogaTgt*100))+'%';
   setEl('str-7d',      rollingAvgDash('strength_training',7)  ? fmtNum(rollingAvgDash('strength_training',7),0)+' min' : '—');
   setEl('str-30d',     rollingAvgDash('strength_training',30) ? fmtNum(rollingAvgDash('strength_training',30),0)+' min' : '—');
   setEl('str-mo-count',  moCount('strength_training') > 0 ? moCount('strength_training')+'x' : '—');
@@ -3562,6 +3627,9 @@ function renderDashboard(){
   setEl('mindful-30d',  rollingAvgDash('mindful_mins',30) ? fmtTime(rollingAvgDash('mindful_mins',30)) : '—');
   setEl('mindful-mo-count', moCount('mindful_mins') > 0 ? moCount('mindful_mins')+'x' : '—');
   setEl('mindful-yr-count', yrCount('mindful_mins') > 0 ? yrCount('mindful_mins')+'x' : '—');
+  // Mindful bar
+  const mindfulTgt=(getTarget&&getTarget('mindful_mins')?.lo)||20;
+  const mindfulBar=document.getElementById('bar-mindful'); if(mindfulBar) mindfulBar.style.width=Math.min(100,Math.round((mindfulVal||0)/mindfulTgt*100))+'%';
 
   // ── Screen widget ──
   // Each field has its own colour logic based on target type:
@@ -3696,17 +3764,62 @@ function renderDashboard(){
   setEl('v-hr',          fmtVal(dv('heart_rate'),'heart_rate'));
   setEl('v-resting-hr',  fmtVal(dv('resting_hr'),'resting_hr')+(dv('resting_hr')?' bpm':''));
   setEl('v-walking-hr',  fmtVal(dv('walking_hr'),'walking_hr')+(dv('walking_hr')?' bpm':''));
+  setEl('v-hr-high',     fmtVal(dv('heart_rate_high'),'heart_rate_high')+(dv('heart_rate_high')?' bpm':''));
+  setEl('v-hr-low',      fmtVal(dv('heart_rate_low'),'heart_rate_low')+(dv('heart_rate_low')?' bpm':''));
   setEl('hr-7d',         rollingAvgDash('heart_rate',7)  ? fmtNum(rollingAvgDash('heart_rate',7),0)+' bpm'  : '—');
   setEl('hr-30d',        rollingAvgDash('heart_rate',30) ? fmtNum(rollingAvgDash('heart_rate',30),0)+' bpm' : '—');
+  // HR bar: resting HR, green zone 50-65, show as % of 220 max
+  const hrVal=dv('heart_rate')||dv('resting_hr')||0;
+  const hrBar=document.getElementById('bar-hr'); if(hrBar) hrBar.style.width=Math.min(100,Math.round(hrVal/180*100))+'%';
 
-  // ── Cardio VO2 — last 30D avg only ──
-  setEl('v-cardio',    fmtVal(dv('cardio_fitness'),'cardio_fitness'));
-  setEl('cardio-30d',  rollingAvgDash('cardio_fitness',30) ? fmtNum(rollingAvgDash('cardio_fitness',30),1) : '—');
+  // ── Cardio VO2 — breath rate, blood O2, 7D & 30D avg ──
+  setEl('v-cardio',      fmtVal(dv('cardio_fitness'),'cardio_fitness'));
+  setEl('v-breath-rate', fmtVal(dv('respiratory_rate'),'respiratory_rate')+(dv('respiratory_rate')?' br/m':''));
+  setEl('v-blood-oxygen',fmtVal(dv('blood_oxygen'),'blood_oxygen')+(dv('blood_oxygen')?'%':''));
+  setEl('cardio-7d',     rollingAvgDash('cardio_fitness',7)  ? fmtNum(rollingAvgDash('cardio_fitness',7),1)  : '—');
+  setEl('cardio-30d',    rollingAvgDash('cardio_fitness',30) ? fmtNum(rollingAvgDash('cardio_fitness',30),1) : '—');
+  // Cardio bar: VO2max, elite ~55+, good 40-55, target 40
+  const cardioVal=dv('cardio_fitness')||0;
+  const cardioBar=document.getElementById('bar-cardio'); if(cardioBar) cardioBar.style.width=Math.min(100,Math.round(cardioVal/55*100))+'%';
 
-  // ── HRV — 7D and 30D avg ──
-  setEl('v-hrv',   fmtVal(dv('hrv'),'hrv'));
-  setEl('hrv-7d',  rollingAvgDash('hrv',7)  ? fmtNum(rollingAvgDash('hrv',7),0)+' ms'  : '—');
-  setEl('hrv-30d', rollingAvgDash('hrv',30) ? fmtNum(rollingAvgDash('hrv',30),0)+' ms' : '—');
+  // ── HRV — HR reserve, fitness age, 7D and 30D avg ──
+  setEl('v-hrv',         fmtVal(dv('hrv'),'hrv'));
+  setEl('v-hr-reserve',  fmtVal(dv('hr_reserve'),'hr_reserve')+(dv('hr_reserve')?' bpm':''));
+  setEl('v-fitness-age', fmtVal(dv('fitness_age'),'fitness_age')+(dv('fitness_age')?'y':''));
+  setEl('hrv-7d',        rollingAvgDash('hrv',7)  ? fmtNum(rollingAvgDash('hrv',7),0)+' ms'  : '—');
+  setEl('hrv-30d',       rollingAvgDash('hrv',30) ? fmtNum(rollingAvgDash('hrv',30),0)+' ms' : '—');
+  // HRV bar: target ~80ms for good health
+  const hrvVal=dv('hrv')||0;
+  const hrvBar=document.getElementById('bar-hrv'); if(hrvBar) hrvBar.style.width=Math.min(100,Math.round(hrvVal/100*100))+'%';
+
+  // ── Steps — step length ──
+  setEl('steps-steplen', fmtVal(dv('step_length'),'step_length')+(dv('step_length')?' m':''));
+
+  // ── Standing — stand hours ──
+  const standMins = dv('standing_mins'); 
+  setEl('v-stand-hrs', standMins ? Math.round(standMins/60)+' h' : '—');
+
+  // ── Exercise — HR zone achieved ──
+  const hrZone = dv('hr_zone_achieved') || dv('exercise_hr_zone');
+  setEl('v-hr-zone', hrZone ? 'Z'+hrZone : '—');
+
+  // ── Strength — muscle mass & rate ──
+  setEl('v-muscle-mass', fmtVal(dv('muscle_mass'),'muscle_mass')+(dv('muscle_mass')?' kg':''));
+  setEl('v-muscle-rate', fmtVal(dv('muscle_rate'),'muscle_rate')+(dv('muscle_rate')?'%':''));
+
+  // ── Yoga — visceral & subcutaneous fat ──
+  setEl('v-visceral-fat',  fmtVal(dv('visceral_fat'),'visceral_fat'));
+  setEl('v-subcut-fat',    fmtVal(dv('subcutaneous_fat'),'subcutaneous_fat')+(dv('subcutaneous_fat')?'%':''));
+
+  // ── Mindful — state of mind & sound level ──
+  setEl('v-state-of-mind', fmtVal(dv('state_of_mind'),'state_of_mind'));
+  setEl('v-sound-level',   fmtVal(dv('sound_level'),'sound_level')+(dv('sound_level')?' dB':''));
+
+  // ── Sleep — 7D & 30D avg ──
+  const sleepAvg7  = rollingAvgDash('total_sleep',7);
+  const sleepAvg30 = rollingAvgDash('total_sleep',30);
+  setEl('sleep-7d',  sleepAvg7  ? fmtTime(sleepAvg7)  : '—');
+  setEl('sleep-30d', sleepAvg30 ? fmtTime(sleepAvg30) : '—');
   // Update sidebar AI status
   updateSbAIStatus();
   // Update topbar profile
@@ -6670,7 +6783,7 @@ function openDrill(key){
       '</div>'
     : (trendHtml ? '<div style="margin-bottom:12px">'+trendHtml+'</div>' : ''))+
     '<div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--t3);margin-bottom:8px">'+f.label+' over time</div>'+
-    '<div style="display:flex;margin-bottom:16px;border-radius:var(--rs);overflow:hidden">'+
+    '<div style="display:flex;margin-bottom:16px;border-radius:var(--rs);overflow:hidden;background:var(--solidbg)">'+
       '<canvas id="pop-yaxis" width="44" height="180" style="display:block;flex-shrink:0;height:180px"></canvas>'+
       '<div id="pop-chart-wrap" style="overflow-x:auto;overflow-y:hidden;cursor:grab;flex:1;min-height:180px">'+
         '<canvas id="pop-canvas" height="180" style="display:block;height:180px"></canvas>'+
@@ -6706,7 +6819,7 @@ function openDrill(key){
     const col      = sleepMap[key] || scHex || '#6366F1';
     const tgt      = getTarget(key);
     const targetLine = tgt ? (parseFloat(tgt.hi||tgt.lo)||null) : null;
-    if(useBar) drawBarChart('pop-canvas', allD, chartVals, col, totalW, f.unit, 'pop-yaxis');
+    if(useBar) drawBarChart('pop-canvas', allD, chartVals, col, totalW, f.unit, 'pop-yaxis', key);
     else       drawLineChart('pop-canvas', allD, chartVals, col, targetLine, totalW, f.unit, 'pop-yaxis');
   }, 150);
 }
@@ -12802,6 +12915,25 @@ function gistPull(){
     const file = d.files && d.files['wellstat-data.json'];
     if(!file){ showToast('\u274c wellstat-data.json not found in Gist'); return; }
     const payload = JSON.parse(file.content);
+    // Also merge health_log.json (nutrition/habit) fields if present
+    const hlFile = d.files && d.files['health_log.json'];
+    if(hlFile && hlFile.content){
+      try{
+        const hlData = JSON.parse(hlFile.content);
+        const nutMap = {dietary_calories:'dietary_calories',protein:'protein',carbs:'carbs',fat:'fat',
+                        water:'water',alcohol:'alcohol',fiber:'fiber',sodium:'sodium',sugar:'sugar',
+                        sat_fat:'sat_fat',caffeine:'caffeine',habit_completion:'habit_completion',stuff_count:'stuff_count'};
+        if(!payload.data) payload.data = {};
+        Object.keys(hlData).forEach(date => {
+          if(!/^\d{4}-\d{2}-\d{2}$/.test(date)) return;
+          if(!payload.data[date]) payload.data[date] = {};
+          const src = hlData[date];
+          Object.keys(nutMap).forEach(k => {
+            if(src[k] !== undefined && src[k] !== null) payload.data[date][k] = src[k];
+          });
+        });
+      }catch(e){}
+    }
     const { newDays } = gistApplyPayload(payload);
     localStorage.setItem('ws2_gist_last_sync', new Date().toLocaleString());
     const settingsMsg = payload.settings ? ' + settings' : '';

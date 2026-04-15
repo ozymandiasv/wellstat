@@ -195,6 +195,7 @@ body{font-family:var(--fn);background:var(--bg);color:var(--tx);min-height:100vh
     <span class="logo-text">Ritual</span>
   </div>
   <div class="snav">
+    <a href="index.html" style="display:flex;align-items:center;gap:10px;padding:7px 10px;border-radius:7px;background:var(--sur2);color:var(--tx2);font-size:13px;text-decoration:none;margin-bottom:4px;transition:all var(--t)" onmouseover="this.style.color='var(--tx)'" onmouseout="this.style.color='var(--tx2)'"><span class="nico">🏠</span>WellStat — Home</a>
     <div class="nsec">Overview</div>
     <div class="ni act" id="nav-dashboard" onclick="showPage('dashboard')"><span class="nico" id="si-dashboard">📊</span>Dashboard</div>
     <div class="ni" id="nav-calendar" onclick="showPage('calendar')"><span class="nico" id="si-calendar">📅</span>Calendar</div>
@@ -267,10 +268,53 @@ body{font-family:var(--fn);background:var(--bg);color:var(--tx);min-height:100vh
             <span style="font-size:11px;color:var(--tx3)">today</span>
           </div>
         </div>
+        <!-- Alcohol from Nutrition -->
+        <div id="alcohol-row" style="border-top:1px solid var(--bor);padding-top:10px;margin-top:10px;display:none">
+          <div style="font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--tx3);font-weight:500;margin-bottom:6px">🍷 Alcohol (from Nutrition)</div>
+          <div style="display:flex;align-items:center;gap:8px">
+            <span style="font-size:20px;font-weight:500;font-family:var(--fd)" id="alcohol-val">0</span>
+            <span style="font-size:11px;color:var(--tx3)">g today</span>
+          </div>
+        </div>
       </div>
       <div class="widget" style="min-height:auto">
         <div class="wtitle"><span class="wi" id="wi-today">✅</span>Today's Habits</div>
         <div id="today-list"></div>
+      </div>
+      <!-- Habit Score Widget -->
+      <div class="widget" style="grid-column:1/-1">
+        <div class="wtitle"><span class="wi">🏆</span>Habit Score — 7-Day Overview</div>
+        <div style="display:flex;align-items:center;gap:24px;flex-wrap:wrap">
+          <!-- Today's big ring -->
+          <div style="display:flex;flex-direction:column;align-items:center;gap:6px;flex-shrink:0">
+            <div style="position:relative;width:90px;height:90px">
+              <svg viewBox="0 0 90 90" style="width:90px;height:90px">
+                <circle cx="45" cy="45" r="36" fill="none" stroke="var(--bor)" stroke-width="7"/>
+                <circle id="hs-ring" cx="45" cy="45" r="36" fill="none" stroke="var(--ac)" stroke-width="7" stroke-linecap="round" stroke-dasharray="226" stroke-dashoffset="226" style="transition:stroke-dashoffset .6s ease;transform:rotate(-90deg);transform-origin:50% 50%"/>
+              </svg>
+              <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column">
+                <span id="hs-pct" style="font-family:var(--fd);font-size:20px;font-weight:700;color:var(--tx);line-height:1">—</span>
+                <span style="font-size:9px;color:var(--tx3)">today</span>
+              </div>
+            </div>
+          </div>
+          <!-- 7 day bar chart -->
+          <div style="flex:1;min-width:200px">
+            <div style="font-size:11px;color:var(--tx3);margin-bottom:10px;font-weight:500;text-transform:uppercase;letter-spacing:.06em">Last 7 days</div>
+            <div id="hs-bars" style="display:flex;gap:6px;align-items:flex-end;height:60px"></div>
+          </div>
+          <!-- Stats -->
+          <div style="display:flex;flex-direction:column;gap:10px;flex-shrink:0;min-width:100px">
+            <div style="text-align:center">
+              <div id="hs-streak" style="font-family:var(--fd);font-size:26px;font-weight:800;color:var(--ac)">0</div>
+              <div style="font-size:10px;color:var(--tx3)">day streak 🔥</div>
+            </div>
+            <div style="text-align:center">
+              <div id="hs-avg" style="font-family:var(--fd);font-size:22px;font-weight:700;color:var(--tx)">—</div>
+              <div style="font-size:10px;color:var(--tx3)">7-day avg</div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -473,6 +517,13 @@ var UI_DEFS = [
 
 // ── STORAGE ──
 function save() {
+  // Sync gist config to shared ws2_gist key
+  try {
+    var gc = JSON.parse(localStorage.getItem('ws2_gist')||'{}');
+    if(S.cfg.ghToken) gc.token = S.cfg.ghToken;
+    if(S.cfg.gistId)  gc.gistId = S.cfg.gistId;
+    localStorage.setItem('ws2_gist', JSON.stringify(gc));
+  } catch(e) {}
   try { localStorage.setItem('ritual_v4', JSON.stringify(S)); } catch(e) {}
 }
 function load() {
@@ -492,6 +543,12 @@ function load() {
       }, parsed.cfg || {});
       if(!S.cfg.gistKeys) S.cfg.gistKeys={stuff_count:'stuff_count',water:'water',dietary_calories:'dietary_calories'};
     }
+  } catch(e) {}
+  // Overlay shared Gist config from ws2_gist
+  try {
+    var sgc = JSON.parse(localStorage.getItem('ws2_gist')||'{}');
+    if(sgc.token && !S.cfg.ghToken) S.cfg.ghToken = sgc.token;
+    if(sgc.gistId && !S.cfg.gistId) S.cfg.gistId = sgc.gistId;
   } catch(e) {}
 }
 
@@ -716,7 +773,7 @@ function completion(ds) {
 var dcalDate = new Date(), pcalDate = new Date(), calFilt = 'all';
 
 function renderDash() {
-  renderDashCal(); renderProgress(); renderWater(); renderStuff(); renderTodayList();
+  renderDashCal(); renderProgress(); renderWater(); renderStuff(); renderAlcohol(); renderTodayList(); renderHabitScore();
   var wt = document.getElementById('wtl');
   if (wt) wt.textContent = S.cfg.wTgt || 3;
   applyUIIcons();
@@ -794,6 +851,32 @@ function renderStuff() {
   // Show as integer if whole number, one decimal if not (e.g. 0, 0.5, 1, 1.5)
   if (sv) sv.textContent = count % 1 === 0 ? count.toString() : count.toFixed(1);
 }
+function renderAlcohol() {
+  var d = today();
+  var alcohol = 0;
+  try {
+    var nutRaw = localStorage.getItem('ritual_nutrition_v2');
+    if (nutRaw) {
+      var nutS = JSON.parse(nutRaw);
+      if (nutS.logs && nutS.logs[d]) {
+        Object.values(nutS.logs[d].meals||{}).forEach(function(items) {
+          items.forEach(function(item) {
+            if (item.nutrients && item.nutrients.alcohol) alcohol += parseFloat(item.nutrients.alcohol)||0;
+          });
+        });
+      }
+    }
+  } catch(e) {}
+  var row = document.getElementById('alcohol-row');
+  var av = document.getElementById('alcohol-val');
+  if (alcohol > 0) {
+    if (row) row.style.display = 'block';
+    if (av) av.textContent = (Math.round(alcohol*10)/10).toFixed(1);
+  } else {
+    if (row) row.style.display = 'none';
+  }
+}
+
 window.changeStuff = function(delta) {
   var d = today();
   var current = S.stuff[d] || 0;
@@ -842,6 +925,58 @@ window.togSt = function(tid, sid) {
 };
 
 // ── DASH CALENDAR ──
+function renderHabitScore() {
+  var d = today();
+  // Today's ring
+  var pct = getCompletion(d);
+  var ring = document.getElementById('hs-ring');
+  var pctEl = document.getElementById('hs-pct');
+  if (ring && pct !== null) {
+    ring.style.strokeDashoffset = 226 - (226 * pct / 100);
+    // Color by score
+    ring.style.stroke = pct >= 80 ? 'var(--ac)' : pct >= 50 ? '#e6a817' : 'var(--dng)';
+  }
+  if (pctEl) pctEl.textContent = pct !== null ? pct + '%' : '—';
+
+  // 7-day data
+  var days = [];
+  for (var i = 6; i >= 0; i--) {
+    var dt = new Date(Date.now() - i * 86400000).toISOString().split('T')[0];
+    days.push({ ds: dt, pct: getCompletion(dt) });
+  }
+  // Bars
+  var barsEl = document.getElementById('hs-bars');
+  if (barsEl) {
+    barsEl.innerHTML = days.map(function(day) {
+      var p = day.pct !== null ? day.pct : 0;
+      var isToday = day.ds === d;
+      var color = p >= 80 ? 'var(--ac)' : p >= 50 ? '#e6a817' : p > 0 ? 'var(--dng)' : 'var(--bor2)';
+      var label = new Date(day.ds + 'T12:00:00').toLocaleDateString('en-US', {weekday:'short'}).slice(0,2);
+      return '<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px">'
+        + '<div style="font-size:9px;color:var(--tx3)">' + (day.pct !== null ? p + '%' : '') + '</div>'
+        + '<div style="width:100%;background:' + color + ';border-radius:4px 4px 0 0;height:' + Math.max(3, Math.round(p * 0.5)) + 'px;'
+        + (isToday ? 'box-shadow:0 0 0 2px var(--ac)' : '') + '"></div>'
+        + '<div style="font-size:9px;color:' + (isToday ? 'var(--ac)' : 'var(--tx3)') + ';font-weight:' + (isToday ? '700' : '400') + '">' + label + '</div>'
+        + '</div>';
+    }).join('');
+  }
+  // Streak
+  var streak = 0;
+  for (var j = 0; j < 30; j++) {
+    var sdt = new Date(Date.now() - j * 86400000).toISOString().split('T')[0];
+    var sp = getCompletion(sdt);
+    if (sp !== null && sp >= 50) streak++;
+    else if (j > 0) break;
+  }
+  var streakEl = document.getElementById('hs-streak');
+  if (streakEl) streakEl.textContent = streak;
+  // 7-day avg
+  var valid = days.filter(function(dd){ return dd.pct !== null; });
+  var avg = valid.length ? Math.round(valid.reduce(function(s,dd){ return s + dd.pct; }, 0) / valid.length) : null;
+  var avgEl = document.getElementById('hs-avg');
+  if (avgEl) avgEl.textContent = avg !== null ? avg + '%' : '—';
+}
+
 function renderDashCal() {
   var y = dcalDate.getFullYear(), m = dcalDate.getMonth(), ts = today();
   var moEl = document.getElementById('dcal-mo');
@@ -1164,6 +1299,54 @@ function renderGistKeyRows() {
   }).join('');
 }
 
+// ── BRIDGE: push habit data into wellstat-data.json ──
+function bridgeHabitToWellstat(gistId, token, allDates) {
+  if (!gistId || !token) return;
+  var headers = {'Authorization':'token '+token,'Content-Type':'application/json','Accept':'application/vnd.github.v3+json'};
+  fetch('https://api.github.com/gists/'+gistId, {headers:headers})
+    .then(function(r){ return r.json(); })
+    .then(function(gistData) {
+      var wsPayload = {version:4, pushed:new Date().toISOString(), days:0, data:{}, settings:null};
+      try {
+        var wsFile = gistData.files && gistData.files['wellstat-data.json'];
+        if (wsFile && wsFile.content) wsPayload = JSON.parse(wsFile.content);
+      } catch(e) {}
+      if (!wsPayload.data) wsPayload.data = {};
+      // Merge habit completion + stuff into wellstat data
+      Object.keys(allDates).forEach(function(ds) {
+        if (!wsPayload.data[ds]) wsPayload.data[ds] = {};
+        var pct = getCompletion(ds);
+        if (pct !== null) wsPayload.data[ds]['habit_completion'] = pct;
+        if (S.stuff && S.stuff[ds] != null) wsPayload.data[ds]['stuff_count'] = S.stuff[ds];
+        // Read alcohol from nutrition localStorage if available
+        try {
+          var nutRaw = localStorage.getItem('ritual_nutrition_v2');
+          if (nutRaw) {
+            var nutS = JSON.parse(nutRaw);
+            var nutLog = nutS.logs && nutS.logs[ds];
+            if (nutLog) {
+              // sum alcohol across all meals
+              var alcohol = 0;
+              Object.values(nutLog.meals||{}).forEach(function(items) {
+                items.forEach(function(item) {
+                  if (item.nutrients && item.nutrients.alcohol) alcohol += parseFloat(item.nutrients.alcohol)||0;
+                });
+              });
+              if (alcohol > 0) wsPayload.data[ds]['alcohol'] = Math.round(alcohol*100)/100;
+            }
+          }
+        } catch(e) {}
+      });
+      wsPayload.days = Object.keys(wsPayload.data).length;
+      wsPayload.pushed = new Date().toISOString();
+      return fetch('https://api.github.com/gists/'+gistId, {
+        method:'PATCH', headers:headers,
+        body:JSON.stringify({files:{'wellstat-data.json':{content:JSON.stringify(wsPayload,null,2)}}})
+      });
+    })
+    .catch(function(e){ console.warn('WellStat bridge push failed:', e.message); });
+}
+
 // ── GIST PUSH (habit tracker → shared health_log.json) ──
 window.pushToGist = function(silent) {
   var token = S.cfg.ghToken;
@@ -1221,6 +1404,8 @@ window.pushToGist = function(silent) {
       .then(function(data) {
         if (data.id) {
           S.cfg.gistId = data.id; save(); renderGistKeyRows();
+          // Bridge habit data into wellstat-data.json
+          bridgeHabitToWellstat(data.id, token, allDates);
           if (!silent) {
             var gi = document.getElementById('gh-gist-id');
             if (gi) gi.value = data.id;
