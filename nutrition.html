@@ -1,0 +1,1693 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ritual — Nutrition</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&family=DM+Serif+Display&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#fafaf9;--sur:#fff;--sur2:#f4f3f0;--bor:#e8e6e1;--bor2:#d4d1ca;--tx:#1a1916;--tx2:#6b6760;--tx3:#9d9a94;--ac:#3d6b4f;--acl:#e8f2ec;--ac2:#8b5e3c;--ac2l:#f5ede6;--dng:#c0392b;--r:10px;--rl:14px;--sw:240px;--fn:'DM Sans',sans-serif;--fd:'DM Serif Display',serif;--t:.15s ease;--orange:#e67e22;--orangel:#fef3e8;--blue:#2563eb;--bluel:#eff6ff;--purple:#7c3aed;--purplel:#f5f3ff;}
+[data-theme=dark]{--bg:#141412;--sur:#1e1d1b;--sur2:#252421;--bor:#2e2c29;--bor2:#3d3b37;--tx:#f0ede8;--tx2:#9d9a94;--tx3:#6b6760;--ac:#5a9a70;--acl:#1a2e22;--ac2:#c4845a;--ac2l:#2a1e16;--orangel:#2a1800;--bluel:#0f1a35;--purplel:#1e1535;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:var(--fn);background:var(--bg);color:var(--tx);min-height:100vh;display:flex;font-size:14px;}
+/* SIDEBAR */
+#sidebar{width:var(--sw);min-width:var(--sw);background:var(--sur);border-right:1px solid var(--bor);display:flex;flex-direction:column;height:100vh;position:sticky;top:0;overflow-y:auto;transition:transform .25s ease;z-index:100;}
+.logo{padding:18px 16px 14px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--bor);}
+.logo-text{font-family:var(--fd);font-size:17px;letter-spacing:-.3px;}
+.logo-sub{font-size:10px;color:var(--tx3);margin-top:1px;}
+.snav{padding:8px;flex:1;}
+.nsec{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--tx3);padding:10px 8px 4px;font-weight:500;}
+.ni{display:flex;align-items:center;gap:9px;padding:7px 10px;border-radius:7px;cursor:pointer;color:var(--tx2);font-size:13px;transition:all var(--t);user-select:none;}
+.ni:hover{background:var(--sur2);color:var(--tx);}
+.ni.act{background:var(--acl);color:var(--ac);font-weight:500;}
+.ni .ic{font-size:15px;width:20px;text-align:center;}
+.sbot{padding:10px;border-top:1px solid var(--bor);}
+/* MAIN */
+#main{flex:1;overflow-y:auto;display:flex;flex-direction:column;min-width:0;}
+.tbar{display:flex;align-items:center;justify-content:space-between;padding:13px 24px;border-bottom:1px solid var(--bor);background:var(--sur);position:sticky;top:0;z-index:10;}
+.tbar-l{display:flex;align-items:center;gap:10px;}
+.tbar h1{font-size:15px;font-weight:500;}
+.tbar-r{display:flex;align-items:center;gap:8px;}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:7px;border:1px solid var(--bor2);background:var(--sur);color:var(--tx2);font-size:12px;font-family:var(--fn);cursor:pointer;transition:all var(--t);}
+.btn:hover{background:var(--sur2);color:var(--tx);}
+.btn.pri{background:var(--ac);color:#fff;border-color:var(--ac);}
+.btn.pri:hover{opacity:.9;}
+.btn.dng{color:var(--dng);border-color:var(--dng);}
+.btn.sm{padding:4px 9px;font-size:11px;}
+.pg{padding:20px 24px;display:none;}
+.pg.act{display:block;}
+/* DATE BAR */
+.date-bar{display:flex;align-items:center;gap:10px;margin-bottom:20px;flex-wrap:wrap;}
+.date-nav{background:none;border:none;cursor:pointer;color:var(--tx3);font-size:16px;padding:4px 8px;border-radius:6px;}
+.date-nav:hover{background:var(--sur2);color:var(--tx);}
+.date-label{font-family:var(--fd);font-size:18px;flex:1;}
+.date-input{padding:6px 10px;border:1px solid var(--bor2);border-radius:7px;font-family:var(--fn);font-size:12px;background:var(--sur);color:var(--tx);outline:none;}
+/* SUMMARY STRIP */
+.summary-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px;}
+.sum-card{background:var(--sur);border:1px solid var(--bor);border-radius:var(--rl);padding:12px 14px;}
+.sum-label{font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--tx3);font-weight:500;margin-bottom:4px;}
+.sum-val{font-size:20px;font-weight:500;font-family:var(--fd);}
+.sum-unit{font-size:11px;color:var(--tx3);margin-left:2px;}
+.sum-bar{height:3px;background:var(--bor);border-radius:2px;overflow:hidden;margin-top:6px;}
+.sum-fill{height:100%;border-radius:2px;transition:width .4s;}
+/* MEAL SECTIONS */
+.meal-section{background:var(--sur);border:1px solid var(--bor);border-radius:var(--rl);margin-bottom:14px;overflow:hidden;}
+.meal-hdr{display:flex;align-items:center;gap:10px;padding:13px 16px;cursor:pointer;transition:background var(--t);}
+.meal-hdr:hover{background:var(--sur2);}
+.meal-ico{font-size:18px;}
+.meal-name{font-size:14px;font-weight:500;flex:1;}
+.meal-cals{font-size:12px;color:var(--tx3);}
+.meal-body{border-top:1px solid var(--bor);padding:0;}
+.food-item{display:flex;align-items:center;gap:10px;padding:10px 16px;border-bottom:1px solid var(--bor);}
+.food-item:last-child{border-bottom:none;}
+.food-name{flex:1;font-size:13px;}
+.food-detail{font-size:11px;color:var(--tx3);}
+.food-cals{font-size:13px;font-weight:500;color:var(--ac);min-width:50px;text-align:right;}
+.food-acts{display:flex;gap:4px;}
+.ibtn{background:none;border:none;cursor:pointer;color:var(--tx3);padding:4px;border-radius:5px;font-size:13px;transition:all var(--t);}
+.ibtn:hover{background:var(--sur2);color:var(--tx);}
+.add-food-row{padding:10px 16px;display:flex;gap:8px;align-items:center;background:var(--sur2);}
+.add-food-row input{flex:1;padding:7px 10px;border:1px solid var(--bor2);border-radius:7px;font-size:12px;background:var(--sur);color:var(--tx);font-family:var(--fn);outline:none;}
+.add-food-row input:focus{border-color:var(--ac);}
+/* NUTRITION PAGE */
+.nut-tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px;}
+.ntab{padding:5px 12px;border-radius:20px;border:1px solid var(--bor2);font-size:12px;cursor:pointer;color:var(--tx2);transition:all var(--t);}
+.ntab.act{background:var(--ac);color:#fff;border-color:var(--ac);}
+.nut-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px;}
+.nut-card{background:var(--sur);border:1px solid var(--bor);border-radius:var(--r);padding:12px;}
+.nut-name{font-size:11px;color:var(--tx2);margin-bottom:2px;}
+.nut-val{font-size:16px;font-weight:500;}
+.nut-unit{font-size:10px;color:var(--tx3);margin-left:2px;}
+.nut-dv{font-size:10px;color:var(--tx3);margin-top:2px;}
+.nut-bar{height:3px;background:var(--bor);border-radius:2px;overflow:hidden;margin-top:6px;}
+.nut-fill{height:100%;border-radius:2px;background:var(--ac);}
+/* HISTORY PAGE */
+.hist-row{display:flex;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid var(--bor);cursor:pointer;transition:all var(--t);}
+.hist-row:hover{opacity:.8;}
+.hist-date{font-size:13px;font-weight:500;min-width:90px;}
+.hist-cals{font-size:13px;color:var(--ac);font-weight:500;min-width:60px;text-align:right;}
+.hist-bar-wrap{flex:1;height:6px;background:var(--bor);border-radius:3px;overflow:hidden;}
+.hist-bar-fill{height:100%;background:var(--ac);border-radius:3px;}
+/* MODALS */
+.ovl{position:fixed;inset:0;background:rgba(0,0,0,.4);display:none;align-items:center;justify-content:center;z-index:1000;backdrop-filter:blur(2px);}
+.ovl.open{display:flex;}
+.modal{background:var(--sur);border-radius:var(--rl);border:1px solid var(--bor);width:520px;max-width:95vw;max-height:88vh;overflow-y:auto;}
+.modal.wide{width:680px;}
+.mhdr{padding:16px 20px 12px;border-bottom:1px solid var(--bor);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:var(--sur);z-index:1;}
+.mttl{font-size:15px;font-weight:500;}
+.mbody{padding:20px;}
+.mftr{padding:12px 20px;border-top:1px solid var(--bor);display:flex;gap:8px;justify-content:flex-end;position:sticky;bottom:0;background:var(--sur);}
+.fg{margin-bottom:16px;}
+.fl{font-size:12px;color:var(--tx2);margin-bottom:5px;display:block;font-weight:500;}
+.fi{width:100%;padding:8px 12px;border:1px solid var(--bor2);border-radius:7px;font-size:13px;background:var(--sur);color:var(--tx);font-family:var(--fn);outline:none;transition:border var(--t);}
+.fi:focus{border-color:var(--ac);}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+/* AI SEARCH */
+.ai-search-box{display:flex;gap:8px;margin-bottom:12px;}
+.ai-search-box input{flex:1;padding:9px 12px;border:1px solid var(--bor2);border-radius:8px;font-size:13px;background:var(--sur);color:var(--tx);font-family:var(--fn);outline:none;}
+.ai-search-box input:focus{border-color:var(--ac);}
+.ai-result{background:var(--sur2);border-radius:var(--r);padding:14px;margin-bottom:12px;border:1px solid var(--bor);}
+.ai-food-name{font-size:14px;font-weight:500;margin-bottom:8px;}
+.ai-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;}
+.ai-nut{font-size:11px;padding:6px 8px;background:var(--sur);border-radius:6px;border:1px solid var(--bor);}
+.ai-nut-name{color:var(--tx3);margin-bottom:2px;}
+.ai-nut-val{font-weight:500;font-size:12px;}
+.ai-loading{text-align:center;padding:24px;color:var(--tx3);font-size:13px;}
+.ai-spinner{display:inline-block;width:20px;height:20px;border:2px solid var(--bor2);border-top-color:var(--ac);border-radius:50%;animation:spin .7s linear infinite;margin-bottom:8px;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.ai-error{background:#fff0f0;border:1px solid #fca5a5;border-radius:var(--r);padding:12px;font-size:12px;color:var(--dng);margin-bottom:12px;}
+[data-theme=dark] .ai-error{background:#2a1010;}
+/* NUT EDIT TABLE */
+.nut-table{width:100%;border-collapse:collapse;font-size:12px;}
+.nut-table th{text-align:left;padding:6px 8px;color:var(--tx3);font-weight:500;border-bottom:1px solid var(--bor);font-size:11px;text-transform:uppercase;letter-spacing:.05em;}
+.nut-table td{padding:5px 8px;border-bottom:1px solid var(--bor);}
+.nut-table tr:last-child td{border-bottom:none;}
+.nut-table input{width:100%;padding:3px 6px;border:1px solid transparent;border-radius:4px;font-size:12px;background:transparent;color:var(--tx);font-family:var(--fn);outline:none;}
+.nut-table input:focus{border-color:var(--ac);background:var(--sur);}
+.nut-section-hdr{background:var(--sur2);font-weight:500;font-size:11px;color:var(--tx2);text-transform:uppercase;letter-spacing:.05em;}
+.nut-section-hdr td{padding:7px 8px;}
+/* SETTINGS PAGE */
+.ss{background:var(--sur);border:1px solid var(--bor);border-radius:var(--rl);margin-bottom:14px;overflow:hidden;}
+.ss-ttl{padding:13px 16px;border-bottom:1px solid var(--bor);font-size:13px;font-weight:500;}
+.sr{display:flex;align-items:flex-start;justify-content:space-between;padding:12px 16px;border-bottom:1px solid var(--bor);gap:16px;}
+.sr:last-child{border-bottom:none;}
+.srl{font-size:13px;}
+.srs{font-size:11px;color:var(--tx3);margin-top:2px;}
+.tsw{position:relative;width:36px;height:20px;flex-shrink:0;}
+.tsw input{opacity:0;width:0;height:0;}
+.tsl{position:absolute;inset:0;background:var(--bor2);border-radius:20px;cursor:pointer;transition:.2s;}
+.tsl::before{content:'';position:absolute;width:14px;height:14px;left:3px;top:3px;background:#fff;border-radius:50%;transition:.2s;}
+.tsw input:checked+.tsl{background:var(--ac);}
+.tsw input:checked+.tsl::before{transform:translateX(16px);}
+.tag{display:inline-block;padding:2px 7px;border-radius:4px;font-size:10px;font-weight:500;}
+.tag-cal{background:var(--orangel);color:var(--orange);}
+.tag-mac{background:var(--acl);color:var(--ac);}
+.tag-vit{background:var(--bluel);color:var(--blue);}
+.tag-min{background:var(--purplel);color:var(--purple);}
+.tag-oth{background:var(--sur2);color:var(--tx2);}
+.empty{text-align:center;padding:32px;color:var(--tx3);font-size:13px;}
+.empty .ei{font-size:32px;margin-bottom:8px;}
+.sug-row{transition:background .1s;}
+.sug-row:hover{background:var(--sur2);}
+.sug-name{font-weight:500;font-size:13px;}
+.sug-meta{font-size:11px;color:var(--tx3);margin-top:2px;}
+.hmb{display:none;background:none;border:none;cursor:pointer;color:var(--tx);font-size:18px;}
+#ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:99;}
+/* SCROLLABLE NUT TABLE wrapper */
+.nut-scroll{max-height:340px;overflow-y:auto;border:1px solid var(--bor);border-radius:var(--r);}
+@media(max-width:768px){
+  #sidebar{position:fixed;left:0;top:0;transform:translateX(-100%);}
+  #sidebar.open{transform:translateX(0);}
+  #ov.open{display:block;}
+  .hmb{display:block;}
+  .summary-strip{grid-template-columns:1fr 1fr;}
+  .ai-grid{grid-template-columns:1fr 1fr;}
+  .frow{grid-template-columns:1fr;}
+  .nut-grid{grid-template-columns:1fr 1fr;}
+}
+</style>
+</head>
+<body data-theme="light">
+<div id="ov"></div>
+
+<nav id="sidebar">
+  <div class="logo">
+    <div>
+      <div class="logo-text">🥗 Nutrition</div>
+      <div class="logo-sub">Ritual companion</div>
+    </div>
+  </div>
+  <div class="snav">
+    <div class="ni act" id="nav-log" onclick="showPage('log')"><span class="ic">📋</span>Food Log</div>
+    <div class="ni" id="nav-nutrition" onclick="showPage('nutrition')"><span class="ic">🔬</span>Nutrients</div>
+    <div class="ni" id="nav-history" onclick="showPage('history')"><span class="ic">📅</span>History</div>
+    <div class="ni" id="nav-fooddb" onclick="showPage('fooddb')"><span class="ic">🗄️</span>Food Database</div>
+    <div class="nsec" style="margin-top:6px">System</div>
+    <div class="ni" id="nav-settings" onclick="showPage('settings')"><span class="ic">⚙️</span>Settings</div>
+    <div class="ni" onclick="window.location.href='habit-tracker.html'"><span class="ic">🌿</span>Back to Ritual</div>
+  </div>
+  <div class="sbot">
+    <div style="font-size:11px;color:var(--tx3);padding:6px 8px">
+      <span id="today-cals" style="color:var(--tx2);font-weight:500">0</span> kcal today
+    </div>
+  </div>
+</nav>
+
+<div id="main">
+  <div class="tbar">
+    <div class="tbar-l">
+      <button class="hmb" onclick="toggleSidebar()">☰</button>
+      <h1 id="ptitle">Food Log</h1>
+    </div>
+    <div class="tbar-r">
+      <button class="btn" id="theme-btn" onclick="toggleTheme()">🌙</button>
+      <button class="btn" onclick="pullGist()" title="Preview Gist contents">⬇ Pull</button>
+      <button class="btn" id="gist-btn" onclick="pushGist()" title="Merge & push to GitHub Gist">⬆ Push</button>
+    </div>
+  </div>
+
+  <!-- FOOD LOG -->
+  <div class="pg act" id="pg-log" style="max-width:860px;margin:0 auto;width:100%">
+    <div class="date-bar">
+      <button class="date-nav" onclick="dateNav(-1)">‹</button>
+      <span class="date-label" id="date-label"></span>
+      <button class="date-nav" onclick="dateNav(1)">›</button>
+      <input type="date" class="date-input" id="date-pick" onchange="setDate(this.value)">
+    </div>
+    <div class="summary-strip" id="summary-strip"></div>
+    <div id="meal-sections"></div>
+    <!-- WATER LOG -->
+    <div class="meal-section" style="margin-top:14px">
+      <div class="meal-hdr" onclick="toggleMeal('wb-water')">
+        <span class="meal-ico">💧</span>
+        <span class="meal-name">Water</span>
+        <span class="meal-cals" id="water-log-summary">0 L logged</span>
+      </div>
+      <div id="wb-water" style="display:none;border-top:1px solid var(--bor);padding:14px 16px">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">
+          <div style="flex:1">
+            <label class="fl">Total water today (L)</label>
+            <div style="display:flex;align-items:center;gap:8px">
+              <input class="wi-input" type="number" id="water-log-input" min="0" max="20" step="0.1" placeholder="0.0" style="width:80px" oninput="updateWaterLog()">
+              <span style="font-size:13px;color:var(--tx2)">L</span>
+              <div style="flex:1;height:6px;background:var(--bor);border-radius:3px;overflow:hidden">
+                <div id="water-log-bar" style="height:100%;background:#4a90d9;border-radius:3px;transition:width .4s;width:0%"></div>
+              </div>
+              <span style="font-size:12px;color:var(--tx3)">/ <span id="water-log-target">3</span>L</span>
+            </div>
+          </div>
+        </div>
+        <!-- Quick add buttons -->
+        <div style="display:flex;gap:6px;flex-wrap:wrap">
+          <span style="font-size:12px;color:var(--tx3);align-self:center">Quick add:</span>
+          <button class="btn sm" onclick="addWaterQuick(0.25)">+ 250 ml</button>
+          <button class="btn sm" onclick="addWaterQuick(0.5)">+ 500 ml</button>
+          <button class="btn sm" onclick="addWaterQuick(1)">+ 1 L</button>
+          <button class="btn sm dng" onclick="setWaterLog(0)" style="margin-left:auto">Reset</button>
+        </div>
+        <!-- Drops visual -->
+        <div style="display:flex;gap:4px;flex-wrap:wrap;margin-top:12px" id="water-log-drops"></div>
+      </div>
+    </div>
+    <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap" id="meal-add-btns"></div>
+  </div>
+
+  <!-- NUTRIENTS -->
+  <div class="pg" id="pg-nutrition" style="max-width:860px;margin:0 auto;width:100%">
+    <div class="date-bar">
+      <button class="date-nav" onclick="dateNav(-1)">‹</button>
+      <span class="date-label" id="date-label2"></span>
+      <button class="date-nav" onclick="dateNav(1)">›</button>
+    </div>
+    <div class="nut-tabs" id="nut-tabs"></div>
+    <div class="nut-grid" id="nut-grid"></div>
+  </div>
+
+  <!-- HISTORY -->
+  <div class="pg" id="pg-history" style="max-width:860px;margin:0 auto;width:100%">
+    <div style="margin-bottom:16px;display:flex;align-items:center;justify-content:space-between">
+      <span style="color:var(--tx2);font-size:13px">Last 30 days</span>
+      <button class="btn sm" onclick="exportCSV()">Export CSV</button>
+    </div>
+    <div id="hist-list"></div>
+  </div>
+
+  <!-- FOOD DATABASE -->
+  <div class="pg" id="pg-fooddb" style="max-width:860px;margin:0 auto;width:100%">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:8px">
+      <span style="color:var(--tx2);font-size:13px">Foods you've logged — reused as autocomplete suggestions.</span>
+      <div style="display:flex;gap:8px">
+        <input class="date-input" id="db-search" placeholder="Search foods..." oninput="renderFoodDB()" style="width:180px">
+        <button class="btn sm dng" onclick="clearFoodDB()">Clear All</button>
+      </div>
+    </div>
+    <div id="fooddb-list"></div>
+  </div>
+
+  <!-- SETTINGS -->
+  <div class="pg" id="pg-settings" style="max-width:600px;margin:0 auto;width:100%">
+    <div class="ss">
+      <div class="ss-ttl">Appearance</div>
+      <div class="sr"><div><div class="srl">Dark Mode</div></div>
+        <label class="tsw"><input type="checkbox" id="dark-tog" onchange="toggleTheme()"><span class="tsl"></span></label></div>
+    </div>
+    <div class="ss">
+      <div class="ss-ttl">AI Food Lookup — Groq</div>
+      <div class="sr">
+        <div><div class="srl">Groq API Key</div><div class="srs">Get a free key at console.groq.com — used only locally, never sent anywhere except Groq.</div></div>
+        <div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end">
+          <input class="fi" type="password" id="groq-key" placeholder="gsk_..." style="width:200px;font-size:12px" oninput="saveCfg()">
+          <span id="groq-status" style="font-size:11px;color:var(--tx3)">Not set</span>
+        </div>
+      </div>
+      <div class="sr">
+        <div><div class="srl">Model</div></div>
+        <select class="fi" style="width:auto;font-size:12px" id="groq-model" onchange="saveCfg()">
+          <option value="llama-3.3-70b-versatile">llama-3.3-70b-versatile</option>
+          <option value="llama3-8b-8192">llama3-8b-8192 (faster)</option>
+          <option value="mixtral-8x7b-32768">mixtral-8x7b-32768</option>
+        </select>
+      </div>
+    </div>
+    <div class="ss">
+      <div class="ss-ttl">GitHub Gist Export</div>
+      <div class="sr">
+        <div><div class="srl">GitHub Token</div><div class="srs">Personal access token with "gist" scope. Create at github.com/settings/tokens</div></div>
+        <input class="fi" type="password" id="gh-token" placeholder="ghp_..." style="width:200px;font-size:12px" oninput="saveCfg()">
+      </div>
+      <div class="sr">
+        <div><div class="srl">Gist ID</div><div class="srs">The ID of your shared health Gist. Leave blank to create new. Push pulls first, merges nutrition data in, then writes back — other apps' fields are never touched.</div></div>
+        <input class="fi" id="gh-gist-id" placeholder="Leave blank to create new" style="width:200px;font-size:12px" oninput="saveCfg()">
+      </div>
+      <div class="sr">
+        <div><div class="srl">Auto-push on save</div></div>
+        <label class="tsw"><input type="checkbox" id="auto-push" onchange="saveCfg()"><span class="tsl"></span></label>
+      </div>
+    </div>
+    <div class="ss">
+      <div class="ss-ttl">Daily Targets</div>
+      <div id="targets-form"></div>
+    </div>
+    <div class="ss">
+      <div class="ss-ttl">Meal Slots</div>
+      <div style="padding:12px 16px">
+        <div id="meal-slots-list"></div>
+        <button class="btn sm" style="margin-top:8px" onclick="addMealSlot()">+ Add Meal Slot</button>
+      </div>
+    </div>
+    <div class="ss">
+      <div class="ss-ttl">Data</div>
+      <div class="sr"><div><div class="srl">Export JSON</div></div><button class="btn" onclick="exportJSON()">Export</button></div>
+      <div class="sr"><div><div class="srl">Reset Nutrition Data</div><div class="srs">Cannot be undone</div></div><button class="btn dng" onclick="resetData()">Reset</button></div>
+    </div>
+  </div>
+</div>
+
+<!-- ADD FOOD MODAL -->
+<div class="ovl" id="m-food">
+  <div class="modal wide">
+    <div class="mhdr">
+      <span class="mttl" id="m-food-ttl">Add Food</span>
+      <button class="ibtn" onclick="closeModal('m-food')">✕</button>
+    </div>
+    <div class="mbody">
+
+      <!-- STEP 1: FOOD DETAILS -->
+      <div style="background:var(--sur2);border-radius:var(--r);padding:14px;margin-bottom:14px">
+        <div style="font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:.06em;color:var(--tx3);margin-bottom:10px">Food Details</div>
+
+        <!-- Food Name with inline suggestions -->
+        <div class="fg" style="margin-bottom:10px;position:relative">
+          <label class="fl">Food Name *</label>
+          <input class="fi" id="f-name" placeholder="e.g. Kerala Style Porota, Oats, Chicken Breast" autocomplete="off"
+            oninput="triggerSuggest(this.value)"
+            onfocus="triggerSuggest(this.value)"
+            onkeydown="handleSuggestKey(event)"
+            onblur="hideSuggestionsDelayed()">
+          <div id="f-suggestions" style="display:none;position:absolute;top:100%;left:0;right:0;background:var(--sur);border:1px solid var(--bor2);border-radius:0 0 8px 8px;z-index:50;max-height:220px;overflow-y:auto;box-shadow:0 6px 20px rgba(0,0,0,.12)"></div>
+        </div>
+
+        <!-- Serving qty + unit side by side -->
+        <div class="frow" style="margin-bottom:10px">
+          <div class="fg" style="margin-bottom:0">
+            <label class="fl">Serving Quantity *</label>
+            <input class="fi" id="f-qty" type="number" min="0.01" step="any" placeholder="e.g. 1" oninput="onQtyChange()">
+          </div>
+          <div class="fg" style="margin-bottom:0">
+            <label class="fl">Unit *</label>
+            <select class="fi" id="f-unit" onchange="onQtyChange()">
+              <option value="piece">piece / nos</option>
+              <option value="serving">serving</option>
+              <option value="g">g</option>
+              <option value="ml">ml</option>
+              <option value="cup">cup</option>
+              <option value="tbsp">tbsp</option>
+              <option value="tsp">tsp</option>
+              <option value="oz">oz</option>
+              <option value="bowl">bowl</option>
+              <option value="plate">plate</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Ingredients single line -->
+        <div class="fg" style="margin-bottom:0">
+          <label class="fl">Ingredients <span style="color:var(--tx3);font-weight:400">(optional — one line, helps Groq calculate better)</span></label>
+          <input class="fi" id="f-ingredients" placeholder="e.g. 80g maida, 10g oil, 5g salt, water — or leave blank for standard estimate">
+        </div>
+      </div>
+
+      <!-- STEP 2: AI LOOKUP -->
+      <div style="margin-bottom:14px">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+          <div style="font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:.06em;color:var(--tx3)">Nutrition Lookup</div>
+          <div style="flex:1;height:1px;background:var(--bor)"></div>
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn pri" onclick="aiLookup()" id="ai-btn" style="flex:1">🤖 Lookup with Groq AI</button>
+          <button class="btn" onclick="clearNutrients()" style="font-size:12px">Clear values</button>
+        </div>
+        <div id="ai-result-area" style="margin-top:10px"></div>
+        <div id="scale-hint" style="font-size:11px;color:var(--ac);margin-top:6px;display:none"></div>
+      </div>
+
+      <!-- STEP 3: NUTRIENT TABLE -->
+      <div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+          <label class="fl" style="margin:0">Nutrients <span style="color:var(--tx3);font-weight:400" id="nut-per-label">(for the serving above)</span></label>
+        </div>
+        <div class="nut-scroll">
+          <table class="nut-table" id="nut-input-table"></table>
+        </div>
+      </div>
+
+    </div>
+    <div class="mftr">
+      <button class="btn" onclick="closeModal('m-food')">Cancel</button>
+      <button class="btn pri" onclick="saveFood()">Add to Log</button>
+    </div>
+  </div>
+</div>
+
+<!-- DAY DETAIL MODAL (from history) -->
+<div class="ovl" id="m-day">
+  <div class="modal">
+    <div class="mhdr"><span class="mttl" id="day-ttl">Day Detail</span><button class="ibtn" onclick="closeModal('m-day')">✕</button></div>
+    <div class="mbody" id="day-body"></div>
+  </div>
+</div>
+
+<!-- GIST RESULT MODAL -->
+<div class="ovl" id="m-gist">
+  <div class="modal" style="max-width:460px">
+    <div class="mhdr"><span class="mttl">Gist Export</span><button class="ibtn" onclick="closeModal('m-gist')">✕</button></div>
+    <div class="mbody" id="gist-body"></div>
+    <div class="mftr"><button class="btn pri" onclick="closeModal('m-gist')">Done</button></div>
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+
+// ── NUTRIENT SCHEMA ──
+var NUT_SCHEMA = [
+  // section, key, label, unit, dv (daily value for % calc)
+  // === ENERGY & MACROS ===
+  {s:'Energy & Macros', k:'calories',      l:'Calories',              u:'kcal', dv:2000},
+  {s:'Energy & Macros', k:'water',         l:'Water',                 u:'ml',   dv:2700},
+  {s:'Energy & Macros', k:'alcohol',       l:'Alcohol',               u:'g',    dv:0},
+  {s:'Energy & Macros', k:'carb',          l:'Carbohydrate',          u:'g',    dv:275},
+  {s:'Energy & Macros', k:'fiber',         l:'Dietary Fiber',         u:'g',    dv:28},
+  {s:'Energy & Macros', k:'sugar',         l:'Sugar',                 u:'g',    dv:50},
+  {s:'Energy & Macros', k:'added_sugar',   l:'Added Sugar',           u:'g',    dv:50},
+  {s:'Energy & Macros', k:'protein',       l:'Protein',               u:'g',    dv:50},
+  {s:'Energy & Macros', k:'leucine',       l:'Leucine',               u:'g',    dv:0},
+  {s:'Energy & Macros', k:'lysine',        l:'Lysine',                u:'g',    dv:0},
+  {s:'Energy & Macros', k:'tryptophan',    l:'Tryptophan',            u:'g',    dv:0},
+  {s:'Energy & Macros', k:'fat',           l:'Total Fat',             u:'g',    dv:78},
+  {s:'Energy & Macros', k:'sat_fat',       l:'Saturated Fat',         u:'g',    dv:20},
+  {s:'Energy & Macros', k:'mono_fat',      l:'Monounsaturated Fat',   u:'g',    dv:0},
+  {s:'Energy & Macros', k:'poly_fat',      l:'Polyunsaturated Fat',   u:'g',    dv:0},
+  {s:'Energy & Macros', k:'trans_fat',     l:'Trans Fat',             u:'g',    dv:0},
+  {s:'Energy & Macros', k:'omega3',        l:'Omega-3',               u:'g',    dv:1.6},
+  {s:'Energy & Macros', k:'omega6',        l:'Omega-6',               u:'g',    dv:17},
+  {s:'Energy & Macros', k:'cholesterol',   l:'Cholesterol',           u:'mg',   dv:300},
+  // === VITAMINS ===
+  {s:'Vitamins', k:'vit_a',   l:'Vitamin A',          u:'mcg', dv:900},
+  {s:'Vitamins', k:'vit_c',   l:'Vitamin C',          u:'mg',  dv:90},
+  {s:'Vitamins', k:'vit_d',   l:'Vitamin D',          u:'mcg', dv:20},
+  {s:'Vitamins', k:'vit_e',   l:'Vitamin E',          u:'mg',  dv:15},
+  {s:'Vitamins', k:'vit_k',   l:'Vitamin K',          u:'mcg', dv:120},
+  {s:'Vitamins', k:'thiamin', l:'Thiamin (B1)',        u:'mg',  dv:1.2},
+  {s:'Vitamins', k:'riboflavin',l:'Riboflavin (B2)',   u:'mg',  dv:1.3},
+  {s:'Vitamins', k:'niacin',  l:'Niacin (B3)',         u:'mg',  dv:16},
+  {s:'Vitamins', k:'panto',   l:'Pantothenic Acid (B5)',u:'mg', dv:5},
+  {s:'Vitamins', k:'vit_b6',  l:'Vitamin B6',         u:'mg',  dv:1.7},
+  {s:'Vitamins', k:'biotin',  l:'Biotin (B7)',         u:'mcg', dv:30},
+  {s:'Vitamins', k:'folate',  l:'Folate (B9)',         u:'mcg', dv:400},
+  {s:'Vitamins', k:'vit_b12', l:'Vitamin B12',        u:'mcg', dv:2.4},
+  {s:'Vitamins', k:'choline', l:'Choline',             u:'mg',  dv:550},
+  {s:'Vitamins', k:'inositol',l:'Inositol',            u:'mg',  dv:0},
+  {s:'Vitamins', k:'carotenoids',l:'Carotenoids',      u:'mg',  dv:0},
+  // === MINERALS ===
+  {s:'Minerals', k:'calcium',   l:'Calcium',     u:'mg',  dv:1300},
+  {s:'Minerals', k:'chloride',  l:'Chloride',    u:'mg',  dv:2300},
+  {s:'Minerals', k:'iron',      l:'Iron',        u:'mg',  dv:18},
+  {s:'Minerals', k:'magnesium', l:'Magnesium',   u:'mg',  dv:420},
+  {s:'Minerals', k:'phosphorus',l:'Phosphorus',  u:'mg',  dv:1250},
+  {s:'Minerals', k:'potassium', l:'Potassium',   u:'mg',  dv:4700},
+  {s:'Minerals', k:'sodium',    l:'Sodium',      u:'mg',  dv:2300},
+  {s:'Minerals', k:'zinc',      l:'Zinc',        u:'mg',  dv:11},
+  {s:'Minerals', k:'chromium',  l:'Chromium',    u:'mcg', dv:35},
+  {s:'Minerals', k:'copper',    l:'Copper',      u:'mg',  dv:0.9},
+  {s:'Minerals', k:'iodine',    l:'Iodine',      u:'mcg', dv:150},
+  {s:'Minerals', k:'manganese', l:'Manganese',   u:'mg',  dv:2.3},
+  {s:'Minerals', k:'molybdenum',l:'Molybdenum',  u:'mcg', dv:45},
+  {s:'Minerals', k:'selenium',  l:'Selenium',    u:'mcg', dv:55},
+  {s:'Minerals', k:'fluoride',  l:'Fluoride',    u:'mg',  dv:4},
+  {s:'Minerals', k:'sulfur',    l:'Sulfur',      u:'mg',  dv:0},
+  {s:'Minerals', k:'boron',     l:'Boron',       u:'mg',  dv:0},
+  {s:'Minerals', k:'nickel',    l:'Nickel',      u:'mcg', dv:0},
+  {s:'Minerals', k:'silicon',   l:'Silicon',     u:'mg',  dv:0},
+  {s:'Minerals', k:'vanadium',  l:'Vanadium',    u:'mcg', dv:0},
+  // === OTHER ===
+  {s:'Other Compounds', k:'caffeine',    l:'Caffeine',      u:'mg',  dv:400},
+  {s:'Other Compounds', k:'ash',         l:'Ash',           u:'g',   dv:0},
+  {s:'Other Compounds', k:'phytochem',   l:'Phytochemicals',u:'mg',  dv:0},
+];
+
+var NUT_SECTIONS = ['Energy & Macros','Vitamins','Minerals','Other Compounds'];
+var SECTION_TAGS = {'Energy & Macros':'tag-mac','Vitamins':'tag-vit','Minerals':'tag-min','Other Compounds':'tag-oth'};
+
+var DEFAULT_TARGETS = {};
+NUT_SCHEMA.forEach(function(n){ if(n.dv>0) DEFAULT_TARGETS[n.k]=n.dv; });
+
+// ── STATE ──
+var S = {
+  logs: {},      // { "YYYY-MM-DD": { meals: { mealId: [{name,qty,unit,baseQty,baseUnit,baseNutrients,nutrients}] } } }
+  water: {},     // { "YYYY-MM-DD": liters (L) } — explicit water log
+  foodDB: [],   // [{id, name, baseQty, baseUnit, baseNutrients, usedCount, lastUsed}]
+  cfg: {
+    theme:'light', groqKey:'', groqModel:'llama-3.3-70b-versatile',
+    ghToken:'', gistId:'', autoPush:false, wTgt:3,
+    targets: Object.assign({}, DEFAULT_TARGETS),
+    mealSlots: [
+      {id:'breakfast', name:'Breakfast', icon:'🌅'},
+      {id:'morning_snack', name:'Morning Snack', icon:'🍎'},
+      {id:'lunch', name:'Lunch', icon:'☀️'},
+      {id:'evening_snack', name:'Evening Snack', icon:'🍊'},
+      {id:'dinner', name:'Dinner', icon:'🌙'},
+    ]
+  }
+};
+
+var currentDate = new Date().toISOString().split('T')[0];
+var currentMealTarget = null;
+var currentEditIdx = null;
+var currentNutSection = 'Energy & Macros';
+var pendingNutrients = {};
+
+// ── STORAGE ──
+function save(){try{localStorage.setItem('ritual_nutrition_v2',JSON.stringify(S));}catch(e){}}
+function load(){
+  try{
+    var raw=localStorage.getItem('ritual_nutrition_v2');
+    if(raw){
+      var p=JSON.parse(raw);
+      S.logs=p.logs||{};
+      S.water=p.water||{};
+      S.foodDB=p.foodDB||[];
+      if(p.cfg){
+        S.cfg=Object.assign(S.cfg,p.cfg);
+        if(!S.cfg.targets)S.cfg.targets=Object.assign({},DEFAULT_TARGETS);
+        if(!S.cfg.mealSlots||!S.cfg.mealSlots.length)S.cfg.mealSlots=[
+          {id:'breakfast',name:'Breakfast',icon:'🌅'},
+          {id:'morning_snack',name:'Morning Snack',icon:'🍎'},
+          {id:'lunch',name:'Lunch',icon:'☀️'},
+          {id:'evening_snack',name:'Evening Snack',icon:'🍊'},
+          {id:'dinner',name:'Dinner',icon:'🌙'},
+        ];
+      }
+    }
+  }catch(e){}
+}
+
+// ── DATE HELPERS ──
+function getDayLog(ds){
+  if(!S.logs[ds])S.logs[ds]={meals:{},customMeals:[]};
+  var dl=S.logs[ds];
+  S.cfg.mealSlots.forEach(function(m){if(!dl.meals[m.id])dl.meals[m.id]=[];});
+  return dl;
+}
+function fmtDate(ds){
+  var d=new Date(ds+'T12:00:00');
+  var today=new Date().toISOString().split('T')[0];
+  var yest=new Date(Date.now()-86400000).toISOString().split('T')[0];
+  if(ds===today)return'Today';
+  if(ds===yest)return'Yesterday';
+  return d.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'});
+}
+
+// ── NUTRIENTS TOTAL FOR DAY ──
+function dayTotals(ds){
+  var dl=getDayLog(ds),totals={};
+  NUT_SCHEMA.forEach(function(n){totals[n.k]=0;});
+  Object.values(dl.meals).forEach(function(items){
+    items.forEach(function(item){
+      NUT_SCHEMA.forEach(function(n){
+        if(item.nutrients&&item.nutrients[n.k])totals[n.k]+=(parseFloat(item.nutrients[n.k])||0);
+      });
+    });
+  });
+  return totals;
+}
+function mealTotals(items){
+  var t={};NUT_SCHEMA.forEach(function(n){t[n.k]=0;});
+  items.forEach(function(item){
+    NUT_SCHEMA.forEach(function(n){if(item.nutrients&&item.nutrients[n.k])t[n.k]+=(parseFloat(item.nutrients[n.k])||0);});
+  });
+  return t;
+}
+
+// ── RENDER ──
+// ── WATER LOG ──
+function renderWaterLog() {
+  var d = currentDate;
+  var liters = S.water[d] || 0;
+  var tgt = S.cfg.wTgt || 3;
+  var inp = document.getElementById('water-log-input');
+  if (inp && document.activeElement !== inp) inp.value = liters > 0 ? liters : '';
+  var bar = document.getElementById('water-log-bar');
+  if (bar) bar.style.width = Math.min(100, Math.round(liters/tgt*100)) + '%';
+  var wtl = document.getElementById('water-log-target');
+  if (wtl) wtl.textContent = tgt;
+  var summary = document.getElementById('water-log-summary');
+  if (summary) summary.textContent = liters > 0 ? liters.toFixed(1) + ' L logged' : '0 L logged';
+  // drops: 8 drops, each = tgt/8 L
+  var filled = Math.min(8, Math.round(liters/tgt*8));
+  var dropsEl = document.getElementById('water-log-drops');
+  if (dropsEl) {
+    var h = '';
+    for (var i=0;i<8;i++) h += '<span style="font-size:22px;opacity:'+(i<filled?'1':'0.18')+';cursor:pointer" onclick="setWaterLog('+(Math.round((i+1)/8*tgt*10)/10)+')">💧</span>';
+    dropsEl.innerHTML = h;
+  }
+}
+window.updateWaterLog = function() {
+  var d = currentDate;
+  var inp = document.getElementById('water-log-input');
+  var v = parseFloat(inp ? inp.value : 0) || 0;
+  S.water[d] = v;
+  save(); renderWaterLog();
+  if (S.cfg.autoPush) pushGist(true);
+};
+window.addWaterQuick = function(litres) {
+  var d = currentDate;
+  S.water[d] = Math.round(((S.water[d]||0) + litres) * 10) / 10;
+  save(); renderWaterLog();
+};
+window.setWaterLog = function(val) {
+  var d = currentDate;
+  S.water[d] = val;
+  save(); renderWaterLog();
+};
+
+function renderAll(){renderLog();renderNutrition();renderHistory();}
+
+function renderLog(){
+  var dl=getDayLog(currentDate);
+  var tots=dayTotals(currentDate);
+  var tgt=S.cfg.targets;
+
+  // summary strip
+  var strip=document.getElementById('summary-strip');
+  var calPct=tgt.calories?Math.min(100,Math.round(tots.calories/tgt.calories*100)):0;
+  var protPct=tgt.protein?Math.min(100,Math.round(tots.protein/tgt.protein*100)):0;
+  var carbPct=tgt.carb?Math.min(100,Math.round(tots.carb/tgt.carb*100)):0;
+  var fatPct=tgt.fat?Math.min(100,Math.round(tots.fat/tgt.fat*100)):0;
+  strip.innerHTML=[
+    {l:'Calories',v:Math.round(tots.calories),u:'kcal',pct:calPct,col:'#e67e22'},
+    {l:'Protein',v:tots.protein.toFixed(1),u:'g',pct:protPct,col:'#3d6b4f'},
+    {l:'Carbs',v:tots.carb.toFixed(1),u:'g',pct:carbPct,col:'#2563eb'},
+    {l:'Fat',v:tots.fat.toFixed(1),u:'g',pct:fatPct,col:'#7c3aed'},
+  ].map(function(c){
+    return '<div class="sum-card"><div class="sum-label">'+c.l+'</div>'
+      +'<div><span class="sum-val">'+c.v+'</span><span class="sum-unit">'+c.u+'</span></div>'
+      +'<div class="sum-bar"><div class="sum-fill" style="width:'+c.pct+'%;background:'+c.col+'"></div></div></div>';
+  }).join('');
+
+  // meal sections
+  var ms=document.getElementById('meal-sections');
+  ms.innerHTML=S.cfg.mealSlots.map(function(meal){
+    var items=dl.meals[meal.id]||[];
+    var mt=mealTotals(items);
+    var expanded=items.length>0;
+    return '<div class="meal-section">'
+      +'<div class="meal-hdr" onclick="toggleMeal(\'mb-'+meal.id+'\')">'
+      +'<span class="meal-ico">'+meal.icon+'</span>'
+      +'<span class="meal-name">'+meal.name+'</span>'
+      +'<span class="meal-cals">'+(items.length?Math.round(mt.calories)+' kcal · '+items.length+' item'+(items.length!==1?'s':''):'Empty')+'</span>'
+      +'</div>'
+      +'<div id="mb-'+meal.id+'" style="display:'+(expanded?'block':'none')+'">'
+      +'<div class="meal-body">'
+      +items.map(function(item,idx){
+        return '<div class="food-item">'
+          +'<div style="flex:1"><div class="food-name">'+item.name+'</div>'
+          +'<div class="food-detail">'+item.qty+' '+item.unit
+          +(item.nutrients.protein?' · P:'+parseFloat(item.nutrients.protein||0).toFixed(1)+'g':'')
+          +(item.nutrients.carb?' · C:'+parseFloat(item.nutrients.carb||0).toFixed(1)+'g':'')
+          +(item.nutrients.fat?' · F:'+parseFloat(item.nutrients.fat||0).toFixed(1)+'g':'')
+          +'</div></div>'
+          +'<span class="food-cals">'+Math.round(item.nutrients.calories||0)+' kcal</span>'
+          +'<div class="food-acts">'
+          +'<button class="ibtn" onclick="editFood(\''+meal.id+'\','+idx+')" title="Edit">✏️</button>'
+          +'<button class="ibtn" onclick="delFood(\''+meal.id+'\','+idx+')" title="Delete">🗑️</button>'
+          +'</div></div>';
+      }).join('')
+      +'</div>'
+      +'<div class="add-food-row" style="position:relative">'
+      +'<input id="quick-'+meal.id+'" placeholder="Search or type food name..." autocomplete="off" '
+      +'oninput="onQuickInput(\''+meal.id+'\',this.value)" '
+      +'onblur="setTimeout(function(){var d=document.getElementById(\'qs-'+meal.id+'\');if(d)d.style.display=\'none\';},220)" '
+      +'onkeydown="if(event.key===\'Enter\')openAddFood(\''+meal.id+'\',this.value)">'
+      +'<button class="btn sm pri" onclick="openAddFood(\''+meal.id+'\',document.getElementById(\'quick-'+meal.id+'\').value)">+ Add</button>'
+      +'<div id="qs-'+meal.id+'" style="display:none;position:absolute;top:100%;left:0;right:0;background:var(--sur);border:1px solid var(--bor2);border-radius:8px;margin-top:2px;z-index:30;max-height:220px;overflow-y:auto;box-shadow:0 4px 16px rgba(0,0,0,.12)"></div>'
+      +'</div>'
+      +'</div></div>';
+  }).join('');
+
+  // add meal buttons for custom slots
+  var btns=document.getElementById('meal-add-btns');
+  btns.innerHTML='';
+
+  // water log widget
+  renderWaterLog();
+
+  // today cals sidebar
+  var tc=document.getElementById('today-cals');
+  if(tc&&currentDate===new Date().toISOString().split('T')[0])tc.textContent=Math.round(tots.calories);
+}
+
+function renderNutrition(){
+  var lbl2=document.getElementById('date-label2');
+  if(lbl2)lbl2.textContent=fmtDate(currentDate);
+  // tabs
+  var tabs=document.getElementById('nut-tabs');
+  tabs.innerHTML=NUT_SECTIONS.map(function(s){
+    return '<div class="ntab'+(currentNutSection===s?' act':'')+'" onclick="setNutSection(\''+s+'\')">'+s+'</div>';
+  }).join('');
+  // grid
+  var tots=dayTotals(currentDate);
+  var tgt=S.cfg.targets;
+  var grid=document.getElementById('nut-grid');
+  var items=NUT_SCHEMA.filter(function(n){return n.s===currentNutSection;});
+  grid.innerHTML=items.map(function(n){
+    var val=tots[n.k]||0;
+    var pct=n.dv>0?Math.min(100,Math.round(val/n.dv*100)):null;
+    var dispVal=val<10?val.toFixed(2):val<100?val.toFixed(1):Math.round(val);
+    var col=pct!==null?(pct>=100?'#3d6b4f':pct>=50?'#2563eb':'#9d9a94'):'#9d9a94';
+    return '<div class="nut-card">'
+      +'<div class="nut-name">'+n.l+'</div>'
+      +'<div><span class="nut-val">'+dispVal+'</span><span class="nut-unit">'+n.u+'</span></div>'
+      +(pct!==null?'<div class="nut-dv">'+pct+'% DV</div>':'')
+      +(pct!==null?'<div class="nut-bar"><div class="nut-fill" style="width:'+pct+'%;background:'+col+'"></div></div>':'')
+      +'</div>';
+  }).join('');
+}
+window.setNutSection=function(s){currentNutSection=s;renderNutrition();};
+
+function renderHistory(){
+  var el=document.getElementById('hist-list');
+  var days=[];
+  var now=new Date();
+  for(var i=0;i<30;i++){
+    var d=new Date(now-i*86400000).toISOString().split('T')[0];
+    days.push(d);
+  }
+  var maxCals=0;
+  var dayData=days.map(function(ds){
+    var t=dayTotals(ds);
+    if(t.calories>maxCals)maxCals=t.calories;
+    return {ds:ds,tots:t};
+  });
+  if(!maxCals)maxCals=2000;
+  var hasDays=dayData.some(function(d){return d.tots.calories>0;});
+  if(!hasDays){el.innerHTML='<div class="empty"><div class="ei">📅</div>No food logged yet.</div>';return;}
+  el.innerHTML=dayData.filter(function(d){return d.tots.calories>0;}).map(function(d){
+    var pct=Math.round(d.tots.calories/maxCals*100);
+    return '<div class="hist-row" onclick="viewDay(\''+d.ds+'\')">'
+      +'<span class="hist-date">'+fmtDate(d.ds)+'</span>'
+      +'<div class="hist-bar-wrap"><div class="hist-bar-fill" style="width:'+pct+'%"></div></div>'
+      +'<span class="hist-cals">'+Math.round(d.tots.calories)+' kcal</span>'
+      +'</div>';
+  }).join('');
+}
+window.viewDay=function(ds){currentDate=ds;showPage('log');};
+
+// ── DATE NAV ──
+function updateDateDisplay(){
+  var lbl=document.getElementById('date-label');
+  if(lbl)lbl.textContent=fmtDate(currentDate);
+  var dp=document.getElementById('date-pick');
+  if(dp)dp.value=currentDate;
+}
+window.dateNav=function(d){
+  var dt=new Date(currentDate+'T12:00:00');
+  dt.setDate(dt.getDate()+d);
+  currentDate=dt.toISOString().split('T')[0];
+  updateDateDisplay();renderAll();renderWaterLog();
+};
+window.setDate=function(v){currentDate=v;updateDateDisplay();renderAll();renderWaterLog();};
+
+// ── MEAL TOGGLE ──
+window.toggleMeal=function(id){var el=document.getElementById(id);if(el)el.style.display=el.style.display==='none'?'block':'none';};
+
+// ── ADD FOOD ──
+window.openAddFood=function(mealId,queryVal){
+  currentMealTarget=mealId;
+  currentEditIdx=null;
+  pendingNutrients = {};        // empty — manual mode until AI fills it
+  pendingBaseQty = null;        // null = manual mode, no scaling
+  pendingBaseUnit = null;
+  var mt=document.getElementById('m-food-ttl');
+  var meal=S.cfg.mealSlots.find(function(m){return m.id===mealId;});
+  if(mt)mt.textContent='Add to '+(meal?meal.name:'Meal');
+  var fn=document.getElementById('f-name');if(fn)fn.value='';
+  var fq=document.getElementById('f-qty');if(fq)fq.value='100';
+  var fu=document.getElementById('f-unit');if(fu)fu.value='g';
+  var sh=document.getElementById('scale-hint');if(sh)sh.style.display='none';
+  var npl=document.getElementById('nut-per-label');if(npl)npl.textContent='(per entry amount)';
+  var ar=document.getElementById('ai-result-area');if(ar)ar.innerHTML='';
+  var ig=document.getElementById('f-ingredients');if(ig)ig.value='';
+  var sug=document.getElementById('f-suggestions');if(sug)sug.style.display='none';
+  buildNutInputTable({}, false); // false = editable manual mode
+  openModal('m-food');
+  // Pre-fill name if a query was passed, then show suggestions
+  if(queryVal&&queryVal.trim()){
+    var fn2=document.getElementById('f-name');if(fn2)fn2.value=queryVal;
+    window.triggerSuggest(queryVal);
+  } else {
+    window.triggerSuggest(''); // show recent foods on open
+  }
+};
+
+window.editFood=function(mealId,idx){
+  var dl=getDayLog(currentDate);
+  var item=(dl.meals[mealId]||[])[idx];
+  if(!item)return;
+  currentMealTarget=mealId;
+  currentEditIdx=idx;
+  // Restore base nutrients — if item has baseNutrients use those, else use stored nutrients as base for current qty
+  if(item.baseNutrients&&item.baseQty){
+    pendingBaseQty=item.baseQty;
+    pendingBaseUnit=item.baseUnit||item.unit;
+    pendingNutrients=Object.assign({},item.baseNutrients);
+  } else {
+    // Legacy item with no base — treat current nutrients as the base at current qty
+    pendingBaseQty=item.qty;
+    pendingBaseUnit=item.unit;
+    pendingNutrients=Object.assign({},item.nutrients||{});
+  }
+  var mt=document.getElementById('m-food-ttl');if(mt)mt.textContent='Edit Food';
+  var fn=document.getElementById('f-name');if(fn)fn.value=item.name;
+  var fq=document.getElementById('f-qty');if(fq)fq.value=item.qty;
+  var fu=document.getElementById('f-unit');if(fu)fu.value=item.unit;
+  var ar=document.getElementById('ai-result-area');if(ar)ar.innerHTML='';
+  var aq=document.getElementById('ai-query');if(aq)aq.value='';
+  var sug=document.getElementById('f-suggestions');if(sug)sug.style.display='none';
+  // Show scaled nutrients for current qty — display only (base is set, scaling mode)
+  var scaledForDisplay = scaleNutrients(pendingNutrients, pendingBaseQty, item.qty);
+  buildNutInputTable(scaledForDisplay, true);
+  updateScaleHint();
+  openModal('m-food');
+};
+
+window.delFood=function(mealId,idx){
+  if(!confirm('Remove this food?'))return;
+  var dl=getDayLog(currentDate);
+  if(dl.meals[mealId])dl.meals[mealId].splice(idx,1);
+  save();renderLog();
+};
+
+// ── QUANTITY SCALING ──
+// pendingBaseNutrients = nutrients for EXACTLY 1 unit (e.g. 1 piece, or per 100g)
+// pendingBaseQty       = the reference qty those nutrients correspond to (e.g. 1 or 100)
+// pendingBaseUnit      = the unit (e.g. 'piece', 'g')
+// These are NEVER modified after being set — they are the immutable source of truth.
+var pendingBaseQty = null;
+var pendingBaseUnit = null;
+// pendingNutrients holds the IMMUTABLE BASE — never overwritten by qty changes
+
+function scaleNutrients(baseNuts, baseQty, newQty) {
+  // Returns nutrients scaled from baseQty to newQty
+  if(!baseQty || baseQty === 0) return Object.assign({}, baseNuts);
+  var ratio = newQty / baseQty;
+  var out = {};
+  Object.keys(baseNuts).forEach(function(k) {
+    var v = parseFloat(baseNuts[k]);
+    out[k] = isNaN(v) ? 0 : Math.round(v * ratio * 10000) / 10000;
+  });
+  return out;
+}
+
+function updateScaleHint() {
+  var sh = document.getElementById('scale-hint');
+  var npl = document.getElementById('nut-per-label');
+  if (!sh) return;
+  if (pendingBaseQty === null) {
+    sh.style.display = 'none';
+    if (npl) npl.textContent = '(per entry amount — edit values manually)';
+    return;
+  }
+  var curQty = parseFloat((document.getElementById('f-qty') || {}).value) || 0;
+  var curUnit = (document.getElementById('f-unit') || {}).value || '';
+  var ratio = pendingBaseQty > 0 ? curQty / pendingBaseQty : 1;
+  if (Math.abs(ratio - 1) < 0.0001 && curUnit === pendingBaseUnit) {
+    sh.style.display = 'none';
+    if (npl) npl.textContent = '(per ' + pendingBaseQty + ' ' + pendingBaseUnit + ' — base)';
+  } else {
+    sh.innerHTML = '⚡ ×' + ratio.toFixed(3).replace(/\.?0+$/, '') + ' of base (' + pendingBaseQty + ' ' + pendingBaseUnit + ')';
+    sh.style.display = 'block';
+    if (npl) npl.textContent = '(scaled to ' + curQty + ' ' + curUnit + ')';
+  }
+}
+
+window.onQtyChange = function() {
+  if (pendingBaseQty === null) return; // manual mode — user edits table directly
+  var curQty = parseFloat((document.getElementById('f-qty') || {}).value) || 0;
+  if (curQty <= 0) return;
+  // Always scale from the IMMUTABLE pendingNutrients base — never from table values
+  var scaled = scaleNutrients(pendingNutrients, pendingBaseQty, curQty);
+  buildNutInputTable(scaled, true); // true = display-only, don't touch pendingNutrients
+  updateScaleHint();
+};
+
+// ── FOOD DB AUTOCOMPLETE ──
+var suggestHighlight = -1;
+
+function scoreMatch(foodName, query) {
+  var fWords = foodName.toLowerCase().split(/[\s,\-\/]+/).filter(Boolean);
+  var qWords = query.toLowerCase().split(/[\s,\-\/]+/).filter(Boolean);
+  if (!qWords.length) return 0;
+  var score = 0;
+  qWords.forEach(function(qw) {
+    fWords.forEach(function(fw) {
+      if (fw === qw) score += 10;
+      else if (fw.indexOf(qw) === 0) score += 6;
+      else if (fw.indexOf(qw) !== -1) score += 3;
+      else if (qw.indexOf(fw) !== -1) score += 2;
+    });
+  });
+  return score;
+}
+
+function getSuggestions(query) {
+  var q = (query || '').trim();
+  if (!q) {
+    return S.foodDB.slice().sort(function(a,b){ return (b.lastUsed||0)-(a.lastUsed||0); }).slice(0,6);
+  }
+  return S.foodDB
+    .map(function(f){ return {f:f, score:scoreMatch(f.name, q)}; })
+    .filter(function(x){ return x.score > 0; })
+    .sort(function(a,b){ return b.score !== a.score ? b.score-a.score : (b.f.usedCount||0)-(a.f.usedCount||0); })
+    .slice(0,8)
+    .map(function(x){ return x.f; });
+}
+
+function buildSuggestHTML(matches, onClickFn) {
+  return matches.map(function(f, i) {
+    var cals = f.baseNutrients && f.baseNutrients.calories ? Math.round(f.baseNutrients.calories) : 0;
+    var prot = f.baseNutrients && f.baseNutrients.protein ? parseFloat(f.baseNutrients.protein).toFixed(1)+'g P' : '';
+    return '<div class="sug-row" data-idx="'+i+'" data-id="'+f.id+'" onclick="pickFromModal(\''+f.id+'\')"'
+      + ' style="padding:10px 14px;cursor:pointer;border-bottom:1px solid var(--bor);'
+      + 'display:flex;align-items:center;justify-content:space-between;font-size:13px"'
+      + ' onmouseenter="this.style.background=\'var(--sur2)\'" onmouseleave="this.style.background=\'\'"><div>'
+      + '<div style="font-weight:500">'+f.name+'</div>'
+      + '<div style="font-size:11px;color:var(--tx3);margin-top:2px">'+f.baseQty+' '+f.baseUnit+' · '+cals+' kcal'+(prot?' · '+prot:'')+(f.usedCount>1?' · used '+(f.usedCount)+'\u00d7':'')+'</div>'
+      + '</div><span style="font-size:11px;color:var(--ac)">\u2190 use</span></div>';
+  }).join('');
+}
+
+window.triggerSuggest = function(val) {
+  var sug = document.getElementById('f-suggestions');
+  if (!sug) return;
+  var matches = getSuggestions(val);
+  if (!matches.length) { sug.style.display='none'; return; }
+  sug.innerHTML = buildSuggestHTML(matches, 'pickFromModal');
+  sug.style.display = 'block';
+  suggestHighlight = -1;
+};
+
+window.hideSuggestionsDelayed = function() {
+  setTimeout(function() {
+    var sug = document.getElementById('f-suggestions');
+    if (sug) sug.style.display = 'none';
+  }, 260);
+};
+
+window.handleSuggestKey = function(e) {
+  var sug = document.getElementById('f-suggestions');
+  if (!sug || sug.style.display === 'none') return;
+  var rows = sug.querySelectorAll('.sug-row');
+  if (e.key === 'ArrowDown') {
+    e.preventDefault();
+    suggestHighlight = Math.min(suggestHighlight+1, rows.length-1);
+    rows.forEach(function(r,i){ r.style.background = i===suggestHighlight?'var(--sur2)':''; });
+  } else if (e.key === 'ArrowUp') {
+    e.preventDefault();
+    suggestHighlight = Math.max(suggestHighlight-1, 0);
+    rows.forEach(function(r,i){ r.style.background = i===suggestHighlight?'var(--sur2)':''; });
+  } else if (e.key === 'Enter' && suggestHighlight >= 0) {
+    e.preventDefault();
+    var id = rows[suggestHighlight] && rows[suggestHighlight].dataset.id;
+    if (id) pickFromModal(id);
+  } else if (e.key === 'Escape') {
+    sug.style.display = 'none';
+  }
+};
+
+window.pickFromModal = function(id) {
+  var f = S.foodDB.find(function(x){ return x.id===id; });
+  if (!f) return;
+  var sug = document.getElementById('f-suggestions');
+  if (sug) sug.style.display = 'none';
+  var fn = document.getElementById('f-name'); if (fn) fn.value = f.name;
+  var fq = document.getElementById('f-qty'); if (fq) fq.value = f.baseQty;
+  var fu = document.getElementById('f-unit');
+  if (fu) {
+    var found = false;
+    for (var i=0; i<fu.options.length; i++) { if (fu.options[i].value===f.baseUnit){found=true;break;} }
+    if (!found) { var o=document.createElement('option');o.value=f.baseUnit;o.textContent=f.baseUnit;fu.appendChild(o); }
+    fu.value = f.baseUnit;
+  }
+  pendingNutrients = Object.assign({}, f.baseNutrients);
+  pendingBaseQty = f.baseQty;
+  pendingBaseUnit = f.baseUnit;
+  buildNutInputTable(pendingNutrients, true);
+  updateScaleHint();
+  var ar = document.getElementById('ai-result-area');
+  if (ar) ar.innerHTML = '<div style="padding:6px 0;font-size:12px;color:var(--ac)">\u2713 Loaded from database ('+f.baseQty+' '+f.baseUnit+'). Change quantity to scale.</div>';
+};
+
+window.onQuickInput = function(mealId, val) {
+  var sug = document.getElementById('qs-'+mealId);
+  if (!sug) return;
+  var matches = getSuggestions(val);
+  if (!matches.length) { sug.style.display='none'; return; }
+  // Build with per-meal click handler
+  sug.innerHTML = matches.map(function(f) {
+    var cals = f.baseNutrients && f.baseNutrients.calories ? Math.round(f.baseNutrients.calories) : 0;
+    return '<div onclick="pickFromQuick(\''+mealId+'\',\''+f.id+'\')" '
+      + 'style="padding:10px 14px;cursor:pointer;border-bottom:1px solid var(--bor);display:flex;align-items:center;justify-content:space-between;font-size:13px" '
+      + 'onmouseenter="this.style.background=\'var(--sur2)\'" onmouseleave="this.style.background=\'\'"><div>'
+      + '<div style="font-weight:500">'+f.name+'</div>'
+      + '<div style="font-size:11px;color:var(--tx3)">'+f.baseQty+' '+f.baseUnit+' · '+cals+' kcal</div>'
+      + '</div><span style="font-size:11px;color:var(--ac)">\u2190 use</span></div>';
+  }).join('');
+  sug.style.display = 'block';
+};
+
+window.pickFromQuick = function(mealId, id) {
+  var sug = document.getElementById('qs-'+mealId);
+  if (sug) sug.style.display = 'none';
+  var inp = document.getElementById('quick-'+mealId);
+  if (inp) inp.value = '';
+  window.openAddFood(mealId, '');
+  setTimeout(function(){ window.pickFromModal(id); }, 80);
+};
+
+// legacy aliases
+window.onFoodNameInput = window.triggerSuggest;
+window.selectSuggestion = window.pickFromModal;
+window.openAddFoodFromDB = function(mealId, id) {
+  window.openAddFood(mealId, '');
+  setTimeout(function(){ window.pickFromModal(id); }, 80);
+};
+
+function saveFoodToDb(name,baseQty,baseUnit,baseNutrients){
+  var key=name.toLowerCase().trim();
+  var existing=S.foodDB.find(function(f){return f.name.toLowerCase()===key;});
+  if(existing){
+    // update with latest data
+    existing.baseQty=baseQty;
+    existing.baseUnit=baseUnit;
+    existing.baseNutrients=Object.assign({},baseNutrients);
+    existing.usedCount=(existing.usedCount||0)+1;
+    existing.lastUsed=Date.now();
+  } else {
+    S.foodDB.push({
+      id:'fd-'+Date.now()+'-'+Math.random().toString(36).slice(2,6),
+      name:name,
+      baseQty:baseQty,
+      baseUnit:baseUnit,
+      baseNutrients:Object.assign({},baseNutrients),
+      usedCount:1,
+      lastUsed:Date.now()
+    });
+  }
+}
+
+function buildNutInputTable(vals, displayOnly) {
+  var tbl = document.getElementById('nut-input-table');
+  if (!tbl) return;
+  var html = '<thead><tr><th>Nutrient</th><th style="width:100px">Amount</th><th style="width:50px">Unit</th></tr></thead><tbody>';
+  var curSec = '';
+  NUT_SCHEMA.forEach(function(n) {
+    if (n.s !== curSec) {
+      curSec = n.s;
+      html += '<tr class="nut-section-hdr"><td colspan="3">' + n.s + '</td></tr>';
+    }
+    var v = (vals && vals[n.k] !== undefined && vals[n.k] !== '') ? vals[n.k] : '';
+    var dispV = v !== '' ? (parseFloat(v) < 10 ? parseFloat(parseFloat(v).toFixed(3)) : parseFloat(parseFloat(v).toFixed(1))) : '';
+    // Only wire oninput when NOT in display-only (scaling) mode
+    var inputAttr = displayOnly
+      ? 'readonly style="background:var(--sur2)" tabindex="-1"'
+      : 'oninput="onManualNutEdit(\'' + n.k + '\',this.value)"';
+    html += '<tr><td style="color:var(--tx2);font-size:12px">' + n.l + '</td>'
+      + '<td><input type="number" min="0" step="any" value="' + dispV + '" id="ni-' + n.k + '" ' + inputAttr + ' placeholder="0"></td>'
+      + '<td style="color:var(--tx3);font-size:11px">' + n.u + '</td></tr>';
+  });
+  html += '</tbody>';
+  tbl.innerHTML = html;
+}
+
+// Called only in manual mode (no AI base set) when user edits a nutrient field
+window.onManualNutEdit = function(key, val) {
+  pendingNutrients[key] = parseFloat(val) || 0;
+};
+
+function readNutInputs() {
+  var out = {};
+  NUT_SCHEMA.forEach(function(n) {
+    var el = document.getElementById('ni-' + n.k);
+    if (el && el.value !== '') out[n.k] = parseFloat(el.value) || 0;
+  });
+  return out;
+}
+
+window.saveFood = function() {
+  var name = ((document.getElementById('f-name') || {}).value || '').trim();
+  if (!name) { alert('Enter a food name.'); return; }
+  var qty = parseFloat((document.getElementById('f-qty') || {}).value) || 0;
+  if (qty <= 0) { alert('Enter a valid quantity greater than 0.'); return; }
+  var unit = (document.getElementById('f-unit') || {}).value || 'g';
+
+  var finalNutrients, dbBaseQty, dbBaseUnit, dbBaseNuts;
+
+  if (pendingBaseQty !== null && pendingBaseQty > 0) {
+    // SCALING MODE: always compute from the immutable pendingNutrients base
+    // Never read from table — table may be showing scaled display values
+    finalNutrients = scaleNutrients(pendingNutrients, pendingBaseQty, qty);
+    dbBaseQty = pendingBaseQty;
+    dbBaseUnit = pendingBaseUnit || unit;
+    dbBaseNuts = Object.assign({}, pendingNutrients); // immutable base
+  } else {
+    // MANUAL MODE: read directly from table (user typed values for this exact qty)
+    finalNutrients = readNutInputs();
+    dbBaseQty = qty;
+    dbBaseUnit = unit;
+    dbBaseNuts = Object.assign({}, finalNutrients);
+  }
+
+  // Save to food database with the base values
+  saveFoodToDb(name, dbBaseQty, dbBaseUnit, dbBaseNuts);
+
+  var dl = getDayLog(currentDate);
+  if (!dl.meals[currentMealTarget]) dl.meals[currentMealTarget] = [];
+  var item = {
+    name: name,
+    qty: qty,
+    unit: unit,
+    baseQty: dbBaseQty,
+    baseUnit: dbBaseUnit,
+    baseNutrients: dbBaseNuts,
+    nutrients: finalNutrients,
+    ts: Date.now()
+  };
+  if (currentEditIdx !== null) {
+    dl.meals[currentMealTarget][currentEditIdx] = item;
+  } else {
+    dl.meals[currentMealTarget].push(item);
+  }
+  save();
+  if (S.cfg.autoPush) pushGist(true);
+  renderAll();
+  closeModal('m-food');
+};
+
+// ── AI LOOKUP (GROQ) — reads name, qty, unit, ingredients from the 3 fields ──
+window.aiLookup = function() {
+  var key = S.cfg.groqKey;
+  var ar = document.getElementById('ai-result-area');
+  if (!key) {
+    ar.innerHTML = '<div class="ai-error">⚠️ No Groq API key set. Go to Settings → AI Food Lookup to add your key.</div>';
+    return;
+  }
+  var name = ((document.getElementById('f-name')||{}).value||'').trim();
+  var qty  = parseFloat((document.getElementById('f-qty')||{}).value) || 1;
+  var unit = ((document.getElementById('f-unit')||{}).value||'piece').trim();
+  var ingr = ((document.getElementById('f-ingredients')||{}).value||'').trim();
+
+  if (!name) { alert('Enter a food name first.'); return; }
+
+  ar.innerHTML = '<div class="ai-loading"><div class="ai-spinner"></div><div>Calculating nutrition with Groq...</div></div>';
+  var btn = document.getElementById('ai-btn'); if (btn) btn.disabled = true;
+
+  var desc = qty + ' ' + unit + ' of ' + name;
+  if (ingr) desc += '. Ingredients: ' + ingr;
+
+  var nutKeys = NUT_SCHEMA.map(function(n){ return '"'+n.k+'"'; }).join(',');
+  var prompt = 'You are a precise nutritionist and food scientist.\n'
+    + 'The food is: "' + desc + '".\n'
+    + (ingr
+        ? 'Use the exact ingredients provided to calculate nutrition. Sum up all ingredients accurately.'
+        : 'Use standard recipe knowledge and USDA nutritional data to estimate nutrition for this dish/food.')
+    + '\nReturn ONLY a single valid JSON object (no markdown, no explanation, no extra text) with these exact fields:\n'
+    + '{\n'
+    + '  "name": "<clean food name>",\n'
+    + '  "qty": <numeric qty as given>,\n'
+    + '  "unit": "<unit as given>",\n'
+    + '  "nutrients": {' + nutKeys + '}\n'
+    + '}\n'
+    + 'All nutrient values must be numbers (0 if not applicable/unknown). '
+    + 'Values are for the TOTAL amount specified (' + qty + ' ' + unit + '). '
+    + 'Be as accurate as possible. JSON only — no other text.';
+
+  fetch('https://api.groq.com/openai/v1/chat/completions', {
+    method: 'POST',
+    headers: {'Content-Type':'application/json','Authorization':'Bearer '+key},
+    body: JSON.stringify({
+      model: S.cfg.groqModel || 'llama-3.3-70b-versatile',
+      max_tokens: 2000,
+      temperature: 0.1,
+      messages: [{role:'user', content:prompt}]
+    })
+  }).then(function(r){ return r.json(); }).then(function(data) {
+    if (btn) btn.disabled = false;
+    if (data.error) { ar.innerHTML = '<div class="ai-error">Groq error: '+data.error.message+'</div>'; return; }
+    var text = (data.choices&&data.choices[0]&&data.choices[0].message&&data.choices[0].message.content) || '';
+    var match = text.match(/\{[\s\S]*\}/);
+    if (!match) { ar.innerHTML = '<div class="ai-error">Could not parse response. Try again.</div>'; return; }
+    try {
+      var parsed = JSON.parse(match[0]);
+      applyAiResult(parsed, qty, unit);
+    } catch(e) {
+      ar.innerHTML = '<div class="ai-error">Parse error — try again.</div>';
+    }
+  }).catch(function(e) {
+    if (btn) btn.disabled = false;
+    ar.innerHTML = '<div class="ai-error">Network error: '+e.message+'</div>';
+  });
+};
+
+// alias for any old references
+window.aiSearch = window.aiLookup;
+
+function applyAiResult(data, baseQty, baseUnit) {
+  var ar = document.getElementById('ai-result-area');
+  var nuts = data.nutrients || {};
+  var keyNuts = ['calories','protein','carb','fat','fiber','sugar','sodium','cholesterol','sodium'];
+  var preview = NUT_SCHEMA.filter(function(n){ return ['calories','protein','carb','fat','fiber','sugar','sodium'].indexOf(n.k)!==-1; });
+  var nutHtml = preview.map(function(n){
+    var v = nuts[n.k] || 0;
+    var disp = v < 10 ? parseFloat(v).toFixed(1) : Math.round(v);
+    return '<div class="ai-nut"><div class="ai-nut-name">'+n.l+'</div><div class="ai-nut-val">'+disp+' '+n.u+'</div></div>';
+  }).join('');
+  ar.innerHTML = '<div class="ai-result">'
+    + '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">'
+    + '<div><div class="ai-food-name">'+data.name+'</div>'
+    + '<div style="font-size:11px;color:var(--tx3);margin-top:2px">for '+baseQty+' '+baseUnit+'</div></div>'
+    + '<button class="btn sm pri" onclick="commitAiResult()">Apply ↓</button></div>'
+    + '<div class="ai-grid">'+nutHtml+'</div>'
+    + '<div style="font-size:11px;color:var(--tx3);margin-top:8px">Key nutrients shown. All '+NUT_SCHEMA.length+' values loaded when you click Apply.</div>'
+    + '</div>';
+  ar.dataset.result = JSON.stringify(data);
+  ar.dataset.baseQty = baseQty;
+  ar.dataset.baseUnit = baseUnit;
+}
+
+window.commitAiResult = function() {
+  var ar = document.getElementById('ai-result-area');
+  if (!ar || !ar.dataset.result) return;
+  try {
+    var data = JSON.parse(ar.dataset.result);
+    var bq = parseFloat(ar.dataset.baseQty) || 1;
+    var bu = ar.dataset.baseUnit || 'piece';
+
+    // Set name if empty
+    var fn = document.getElementById('f-name');
+    if (fn && !fn.value.trim()) fn.value = data.name || '';
+
+    // Ensure unit select has the option
+    var fu = document.getElementById('f-unit');
+    if (fu) {
+      var found = false;
+      for (var i=0;i<fu.options.length;i++) { if(fu.options[i].value===bu){found=true;break;} }
+      if (!found) { var o=document.createElement('option');o.value=bu;o.textContent=bu;fu.appendChild(o); }
+      fu.value = bu;
+    }
+    var fq = document.getElementById('f-qty');
+    if (fq) fq.value = bq;
+
+    // Set immutable base
+    pendingBaseQty = bq;
+    pendingBaseUnit = bu;
+    pendingNutrients = Object.assign({}, data.nutrients || {});
+
+    buildNutInputTable(pendingNutrients, true);
+    updateScaleHint();
+    ar.innerHTML = '<div style="padding:6px 0;font-size:12px;color:var(--ac)">✓ Applied for '+bq+' '+bu+'. Change quantity above to scale automatically.</div>';
+  } catch(e) { console.error(e); }
+};
+
+// legacy alias
+window.useAiResult = window.commitAiResult;
+
+
+
+function renderFoodDB(){
+  var el=document.getElementById('fooddb-list');if(!el)return;
+  var q=(document.getElementById('db-search')||{}).value||'';
+  var q2=q.toLowerCase();
+  var items=S.foodDB.filter(function(f){return !q2||f.name.toLowerCase().indexOf(q2)!==-1;})
+    .sort(function(a,b){return (b.usedCount||0)-(a.usedCount||0);});
+  if(!items.length){
+    el.innerHTML='<div class="empty"><div class="ei">🥦</div>'+(q?'No matching foods.':'No foods saved yet. Foods are saved automatically when you add them to the log.')+'</div>';
+    return;
+  }
+  el.innerHTML='<div style="background:var(--sur);border:1px solid var(--bor);border-radius:var(--rl);overflow:hidden">'
+    +items.map(function(f,i){
+      var cals=f.baseNutrients&&f.baseNutrients.calories?Math.round(f.baseNutrients.calories):0;
+      var prot=f.baseNutrients&&f.baseNutrients.protein?parseFloat(f.baseNutrients.protein).toFixed(1):0;
+      var carb=f.baseNutrients&&f.baseNutrients.carb?parseFloat(f.baseNutrients.carb).toFixed(1):0;
+      var fat=f.baseNutrients&&f.baseNutrients.fat?parseFloat(f.baseNutrients.fat).toFixed(1):0;
+      var last=f.lastUsed?new Date(f.lastUsed).toLocaleDateString('en-US',{month:'short',day:'numeric'}):'';
+      return '<div style="display:flex;align-items:center;gap:12px;padding:11px 16px;border-bottom:1px solid var(--bor)">'
+        +'<div style="flex:1"><div style="font-size:13px;font-weight:500">'+f.name+'</div>'
+        +'<div style="font-size:11px;color:var(--tx3);margin-top:2px">Per '+f.baseQty+' '+f.baseUnit+' · '+cals+' kcal · P:'+prot+'g C:'+carb+'g F:'+fat+'g</div></div>'
+        +'<div style="font-size:11px;color:var(--tx3);text-align:right"><div>Used '+f.usedCount+'×</div><div>'+last+'</div></div>'
+        +'<button class="ibtn" onclick="deleteFoodDB(\''+f.id+'\')" title="Remove from database">🗑️</button>'
+        +'</div>';
+    }).join('')+'</div>';
+}
+window.renderFoodDB=renderFoodDB;
+
+window.deleteFoodDB=function(id){
+  S.foodDB=S.foodDB.filter(function(f){return f.id!==id;});
+  save();renderFoodDB();
+};
+window.clearFoodDB=function(){
+  if(!confirm('Remove all saved foods from the database?'))return;
+  S.foodDB=[];save();renderFoodDB();
+};
+
+// ── SETTINGS ──
+function renderSettings(){
+  // targets form
+  var tf=document.getElementById('targets-form');
+  if(tf){
+    tf.innerHTML=NUT_SCHEMA.filter(function(n){return n.dv>0;}).slice(0,12).map(function(n){
+      return '<div class="sr" style="align-items:center"><div class="srl">'+n.l+' ('+n.u+')</div>'
+        +'<input class="fi" type="number" style="width:90px;font-size:12px" value="'+(S.cfg.targets[n.k]||'')+'" '
+        +'oninput="S.cfg.targets[\''+n.k+'\']=parseFloat(this.value)||0;saveCfg()" placeholder="'+n.dv+'"></div>';
+    }).join('');
+  }
+  // meal slots
+  var msl=document.getElementById('meal-slots-list');
+  if(msl){
+    msl.innerHTML=S.cfg.mealSlots.map(function(m,i){
+      return '<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--bor)">'
+        +'<input class="fi" value="'+m.icon+'" style="width:48px;text-align:center;font-size:16px" oninput="S.cfg.mealSlots['+i+'].icon=this.value;saveCfg()">'
+        +'<input class="fi" value="'+m.name+'" style="flex:1" oninput="S.cfg.mealSlots['+i+'].name=this.value;saveCfg()">'
+        +'<button class="ibtn" onclick="removeMealSlot('+i+')" '+(S.cfg.mealSlots.length<=1?'disabled':'')+'">🗑️</button>'
+        +'</div>';
+    }).join('');
+  }
+  // cfg inputs
+  var gk=document.getElementById('groq-key');if(gk)gk.value=S.cfg.groqKey||'';
+  var gs=document.getElementById('groq-status');if(gs)gs.textContent=S.cfg.groqKey?'✓ Key saved':'Not set';
+  var gm=document.getElementById('groq-model');if(gm)gm.value=S.cfg.groqModel||'llama-3.3-70b-versatile';
+  var gt=document.getElementById('gh-token');if(gt)gt.value=S.cfg.ghToken||'';
+  var gi=document.getElementById('gh-gist-id');if(gi)gi.value=S.cfg.gistId||'';
+  var ap=document.getElementById('auto-push');if(ap)ap.checked=S.cfg.autoPush||false;
+  var dt=document.getElementById('dark-tog');if(dt)dt.checked=S.cfg.theme==='dark';
+}
+
+window.saveCfg=function(){
+  var gk=document.getElementById('groq-key');if(gk){S.cfg.groqKey=gk.value.trim();var gs=document.getElementById('groq-status');if(gs)gs.textContent=S.cfg.groqKey?'✓ Key saved':'Not set';}
+  var gm=document.getElementById('groq-model');if(gm)S.cfg.groqModel=gm.value;
+  var gt=document.getElementById('gh-token');if(gt)S.cfg.ghToken=gt.value.trim();
+  var gi=document.getElementById('gh-gist-id');if(gi)S.cfg.gistId=gi.value.trim();
+  var ap=document.getElementById('auto-push');if(ap)S.cfg.autoPush=ap.checked;
+  save();
+};
+
+window.addMealSlot=function(){
+  S.cfg.mealSlots.push({id:'meal_'+Date.now(),name:'New Meal',icon:'🍽️'});
+  save();renderSettings();renderLog();
+};
+window.removeMealSlot=function(i){
+  if(S.cfg.mealSlots.length<=1)return;
+  if(!confirm('Remove this meal slot?'))return;
+  S.cfg.mealSlots.splice(i,1);save();renderSettings();renderLog();
+};
+
+// ── GIST SYNC — pull → merge → push ──
+// Maps nutrition app internal keys → health app key names in the shared Gist
+var GIST_KEY_MAP = {
+  // Energy & Macros
+  calories:     'dietary_calories',
+  water:        'water',              // nutrition stores ml, health app stores L — we convert on write
+  alcohol:      'alcohol',
+  carb:         'carbohydrates',
+  fiber:        'fiber',
+  sugar:        'sugar',
+  added_sugar:  'added_sugar',
+  protein:      'protein',
+  fat:          'total_fats',
+  sat_fat:      'saturated_fats',
+  mono_fat:     'monounsaturated_fats',
+  poly_fat:     'polyunsaturated_fats',
+  trans_fat:    'trans_fats',
+  omega3:       'omega3',
+  omega6:       'omega6',
+  cholesterol:  'cholesterol',
+  // Vitamins
+  vit_a:        'vitamin_a',
+  vit_c:        'vitamin_c',
+  vit_d:        'vitamin_d',
+  vit_e:        'vitamin_e',
+  vit_k:        'vitamin_k',
+  thiamin:      'thiamin',
+  riboflavin:   'riboflavin',
+  niacin:       'niacin',
+  panto:        'pantothenic_acid',
+  vit_b6:       'vitamin_b6',
+  biotin:       'biotin',
+  folate:       'folate',
+  vit_b12:      'vitamin_b12',
+  choline:      'choline',
+  inositol:     'inositol',
+  carotenoids:  'carotenoids',
+  // Minerals
+  calcium:      'calcium',
+  chloride:     'chloride',
+  iron:         'iron',
+  magnesium:    'magnesium',
+  phosphorus:   'phosphorus',
+  potassium:    'potassium',
+  sodium:       'sodium',
+  zinc:         'zinc',
+  chromium:     'chromium',
+  copper:       'copper',
+  iodine:       'iodine',
+  manganese:    'manganese',
+  molybdenum:   'molybdenum',
+  selenium:     'selenium',
+  fluoride:     'fluoride',
+  sulfur:       'sulfur',
+  boron:        'boron',
+  // Other
+  caffeine:     'caffeine',
+  ash:          'ash',
+  phytochem:    'phytochemicals'
+};
+
+// Reverse map: health app key → nutrition app internal key
+var GIST_KEY_REVERSE = {};
+Object.keys(GIST_KEY_MAP).forEach(function(k){ GIST_KEY_REVERSE[GIST_KEY_MAP[k]] = k; });
+
+// Convert one day's nutrition totals to health-app-compatible keys
+function nutTotalsToGistDay(ds) {
+  var tots = dayTotals(ds);
+  var out = {};
+  Object.keys(GIST_KEY_MAP).forEach(function(internalKey) {
+    var gistKey = GIST_KEY_MAP[internalKey];
+    var val = tots[internalKey] || 0;
+    // water: prefer explicit water log (S.water in L); fallback to food-item water (in ml)
+    if (internalKey === 'water') {
+      if (S.water && S.water[ds]) {
+        val = S.water[ds]; // already in L
+      } else {
+        val = Math.round(val / 100) / 10; // ml → L
+      }
+    }
+    if (!val || val === 0) return; // skip zeros
+    out[gistKey] = Math.round(val * 1000) / 1000;
+  });
+  return out;
+}
+
+// Read health-app-format day back into nutrition internal keys (for pull display)
+function gistDayToNutKeys(gistDay) {
+  var out = {};
+  Object.keys(gistDay).forEach(function(gistKey) {
+    var internalKey = GIST_KEY_REVERSE[gistKey];
+    if (!internalKey) return; // unknown key from other app — ignore
+    var val = gistDay[gistKey] || 0;
+    if (internalKey === 'water') val = val * 1000; // L → ml
+    out[internalKey] = val;
+  });
+  return out;
+}
+
+window.pushGist = function(silent) {
+  var token = S.cfg.ghToken;
+  if (!token) {
+    if (!silent) {
+      var gb = document.getElementById('gist-body');
+      if (gb) gb.innerHTML = '<div style="color:var(--dng);font-size:13px">⚠️ No GitHub token. Go to Settings → GitHub Gist Export.</div>';
+      openModal('m-gist');
+    }
+    return;
+  }
+
+  var gistId = S.cfg.gistId;
+  var headers = { 'Authorization': 'token ' + token, 'Content-Type': 'application/json' };
+
+  function doMergeAndPush(existingDays) {
+    // existingDays = the full parsed JSON from the shared Gist file (may be empty {})
+    // We merge our nutrition data day by day into it
+    var merged = Object.assign({}, existingDays);
+
+    // Build nutrition totals for every date we have data for
+    Object.keys(S.logs).forEach(function(ds) {
+      var myDay = nutTotalsToGistDay(ds);
+      if (!Object.keys(myDay).length) return; // nothing logged this day
+      if (!merged[ds]) merged[ds] = {};
+      // Merge field by field — our keys overwrite same-named fields, other app's keys untouched
+      Object.keys(myDay).forEach(function(k) { merged[ds][k] = myDay[k]; });
+    });
+
+    // Sort dates descending for readability
+    var sorted = {};
+    Object.keys(merged).sort(function(a,b){ return b.localeCompare(a); }).forEach(function(ds) {
+      sorted[ds] = merged[ds];
+    });
+
+    var payload = JSON.stringify(sorted, null, 2);
+    var today = new Date().toISOString().split('T')[0];
+    var body = {
+      description: 'Ritual Health Log — updated ' + today,
+      public: false,
+      files: { 'health_log.json': { content: payload } }
+    };
+    var url = gistId ? 'https://api.github.com/gists/' + gistId : 'https://api.github.com/gists';
+    var method = gistId ? 'PATCH' : 'POST';
+
+    return fetch(url, { method: method, headers: headers, body: JSON.stringify(body) })
+      .then(function(r) { return r.json(); })
+      .then(function(data) {
+        if (data.id) {
+          S.cfg.gistId = data.id; save(); renderSettings();
+          if (!silent) {
+            var gb = document.getElementById('gist-body');
+            if (gb) gb.innerHTML =
+              '<div style="color:var(--ac);font-size:13px;margin-bottom:10px">✓ Synced successfully!</div>'
+              + '<div style="font-size:12px;color:var(--tx2);margin-bottom:4px">Gist URL:</div>'
+              + '<a href="' + data.html_url + '" target="_blank" style="font-size:12px;color:var(--blue);word-break:break-all">' + data.html_url + '</a>'
+              + '<div style="font-size:11px;color:var(--tx3);margin-top:10px">'
+              + Object.keys(S.logs).length + ' date(s) synced. Other apps\' fields preserved.</div>';
+            openModal('m-gist');
+          }
+        } else {
+          if (!silent) {
+            var gb = document.getElementById('gist-body');
+            if (gb) gb.innerHTML = '<div style="color:var(--dng);font-size:13px">Error: ' + (data.message || 'Unknown') + '</div>';
+            openModal('m-gist');
+          }
+        }
+      });
+  }
+
+  if (gistId) {
+    // PULL first — get existing Gist content so we can merge into it
+    fetch('https://api.github.com/gists/' + gistId, { headers: headers })
+      .then(function(r) { return r.json(); })
+      .then(function(gistData) {
+        var existingDays = {};
+        try {
+          var file = gistData.files && (gistData.files['health_log.json'] || Object.values(gistData.files)[0]);
+          if (file && file.content) existingDays = JSON.parse(file.content);
+        } catch(e) { existingDays = {}; }
+        return doMergeAndPush(existingDays);
+      })
+      .catch(function(e) {
+        // Pull failed — push anyway without merge (first time or network hiccup)
+        return doMergeAndPush({});
+      });
+  } else {
+    // No Gist yet — create fresh
+    doMergeAndPush({}).catch(function(e) {
+      if (!silent) {
+        var gb = document.getElementById('gist-body');
+        if (gb) gb.innerHTML = '<div style="color:var(--dng);font-size:13px">Network error: ' + e.message + '</div>';
+        openModal('m-gist');
+      }
+    });
+  }
+};
+
+// Pull from Gist and show what's there (read-only view, doesn't affect local logs)
+window.pullGist = function() {
+  var token = S.cfg.ghToken;
+  var gistId = S.cfg.gistId;
+  if (!token || !gistId) {
+    var gb = document.getElementById('gist-body');
+    if (gb) gb.innerHTML = '<div style="color:var(--dng);font-size:13px">⚠️ Set your GitHub token and Gist ID in Settings first.</div>';
+    openModal('m-gist');
+    return;
+  }
+  var gb = document.getElementById('gist-body');
+  if (gb) gb.innerHTML = '<div style="color:var(--tx3);font-size:13px">Fetching from Gist...</div>';
+  openModal('m-gist');
+  fetch('https://api.github.com/gists/' + gistId, { headers: { 'Authorization': 'token ' + token } })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      try {
+        var file = data.files && (data.files['health_log.json'] || Object.values(data.files)[0]);
+        var content = file && file.content ? JSON.parse(file.content) : {};
+        var dates = Object.keys(content).sort(function(a,b){ return b.localeCompare(a); }).slice(0,7);
+        var html = '<div style="font-size:12px;font-weight:500;margin-bottom:10px;color:var(--tx2)">Last ' + dates.length + ' days in Gist:</div>';
+        dates.forEach(function(ds) {
+          var d = content[ds];
+          var nutFields = ['dietary_calories','protein','carbohydrates','total_fats','vitamin_d'];
+          var preview = nutFields.filter(function(k){ return d[k] !== undefined; })
+            .map(function(k){ return '<span style="color:var(--tx3)">'+k+':</span> <strong>'+d[k]+'</strong>'; }).join(' · ');
+          var otherCount = Object.keys(d).filter(function(k){ return nutFields.indexOf(k)===-1; }).length;
+          html += '<div style="padding:8px 0;border-bottom:1px solid var(--bor);font-size:12px">'
+            + '<div style="font-weight:500;margin-bottom:3px">'+ds+'</div>'
+            + '<div style="color:var(--tx2)">' + (preview||'no nutrition fields') + '</div>'
+            + (otherCount ? '<div style="color:var(--tx3);margin-top:2px">+ '+otherCount+' other fields from other apps</div>' : '')
+            + '</div>';
+        });
+        if (gb) gb.innerHTML = html || '<div style="color:var(--tx3)">No data found.</div>';
+      } catch(e) {
+        if (gb) gb.innerHTML = '<div style="color:var(--dng);font-size:13px">Could not parse Gist content.</div>';
+      }
+    })
+    .catch(function(e) {
+      if (gb) gb.innerHTML = '<div style="color:var(--dng);font-size:13px">Network error: ' + e.message + '</div>';
+    });
+};
+
+// ── EXPORT ──
+window.exportJSON=function(){
+  var b=new Blob([JSON.stringify(S,null,2)],{type:'application/json'});
+  var a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='ritual-nutrition.json';a.click();
+};
+window.exportCSV=function(){
+  var rows=['Date,Calories,Protein(g),Carbs(g),Fat(g),Fiber(g),Sodium(mg)'];
+  var now=new Date();
+  for(var i=0;i<30;i++){
+    var ds=new Date(now-i*86400000).toISOString().split('T')[0];
+    var t=dayTotals(ds);
+    if(t.calories>0)rows.push([ds,Math.round(t.calories),t.protein.toFixed(1),t.carb.toFixed(1),t.fat.toFixed(1),t.fiber.toFixed(1),Math.round(t.sodium)].join(','));
+  }
+  var b=new Blob([rows.join('\n')],{type:'text/csv'});
+  var a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='ritual-nutrition.csv';a.click();
+};
+window.resetData=function(){if(!confirm('Delete ALL nutrition data?'))return;localStorage.removeItem('ritual_nutrition_v2');location.reload();};
+
+// ── THEME ──
+function applyTheme(){
+  document.body.dataset.theme=S.cfg.theme;
+  var btn=document.getElementById('theme-btn');if(btn)btn.textContent=S.cfg.theme==='dark'?'☀️':'🌙';
+  var tog=document.getElementById('dark-tog');if(tog)tog.checked=S.cfg.theme==='dark';
+}
+window.toggleTheme=function(){S.cfg.theme=S.cfg.theme==='dark'?'light':'dark';save();applyTheme();};
+
+// ── NAV ──
+window.showPage=function(n){
+  document.querySelectorAll('.pg').forEach(function(p){p.classList.remove('act');});
+  document.querySelectorAll('.ni').forEach(function(p){p.classList.remove('act');});
+  var pg=document.getElementById('pg-'+n);if(pg)pg.classList.add('act');
+  var nav=document.getElementById('nav-'+n);if(nav)nav.classList.add('act');
+  var titles={log:'Food Log',nutrition:'Nutrients',history:'History',fooddb:'Food Database',settings:'Settings'};
+  var pt=document.getElementById('ptitle');if(pt)pt.textContent=titles[n]||n;
+  if(n==='log'){renderLog();updateDateDisplay();}
+  if(n==='nutrition')renderNutrition();
+  if(n==='history')renderHistory();
+  if(n==='fooddb')renderFoodDB();
+  if(n==='settings')renderSettings();
+  closeSidebar();
+};
+window.toggleSidebar=function(){document.getElementById('sidebar').classList.toggle('open');document.getElementById('ov').classList.toggle('open');};
+function closeSidebar(){document.getElementById('sidebar').classList.remove('open');document.getElementById('ov').classList.remove('open');}
+document.getElementById('ov').onclick=closeSidebar;
+
+// ── MODALS ──
+function openModal(id){var el=document.getElementById(id);if(el)el.classList.add('open');}
+window.closeModal=function(id){var el=document.getElementById(id);if(el)el.classList.remove('open');};
+document.querySelectorAll('.ovl').forEach(function(el){el.addEventListener('click',function(e){if(e.target===el)el.classList.remove('open');});});
+
+// ── BOOTSTRAP ──
+load();
+applyTheme();
+updateDateDisplay();
+renderLog();
+renderHistory();
+
+}); // end DOMContentLoaded
+</script>
+</body>
+</html>
