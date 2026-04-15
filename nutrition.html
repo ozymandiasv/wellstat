@@ -1520,16 +1520,13 @@ function bridgeNutritionToWellstat(gistId, token, healthLogDays) {
         if (wsFile && wsFile.content) wsPayload = JSON.parse(wsFile.content);
       } catch(e) {}
       if (!wsPayload.data) wsPayload.data = {};
-      // Merge nutrition fields into wellstat data
-      var hlMap = { dietary_calories:'dietary_calories', protein:'protein', carbs:'carbs', fat:'fat',
-                    water:'water', alcohol:'alcohol', fiber:'fiber', sodium:'sodium', sugar:'sugar',
-                    sat_fat:'sat_fat', caffeine:'caffeine' };
+      // Merge all nutrition fields into wellstat data (keys are already in Gist format)
       Object.keys(healthLogDays).forEach(function(ds) {
         if (!wsPayload.data[ds]) wsPayload.data[ds] = {};
         var hl = healthLogDays[ds];
-        Object.keys(hlMap).forEach(function(hk) {
+        Object.keys(hl).forEach(function(hk) {
           if (hl[hk] !== undefined && hl[hk] !== null && hl[hk] !== 0) {
-            wsPayload.data[ds][hlMap[hk]] = hl[hk];
+            wsPayload.data[ds][hk] = hl[hk];
           }
         });
       });
