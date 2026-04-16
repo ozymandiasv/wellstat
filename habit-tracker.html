@@ -129,6 +129,16 @@ body{font-family:var(--fn);background:var(--bg);color:var(--tx);min-height:100vh
 .dtog.on{background:var(--ac);color:#fff;border-color:var(--ac);}
 .stlist{list-style:none;margin-bottom:8px;}
 .stlist li{display:flex;align-items:center;gap:8px;padding:6px 10px;background:var(--sur2);border-radius:6px;margin-bottom:5px;font-size:12px;}
+.st-edit-panel{background:var(--sur);border:1px solid var(--bor2);border-radius:8px;padding:12px;margin-bottom:8px;}
+.st-edit-panel .fg{margin-bottom:10px;}
+.trange{font-size:11px;color:var(--ac2);background:var(--ac2l);border-radius:4px;padding:1px 5px;display:inline-flex;align-items:center;gap:3px;}
+.sub-days-wrap{display:flex;gap:3px;flex-wrap:wrap;margin-top:4px;}
+.sub-days-wrap .dtog{width:26px;height:26px;font-size:10px;}
+.enq-sub-block{border:1px solid var(--bor);border-radius:8px;padding:10px 12px;margin-bottom:8px;background:var(--sur2);}
+.enq-sub-block .sname{font-size:13px;}
+.enq-sub-ans{margin-top:8px;padding-top:8px;border-top:1px solid var(--bor);}
+.st-adding{background:var(--sur2);border-radius:var(--r);padding:12px;margin-top:8px;}
+.st-adding .frow{margin-bottom:8px;}
 .stlist .lic{display:flex;align-items:center;font-size:15px;flex-shrink:0;}
 .stlist .lic img{width:16px;height:16px;object-fit:contain;}
 .stlist .ln{flex:1;}
@@ -419,13 +429,28 @@ body{font-family:var(--fn);background:var(--bg);color:var(--tx);min-height:100vh
         </div>
       </div>
       <div class="fg">
+        <label class="fl">Time Range (optional)</label>
+        <div class="frow">
+          <div><label class="fl" style="font-size:11px">From</label><input class="fi" id="t-time-from" type="time"></div>
+          <div><label class="fl" style="font-size:11px">Till</label><input class="fi" id="t-time-till" type="time"></div>
+        </div>
+      </div>
+      <div class="fg">
         <label class="fl">Sub-tasks</label>
         <ul class="stlist" id="stlist"></ul>
-        <div style="background:var(--sur2);border-radius:var(--r);padding:12px">
+        <div class="st-adding">
           <label class="fl" style="margin-bottom:8px">Add Sub-task</label>
-          <div class="frow" style="margin-bottom:8px">
+          <div class="frow">
             <input class="fi" id="st-name" placeholder="Sub-task name">
-            <input class="fi" id="st-time" type="time">
+            <div></div>
+          </div>
+          <div class="frow" style="margin-bottom:8px">
+            <div><label class="fl" style="font-size:11px">From Time</label><input class="fi" id="st-time-from" type="time"></div>
+            <div><label class="fl" style="font-size:11px">Till Time</label><input class="fi" id="st-time-till" type="time"></div>
+          </div>
+          <div style="margin-bottom:8px">
+            <label class="fl" style="font-size:11px">Override repeat days (leave all off to use parent days)</label>
+            <div style="display:flex;gap:4px;flex-wrap:wrap;margin-top:4px" id="st-days"></div>
           </div>
           <label class="fl">Sub-task Icon</label>
           <div id="stip"></div>
@@ -451,6 +476,25 @@ body{font-family:var(--fn);background:var(--bg);color:var(--tx);min-height:100vh
         </div>
       </div>
       <div class="fg"><label class="fl">Repeat Days</label><div style="display:flex;gap:5px;flex-wrap:wrap" id="e-days"></div></div>
+      <div class="fg">
+        <label class="fl">Sub Check-ins</label>
+        <ul class="stlist" id="enq-sublist"></ul>
+        <div class="st-adding">
+          <label class="fl" style="margin-bottom:8px">Add Sub Check-in</label>
+          <div class="frow" style="margin-bottom:8px">
+            <input class="fi" id="esub-name" placeholder="e.g. Morning walk">
+            <div><label class="fl" style="font-size:11px">Reminder Time</label><input class="fi" id="esub-time" type="time"></div>
+          </div>
+          <div style="margin-bottom:8px">
+            <label class="fl" style="font-size:11px">Override repeat days (leave all off to use parent days)</label>
+            <div style="display:flex;gap:4px;flex-wrap:wrap;margin-top:4px" id="esub-days"></div>
+          </div>
+          <div class="fg" style="margin-bottom:8px"><label class="fl">Response Type</label>
+            <select class="fi" id="esub-type"><option value="yesno">Yes / No</option><option value="number">Number</option><option value="text">Short Text</option></select>
+          </div>
+          <button class="btn pri" style="width:100%" onclick="addEnqSub()">+ Add Sub Check-in</button>
+        </div>
+      </div>
     </div>
     <div class="mftr"><button class="btn" onclick="closeModal('m-enq')">Cancel</button><button class="btn pri" onclick="saveEnq()">Save Check-in</button></div>
   </div>
@@ -488,6 +532,8 @@ var S = {
 var editTid = null;
 var editEnqId = null;
 var pendingST = [];
+var pendingEnqSubs = [];
+var editingStIdx = null;
 var notifTimers = [];
 var iconTarget = null;
 var pickerSel = {};
@@ -916,8 +962,13 @@ window.togMain = function(id) {
   S.logs[d][id]._done = !S.logs[d][id]._done;
   save(); renderDash(); renderTasks();
 };
-window.togSt = function(tid, sid) {
+window.togSt = function(tid, sid, days) {
   var d = today();
+  // If days specified, check if today qualifies
+  if (days && days.length) {
+    var dow = new Date().getDay();
+    if (days.indexOf(dow) === -1) return; // not scheduled today
+  }
   if (!S.logs[d]) S.logs[d] = {};
   if (!S.logs[d][tid]) S.logs[d][tid] = {};
   S.logs[d][tid][sid] = !S.logs[d][tid][sid];
@@ -1017,17 +1068,33 @@ function renderTasks() {
   if (!el) return;
   if (!S.tasks.length) { el.innerHTML = '<div class="empty"><div class="ei">🌱</div>No habits yet — add your first!</div>'; return; }
   var log = getLog();
+  var dow = new Date().getDay();
   el.innerHTML = S.tasks.map(function(t) {
     var dH = DAYS.map(function(d,i){return '<div class="dpill' + (t.days&&t.days.indexOf(i)!==-1?' on':'') + '">' + d + '</div>';}).join('');
     var todAct = t.days && t.days.indexOf(new Date().getDay()) !== -1;
+    var tRange = fmtRange(t.timeFrom,t.timeTill);
     var stH = '';
     if (t.subtasks && t.subtasks.length) {
       stH = '<div class="stwrap">' + t.subtasks.map(function(st) {
-        var dn = log[t.id] && log[t.id][st.id];
-        return '<div class="stitem"><div class="chk' + (dn?' dn':'') + '" onclick="togSt(\'' + t.id + '\',\'' + st.id + '\')">' + (dn?'✓':'') + '</div>'
+        // determine effective days for this subtask
+        var stDays = st.days && st.days.length ? st.days : (t.days||[]);
+        var stActive = stDays.indexOf(dow) !== -1;
+        var dn = stActive && log[t.id] && log[t.id][st.id];
+        var stRange = fmtRange(st.timeFrom,st.timeTill);
+        // show subtask-specific day pills if they differ from parent
+        var stDayPills = '';
+        if (st.days && st.days.length) {
+          stDayPills = '<span style="display:inline-flex;gap:2px;margin-left:4px">'
+            + DAYS.map(function(d,di){ return '<div class="dpill'+(st.days.indexOf(di)!==-1?' on':'')+'" style="width:16px;height:16px;font-size:8px">'+d.slice(0,1)+'</div>'; }).join('')
+            + '</span>';
+        }
+        return '<div class="stitem"><div class="chk' + (dn?' dn':'') + '" onclick="togSt(\'' + t.id + '\',\'' + st.id + '\',' + JSON.stringify(stDays) + ')">' + (dn?'✓':'') + '</div>'
           + '<span class="stico">' + renderIco(st.icon,'14px') + '</span>'
           + '<span style="flex:1;font-size:13px">' + st.name + '</span>'
-          + (st.time ? '<span style="font-size:11px;color:var(--tx3)">⏰ ' + fmtTime(st.time) + '</span>' : '')
+          + (stRange ? '<span class="trange" style="margin-right:4px">⏱ '+stRange+'</span>' : '')
+          + stDayPills
+          + (!stActive?'<span style="font-size:10px;color:var(--tx3);margin-left:4px">not today</span>':'')
+          + '<button class="ibtn" onclick="event.stopPropagation();editStInline(\''+t.id+'\',\''+st.id+'\')">✏️</button>'
           + '<button class="ibtn" onclick="event.stopPropagation();rmSt(\'' + t.id + '\',\'' + st.id + '\')">✕</button></div>';
       }).join('') + '</div>';
     }
@@ -1035,6 +1102,7 @@ function renderTasks() {
       + '<span class="tc-ico">' + renderIco(t.icon,'18px') + '</span>'
       + '<div class="tc-inf"><div class="tc-name">' + t.name + '</div>'
       + '<div class="tc-sub"><span class="tag rep">Repeating</span><span style="display:inline-flex;gap:2px">' + dH + '</span>'
+      + (tRange?'<span class="trange">⏱ '+tRange+'</span>':'')
       + (todAct?'<span style="color:var(--ac);font-size:11px">● Today</span>':'') + '</div></div>'
       + '<div class="tc-acts" onclick="event.stopPropagation()">'
       + '<button class="ibtn" onclick="openEdit(\'' + t.id + '\')">✏️</button>'
@@ -1044,6 +1112,14 @@ function renderTasks() {
 }
 window.togCard = function(id){ var el=document.getElementById(id); if(el) el.style.display=el.style.display==='none'?'block':'none'; };
 window.rmSt = function(tid,sid){ var t=S.tasks.find(function(x){return x.id===tid;}); if(!t)return; t.subtasks=t.subtasks.filter(function(s){return s.id!==sid;}); save(); renderTasks(); };
+
+// Quick inline edit: opens the Edit Habit modal pre-focused for that subtask
+window.editStInline = function(tid, sid) {
+  window.openEdit(tid);
+  // Pre-load the subtask into the editor
+  var idx = pendingST.findIndex(function(s){ return s.id===sid; });
+  if (idx >= 0) window.editStItem(idx);
+};
 window.delTask = function(id){ if(!confirm('Delete this habit?'))return; S.tasks=S.tasks.filter(function(t){return t.id!==id;}); save(); renderDash(); renderTasks(); };
 
 // ── ENQUIRIES ──
@@ -1051,32 +1127,81 @@ function renderEnqs() {
   var el = document.getElementById('elist');
   if (!el) return;
   if (!S.enqs.length) { el.innerHTML = '<div class="empty"><div class="ei">🔔</div>No check-ins yet.</div>'; return; }
-  var d = today(), log = S.elogs[d] || {};
+  var d = today(), log = S.elogs[d] || {}, dow = new Date().getDay();
   el.innerHTML = S.enqs.map(function(e) {
     var ans = log[e.id];
+    var isActive = !e.days || e.days.length===0 || e.days.indexOf(dow)!==-1;
     var aH = '';
-    if (e.type==='yesno') {
-      aH = '<div style="display:flex;gap:6px">'
-        + '<button class="abtn' + (ans&&ans.answer==='yes'?' yes':'') + '" onclick="ansEnq(\'' + e.id + '\',\'yes\')">Yes</button>'
-        + '<button class="abtn' + (ans&&ans.answer==='no'?' no':'') + '" onclick="ansEnq(\'' + e.id + '\',\'no\')">No</button></div>';
-    } else if (e.type==='number') {
-      aH = '<input class="wi-input" type="number" style="width:70px" placeholder="0" value="' + (ans?ans.value:'') + '" onchange="ansEnq(\'' + e.id + '\',this.value)">';
-    } else {
-      aH = '<input class="fi" style="width:130px;font-size:12px" placeholder="Your answer" value="' + (ans?ans.value:'') + '" onchange="ansEnq(\'' + e.id + '\',this.value)">';
+    if (isActive) {
+      if (e.type==='yesno') {
+        aH = '<div style="display:flex;gap:6px">'
+          + '<button class="abtn' + (ans&&ans.answer==='yes'?' yes':'') + '" onclick="ansEnq(\'' + e.id + '\',\'yes\')">Yes</button>'
+          + '<button class="abtn' + (ans&&ans.answer==='no'?' no':'') + '" onclick="ansEnq(\'' + e.id + '\',\'no\')">No</button></div>';
+      } else if (e.type==='number') {
+        aH = '<input class="wi-input" type="number" style="width:70px" placeholder="0" value="' + (ans?ans.value:'') + '" onchange="ansEnq(\'' + e.id + '\',this.value)">';
+      } else {
+        aH = '<input class="fi" style="width:130px;font-size:12px" placeholder="Your answer" value="' + (ans?ans.value:'') + '" onchange="ansEnq(\'' + e.id + '\',this.value)">';
+      }
     }
-    var dH = DAYS.map(function(d,i){return '<div class="dpill' + (e.days&&e.days.indexOf(i)!==-1?' on':'') + '">' + d + '</div>';}).join('');
-    return '<div class="scard"><span class="s-ico">' + renderIco(e.icon,'20px') + '</span>'
+    var dH = DAYS.map(function(dy,i){return '<div class="dpill' + (e.days&&e.days.indexOf(i)!==-1?' on':'') + '">' + dy + '</div>';}).join('');
+
+    // Sub-check-ins
+    var subH = '';
+    if (e.subs && e.subs.length) {
+      subH = '<div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--bor);width:100%">'
+        + '<div style="font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--tx3);margin-bottom:8px;font-weight:500">Sub Check-ins</div>'
+        + e.subs.map(function(s) {
+          var subDays = s.days && s.days.length ? s.days : (e.days||[]);
+          var subActive = !subDays.length || subDays.indexOf(dow)!==-1;
+          var subAns = log[e.id+'_sub_'+s.id];
+          var subAH = '';
+          if (subActive) {
+            if (s.type==='yesno') {
+              subAH = '<div style="display:flex;gap:5px">'
+                +'<button class="abtn'+(subAns&&subAns.answer==='yes'?' yes':'')+'" onclick="ansEnqSub(\''+e.id+'\',\''+s.id+'\',\'yes\')">Yes</button>'
+                +'<button class="abtn'+(subAns&&subAns.answer==='no'?' no':'')+'" onclick="ansEnqSub(\''+e.id+'\',\''+s.id+'\',\'no\')">No</button></div>';
+            } else if (s.type==='number') {
+              subAH = '<input class="wi-input" type="number" style="width:65px" placeholder="0" value="'+(subAns?subAns.value:'')+'" onchange="ansEnqSub(\''+e.id+'\',\''+s.id+'\',this.value)">';
+            } else {
+              subAH = '<input class="fi" style="width:110px;font-size:12px" placeholder="Answer" value="'+(subAns?subAns.value:'')+'" onchange="ansEnqSub(\''+e.id+'\',\''+s.id+'\',this.value)">';
+            }
+          }
+          var subDayPills='';
+          if(s.days&&s.days.length){
+            subDayPills='<span style="display:inline-flex;gap:2px;margin-left:4px">'+DAYS.map(function(dy,di){
+              return '<div class="dpill'+(s.days.indexOf(di)!==-1?' on':'')+'" style="width:14px;height:14px;font-size:8px">'+dy.slice(0,1)+'</div>';
+            }).join('')+'</span>';
+          }
+          return '<div class="enq-sub-block"><div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">'
+            +'<span class="sname">'+s.name+'</span>'
+            +(s.time?'<span style="font-size:11px;color:var(--tx3)">🕐 '+fmtTime(s.time)+'</span>':'')
+            +subDayPills
+            +(!subActive?'<span style="font-size:10px;color:var(--tx3)">(not today)</span>':'')
+            +'</div>'+(subActive?'<div class="enq-sub-ans">'+subAH+'</div>':'')+'</div>';
+        }).join('')+'</div>';
+    }
+
+    return '<div class="scard" style="flex-wrap:wrap"><span class="s-ico">' + renderIco(e.icon,'20px') + '</span>'
       + '<div class="s-inf"><div class="sname">' + e.name + '</div>'
       + '<div class="smeta"><span class="tag enq">Check-in</span>'
       + (e.time ? '🕐 ' + fmtTime(e.time) : 'No set time')
-      + '<span style="display:inline-flex;gap:2px">' + dH + '</span></div></div>'
+      + '<span style="display:inline-flex;gap:2px">' + dH + '</span>'
+      + (!isActive?'<span style="font-size:10px;color:var(--tx3)">(not today)</span>':'')
+      + '</div></div>'
       + aH
       + '<button class="ibtn" onclick="openEditEnq(\'' + e.id + '\')" title="Edit">✏️</button>'
-      + '<button class="ibtn" onclick="delEnq(\'' + e.id + '\')">🗑️</button></div>';
+      + '<button class="ibtn" onclick="delEnq(\'' + e.id + '\')">🗑️</button>'
+      + subH
+      + '</div>';
   }).join('');
 }
 window.ansEnq = function(id,ans){
   var d=today(); if(!S.elogs[d])S.elogs[d]={}; S.elogs[d][id]={answer:ans,value:ans,ts:Date.now()}; save(); renderEnqs();
+};
+window.ansEnqSub = function(eid, sid, ans){
+  var d=today(); if(!S.elogs[d])S.elogs[d]={};
+  S.elogs[d][eid+'_sub_'+sid]={answer:ans,value:ans,ts:Date.now()};
+  save(); renderEnqs();
 };
 window.delEnq = function(id){ if(!confirm('Delete?'))return; S.enqs=S.enqs.filter(function(e){return e.id!==id;}); save(); renderEnqs(); };
 
@@ -1084,12 +1209,15 @@ window.openEditEnq = function(id) {
   var e = S.enqs.find(function(x){ return x.id===id; });
   if (!e) return;
   editEnqId = id;
+  pendingEnqSubs = JSON.parse(JSON.stringify(e.subs||[]));
   var en=document.getElementById('e-name'); if(en) en.value=e.name;
   var et=document.getElementById('e-time'); if(et) et.value=e.time||'21:00';
   var ety=document.getElementById('e-type'); if(ety) ety.value=e.type||'yesno';
   var ico=typeof e.icon==='string'?{type:'emoji',value:e.icon}:(e.icon||{type:'emoji',value:'🔔'});
   buildPicker('eip', EMJ_ENQ, ico);
   buildDayPicker('e-days', e.days||[0,1,2,3,4,5,6]);
+  buildDayPicker('esub-days',[]);
+  renderEnqSubList();
   var mttl=document.getElementById('m-enq-ttl'); if(mttl) mttl.textContent='Edit Check-in';
   openModal('m-enq');
 };
@@ -1176,38 +1304,46 @@ document.querySelectorAll('.ovl').forEach(function(el){
 // ── ADD TASK ──
 window.openAddModal = function(type) {
   if (type==='task') {
-    editTid=null; pendingST=[];
+    editTid=null; pendingST=[]; editingStIdx=null;
     var tn=document.getElementById('t-name'); if(tn) tn.value='';
     var tr=document.getElementById('t-rep'); if(tr) tr.checked=false;
     var ro=document.getElementById('rep-opts'); if(ro) ro.style.display='none';
     var mt=document.getElementById('m-task-ttl'); if(mt) mt.textContent='Add New Habit';
+    var tf=document.getElementById('t-time-from'); if(tf) tf.value='';
+    var tt=document.getElementById('t-time-till'); if(tt) tt.value='';
     buildPicker('tip', EMJ_TASK, {type:'emoji',value:'🌟'});
     buildPicker('stip', EMJ_ST, {type:'emoji',value:'▸'});
     buildDayPicker('t-days',[1,2,3,4,5]);
+    buildDayPicker('st-days',[]);
     renderStList();
     openModal('m-task');
   } else {
     var en=document.getElementById('e-name'); if(en) en.value='';
     var et=document.getElementById('e-time'); if(et) et.value='21:00';
-    editEnqId = null;
+    editEnqId = null; pendingEnqSubs = [];
     var mttl=document.getElementById('m-enq-ttl'); if(mttl) mttl.textContent='Add Check-in';
     buildPicker('eip', EMJ_ENQ, {type:'emoji',value:'🔔'});
     buildDayPicker('e-days',[0,1,2,3,4,5,6]);
+    buildDayPicker('esub-days',[]);
+    renderEnqSubList();
     openModal('m-enq');
   }
 };
 
 window.openEdit = function(tid) {
   var t=S.tasks.find(function(x){return x.id===tid;}); if(!t) return;
-  editTid=tid; pendingST=JSON.parse(JSON.stringify(t.subtasks||[]));
+  editTid=tid; pendingST=JSON.parse(JSON.stringify(t.subtasks||[])); editingStIdx=null;
   var tn=document.getElementById('t-name'); if(tn) tn.value=t.name;
   var tr=document.getElementById('t-rep'); if(tr) tr.checked=true;
   var ro=document.getElementById('rep-opts'); if(ro) ro.style.display='block';
   var mt=document.getElementById('m-task-ttl'); if(mt) mt.textContent='Edit Habit';
+  var tf=document.getElementById('t-time-from'); if(tf) tf.value=t.timeFrom||'';
+  var tt=document.getElementById('t-time-till'); if(tt) tt.value=t.timeTill||'';
   var ico=typeof t.icon==='string'?{type:'emoji',value:t.icon}:(t.icon||{type:'emoji',value:'🌟'});
   buildPicker('tip', EMJ_TASK, ico);
   buildPicker('stip', EMJ_ST, {type:'emoji',value:'▸'});
   buildDayPicker('t-days', t.days||[1,2,3,4,5]);
+  buildDayPicker('st-days',[]);
   renderStList();
   openModal('m-task');
 };
@@ -1223,26 +1359,85 @@ function getSelDays(id) {
   return Array.from(nodes).map(function(el){return DAYS.indexOf(el.textContent);});
 }
 window.toggleRep=function(){var el=document.getElementById('rep-opts');if(el)el.style.display=document.getElementById('t-rep').checked?'block':'none';};
+
 window.addSt=function(){
   var sn=document.getElementById('st-name'); if(!sn||!sn.value.trim()) return;
-  pendingST.push({id:'st-'+Date.now(),name:sn.value.trim(),time:(document.getElementById('st-time')||{}).value||'',icon:getPicked('stip')});
-  sn.value=''; var st=document.getElementById('st-time'); if(st)st.value=''; renderStList();
+  var stDays=getSelDays('st-days'); // empty array = use parent days
+  var stObj={
+    id:'st-'+Date.now(),
+    name:sn.value.trim(),
+    timeFrom:(document.getElementById('st-time-from')||{}).value||'',
+    timeTill:(document.getElementById('st-time-till')||{}).value||'',
+    days: stDays.length ? stDays : null, // null = inherit parent
+    icon:getPicked('stip')
+  };
+  if(editingStIdx!==null){
+    // updating existing
+    pendingST[editingStIdx]=Object.assign(pendingST[editingStIdx], stObj, {id:pendingST[editingStIdx].id});
+    editingStIdx=null;
+  } else {
+    pendingST.push(stObj);
+  }
+  sn.value='';
+  var stf=document.getElementById('st-time-from'); if(stf)stf.value='';
+  var stt=document.getElementById('st-time-till'); if(stt)stt.value='';
+  buildDayPicker('st-days',[]);
+  buildPicker('stip', EMJ_ST, {type:'emoji',value:'▸'});
+  var addBtn=document.querySelector('.st-adding .btn.pri'); if(addBtn)addBtn.textContent='+ Add Sub-task';
+  renderStList();
 };
+
+window.editStItem=function(i){
+  editingStIdx=i;
+  var st=pendingST[i]; if(!st)return;
+  var sn=document.getElementById('st-name'); if(sn)sn.value=st.name;
+  var stf=document.getElementById('st-time-from'); if(stf)stf.value=st.timeFrom||'';
+  var stt=document.getElementById('st-time-till'); if(stt)stt.value=st.timeTill||'';
+  buildDayPicker('st-days', st.days||[]);
+  buildPicker('stip', EMJ_ST, st.icon||{type:'emoji',value:'▸'});
+  var addBtn=document.querySelector('.st-adding .btn.pri'); if(addBtn)addBtn.textContent='✔ Update Sub-task';
+  // Scroll to edit area
+  var adding=document.querySelector('.st-adding'); if(adding)adding.scrollIntoView({behavior:'smooth',block:'nearest'});
+};
+
+function fmtRange(from, till) {
+  if (!from && !till) return '';
+  if (from && till) return fmtTime(from) + ' – ' + fmtTime(till);
+  if (from) return 'From ' + fmtTime(from);
+  return 'Till ' + fmtTime(till);
+}
+
 function renderStList(){
   var el=document.getElementById('stlist'); if(!el) return;
   el.innerHTML=pendingST.map(function(st,i){
-    return '<li><span class="lic">'+renderIco(st.icon,'15px')+'</span><span class="ln">'+st.name+(st.time?' · '+fmtTime(st.time):'')+'</span>'
-      +'<button class="ibtn" style="font-size:12px" onclick="pendingST.splice('+i+',1);renderStList()">✕</button></li>';
+    var timeStr=fmtRange(st.timeFrom,st.timeTill);
+    var dayPills='';
+    if(st.days&&st.days.length){
+      dayPills='<span style="display:inline-flex;gap:2px;margin-left:4px">'+DAYS.map(function(d,di){
+        return '<span class="dpill'+(st.days.indexOf(di)!==-1?' on':'')+'" style="width:16px;height:16px;font-size:8px">'+d.slice(0,1)+'</span>';
+      }).join('')+'</span>';
+    }
+    return '<li><span class="lic">'+renderIco(st.icon,'15px')+'</span>'
+      +'<span class="ln">'+st.name+(timeStr?' · <span class="trange">⏱ '+timeStr+'</span>':'')+dayPills+'</span>'
+      +'<button class="ibtn" style="font-size:11px" onclick="editStItem('+i+')" title="Edit">✏️</button>'
+      +'<button class="ibtn" style="font-size:12px" onclick="pendingST.splice('+i+',1);editingStIdx=null;renderStList()">✕</button></li>';
   }).join('');
 }
+
 window.saveTask=function(){
   var name=(document.getElementById('t-name')||{}).value||''; name=name.trim();
   if(!name){alert('Enter a habit name.');return;}
   var rep=(document.getElementById('t-rep')||{}).checked;
   var days=rep?getSelDays('t-days'):[0,1,2,3,4,5,6];
   var icon=getPicked('tip');
-  if(editTid){var t=S.tasks.find(function(x){return x.id===editTid;});if(t){t.name=name;t.icon=icon;t.days=days;t.subtasks=pendingST;}}
-  else S.tasks.push({id:'t-'+Date.now(),name:name,icon:icon,days:days,subtasks:pendingST,created:Date.now()});
+  var timeFrom=(document.getElementById('t-time-from')||{}).value||'';
+  var timeTill=(document.getElementById('t-time-till')||{}).value||'';
+  if(editTid){
+    var t=S.tasks.find(function(x){return x.id===editTid;});
+    if(t){t.name=name;t.icon=icon;t.days=days;t.subtasks=pendingST;t.timeFrom=timeFrom;t.timeTill=timeTill;}
+  } else {
+    S.tasks.push({id:'t-'+Date.now(),name:name,icon:icon,days:days,subtasks:pendingST,timeFrom:timeFrom,timeTill:timeTill,created:Date.now()});
+  }
   save(); renderDash(); renderTasks(); closeModal('m-task'); schedNotifs();
 };
 window.saveEnq=function(){
@@ -1254,12 +1449,52 @@ window.saveEnq=function(){
   var days=getSelDays('e-days');
   if(editEnqId){
     var e=S.enqs.find(function(x){return x.id===editEnqId;});
-    if(e){e.name=name;e.icon=icon;e.time=time;e.type=type;e.days=days;}
+    if(e){e.name=name;e.icon=icon;e.time=time;e.type=type;e.days=days;e.subs=pendingEnqSubs;}
     editEnqId=null;
   } else {
-    S.enqs.push({id:'e-'+Date.now(),name:name,icon:icon,time:time,type:type,days:days,created:Date.now()});
+    S.enqs.push({id:'e-'+Date.now(),name:name,icon:icon,time:time,type:type,days:days,subs:pendingEnqSubs,created:Date.now()});
   }
   save(); renderEnqs(); closeModal('m-enq'); schedNotifs();
+};
+
+// Enquiry sub-check-in helpers
+function renderEnqSubList(){
+  var el=document.getElementById('enq-sublist'); if(!el) return;
+  el.innerHTML=pendingEnqSubs.map(function(s,i){
+    var dayPills='';
+    if(s.days&&s.days.length){
+      dayPills='<span style="display:inline-flex;gap:2px;margin-left:4px">'+DAYS.map(function(d,di){
+        return '<span class="dpill'+(s.days.indexOf(di)!==-1?' on':'')+'" style="width:16px;height:16px;font-size:8px">'+d.slice(0,1)+'</span>';
+      }).join('')+'</span>';
+    }
+    return '<li><span class="ln">'+s.name+(s.time?' · '+fmtTime(s.time):'')+'<span style="margin-left:4px;font-size:10px;color:var(--tx3)">['+s.type+']</span>'+dayPills+'</span>'
+      +'<button class="ibtn" style="font-size:12px" onclick="editEnqSubItem('+i+')" title="Edit">✏️</button>'
+      +'<button class="ibtn" style="font-size:12px" onclick="pendingEnqSubs.splice('+i+',1);renderEnqSubList()">✕</button></li>';
+  }).join('');
+}
+window.addEnqSub=function(){
+  var sn=document.getElementById('esub-name'); if(!sn||!sn.value.trim())return;
+  var subDays=getSelDays('esub-days');
+  pendingEnqSubs.push({
+    id:'es-'+Date.now(),
+    name:sn.value.trim(),
+    time:(document.getElementById('esub-time')||{}).value||'',
+    type:(document.getElementById('esub-type')||{}).value||'yesno',
+    days:subDays.length?subDays:null
+  });
+  sn.value='';
+  var est=document.getElementById('esub-time'); if(est)est.value='';
+  buildDayPicker('esub-days',[]);
+  renderEnqSubList();
+};
+window.editEnqSubItem=function(i){
+  var s=pendingEnqSubs[i]; if(!s)return;
+  var sn=document.getElementById('esub-name'); if(sn)sn.value=s.name;
+  var st=document.getElementById('esub-time'); if(st)st.value=s.time||'';
+  var sty=document.getElementById('esub-type'); if(sty)sty.value=s.type||'yesno';
+  buildDayPicker('esub-days',s.days||[]);
+  pendingEnqSubs.splice(i,1);
+  renderEnqSubList();
 };
 
 // ── SETTINGS ──
@@ -1441,7 +1676,12 @@ function getCompletion(ds) {
   var log = S.logs[ds] || {}, tot = 0, done = 0;
   tasks.forEach(function(t) {
     if (!t.subtasks||!t.subtasks.length){ tot++; if(log[t.id]&&log[t.id]._done) done++; }
-    else t.subtasks.forEach(function(st){ tot++; if(log[t.id]&&log[t.id][st.id]) done++; });
+    else t.subtasks.forEach(function(st){
+      var stDays = st.days && st.days.length ? st.days : t.days;
+      if (stDays.indexOf(dow)===-1) return; // not scheduled this day
+      tot++;
+      if(log[t.id]&&log[t.id][st.id]) done++;
+    });
   });
   return tot ? Math.round(done/tot*100) : 0;
 }

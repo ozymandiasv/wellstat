@@ -80,7 +80,13 @@ body{font-family:var(--fn);background:var(--bg);color:var(--tx);min-height:100vh
 .nut-unit{font-size:10px;color:var(--tx3);margin-left:2px;}
 .nut-dv{font-size:10px;color:var(--tx3);margin-top:2px;}
 .nut-bar{height:3px;background:var(--bor);border-radius:2px;overflow:hidden;margin-top:6px;}
-.nut-fill{height:100%;border-radius:2px;background:var(--ac);}
+.nut-fill{height:100%;border-radius:2px;}
+/* Target range bar */
+.nut-bar-range{height:6px;background:var(--bor);border-radius:3px;overflow:visible;margin-top:6px;position:relative;}
+.nut-bar-zones{display:flex;height:100%;border-radius:3px;overflow:hidden;}
+.nut-bar-zone{height:100%;}
+.nut-bar-pointer{position:absolute;top:-3px;width:3px;height:12px;border-radius:2px;background:var(--tx);transform:translateX(-50%);pointer-events:none;transition:left .3s;box-shadow:0 0 0 1px var(--sur);}
+
 /* HISTORY PAGE */
 .hist-row{display:flex;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid var(--bor);cursor:pointer;transition:all var(--t);}
 .hist-row:hover{opacity:.8;}
@@ -559,7 +565,15 @@ var NUT_SECTIONS = ['Energy & Macros','Vitamins','Minerals','Other Compounds'];
 var SECTION_TAGS = {'Energy & Macros':'tag-mac','Vitamins':'tag-vit','Minerals':'tag-min','Other Compounds':'tag-oth'};
 
 var DEFAULT_TARGETS = {};
-NUT_SCHEMA.forEach(function(n){ if(n.dv>0) DEFAULT_TARGETS[n.k]=n.dv; });
+NUT_SCHEMA.forEach(function(n){
+  if(n.dv>0) DEFAULT_TARGETS[n.k] = {
+    tooBadLow: Math.round(n.dv * 0.5),
+    min: Math.round(n.dv * 0.75),
+    max: Math.round(n.dv * 1.25),
+    tooBadHigh: Math.round(n.dv * 1.5)
+  };
+});
+
 
 // ── STATE ──
 var S = {
@@ -609,6 +623,13 @@ function load(){
       if(p.cfg){
         S.cfg=Object.assign(S.cfg,p.cfg);
         if(!S.cfg.targets)S.cfg.targets=Object.assign({},DEFAULT_TARGETS);
+        // Migrate old number-format targets to range objects
+        NUT_SCHEMA.forEach(function(n){
+          if(n.dv>0&&typeof S.cfg.targets[n.k]==='number'){
+            var v=S.cfg.targets[n.k];
+            S.cfg.targets[n.k]={tooBadLow:Math.round(v*0.5),min:Math.round(v*0.75),max:Math.round(v*1.25),tooBadHigh:Math.round(v*1.5)};
+          }
+        });
         if(!S.cfg.mealSlots||!S.cfg.mealSlots.length)S.cfg.mealSlots=[
           {id:'breakfast',name:'Breakfast',icon:'🌅'},
           {id:'morning_snack',name:'Morning Snack',icon:'🍎'},
@@ -713,20 +734,30 @@ function renderLog(){
   var tots=dayTotals(currentDate);
   var tgt=S.cfg.targets;
 
-  // summary strip
+  // summary strip — use range color system
   var strip=document.getElementById('summary-strip');
-  var calPct=tgt.calories?Math.min(100,Math.round(tots.calories/tgt.calories*100)):0;
-  var protPct=tgt.protein?Math.min(100,Math.round(tots.protein/tgt.protein*100)):0;
-  var carbPct=tgt.carb?Math.min(100,Math.round(tots.carb/tgt.carb*100)):0;
-  var fatPct=tgt.fat?Math.min(100,Math.round(tots.fat/tgt.fat*100)):0;
+  function getRangeColor(val, rng, fallbackCol) {
+    if(!rng||!rng.tooBadHigh) return fallbackCol;
+    if(val<=0) return '#9d9a94';
+    if(val<rng.tooBadLow) return '#c0392b';
+    if(val<rng.min) return '#e67e22';
+    if(val<=rng.max) return '#3d6b4f';
+    if(val<=rng.tooBadHigh) return '#e67e22';
+    return '#c0392b';
+  }
+  function getRangePct(val, rng, dv) {
+    var mid = rng&&rng.min&&rng.max ? (rng.min+rng.max)/2 : dv;
+    return mid>0?Math.min(100,Math.round(val/mid*100)):0;
+  }
+  var calRng=tgt.calories, protRng=tgt.protein, carbRng=tgt.carb, fatRng=tgt.fat;
   strip.innerHTML=[
-    {l:'Calories',v:Math.round(tots.calories),u:'kcal',pct:calPct,col:'#e67e22'},
-    {l:'Protein',v:tots.protein.toFixed(1),u:'g',pct:protPct,col:'#3d6b4f'},
-    {l:'Carbs',v:tots.carb.toFixed(1),u:'g',pct:carbPct,col:'#2563eb'},
-    {l:'Fat',v:tots.fat.toFixed(1),u:'g',pct:fatPct,col:'#7c3aed'},
+    {l:'Calories',v:Math.round(tots.calories),u:'kcal',pct:getRangePct(tots.calories,calRng,2000),col:getRangeColor(tots.calories,calRng,'#e67e22')},
+    {l:'Protein',v:tots.protein.toFixed(1),u:'g',pct:getRangePct(tots.protein,protRng,50),col:getRangeColor(tots.protein,protRng,'#3d6b4f')},
+    {l:'Carbs',v:tots.carb.toFixed(1),u:'g',pct:getRangePct(tots.carb,carbRng,275),col:getRangeColor(tots.carb,carbRng,'#2563eb')},
+    {l:'Fat',v:tots.fat.toFixed(1),u:'g',pct:getRangePct(tots.fat,fatRng,78),col:getRangeColor(tots.fat,fatRng,'#7c3aed')},
   ].map(function(c){
     return '<div class="sum-card"><div class="sum-label">'+c.l+'</div>'
-      +'<div><span class="sum-val">'+c.v+'</span><span class="sum-unit">'+c.u+'</span></div>'
+      +'<div><span class="sum-val" style="color:'+c.col+'">'+c.v+'</span><span class="sum-unit">'+c.u+'</span></div>'
       +'<div class="sum-bar"><div class="sum-fill" style="width:'+c.pct+'%;background:'+c.col+'"></div></div></div>';
   }).join('');
 
@@ -797,17 +828,59 @@ function renderNutrition(){
   var items=NUT_SCHEMA.filter(function(n){return n.s===currentNutSection;});
   grid.innerHTML=items.map(function(n){
     var val=tots[n.k]||0;
-    var pct=n.dv>0?Math.min(100,Math.round(val/n.dv*100)):null;
     var dispVal=val<10?val.toFixed(2):val<100?val.toFixed(1):Math.round(val);
-    var col=pct!==null?(pct>=100?'#3d6b4f':pct>=50?'#2563eb':'#9d9a94'):'#9d9a94';
+    var rng=tgt[n.k]; // {tooBadLow, min, max, tooBadHigh}
+    // Determine color and bar based on range
+    var barHtml='';
+    var statusColor='#9d9a94';
+    if(rng && rng.tooBadHigh>0){
+      var tbl=rng.tooBadLow||0, mn=rng.min||0, mx=rng.max||0, tbh=rng.tooBadHigh||0;
+      // Color: red(<tbl) -> orange(tbl-mn) -> yellow(mn-target) -> green(mn..mx) -> yellow(mx-tbh) -> orange -> red(>tbh)
+      if(val<=0){ statusColor='#9d9a94'; }
+      else if(val<tbl){ statusColor='#c0392b'; } // too bad low = red
+      else if(val<mn){ statusColor='#e67e22'; } // approaching min = orange
+      else if(val<=mx){ statusColor='#3d6b4f'; } // in range = green
+      else if(val<=tbh){ statusColor='#e67e22'; } // approaching max = orange
+      else { statusColor='#c0392b'; } // too bad high = red
+
+      // Build 5-zone gradient bar
+      // zones: [0..tbl] [tbl..mn] [mn..mx] [mx..tbh] [tbh..max_display]
+      var displayMax = Math.max(tbh * 1.1, val * 1.05);
+      var z1=Math.min(100,tbl/displayMax*100);
+      var z2=Math.min(100,mn/displayMax*100)-z1;
+      var z3=Math.min(100,mx/displayMax*100)-z1-z2;
+      var z4=Math.min(100,tbh/displayMax*100)-z1-z2-z3;
+      var z5=100-z1-z2-z3-z4;
+      var pointerPct=Math.min(99,val/displayMax*100);
+      barHtml='<div class="nut-bar-range">'
+        +'<div class="nut-bar-zones">'
+        +'<div class="nut-bar-zone" style="width:'+z1+'%;background:#c0392b44"></div>'
+        +'<div class="nut-bar-zone" style="width:'+z2+'%;background:#e67e2244"></div>'
+        +'<div class="nut-bar-zone" style="width:'+z3+'%;background:#27ae6044"></div>'
+        +'<div class="nut-bar-zone" style="width:'+z4+'%;background:#e67e2244"></div>'
+        +'<div class="nut-bar-zone" style="width:'+z5+'%;background:#c0392b44"></div>'
+        +'</div>'
+        +(val>0?'<div class="nut-bar-pointer" style="left:'+pointerPct+'%"></div>':'')
+        +'</div>';
+    }
+    var pctLabel='';
+    if(rng&&rng.max>0){
+      var midTarget=(rng.min+rng.max)/2;
+      var pct=midTarget>0?Math.round(val/midTarget*100):null;
+      if(pct!==null)pctLabel='<div class="nut-dv" style="color:'+statusColor+'">'+pct+'% of target</div>';
+    } else if(n.dv>0){
+      var pct2=Math.round(val/n.dv*100);
+      pctLabel='<div class="nut-dv">'+pct2+'% DV</div>';
+    }
     return '<div class="nut-card">'
       +'<div class="nut-name">'+n.l+'</div>'
-      +'<div><span class="nut-val">'+dispVal+'</span><span class="nut-unit">'+n.u+'</span></div>'
-      +(pct!==null?'<div class="nut-dv">'+pct+'% DV</div>':'')
-      +(pct!==null?'<div class="nut-bar"><div class="nut-fill" style="width:'+pct+'%;background:'+col+'"></div></div>':'')
+      +'<div><span class="nut-val" style="color:'+statusColor+'">'+dispVal+'</span><span class="nut-unit">'+n.u+'</span></div>'
+      +pctLabel
+      +barHtml
       +'</div>';
   }).join('');
 }
+
 window.setNutSection=function(s){currentNutSection=s;renderNutrition();};
 
 function renderHistory(){
@@ -1403,12 +1476,35 @@ function renderSettings(){
   // targets form
   var tf=document.getElementById('targets-form');
   if(tf){
-    tf.innerHTML=NUT_SCHEMA.filter(function(n){return n.dv>0;}).slice(0,12).map(function(n){
-      return '<div class="sr" style="align-items:center"><div class="srl">'+n.l+' ('+n.u+')</div>'
-        +'<input class="fi" type="number" style="width:90px;font-size:12px" value="'+(S.cfg.targets[n.k]||'')+'" '
-        +'oninput="S.cfg.targets[\''+n.k+'\']=parseFloat(this.value)||0;saveCfg()" placeholder="'+n.dv+'"></div>';
+    var headerHtml='<div style="display:grid;grid-template-columns:1fr 90px 90px 90px 90px;gap:6px;align-items:center;padding:8px 16px;border-bottom:1px solid var(--bor);background:var(--sur2)">'
+      +'<div style="font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--tx3);font-weight:500">Nutrient</div>'
+      +'<div style="font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:#c0392b;font-weight:500;text-align:center">Too Low</div>'
+      +'<div style="font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:#e67e22;font-weight:500;text-align:center">Min</div>'
+      +'<div style="font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:#e67e22;font-weight:500;text-align:center">Max</div>'
+      +'<div style="font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:#c0392b;font-weight:500;text-align:center">Too High</div>'
+      +'</div>';
+    tf.innerHTML=headerHtml+NUT_SCHEMA.filter(function(n){return n.dv>0;}).map(function(n){
+      var r=S.cfg.targets[n.k]||{tooBadLow:0,min:0,max:0,tooBadHigh:0};
+      var nk=n.k;
+      var phLow=Math.round(n.dv*0.5);
+      var phMin=Math.round(n.dv*0.75);
+      var phMax=Math.round(n.dv*1.25);
+      var phHigh=Math.round(n.dv*1.5);
+      function inp(field,col,ph){
+        var val=r[field]||'';
+        var setExpr='if(!S.cfg.targets['+JSON.stringify(nk)+'])S.cfg.targets['+JSON.stringify(nk)+']={}; S.cfg.targets['+JSON.stringify(nk)+'].'+field+'=parseFloat(this.value)||0;saveCfg()';
+        return '<input class="fi" type="number" style="width:100%;font-size:12px;border-color:'+col+'55" '
+          +'value="'+val+'" '
+          +'oninput="'+setExpr.replace(/"/g,'&quot;')+'" '
+          +'placeholder="'+ph+'">';
+      }
+      return '<div style="display:grid;grid-template-columns:1fr 90px 90px 90px 90px;gap:6px;align-items:center;padding:8px 16px;border-bottom:1px solid var(--bor)">'
+        +'<div class="srl">'+n.l+' <span style="color:var(--tx3);font-size:10px">('+n.u+')</span></div>'
+        +inp('tooBadLow','#c0392b',phLow)+inp('min','#e67e22',phMin)+inp('max','#e67e22',phMax)+inp('tooBadHigh','#c0392b',phHigh)
+        +'</div>';
     }).join('');
   }
+
   // meal slots
   var msl=document.getElementById('meal-slots-list');
   if(msl){
