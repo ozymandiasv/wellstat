@@ -396,7 +396,12 @@ body{font-family:var(--fn);background:var(--bg);color:var(--tx);min-height:100vh
         <input class="fi" id="gh-gist-id" placeholder="Leave blank = create new" style="width:180px;font-size:12px" oninput="saveCfg()"></div>
       <div class="sr"><div><div class="srl">Auto-push on save</div></div>
         <label class="tsw"><input type="checkbox" id="auto-push" onchange="saveCfg()"><span class="tsl"></span></label></div>
-      <div class="sr"><div></div><button class="btn pri" onclick="pushToGist()">⬆ Push now</button></div>
+      <div class="sr"><div></div>
+        <div style="display:flex;gap:8px">
+          <button class="btn" onclick="pullFromGist()">⬇ Pull now</button>
+          <button class="btn pri" onclick="pushToGist()">⬆ Push now</button>
+        </div>
+      </div>
     </div>
     <div class="ss">
       <div class="ss-ttl">🏷️ Gist Field Names</div>
@@ -1666,6 +1671,48 @@ window.pushToGist = function(silent) {
   } else {
     doMergeAndPush({}).catch(function(e){ if(!silent) alert('Network error: '+e.message); });
   }
+};
+
+// ── GIST PULL (shared health_log.json → habit tracker) ──
+window.pullFromGist = function() {
+  var token = S.cfg.ghToken;
+  if (!token) { alert('Set your GitHub token in Settings → Gist Sync first.'); return; }
+  var gistId = S.cfg.gistId;
+  if (!gistId) { alert('No Gist ID set. Push first to create a Gist, or paste an existing Gist ID.'); return; }
+
+  var headers = { 'Authorization': 'token ' + token, 'Content-Type': 'application/json' };
+
+  fetch('https://api.github.com/gists/' + gistId, { headers: headers })
+    .then(function(r) {
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      return r.json();
+    })
+    .then(function(data) {
+      // Try health_log.json first, then first available file
+      var file = (data.files && (data.files['health_log.json'] || Object.values(data.files)[0]));
+      if (!file || !file.content) throw new Error('No readable file found in Gist.');
+      var remote = JSON.parse(file.content);
+
+      // Merge remote into local: remote values win for keys it has,
+      // local keeps data for dates not present in remote.
+      var keys = S.cfg.gistKeys || {};
+      var waterKey  = keys.water        || 'water';
+      var stuffKey  = keys.stuff_count  || 'stuff_count';
+      var pctKey    = keys.habit_pct    || 'habit_completion';
+
+      Object.keys(remote).forEach(function(ds) {
+        var day = remote[ds];
+        if (!day || typeof day !== 'object') return;
+        if (day[waterKey]  != null) { if (!S.water) S.water = {}; S.water[ds] = day[waterKey]; }
+        if (day[stuffKey]  != null) { if (!S.stuff) S.stuff = {}; S.stuff[ds] = day[stuffKey]; }
+        // habit_completion is computed locally; skip writing it back to avoid overwriting real logs
+      });
+
+      save();
+      alert('✓ Pulled from Gist!\n' + Object.keys(remote).length + ' date entries merged.');
+      renderDash();
+    })
+    .catch(function(e) { alert('Pull failed: ' + e.message); });
 };
 
 // Completion % for a date (0–100 or null)
