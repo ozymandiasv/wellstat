@@ -389,19 +389,23 @@ body{font-family:var(--fn);background:var(--bg);color:var(--tx);min-height:100vh
         <input class="wi-input" type="number" id="wtgt" value="3" min="0.5" max="10" step="0.5" onchange="saveCfg()" style="width:70px"></div>
     </div>
     <div class="ss">
-      <div class="ss-ttl">🔗 Gist Sync</div>
+      <div class="ss-ttl" style="display:flex;align-items:center;justify-content:space-between">🔗 Gist Sync <button class="btn" style="font-size:11px;padding:3px 9px" onclick="document.getElementById('m-gist-guide').classList.add('open')">? Setup guide</button></div>
       <div class="sr"><div><div class="srl">GitHub Token</div><div class="srs">Personal access token with "gist" scope</div></div>
         <input class="fi" type="password" id="gh-token" placeholder="ghp_..." style="width:180px;font-size:12px" oninput="saveCfg()"></div>
       <div class="sr"><div><div class="srl">Gist ID</div><div class="srs">Leave blank to create new. Paste existing Gist ID to sync with it.</div></div>
         <input class="fi" id="gh-gist-id" placeholder="Leave blank = create new" style="width:180px;font-size:12px" oninput="saveCfg()"></div>
       <div class="sr"><div><div class="srl">Auto-push on save</div></div>
         <label class="tsw"><input type="checkbox" id="auto-push" onchange="saveCfg()"><span class="tsl"></span></label></div>
-      <div class="sr"><div></div>
-        <div style="display:flex;gap:8px">
-          <button class="btn" onclick="pullFromGist()">⬇ Pull now</button>
-          <button class="btn pri" onclick="pushToGist()">⬆ Push now</button>
-        </div>
-      </div>
+      <div class="sr"><div></div><button class="btn pri" onclick="pushToGist()">⬆ Push now</button></div>
+    </div>
+    <div class="ss">
+      <div class="ss-ttl">💾 Full Backup Sync</div>
+      <div style="padding:8px 16px 4px;font-size:11px;color:var(--tx3)">Backs up <strong>everything</strong> — habits, sub-tasks, check-ins, icons, logs, and settings — to a separate file <code style="font-family:monospace">ritual-backup.json</code> in the same Gist. Use the same Token &amp; Gist ID above.</div>
+      <div class="sr"><div><div class="srl">Push Full Backup</div><div class="srs">Overwrites ritual-backup.json in your Gist</div></div>
+        <button class="btn pri" onclick="pushFullBackup()">⬆ Backup now</button></div>
+      <div class="sr"><div><div class="srl">Pull Full Backup</div><div class="srs">Restores everything from ritual-backup.json — overwrites local data</div></div>
+        <button class="btn dng" onclick="pullFullBackup()">⬇ Restore now</button></div>
+      <div class="sr" id="backup-status-row" style="display:none"><div><div class="srl" id="backup-status-lbl" style="font-size:12px;color:var(--tx3)"></div></div></div>
     </div>
     <div class="ss">
       <div class="ss-ttl">🏷️ Gist Field Names</div>
@@ -413,6 +417,53 @@ body{font-family:var(--fn);background:var(--bg);color:var(--tx);min-height:100vh
       <div class="sr"><div><div class="srl">Export Data</div></div><button class="btn" onclick="exportData()">Export JSON</button></div>
       <div class="sr"><div><div class="srl">Reset All Data</div><div class="srs">Cannot be undone</div></div><button class="btn dng" onclick="resetData()">Reset</button></div>
     </div>
+  </div>
+</div>
+
+<!-- GIST SETUP GUIDE MODAL -->
+<div class="ovl" id="m-gist-guide">
+  <div class="modal" style="max-width:560px">
+    <div class="mhdr"><span class="mttl">🔗 How to set up Gist Sync</span><button class="ibtn" onclick="closeModal('m-gist-guide')">✕</button></div>
+    <div class="mbody" style="font-size:13px;line-height:1.7">
+      <div style="background:var(--acl);border:1px solid var(--ac);border-radius:8px;padding:12px 14px;margin-bottom:18px;font-size:12px;color:var(--ac)">
+        You only need to do this once. Your token is stored locally on this device only.
+      </div>
+
+      <div style="font-weight:500;margin-bottom:6px">Step 1 — Create a GitHub account</div>
+      <div style="color:var(--tx2);margin-bottom:14px">If you don't have one, sign up free at <a href="https://github.com" target="_blank" style="color:var(--ac)">github.com</a>. No special plan needed.</div>
+
+      <div style="font-weight:500;margin-bottom:6px">Step 2 — Generate a Personal Access Token</div>
+      <ol style="color:var(--tx2);padding-left:18px;margin-bottom:14px">
+        <li>Go to <a href="https://github.com/settings/tokens/new" target="_blank" style="color:var(--ac)">github.com/settings/tokens/new</a></li>
+        <li>Under <strong>Note</strong>, type something like <em>Ritual Habit Tracker</em></li>
+        <li>Set <strong>Expiration</strong> to <em>No expiration</em> (or 1 year)</li>
+        <li>Under <strong>Select scopes</strong>, tick only <strong>gist</strong> ✓</li>
+        <li>Scroll down and click <strong>Generate token</strong></li>
+        <li>Copy the token that appears — it starts with <code style="background:var(--sur2);padding:1px 5px;border-radius:4px;font-size:11px">ghp_</code></li>
+        <li style="color:var(--dng)">⚠ GitHub only shows it once — copy it now!</li>
+      </ol>
+
+      <div style="font-weight:500;margin-bottom:6px">Step 3 — Paste the token into Ritual</div>
+      <div style="color:var(--tx2);margin-bottom:14px">In Settings → Gist Sync, paste your token into the <strong>GitHub Token</strong> field.</div>
+
+      <div style="font-weight:500;margin-bottom:6px">Step 4 — Leave Gist ID blank (first time)</div>
+      <div style="color:var(--tx2);margin-bottom:14px">Leave the Gist ID field empty. When you click <strong>⬆ Backup now</strong> or <strong>⬆ Push now</strong> for the first time, Ritual will automatically create a new private Gist and fill in the ID for you.</div>
+
+      <div style="font-weight:500;margin-bottom:6px">Step 5 — Sync to another device</div>
+      <div style="color:var(--tx2);margin-bottom:6px">On your second device:</div>
+      <ol style="color:var(--tx2);padding-left:18px;margin-bottom:14px">
+        <li>Enter the same GitHub Token</li>
+        <li>Enter the Gist ID that was saved after your first push (copy it from your first device's Settings)</li>
+        <li>Click <strong>⬇ Restore now</strong> to pull everything down</li>
+      </ol>
+
+      <div style="background:var(--sur2);border-radius:8px;padding:12px 14px;font-size:12px;color:var(--tx2)">
+        <strong>Metrics sync vs Full backup</strong><br>
+        <strong>⬆ Push now</strong> — sends only daily totals (water, habit %, stuff count) for use by WellStat.<br>
+        <strong>⬆ Backup now</strong> — sends your entire app: habits, sub-tasks, check-ins, icons, all logs, and settings.
+      </div>
+    </div>
+    <div class="mftr"><button class="btn pri" onclick="closeModal('m-gist-guide')">Got it</button></div>
   </div>
 </div>
 
@@ -1673,12 +1724,73 @@ window.pushToGist = function(silent) {
   }
 };
 
-// ── GIST PULL (shared health_log.json → habit tracker) ──
-window.pullFromGist = function() {
+// ── FULL BACKUP PUSH (everything → ritual-backup.json) ──
+window.pushFullBackup = function() {
   var token = S.cfg.ghToken;
   if (!token) { alert('Set your GitHub token in Settings → Gist Sync first.'); return; }
   var gistId = S.cfg.gistId;
-  if (!gistId) { alert('No Gist ID set. Push first to create a Gist, or paste an existing Gist ID.'); return; }
+  var headers = { 'Authorization': 'token ' + token, 'Content-Type': 'application/json' };
+
+  // Build complete snapshot — all tasks, sub-tasks, icons, check-ins, logs, config
+  var snapshot = {
+    version: 4,
+    backed_up: new Date().toISOString(),
+    tasks:    JSON.parse(JSON.stringify(S.tasks)),
+    logs:     JSON.parse(JSON.stringify(S.logs)),
+    enqs:     JSON.parse(JSON.stringify(S.enqs)),
+    elogs:    JSON.parse(JSON.stringify(S.elogs)),
+    water:    JSON.parse(JSON.stringify(S.water)),
+    stuff:    JSON.parse(JSON.stringify(S.stuff)),
+    uiIcons:  JSON.parse(JSON.stringify(S.uiIcons)),
+    cfg: (function() {
+      // Include all config except the token for safety awareness; keep it anyway since it's local
+      return JSON.parse(JSON.stringify(S.cfg));
+    })()
+  };
+
+  function setStatus(msg, ok) {
+    var row = document.getElementById('backup-status-row');
+    var lbl = document.getElementById('backup-status-lbl');
+    if (row) row.style.display = 'flex';
+    if (lbl) { lbl.textContent = msg; lbl.style.color = ok ? 'var(--ac)' : 'var(--dng)'; }
+  }
+
+  var url    = gistId ? 'https://api.github.com/gists/' + gistId : 'https://api.github.com/gists';
+  var method = gistId ? 'PATCH' : 'POST';
+  var body = {
+    description: 'Ritual Full Backup — ' + new Date().toISOString().split('T')[0],
+    public: false,
+    files: { 'ritual-backup.json': { content: JSON.stringify(snapshot, null, 2) } }
+  };
+
+  fetch(url, { method: method, headers: headers, body: JSON.stringify(body) })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      if (data.id) {
+        if (!gistId) {
+          S.cfg.gistId = data.id; save();
+          var gi = document.getElementById('gh-gist-id'); if (gi) gi.value = data.id;
+          renderGistKeyRows();
+        }
+        var taskCount = (snapshot.tasks || []).length;
+        var enqCount  = (snapshot.enqs  || []).length;
+        var stCount   = (snapshot.tasks || []).reduce(function(a,t){ return a + (t.subtasks||[]).length; }, 0);
+        setStatus('✓ Backed up ' + taskCount + ' habits (' + stCount + ' sub-tasks), ' + enqCount + ' check-ins — ' + new Date().toLocaleTimeString(), true);
+      } else {
+        setStatus('✗ ' + (data.message || 'Unknown error'), false);
+      }
+    })
+    .catch(function(e) { setStatus('✗ Network error: ' + e.message, false); });
+};
+
+// ── FULL BACKUP PULL (ritual-backup.json → restore everything) ──
+window.pullFullBackup = function() {
+  var token = S.cfg.ghToken;
+  if (!token) { alert('Set your GitHub token in Settings → Gist Sync first.'); return; }
+  var gistId = S.cfg.gistId;
+  if (!gistId) { alert('No Gist ID set. Push a backup first, or enter your Gist ID.'); return; }
+
+  if (!confirm('⚠ This will REPLACE all your local habits, check-ins, logs, and settings with the backup.\n\nAre you sure?')) return;
 
   var headers = { 'Authorization': 'token ' + token, 'Content-Type': 'application/json' };
 
@@ -1688,31 +1800,56 @@ window.pullFromGist = function() {
       return r.json();
     })
     .then(function(data) {
-      // Try health_log.json first, then first available file
-      var file = (data.files && (data.files['health_log.json'] || Object.values(data.files)[0]));
-      if (!file || !file.content) throw new Error('No readable file found in Gist.');
-      var remote = JSON.parse(file.content);
+      var file = data.files && data.files['ritual-backup.json'];
+      if (!file || !file.content) throw new Error('No ritual-backup.json found in this Gist. Have you pushed a full backup yet?');
 
-      // Merge remote into local: remote values win for keys it has,
-      // local keeps data for dates not present in remote.
-      var keys = S.cfg.gistKeys || {};
-      var waterKey  = keys.water        || 'water';
-      var stuffKey  = keys.stuff_count  || 'stuff_count';
-      var pctKey    = keys.habit_pct    || 'habit_completion';
+      var snap = JSON.parse(file.content);
+      // Restore all fields, keep current token/gistId so we don't lose connection
+      var savedToken  = S.cfg.ghToken;
+      var savedGistId = S.cfg.gistId;
 
-      Object.keys(remote).forEach(function(ds) {
-        var day = remote[ds];
-        if (!day || typeof day !== 'object') return;
-        if (day[waterKey]  != null) { if (!S.water) S.water = {}; S.water[ds] = day[waterKey]; }
-        if (day[stuffKey]  != null) { if (!S.stuff) S.stuff = {}; S.stuff[ds] = day[stuffKey]; }
-        // habit_completion is computed locally; skip writing it back to avoid overwriting real logs
-      });
+      S.tasks   = snap.tasks   || [];
+      S.logs    = snap.logs    || {};
+      S.enqs    = snap.enqs    || [];
+      S.elogs   = snap.elogs   || {};
+      S.water   = snap.water   || {};
+      S.stuff   = snap.stuff   || {};
+      S.uiIcons = snap.uiIcons || {};
+      S.cfg     = Object.assign({ theme:'light', notif:false, notifOff:10, wTgt:3, ghToken:'', gistId:'', autoPush:false, gistKeys:{} }, snap.cfg || {});
+      // Always preserve current connection settings
+      S.cfg.ghToken = savedToken;
+      S.cfg.gistId  = savedGistId;
 
       save();
-      alert('✓ Pulled from Gist!\n' + Object.keys(remote).length + ' date entries merged.');
+      applyTheme();
+      applyUIIcons();
       renderDash();
+      renderTasks();
+      renderEnqs();
+      renderGistKeyRows();
+
+      // Update settings fields
+      var wtgt = document.getElementById('wtgt'); if (wtgt) wtgt.value = S.cfg.wTgt || 3;
+      var noff = document.getElementById('notif-off'); if (noff) noff.value = S.cfg.notifOff || 10;
+      var gi   = document.getElementById('gh-gist-id'); if (gi) gi.value = S.cfg.gistId || '';
+      var ap   = document.getElementById('auto-push'); if (ap) ap.checked = !!S.cfg.autoPush;
+
+      var backed = snap.backed_up ? new Date(snap.backed_up).toLocaleString() : 'unknown date';
+      var taskCount = (S.tasks || []).length;
+      var enqCount  = (S.enqs  || []).length;
+      var stCount   = (S.tasks || []).reduce(function(a,t){ return a + (t.subtasks||[]).length; }, 0);
+
+      var row = document.getElementById('backup-status-row');
+      var lbl = document.getElementById('backup-status-lbl');
+      if (row) row.style.display = 'flex';
+      if (lbl) { lbl.textContent = '✓ Restored ' + taskCount + ' habits (' + stCount + ' sub-tasks), ' + enqCount + ' check-ins from backup dated ' + backed; lbl.style.color = 'var(--ac)'; }
     })
-    .catch(function(e) { alert('Pull failed: ' + e.message); });
+    .catch(function(e) {
+      var row = document.getElementById('backup-status-row');
+      var lbl = document.getElementById('backup-status-lbl');
+      if (row) row.style.display = 'flex';
+      if (lbl) { lbl.textContent = '✗ ' + e.message; lbl.style.color = 'var(--dng)'; }
+    });
 };
 
 // Completion % for a date (0–100 or null)
