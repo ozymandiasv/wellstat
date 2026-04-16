@@ -317,6 +317,17 @@ body{font-family:var(--fn);background:var(--bg);color:var(--tx);min-height:100vh
       </div>
     </div>
     <div class="ss">
+      <div class="ss-ttl">Food Image Search — Wikipedia / Wikimedia</div>
+      <div class="sr">
+        <div><div class="srl">No API key required</div><div class="srs">Uses the free Wikipedia/Wikimedia API — zero setup, unlimited searches, great coverage of Indian dishes.</div></div>
+        <span style="font-size:18px">✅</span>
+      </div>
+      <div class="sr" style="border-bottom:none">
+        <div><div class="srl">Auto-fetch images on AI lookup</div><div class="srs">Automatically search for a food photo when Groq returns nutrition data.</div></div>
+        <label class="tsw"><input type="checkbox" id="gcse-auto" onchange="saveCfg()"><span class="tsl"></span></label>
+      </div>
+    </div>
+    <div class="ss">
       <div class="ss-ttl">GitHub Gist Export</div>
       <div class="sr">
         <div><div class="srl">GitHub Token</div><div class="srs">Personal access token with "gist" scope. Create at github.com/settings/tokens</div></div>
@@ -417,9 +428,25 @@ body{font-family:var(--fn);background:var(--bg);color:var(--tx);min-height:100vh
         </div>
 
         <!-- Ingredients single line -->
-        <div class="fg" style="margin-bottom:0">
+        <div class="fg" style="margin-bottom:10px">
           <label class="fl">Ingredients <span style="color:var(--tx3);font-weight:400">(optional — one line, helps Groq calculate better)</span></label>
           <input class="fi" id="f-ingredients" placeholder="e.g. 80g maida, 10g oil, 5g salt, water — or leave blank for standard estimate">
+        </div>
+
+        <!-- Image row -->
+        <div class="fg" style="margin-bottom:0">
+          <label class="fl">Food Image</label>
+          <div style="display:flex;gap:8px;align-items:flex-start;flex-wrap:wrap">
+            <div style="flex:1;min-width:180px">
+              <input class="fi" id="f-image-url" placeholder="Paste image URL here (optional)" oninput="onManualImageUrl(this.value)" style="margin-bottom:6px">
+              <button class="btn sm" onclick="fetchFoodImage()" id="img-search-btn" style="width:100%">🔍 Search Image (Wikipedia)</button>
+            </div>
+            <div id="f-image-preview" style="width:80px;height:80px;border-radius:8px;border:1px solid var(--bor2);background:var(--sur2);display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0">
+              <span style="font-size:22px">🍽️</span>
+            </div>
+          </div>
+          <div id="img-search-results" style="display:none;margin-top:8px;display:none"></div>
+          <div id="img-search-status" style="font-size:11px;color:var(--tx3);margin-top:4px"></div>
         </div>
       </div>
 
@@ -584,6 +611,7 @@ var S = {
     theme:'light', groqKey:'', groqModel:'llama-3.3-70b-versatile',
     ghToken:'', gistId:'', autoPush:false, wTgt:3,
     foodGistId:'', foodGistAutoPush:false,
+    gcseKey:'', gcseCx:'', gcseAuto:false,
     targets: Object.assign({}, DEFAULT_TARGETS),
     mealSlots: [
       {id:'breakfast', name:'Breakfast', icon:'🌅'},
@@ -777,6 +805,7 @@ function renderLog(){
       +'<div class="meal-body">'
       +items.map(function(item,idx){
         return '<div class="food-item">'
+          +(item.imageUrl?'<img src="'+item.imageUrl+'" alt="'+item.name+'" style="width:40px;height:40px;border-radius:6px;object-fit:cover;flex-shrink:0;border:1px solid var(--bor)" onerror="this.style.display=\'none\'">':'<div style="width:40px;height:40px;border-radius:6px;background:var(--sur2);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:18px">'+meal.icon+'</div>')
           +'<div style="flex:1"><div class="food-name">'+item.name+'</div>'
           +'<div class="food-detail">'+item.qty+' '+item.unit
           +(item.nutrients.protein?' · P:'+parseFloat(item.nutrients.protein||0).toFixed(1)+'g':'')
@@ -947,6 +976,7 @@ window.openAddFood=function(mealId,queryVal){
   var ar=document.getElementById('ai-result-area');if(ar)ar.innerHTML='';
   var ig=document.getElementById('f-ingredients');if(ig)ig.value='';
   var sug=document.getElementById('f-suggestions');if(sug)sug.style.display='none';
+  resetImageState();
   buildNutInputTable({}, false); // false = editable manual mode
   openModal('m-food');
   // Pre-fill name if a query was passed, then show suggestions
@@ -982,6 +1012,22 @@ window.editFood=function(mealId,idx){
   var ar=document.getElementById('ai-result-area');if(ar)ar.innerHTML='';
   var aq=document.getElementById('ai-query');if(aq)aq.value='';
   var sug=document.getElementById('f-suggestions');if(sug)sug.style.display='none';
+  // Restore image
+  pendingImageUrl = item.imageUrl || '';
+  var urlInput = document.getElementById('f-image-url');
+  if (urlInput) urlInput.value = pendingImageUrl;
+  var preview = document.getElementById('f-image-preview');
+  if (preview) {
+    if (pendingImageUrl) {
+      preview.innerHTML = '<img src="'+pendingImageUrl+'" style="width:100%;height:100%;object-fit:cover;border-radius:7px" onerror="this.parentNode.innerHTML=\'<span style=font-size:22px>❌</span>\'">';
+    } else {
+      preview.innerHTML = '<span style="font-size:22px">🍽️</span>';
+    }
+  }
+  var resultsEl = document.getElementById('img-search-results');
+  if (resultsEl) { resultsEl.innerHTML=''; resultsEl.style.display='none'; }
+  var imgStatus = document.getElementById('img-search-status');
+  if (imgStatus) imgStatus.textContent = '';
   // Show scaled nutrients for current qty — display only (base is set, scaling mode)
   var scaledForDisplay = scaleNutrients(pendingNutrients, pendingBaseQty, item.qty);
   buildNutInputTable(scaledForDisplay, true);
@@ -1152,6 +1198,18 @@ window.pickFromModal = function(id) {
   pendingNutrients = Object.assign({}, f.baseNutrients);
   pendingBaseQty = f.baseQty;
   pendingBaseUnit = f.baseUnit;
+  // Restore image
+  pendingImageUrl = f.imageUrl || '';
+  var urlInput = document.getElementById('f-image-url');
+  if (urlInput) urlInput.value = pendingImageUrl;
+  var preview = document.getElementById('f-image-preview');
+  if (preview) {
+    if (pendingImageUrl) {
+      preview.innerHTML = '<img src="'+pendingImageUrl+'" style="width:100%;height:100%;object-fit:cover;border-radius:7px" onerror="this.parentNode.innerHTML=\'<span style=font-size:22px>❌</span>\'">';
+    } else {
+      preview.innerHTML = '<span style="font-size:22px">🍽️</span>';
+    }
+  }
   buildNutInputTable(pendingNutrients, true);
   updateScaleHint();
   var ar = document.getElementById('ai-result-area');
@@ -1197,10 +1255,10 @@ function saveFoodToDb(name,baseQty,baseUnit,baseNutrients){
   var key=name.toLowerCase().trim();
   var existing=S.foodDB.find(function(f){return f.name.toLowerCase()===key;});
   if(existing){
-    // update with latest data
     existing.baseQty=baseQty;
     existing.baseUnit=baseUnit;
     existing.baseNutrients=Object.assign({},baseNutrients);
+    if(pendingImageUrl) existing.imageUrl=pendingImageUrl;
     existing.usedCount=(existing.usedCount||0)+1;
     existing.lastUsed=Date.now();
   } else {
@@ -1210,6 +1268,7 @@ function saveFoodToDb(name,baseQty,baseUnit,baseNutrients){
       baseQty:baseQty,
       baseUnit:baseUnit,
       baseNutrients:Object.assign({},baseNutrients),
+      imageUrl: pendingImageUrl || '',
       usedCount:1,
       lastUsed:Date.now()
     });
@@ -1291,6 +1350,7 @@ window.saveFood = function() {
     baseUnit: dbBaseUnit,
     baseNutrients: dbBaseNuts,
     nutrients: finalNutrients,
+    imageUrl: pendingImageUrl || '',
     ts: Date.now()
   };
   if (currentEditIdx !== null) {
@@ -1394,6 +1454,7 @@ function applyAiResult(data, baseQty, baseUnit) {
   ar.dataset.result = JSON.stringify(data);
   ar.dataset.baseQty = baseQty;
   ar.dataset.baseUnit = baseUnit;
+  maybeAutoFetchImage(data.name || '');
 }
 
 window.commitAiResult = function() {
@@ -1453,6 +1514,7 @@ function renderFoodDB(){
       var fat=f.baseNutrients&&f.baseNutrients.fat?parseFloat(f.baseNutrients.fat).toFixed(1):0;
       var last=f.lastUsed?new Date(f.lastUsed).toLocaleDateString('en-US',{month:'short',day:'numeric'}):'';
       return '<div style="display:flex;align-items:center;gap:12px;padding:11px 16px;border-bottom:1px solid var(--bor)">'
+        +(f.imageUrl?'<img src="'+f.imageUrl+'" alt="'+f.name+'" style="width:44px;height:44px;border-radius:7px;object-fit:cover;flex-shrink:0;border:1px solid var(--bor)" onerror="this.style.display=\'none\'">':'<div style="width:44px;height:44px;border-radius:7px;background:var(--sur2);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:20px">🥗</div>')
         +'<div style="flex:1"><div style="font-size:13px;font-weight:500">'+f.name+'</div>'
         +'<div style="font-size:11px;color:var(--tx3);margin-top:2px">Per '+f.baseQty+' '+f.baseUnit+' · '+cals+' kcal · P:'+prot+'g C:'+carb+'g F:'+fat+'g</div></div>'
         +'<div style="font-size:11px;color:var(--tx3);text-align:right"><div>Used '+f.usedCount+'×</div><div>'+last+'</div></div>'
@@ -1526,6 +1588,7 @@ function renderSettings(){
   var dt=document.getElementById('dark-tog');if(dt)dt.checked=S.cfg.theme==='dark';
   var fgi=document.getElementById('food-gist-id');if(fgi)fgi.value=S.cfg.foodGistId||'';
   var fga=document.getElementById('food-gist-auto-push');if(fga)fga.checked=S.cfg.foodGistAutoPush||false;
+  var gca=document.getElementById('gcse-auto');if(gca)gca.checked=S.cfg.gcseAuto||false;
 }
 
 window.saveCfg=function(){
@@ -1536,6 +1599,7 @@ window.saveCfg=function(){
   var ap=document.getElementById('auto-push');if(ap)S.cfg.autoPush=ap.checked;
   var fgi=document.getElementById('food-gist-id');if(fgi)S.cfg.foodGistId=fgi.value.trim();
   var fga=document.getElementById('food-gist-auto-push');if(fga)S.cfg.foodGistAutoPush=fga.checked;
+  var gca=document.getElementById('gcse-auto');if(gca)S.cfg.gcseAuto=gca.checked;
   save();
 };
 
@@ -1548,6 +1612,192 @@ window.removeMealSlot=function(i){
   if(!confirm('Remove this meal slot?'))return;
   S.cfg.mealSlots.splice(i,1);save();renderSettings();renderLog();
 };
+
+// ── IMAGE SEARCH ──
+var pendingImageUrl = '';
+
+window.onManualImageUrl = function(url) {
+  pendingImageUrl = url.trim();
+  var preview = document.getElementById('f-image-preview');
+  if (!preview) return;
+  if (pendingImageUrl) {
+    preview.innerHTML = '<img src="'+pendingImageUrl+'" style="width:100%;height:100%;object-fit:cover" onerror="this.parentNode.innerHTML=\'<span style=font-size:22px>❌</span>\'">';
+  } else {
+    preview.innerHTML = '<span style="font-size:22px">🍽️</span>';
+  }
+};
+
+// Search Wikipedia for food images using the free Wikimedia API (no key needed).
+// Strategy: search Wikipedia for the food term, grab the page, then fetch its
+// lead image plus up to 5 additional images from the page's image list.
+window.fetchFoodImage = function() {
+  var status  = document.getElementById('img-search-status');
+  var btn     = document.getElementById('img-search-btn');
+  var resultsEl = document.getElementById('img-search-results');
+  var foodName = ((document.getElementById('f-name')||{}).value||'').trim();
+  if (!foodName) { if (status) status.textContent = '⚠️ Enter a food name first.'; return; }
+
+  if (status) status.textContent = '🔍 Searching Wikipedia…';
+  if (btn) btn.disabled = true;
+  if (resultsEl) { resultsEl.innerHTML=''; resultsEl.style.display='none'; }
+
+  // Step 1: Wikipedia open search to find the best matching article title
+  var searchUrl = 'https://en.wikipedia.org/w/api.php?action=opensearch&search='
+    + encodeURIComponent(foodName)
+    + '&limit=5&namespace=0&format=json&origin=*';
+
+  fetch(searchUrl)
+    .then(function(r){ return r.json(); })
+    .then(function(data){
+      // data[1] is array of titles
+      var titles = (data && data[1]) || [];
+      if (!titles.length) {
+        if (btn) btn.disabled = false;
+        if (status) status.textContent = 'No Wikipedia article found. Try a shorter or alternate name, or paste an image URL.';
+        return;
+      }
+      // Pick the first result; if it looks like a disambiguation page try the next
+      var title = titles[0];
+      fetchWikimediaImages(title, foodName);
+    })
+    .catch(function(e){
+      if (btn) btn.disabled = false;
+      if (status) status.textContent = 'Search error: ' + e.message;
+    });
+};
+
+// Fetch images from a Wikipedia page title via Wikimedia APIs
+function fetchWikimediaImages(title, originalQuery) {
+  var status    = document.getElementById('img-search-status');
+  var btn       = document.getElementById('img-search-btn');
+  var resultsEl = document.getElementById('img-search-results');
+
+  // Use pageimages for the lead thumbnail and images for extra images on the page
+  var apiBase = 'https://en.wikipedia.org/w/api.php';
+  var params  = '?action=query&titles=' + encodeURIComponent(title)
+    + '&prop=pageimages|images'
+    + '&piprop=original|thumbnail&pithumbsize=400'
+    + '&imlimit=20'
+    + '&format=json&origin=*';
+
+  fetch(apiBase + params)
+    .then(function(r){ return r.json(); })
+    .then(function(data){
+      var pages = data && data.query && data.query.pages;
+      if (!pages) throw new Error('No pages returned');
+      var page  = Object.values(pages)[0];
+      if (!page) throw new Error('Empty page');
+
+      // Collect the lead image first
+      var imageUrls = [];
+      var leadUrl   = page.original && page.original.source
+        ? page.original.source
+        : (page.thumbnail && page.thumbnail.source ? page.thumbnail.source : null);
+      if (leadUrl) imageUrls.push(leadUrl);
+
+      // Collect extra image filenames listed on the page
+      var extraFiles = (page.images || []).map(function(img){ return img.title; })
+        .filter(function(t){
+          // Skip icons, flags, maps, logos — keep food-looking images
+          var tl = t.toLowerCase();
+          return !/flag|icon|logo|map|seal|emblem|symbol|\.svg$|commons-logo|wikimedia/i.test(tl);
+        })
+        .slice(0, 12);
+
+      if (extraFiles.length === 0) {
+        renderWikimediaResults(imageUrls, title);
+        if (btn) btn.disabled = false;
+        return;
+      }
+
+      // Batch resolve filenames to real image URLs via imageinfo
+      var titlesParam = extraFiles.map(encodeURIComponent).join('|');
+      fetch(apiBase + '?action=query&titles=' + titlesParam
+        + '&prop=imageinfo&iiprop=url&iiurlwidth=400'
+        + '&format=json&origin=*')
+        .then(function(r){ return r.json(); })
+        .then(function(imgData){
+          var imgPages = imgData && imgData.query && imgData.query.pages || {};
+          Object.values(imgPages).forEach(function(p){
+            var url = p.imageinfo && p.imageinfo[0] && (p.imageinfo[0].thumburl || p.imageinfo[0].url);
+            if (url && imageUrls.indexOf(url) === -1) imageUrls.push(url);
+          });
+          renderWikimediaResults(imageUrls.slice(0, 9), title);
+          if (btn) btn.disabled = false;
+        })
+        .catch(function(){
+          renderWikimediaResults(imageUrls, title);
+          if (btn) btn.disabled = false;
+        });
+    })
+    .catch(function(e){
+      if (btn) btn.disabled = false;
+      if (status) status.textContent = 'Could not load Wikipedia images: ' + e.message;
+    });
+}
+
+function renderWikimediaResults(urls, title) {
+  var status    = document.getElementById('img-search-status');
+  var resultsEl = document.getElementById('img-search-results');
+  if (!urls.length) {
+    if (status) status.textContent = 'No images found on Wikipedia for "' + title + '". Try a different name or paste a URL above.';
+    return;
+  }
+  if (status) status.textContent = 'Click an image to use it · via Wikipedia "' + title + '"';
+  if (!resultsEl) return;
+  resultsEl.style.display = 'grid';
+  resultsEl.style.gridTemplateColumns = 'repeat(3,1fr)';
+  resultsEl.style.gap = '6px';
+  resultsEl.style.marginTop = '8px';
+  resultsEl.innerHTML = urls.map(function(url){
+    var safe = url.replace(/'/g, "\\'");
+    return '<img src="'+url+'" '
+      +'style="width:100%;height:72px;object-fit:cover;border-radius:6px;cursor:pointer;border:2px solid transparent;transition:border-color .15s" '
+      +'onclick="selectSearchImage(\''+safe+'\')" '
+      +'onerror="this.style.display=\'none\'" '
+      +'onmouseover="this.style.borderColor=\'var(--ac)\'" onmouseout="this.style.borderColor=\'transparent\'">';
+  }).join('');
+}
+
+window.selectSearchImage = function(url) {
+  pendingImageUrl = url;
+  var urlInput = document.getElementById('f-image-url');
+  if (urlInput) urlInput.value = url;
+  var preview = document.getElementById('f-image-preview');
+  if (preview) preview.innerHTML = '<img src="'+url+'" style="width:100%;height:100%;object-fit:cover;border-radius:7px" onerror="this.parentNode.innerHTML=\'<span style=font-size:22px>❌</span>\'">';
+  // Highlight selected image in results
+  var resultsEl = document.getElementById('img-search-results');
+  if (resultsEl) {
+    resultsEl.querySelectorAll('img').forEach(function(img){
+      img.style.borderColor = img.src===url?'var(--ac)':'transparent';
+    });
+  }
+  var status = document.getElementById('img-search-status');
+  if (status) status.textContent = '✓ Image selected';
+};
+
+function resetImageState() {
+  pendingImageUrl = '';
+  var preview = document.getElementById('f-image-preview');
+  if (preview) preview.innerHTML = '<span style="font-size:22px">🍽️</span>';
+  var urlInput = document.getElementById('f-image-url');
+  if (urlInput) urlInput.value = '';
+  var resultsEl = document.getElementById('img-search-results');
+  if (resultsEl) { resultsEl.innerHTML=''; resultsEl.style.display='none'; }
+  var status = document.getElementById('img-search-status');
+  if (status) status.textContent = '';
+}
+
+// Auto-fetch image after Groq AI lookup if setting is on
+function maybeAutoFetchImage(foodName) {
+  if (!S.cfg.gcseAuto || !foodName) return;
+  // Small delay so user sees AI result first
+  setTimeout(function(){
+    var fn = document.getElementById('f-name');
+    if (fn && !fn.value) fn.value = foodName;
+    window.fetchFoodImage();
+  }, 600);
+}
 
 // ── GIST SYNC — pull → merge → push ──
 // Maps nutrition app internal keys → health app key names in the shared Gist
@@ -1727,6 +1977,7 @@ function buildFoodLogPayload(ds) {
         baseUnit: item.baseUnit,
         baseNutrients: item.baseNutrients,
         nutrients: item.nutrients,
+        imageUrl: item.imageUrl || '',
         ts: item.ts || null
       });
     });
@@ -1853,6 +2104,7 @@ window.confirmPullFoodDay = function() {
           baseUnit: entry.baseUnit,
           baseNutrients: entry.baseNutrients,
           nutrients: entry.nutrients,
+          imageUrl: entry.imageUrl || '',
           ts: entry.ts
         });
       });
@@ -2059,7 +2311,7 @@ document.getElementById('ov').onclick=closeSidebar;
 
 // ── MODALS ──
 function openModal(id){var el=document.getElementById(id);if(el)el.classList.add('open');}
-window.closeModal=function(id){var el=document.getElementById(id);if(el)el.classList.remove('open');};
+window.closeModal=function(id){var el=document.getElementById(id);if(el)el.classList.remove('open');if(id==='m-food')resetImageState();};
 document.querySelectorAll('.ovl').forEach(function(el){el.addEventListener('click',function(e){if(e.target===el)el.classList.remove('open');});});
 
 // ── BOOTSTRAP ──
