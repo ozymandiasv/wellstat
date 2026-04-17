@@ -328,24 +328,30 @@ body{font-family:var(--fn);background:var(--bg);color:var(--tx);min-height:100vh
       </div>
     </div>
     <div class="ss">
-      <div class="ss-ttl">GitHub Gist Export</div>
+      <div class="ss-ttl">🔗 Shared Gist <span style="font-size:11px;font-weight:400;color:var(--tx3);margin-left:6px">health_log.json</span></div>
+      <div style="padding:4px 16px 8px;font-size:11px;color:var(--tx3)">Shared with WellStat &amp; Habit Tracker. Pushes all nutrition totals + water + alcohol. Pulls shared fields from other apps by date.</div>
       <div class="sr">
         <div><div class="srl">GitHub Token</div><div class="srs">Personal access token with "gist" scope. Create at github.com/settings/tokens</div></div>
         <input class="fi" type="password" id="gh-token" placeholder="ghp_..." style="width:200px;font-size:12px" oninput="saveCfg()">
       </div>
       <div class="sr">
-        <div><div class="srl">Gist ID</div><div class="srs">The ID of your shared health Gist. Leave blank to create new. Push pulls first, merges nutrition data in, then writes back — other apps' fields are never touched.</div></div>
-        <input class="fi" id="gh-gist-id" placeholder="Leave blank to create new" style="width:200px;font-size:12px" oninput="saveCfg()">
+        <div><div class="srl">Shared Gist ID</div><div class="srs">Same ID used by WellStat &amp; Habit Tracker. Push merges nutrition fields in without touching other apps' data.</div></div>
+        <input class="fi" id="gh-gist-id" placeholder="Shared Gist ID" style="width:200px;font-size:12px" oninput="saveCfg()">
       </div>
       <div class="sr">
         <div><div class="srl">Auto-push on save</div></div>
         <label class="tsw"><input type="checkbox" id="auto-push" onchange="saveCfg()"><span class="tsl"></span></label>
       </div>
+      <div class="sr" style="border-bottom:none;gap:8px">
+        <button class="btn" onclick="pullGist()">⬇ Pull</button>
+        <button class="btn" id="gist-btn" onclick="pushGist()">⬆ Push</button>
+      </div>
     </div>
     <div class="ss">
-      <div class="ss-ttl">Food Log Gist <span style="font-size:11px;font-weight:400;color:var(--tx3);margin-left:6px">per-entry raw log — separate from shared health Gist</span></div>
+      <div class="ss-ttl">💾 Nutrition Backup Gist <span style="font-size:11px;font-weight:400;color:var(--tx3);margin-left:6px">ritual-nutrition-backup.json + food_log_*.json</span></div>
+      <div style="padding:4px 16px 8px;font-size:11px;color:var(--tx3)">Your private nutrition-only backup. Stores all food logs, water logs, food DB, meal slots, targets, and settings. Use a separate Gist from the shared one above.</div>
       <div class="sr">
-        <div><div class="srl">Food Log Gist ID</div><div class="srs">A dedicated private Gist for raw food entries (one file per day). Uses the same token above. Leave blank to create new on first push.</div></div>
+        <div><div class="srl">Nutrition Backup Gist ID</div><div class="srs">Leave blank to auto-create on first push. Also stores per-day food_log_*.json files.</div></div>
         <input class="fi" id="food-gist-id" placeholder="Leave blank to auto-create" style="width:200px;font-size:12px" oninput="saveCfg()">
       </div>
       <div class="sr">
@@ -357,6 +363,8 @@ body{font-family:var(--fn);background:var(--bg);color:var(--tx);min-height:100vh
           <button class="btn sm pri" onclick="pushFoodLog(currentDate)">⬆ Push today</button>
           <button class="btn sm" onclick="pullFoodLogDay()">⬇ Pull day…</button>
           <button class="btn sm" onclick="pushFoodLogAll()">⬆ Push all days</button>
+          <button class="btn sm pri" onclick="pushNutritionBackup()">⬆ Full backup</button>
+          <button class="btn sm dng" onclick="pullNutritionBackup()">⬇ Restore backup</button>
         </div>
         <div id="food-gist-status" style="font-size:12px;color:var(--tx3);margin-top:8px;width:100%"></div>
       </div>
@@ -631,11 +639,11 @@ var pendingNutrients = {};
 
 // ── STORAGE ──
 function save(){
-  // Sync gist config back to shared ws2_gist key so index.html can read it
+  // Sync shared gist config to ws2_gist key so index.html can read it
   try{
     var gc = JSON.parse(localStorage.getItem('ws2_gist')||'{}');
     if(S.cfg.ghToken) gc.token = S.cfg.ghToken;
-    if(S.cfg.gistId)  gc.gistId = S.cfg.gistId;
+    if(S.cfg.gistId)  gc.sharedGistId = S.cfg.gistId;
     localStorage.setItem('ws2_gist', JSON.stringify(gc));
   }catch(e){}
   try{localStorage.setItem('ritual_nutrition_v2',JSON.stringify(S));}catch(e){}
@@ -668,11 +676,11 @@ function load(){
       }
     }
   }catch(e){}
-  // Overlay shared Gist config from index.html (ws2_gist key)
+  // Overlay shared Gist config from ws2_gist key (written by index.html or habit tracker)
   try{
     var sgc = JSON.parse(localStorage.getItem('ws2_gist')||'{}');
     if(sgc.token && !S.cfg.ghToken) S.cfg.ghToken = sgc.token;
-    if(sgc.gistId && !S.cfg.gistId) S.cfg.gistId = sgc.gistId;
+    if(sgc.sharedGistId && !S.cfg.gistId) S.cfg.gistId = sgc.sharedGistId;
   }catch(e){}
 }
 
@@ -1898,12 +1906,15 @@ function gistDayToNutKeys(gistDay) {
   return out;
 }
 
-// ── BRIDGE: push nutrition fields into wellstat-data.json ──
-function bridgeNutritionToWellstat(gistId, token, healthLogDays) {
-  if (!gistId || !token) return;
+// ── BRIDGE: push nutrition fields into wellstat-data.json on WellStat gist ──
+function bridgeNutritionToWellstat(healthLogDays) {
+  // WellStat gist ID is stored separately in ws2_gist.wsGistId
+  var wsgc; try { wsgc = JSON.parse(localStorage.getItem('ws2_gist')||'{}'); } catch(e) { return; }
+  var wsGistId = wsgc.wsGistId || wsgc.gistId || '';
+  var token    = S.cfg.ghToken;
+  if (!wsGistId || !token) return; // WellStat gist not configured — skip bridge silently
   var headers = { 'Authorization': 'token ' + token, 'Content-Type': 'application/json', 'Accept': 'application/vnd.github.v3+json' };
-  // First fetch existing wellstat-data.json
-  fetch('https://api.github.com/gists/' + gistId, { headers: headers })
+  fetch('https://api.github.com/gists/' + wsGistId, { headers: headers })
     .then(function(r) { return r.json(); })
     .then(function(gistData) {
       var wsPayload = { version:4, pushed: new Date().toISOString(), days:0, data:{}, settings:null };
@@ -1912,7 +1923,6 @@ function bridgeNutritionToWellstat(gistId, token, healthLogDays) {
         if (wsFile && wsFile.content) wsPayload = JSON.parse(wsFile.content);
       } catch(e) {}
       if (!wsPayload.data) wsPayload.data = {};
-      // Merge all nutrition fields into wellstat data (keys are already in Gist format)
       Object.keys(healthLogDays).forEach(function(ds) {
         if (!wsPayload.data[ds]) wsPayload.data[ds] = {};
         var hl = healthLogDays[ds];
@@ -1924,13 +1934,81 @@ function bridgeNutritionToWellstat(gistId, token, healthLogDays) {
       });
       wsPayload.days = Object.keys(wsPayload.data).length;
       wsPayload.pushed = new Date().toISOString();
-      return fetch('https://api.github.com/gists/' + gistId, {
+      return fetch('https://api.github.com/gists/' + wsGistId, {
         method: 'PATCH', headers: headers,
         body: JSON.stringify({ files: { 'wellstat-data.json': { content: JSON.stringify(wsPayload, null, 2) } } })
       });
     })
     .catch(function(e) { console.warn('WellStat bridge push failed:', e.message); });
 }
+
+// ── NUTRITION FULL BACKUP (everything → ritual-nutrition-backup.json in Backup Gist) ──
+window.pushNutritionBackup = function() {
+  var token  = S.cfg.ghToken;
+  var gistId = S.cfg.foodGistId; // nutrition backup gist
+  if (!token) { setFoodGistStatus('⚠️ No GitHub token set.', 'var(--dng)'); return; }
+  var snapshot = {
+    version: 2,
+    backed_up: new Date().toISOString(),
+    logs:    JSON.parse(JSON.stringify(S.logs)),
+    water:   JSON.parse(JSON.stringify(S.water)),
+    foodDB:  JSON.parse(JSON.stringify(S.foodDB)),
+    cfg:     JSON.parse(JSON.stringify(S.cfg))
+  };
+  var headers = { 'Authorization': 'token ' + token, 'Content-Type': 'application/json', 'Accept': 'application/vnd.github.v3+json' };
+  var url    = gistId ? 'https://api.github.com/gists/' + gistId : 'https://api.github.com/gists';
+  var method = gistId ? 'PATCH' : 'POST';
+  var body = { description: 'Ritual Nutrition Backup — ' + new Date().toISOString().split('T')[0], public: false,
+    files: { 'ritual-nutrition-backup.json': { content: JSON.stringify(snapshot, null, 2) } } };
+  setFoodGistStatus('Backing up…', 'var(--tx3)');
+  fetch(url, { method: method, headers: headers, body: JSON.stringify(body) })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      if (data.id) {
+        if (!gistId) { S.cfg.foodGistId = data.id; save(); renderSettings(); }
+        var dayCount = Object.keys(snapshot.logs).length;
+        setFoodGistStatus('✓ Backed up ' + dayCount + ' day(s) + ' + snapshot.foodDB.length + ' foods — ' + new Date().toLocaleTimeString(), 'var(--ac)');
+      } else {
+        setFoodGistStatus('✗ ' + (data.message || 'Unknown error'), 'var(--dng)');
+      }
+    })
+    .catch(function(e) { setFoodGistStatus('✗ Network error: ' + e.message, 'var(--dng)'); });
+};
+
+window.pullNutritionBackup = function() {
+  var token  = S.cfg.ghToken;
+  var gistId = S.cfg.foodGistId;
+  if (!token || !gistId) { setFoodGistStatus('⚠️ Set token and Nutrition Backup Gist ID first.', 'var(--dng)'); return; }
+  if (!confirm('⚠ This will REPLACE all local food logs, water logs, food DB, and settings with the backup.\n\nAre you sure?')) return;
+  var headers = { 'Authorization': 'token ' + token, 'Accept': 'application/vnd.github.v3+json' };
+  setFoodGistStatus('Restoring…', 'var(--tx3)');
+  fetch('https://api.github.com/gists/' + gistId, { headers: headers })
+    .then(function(r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+    .then(function(data) {
+      var file = data.files && data.files['ritual-nutrition-backup.json'];
+      if (!file || !file.content) throw new Error('No ritual-nutrition-backup.json found in this Gist.');
+      var snap = JSON.parse(file.content);
+      // Preserve current connection settings
+      var savedToken     = S.cfg.ghToken;
+      var savedGistId    = S.cfg.gistId;
+      var savedFoodGistId= S.cfg.foodGistId;
+      S.logs   = snap.logs   || {};
+      S.water  = snap.water  || {};
+      S.foodDB = snap.foodDB || [];
+      S.cfg    = Object.assign({}, S.cfg, snap.cfg || {});
+      S.cfg.ghToken    = savedToken;
+      S.cfg.gistId     = savedGistId;
+      S.cfg.foodGistId = savedFoodGistId;
+      save();
+      applyTheme();
+      renderLog();
+      renderHistory();
+      renderSettings();
+      var backed = snap.backed_up ? new Date(snap.backed_up).toLocaleString() : 'unknown date';
+      setFoodGistStatus('✓ Restored ' + Object.keys(S.logs).length + ' day(s) from backup dated ' + backed, 'var(--ac)');
+    })
+    .catch(function(e) { setFoodGistStatus('✗ ' + e.message, 'var(--dng)'); });
+};
 
 // ── FOOD LOG GIST — raw per-entry log, one file per day ──
 
@@ -2171,8 +2249,8 @@ window.pushGist = function(silent) {
       .then(function(data) {
         if (data.id) {
           S.cfg.gistId = data.id; save(); renderSettings();
-          // Also bridge nutrition data into wellstat-data.json for index.html
-          bridgeNutritionToWellstat(data.id, token, sorted);
+          // Also bridge nutrition data into wellstat-data.json on WellStat gist
+          bridgeNutritionToWellstat(sorted);
           if (!silent) {
             var gb = document.getElementById('gist-body');
             if (gb) gb.innerHTML =

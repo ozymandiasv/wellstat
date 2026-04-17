@@ -389,19 +389,25 @@ body{font-family:var(--fn);background:var(--bg);color:var(--tx);min-height:100vh
         <input class="wi-input" type="number" id="wtgt" value="3" min="0.5" max="10" step="0.5" onchange="saveCfg()" style="width:70px"></div>
     </div>
     <div class="ss">
-      <div class="ss-ttl" style="display:flex;align-items:center;justify-content:space-between">🔗 Gist Sync <button class="btn" style="font-size:11px;padding:3px 9px" onclick="document.getElementById('m-gist-guide').classList.add('open')">? Setup guide</button></div>
+      <div class="ss-ttl" style="display:flex;align-items:center;justify-content:space-between">🔗 Shared Gist <span style="font-size:11px;font-weight:400;color:var(--tx3)">health_log.json</span> <button class="btn" style="font-size:11px;padding:3px 9px" onclick="document.getElementById('m-gist-guide').classList.add('open')">? Setup guide</button></div>
+      <div style="padding:4px 16px 8px;font-size:11px;color:var(--tx3)">Shared with WellStat &amp; Nutrition. Pushes <code style="font-family:monospace">habit_completion</code>, <code style="font-family:monospace">stuff_count</code>, <code style="font-family:monospace">water</code>. Pulls those same fields from other apps by date.</div>
       <div class="sr"><div><div class="srl">GitHub Token</div><div class="srs">Personal access token with "gist" scope</div></div>
         <input class="fi" type="password" id="gh-token" placeholder="ghp_..." style="width:180px;font-size:12px" oninput="saveCfg()"></div>
-      <div class="sr"><div><div class="srl">Gist ID</div><div class="srs">Leave blank to create new. Paste existing Gist ID to sync with it.</div></div>
-        <input class="fi" id="gh-gist-id" placeholder="Leave blank = create new" style="width:180px;font-size:12px" oninput="saveCfg()"></div>
+      <div class="sr"><div><div class="srl">Shared Gist ID</div><div class="srs">Same ID used by WellStat &amp; Nutrition apps</div></div>
+        <input class="fi" id="gh-gist-id" placeholder="Shared Gist ID" style="width:180px;font-size:12px" oninput="saveCfg()"></div>
       <div class="sr"><div><div class="srl">Auto-push on save</div></div>
         <label class="tsw"><input type="checkbox" id="auto-push" onchange="saveCfg()"><span class="tsl"></span></label></div>
-      <div class="sr"><div></div><button class="btn pri" onclick="pushToGist()">⬆ Push now</button></div>
+      <div class="sr"><div></div>
+        <button class="btn" onclick="pullFromSharedGist()">⬇ Pull</button>
+        <button class="btn pri" onclick="pushToGist()" style="margin-left:6px">⬆ Push</button>
+      </div>
     </div>
     <div class="ss">
-      <div class="ss-ttl">💾 Full Backup Sync</div>
-      <div style="padding:8px 16px 4px;font-size:11px;color:var(--tx3)">Backs up <strong>everything</strong> — habits, sub-tasks, check-ins, icons, logs, and settings — to a separate file <code style="font-family:monospace">ritual-backup.json</code> in the same Gist. Use the same Token &amp; Gist ID above.</div>
-      <div class="sr"><div><div class="srl">Push Full Backup</div><div class="srs">Overwrites ritual-backup.json in your Gist</div></div>
+      <div class="ss-ttl">💾 Habit Backup Gist <span style="font-size:11px;font-weight:400;color:var(--tx3)">ritual-backup.json + ritual-habit-data.json</span></div>
+      <div style="padding:4px 16px 8px;font-size:11px;color:var(--tx3)">Your private habit-tracker-only backup. Stores all habits, sub-tasks, check-ins, icons, logs, and settings. Use a separate Gist from the shared one above.</div>
+      <div class="sr"><div><div class="srl">Habit Backup Gist ID</div><div class="srs">Leave blank to auto-create on first push</div></div>
+        <input class="fi" id="gh-backup-gist-id" placeholder="Leave blank = auto-create" style="width:180px;font-size:12px" oninput="saveCfg()"></div>
+      <div class="sr"><div><div class="srl">Push Full Backup</div><div class="srs">Overwrites ritual-backup.json in your Backup Gist</div></div>
         <button class="btn pri" onclick="pushFullBackup()">⬆ Backup now</button></div>
       <div class="sr"><div><div class="srl">Pull Full Backup</div><div class="srs">Restores everything from ritual-backup.json — overwrites local data</div></div>
         <button class="btn dng" onclick="pullFullBackup()">⬇ Restore now</button></div>
@@ -582,7 +588,7 @@ var S = {
   tasks:[], logs:{}, enqs:[], elogs:{}, water:{},
   stuff:{},   // { "YYYY-MM-DD": count }
   uiIcons:{},
-  cfg:{ theme:'light', notif:false, notifOff:10, wTgt:3, gistId:'', ghToken:'' }
+  cfg:{ theme:'light', notif:false, notifOff:10, wTgt:3, gistId:'', backupGistId:'', ghToken:'' }
 };
 
 var editTid = null;
@@ -619,11 +625,11 @@ var UI_DEFS = [
 
 // ── STORAGE ──
 function save() {
-  // Sync gist config to shared ws2_gist key
+  // Sync shared gist config to shared ws2_gist key (token + shared gist ID)
   try {
     var gc = JSON.parse(localStorage.getItem('ws2_gist')||'{}');
     if(S.cfg.ghToken) gc.token = S.cfg.ghToken;
-    if(S.cfg.gistId)  gc.gistId = S.cfg.gistId;
+    if(S.cfg.gistId)  gc.sharedGistId = S.cfg.gistId;
     localStorage.setItem('ws2_gist', JSON.stringify(gc));
   } catch(e) {}
   try { localStorage.setItem('ritual_v4', JSON.stringify(S)); } catch(e) {}
@@ -640,17 +646,17 @@ function load() {
       S.water   = parsed.water   || {};
       S.stuff   = parsed.stuff   || {};
       S.uiIcons = parsed.uiIcons || {};
-      S.cfg     = Object.assign({theme:'light',notif:false,notifOff:10,wTgt:3,ghToken:'',gistId:'',autoPush:false,
+      S.cfg     = Object.assign({theme:'light',notif:false,notifOff:10,wTgt:3,ghToken:'',gistId:'',backupGistId:'',autoPush:false,
         gistKeys:{stuff_count:'stuff_count',water:'water',dietary_calories:'dietary_calories'}
       }, parsed.cfg || {});
       if(!S.cfg.gistKeys) S.cfg.gistKeys={stuff_count:'stuff_count',water:'water',dietary_calories:'dietary_calories'};
     }
   } catch(e) {}
-  // Overlay shared Gist config from ws2_gist
+  // Overlay shared Gist config from ws2_gist (token + shared gist ID)
   try {
     var sgc = JSON.parse(localStorage.getItem('ws2_gist')||'{}');
     if(sgc.token && !S.cfg.ghToken) S.cfg.ghToken = sgc.token;
-    if(sgc.gistId && !S.cfg.gistId) S.cfg.gistId = sgc.gistId;
+    if(sgc.sharedGistId && !S.cfg.gistId) S.cfg.gistId = sgc.sharedGistId;
   } catch(e) {}
 }
 
@@ -1559,6 +1565,7 @@ window.saveCfg = function() {
   var wt = document.getElementById('wtgt'); if(wt) S.cfg.wTgt = parseFloat(wt.value)||3;
   var gt = document.getElementById('gh-token'); if(gt) S.cfg.ghToken = gt.value.trim();
   var gi = document.getElementById('gh-gist-id'); if(gi) S.cfg.gistId = gi.value.trim();
+  var bg = document.getElementById('gh-backup-gist-id'); if(bg) S.cfg.backupGistId = bg.value.trim();
   var ap = document.getElementById('auto-push'); if(ap) S.cfg.autoPush = ap.checked;
   // Read gist key overrides
   var keyFields = ['stuff_count','water','dietary_calories','steps','weight','sleep_score'];
@@ -1638,6 +1645,34 @@ function bridgeHabitToWellstat(gistId, token, allDates) {
     .catch(function(e){ console.warn('WellStat bridge push failed:', e.message); });
 }
 
+// ── GIST PULL (shared health_log.json → read shared fields into local view) ──
+window.pullFromSharedGist = function() {
+  var token  = S.cfg.ghToken;
+  var gistId = S.cfg.gistId;
+  if (!token || !gistId) { alert('Set your GitHub token and Shared Gist ID in Settings first.'); return; }
+  var headers = { 'Authorization': 'token ' + token, 'Accept': 'application/vnd.github.v3+json' };
+  fetch('https://api.github.com/gists/' + gistId, { headers: headers })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      var file = data.files && data.files['health_log.json'];
+      if (!file || !file.content) { alert('No health_log.json found in shared Gist.'); return; }
+      var shared = JSON.parse(file.content);
+      // Merge shared fields into local water/stuff stores (by date)
+      var updated = 0;
+      Object.keys(shared).forEach(function(ds) {
+        if (!/^\d{4}-\d{2}-\d{2}$/.test(ds)) return;
+        var day = shared[ds];
+        // water: bring in from nutrition if not locally set
+        if (day.water != null && !S.water[ds]) { S.water[ds] = day.water; updated++; }
+        // stuff_count: only pull if we don't have a local value
+        if (day.stuff_count != null && (S.stuff[ds] == null)) { S.stuff[ds] = day.stuff_count; updated++; }
+      });
+      if (updated) { save(); renderDash(); }
+      alert('✓ Pulled shared data from health_log.json (' + Object.keys(shared).length + ' dates). ' + updated + ' field(s) merged locally.');
+    })
+    .catch(function(e) { alert('Pull failed: ' + e.message); });
+};
+
 // ── GIST PUSH (habit tracker → shared health_log.json) ──
 window.pushToGist = function(silent) {
   var token = S.cfg.ghToken;
@@ -1695,12 +1730,16 @@ window.pushToGist = function(silent) {
       .then(function(data) {
         if (data.id) {
           S.cfg.gistId = data.id; save(); renderGistKeyRows();
-          // Bridge habit data into wellstat-data.json
-          bridgeHabitToWellstat(data.id, token, allDates);
+          // Bridge habit data into wellstat-data.json on the WellStat gist (separate gist)
+          try {
+            var wsgc = JSON.parse(localStorage.getItem('ws2_gist') || '{}');
+            var wsGistId = wsgc.wsGistId || wsgc.gistId || '';
+            if (wsGistId) bridgeHabitToWellstat(wsGistId, token, allDates);
+          } catch(e) {}
           if (!silent) {
             var gi = document.getElementById('gh-gist-id');
             if (gi) gi.value = data.id;
-            alert('✓ Pushed to Gist!\n' + data.html_url);
+            alert('✓ Pushed to Shared Gist!\n' + data.html_url);
           }
         } else {
           if (!silent) alert('Gist error: ' + (data.message||'unknown'));
@@ -1724,11 +1763,11 @@ window.pushToGist = function(silent) {
   }
 };
 
-// ── FULL BACKUP PUSH (everything → ritual-backup.json) ──
+// ── FULL BACKUP PUSH (everything → ritual-backup.json in Habit Backup Gist) ──
 window.pushFullBackup = function() {
   var token = S.cfg.ghToken;
-  if (!token) { alert('Set your GitHub token in Settings → Gist Sync first.'); return; }
-  var gistId = S.cfg.gistId;
+  if (!token) { alert('Set your GitHub token in Settings → Shared Gist first.'); return; }
+  var gistId = S.cfg.backupGistId; // use BACKUP gist, not shared gist
   var headers = { 'Authorization': 'token ' + token, 'Content-Type': 'application/json' };
 
   // Build complete snapshot — all tasks, sub-tasks, icons, check-ins, logs, config
@@ -1768,8 +1807,8 @@ window.pushFullBackup = function() {
     .then(function(data) {
       if (data.id) {
         if (!gistId) {
-          S.cfg.gistId = data.id; save();
-          var gi = document.getElementById('gh-gist-id'); if (gi) gi.value = data.id;
+          S.cfg.backupGistId = data.id; save();
+          var bg = document.getElementById('gh-backup-gist-id'); if (bg) bg.value = data.id;
           renderGistKeyRows();
         }
         var taskCount = (snapshot.tasks || []).length;
@@ -1786,9 +1825,9 @@ window.pushFullBackup = function() {
 // ── FULL BACKUP PULL (ritual-backup.json → restore everything) ──
 window.pullFullBackup = function() {
   var token = S.cfg.ghToken;
-  if (!token) { alert('Set your GitHub token in Settings → Gist Sync first.'); return; }
-  var gistId = S.cfg.gistId;
-  if (!gistId) { alert('No Gist ID set. Push a backup first, or enter your Gist ID.'); return; }
+  if (!token) { alert('Set your GitHub token in Settings → Shared Gist first.'); return; }
+  var gistId = S.cfg.backupGistId; // use BACKUP gist
+  if (!gistId) { alert('No Habit Backup Gist ID set. Push a backup first, or enter your Backup Gist ID.'); return; }
 
   if (!confirm('⚠ This will REPLACE all your local habits, check-ins, logs, and settings with the backup.\n\nAre you sure?')) return;
 
@@ -1804,9 +1843,10 @@ window.pullFullBackup = function() {
       if (!file || !file.content) throw new Error('No ritual-backup.json found in this Gist. Have you pushed a full backup yet?');
 
       var snap = JSON.parse(file.content);
-      // Restore all fields, keep current token/gistId so we don't lose connection
-      var savedToken  = S.cfg.ghToken;
-      var savedGistId = S.cfg.gistId;
+      // Restore all fields, preserve token + both gist IDs so we don't lose connection
+      var savedToken        = S.cfg.ghToken;
+      var savedGistId       = S.cfg.gistId;
+      var savedBackupGistId = S.cfg.backupGistId;
 
       S.tasks   = snap.tasks   || [];
       S.logs    = snap.logs    || {};
@@ -1815,10 +1855,11 @@ window.pullFullBackup = function() {
       S.water   = snap.water   || {};
       S.stuff   = snap.stuff   || {};
       S.uiIcons = snap.uiIcons || {};
-      S.cfg     = Object.assign({ theme:'light', notif:false, notifOff:10, wTgt:3, ghToken:'', gistId:'', autoPush:false, gistKeys:{} }, snap.cfg || {});
+      S.cfg     = Object.assign({ theme:'light', notif:false, notifOff:10, wTgt:3, ghToken:'', gistId:'', backupGistId:'', autoPush:false, gistKeys:{} }, snap.cfg || {});
       // Always preserve current connection settings
-      S.cfg.ghToken = savedToken;
-      S.cfg.gistId  = savedGistId;
+      S.cfg.ghToken       = savedToken;
+      S.cfg.gistId        = savedGistId;
+      S.cfg.backupGistId  = savedBackupGistId;
 
       save();
       applyTheme();
@@ -1832,6 +1873,7 @@ window.pullFullBackup = function() {
       var wtgt = document.getElementById('wtgt'); if (wtgt) wtgt.value = S.cfg.wTgt || 3;
       var noff = document.getElementById('notif-off'); if (noff) noff.value = S.cfg.notifOff || 10;
       var gi   = document.getElementById('gh-gist-id'); if (gi) gi.value = S.cfg.gistId || '';
+      var bg   = document.getElementById('gh-backup-gist-id'); if (bg) bg.value = S.cfg.backupGistId || '';
       var ap   = document.getElementById('auto-push'); if (ap) ap.checked = !!S.cfg.autoPush;
 
       var backed = snap.backed_up ? new Date(snap.backed_up).toLocaleString() : 'unknown date';
@@ -1966,6 +2008,7 @@ var wtgt=document.getElementById('wtgt'); if(wtgt) wtgt.value=S.cfg.wTgt||3;
 var noff=document.getElementById('notif-off'); if(noff) noff.value=S.cfg.notifOff||10;
 var ghtok=document.getElementById('gh-token'); if(ghtok) ghtok.value=S.cfg.ghToken||'';
 var ghgid=document.getElementById('gh-gist-id'); if(ghgid) ghgid.value=S.cfg.gistId||'';
+var ghbgid=document.getElementById('gh-backup-gist-id'); if(ghbgid) ghbgid.value=S.cfg.backupGistId||'';
 var apush=document.getElementById('auto-push'); if(apush) apush.checked=!!S.cfg.autoPush;
 
 // Today label

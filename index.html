@@ -1714,10 +1714,10 @@ canvas{display:block}
         <!-- GitHub Gist sync panel for mobile -->
         <div style="width:100%;max-width:400px;text-align:left;background:var(--surface2);border:1px solid var(--border);border-radius:var(--rm);padding:18px;margin-top:14px">
           <div style="font-family:var(--fd);font-size:15px;font-weight:800;color:var(--t1);margin-bottom:4px">🐙 GitHub Sync</div>
-          <div style="font-size:12px;color:var(--t3);margin-bottom:14px">Sync via GitHub Gist — free, no Google needed. Same Gist ID + token across all devices.</div>
+          <div style="font-size:12px;color:var(--t3);margin-bottom:14px">Sync your WellStat data via GitHub Gist. Use the same WellStat Gist ID + token across all devices. Configure the Shared Gist in desktop Settings.</div>
           <div id="stg-mobile-gist-content">
-            <div style="font-size:11px;font-weight:700;color:var(--t3);margin-bottom:4px">Gist ID</div>
-            <input id="mob-gist-id" class="stg-input" style="width:100%;margin-bottom:10px;box-sizing:border-box;font-family:var(--fm);font-size:12px" placeholder="a3f8b2c1d4e5f6..." value="">
+            <div style="font-size:11px;font-weight:700;color:var(--t3);margin-bottom:4px">WellStat Gist ID</div>
+            <input id="mob-gist-id" class="stg-input" style="width:100%;margin-bottom:10px;box-sizing:border-box;font-family:var(--fm);font-size:12px" placeholder="WellStat Gist ID..." value="">
             <div style="font-size:11px;font-weight:700;color:var(--t3);margin-bottom:4px">GitHub Token</div>
             <input id="mob-gist-token" class="stg-input" style="width:100%;margin-bottom:14px;box-sizing:border-box;font-family:var(--fm);font-size:12px" placeholder="ghp_xxxxxxxxxxxx" type="password" value="">
             <div style="display:flex;gap:8px;flex-wrap:wrap">
@@ -1895,7 +1895,7 @@ vitals:[
 mindful:[
   {key:'surround_sound',    label:'Sound Level',      unit:'dB',   bl:null,bh:55,  bl2:null,bh2:85,   scored:true},
   {key:'daylight',          label:'Daylight',         unit:'min',  bl:45,  bh:null, bl2:10,  bh2:null, scored:true},
-  {key:'mindful_mins',      label:'Mindfulness',      unit:'min',  bl:10,  bh:null, bl2:2,   bh2:null, scored:true},
+  {key:'mindful_mins',      label:'Mindfulness',      unit:'min',  bl:10,  bh:null, bl2:2,   bh2:null, scored:false},
   {key:'state_of_mind',     label:'State of Mind',    unit:'',     bl:50,  bh:null, bl2:-100, bh2:null, scored:false},
 ],
 sleep:[
@@ -1951,39 +1951,41 @@ nutrition_macro:[
   {key:'fat_cal_pct',       label:'Fat Cal %',        unit:'%',    bl:20,bh:35,  bl2:10,bh2:50, scored:false, computed:true},
 ],
 minerals:[
-  {key:'calcium',   label:'Calcium',   unit:'mg', bl:1000,bh:2500,  bl2:500,  bh2:3000, scored:true},
+  {key:'calcium',   label:'Calcium',   unit:'mg', bl:1000,bh:2500,  bl2:500,  bh2:3000, scored:false},
   {key:'chloride',  label:'Chloride',  unit:'mg', bl:1800,bh:2300,  bl2:500,  bh2:3600, scored:false},
-  {key:'iron',      label:'Iron',      unit:'mg', bl:8,   bh:45,    bl2:3,    bh2:60,   scored:true},
-  {key:'magnesium', label:'Magnesium', unit:'mg', bl:320, bh:420,   bl2:100,  bh2:700,  scored:true},
+  {key:'iron',      label:'Iron',      unit:'mg', bl:8,   bh:45,    bl2:3,    bh2:60,   scored:false},
+  {key:'magnesium', label:'Magnesium', unit:'mg', bl:320, bh:420,   bl2:100,  bh2:700,  scored:false},
   {key:'phosphorus',label:'Phosphorus',unit:'mg', bl:700, bh:4000,  bl2:300,  bh2:5000, scored:false},
-  {key:'potassium', label:'Potassium', unit:'mg', bl:3500,bh:null,  bl2:1500, bh2:null, scored:true},
-  {key:'sodium',    label:'Sodium',    unit:'mg', bl:null,bh:2300,  bl2:null, bh2:3500, scored:true},
-  {key:'zinc',      label:'Zinc',      unit:'mg', bl:8,   bh:40,    bl2:3,    bh2:50,   scored:true},
+  {key:'potassium', label:'Potassium', unit:'mg', bl:3500,bh:null,  bl2:1500, bh2:null, scored:false},
+  {key:'sodium',    label:'Sodium',    unit:'mg', bl:null,bh:2300,  bl2:null, bh2:3500, scored:false},
+  {key:'zinc',      label:'Zinc',      unit:'mg', bl:8,   bh:40,    bl2:3,    bh2:50,   scored:false},
   {key:'chromium',  label:'Chromium',  unit:'mcg',bl:25,  bh:null,  bl2:10,   bh2:null, scored:false},
   {key:'copper',    label:'Copper',    unit:'mg', bl:0.9, bh:10,    bl2:0.3,  bh2:12,   scored:false},
-  {key:'iodine',    label:'Iodine',    unit:'mcg',bl:150, bh:1100,  bl2:50,   bh2:1500, scored:true},
+  {key:'iodine',    label:'Iodine',    unit:'mcg',bl:150, bh:1100,  bl2:50,   bh2:1500, scored:false},
   {key:'manganese', label:'Manganese', unit:'mg', bl:1.8, bh:11,    bl2:0.5,  bh2:14,   scored:false},
   {key:'molybdenum',label:'Molybdenum',unit:'mcg',bl:45,  bh:2000,  bl2:15,   bh2:2500, scored:false},
-  {key:'selenium',  label:'Selenium',  unit:'mcg',bl:55,  bh:400,   bl2:20,   bh2:500,  scored:true},
+  {key:'selenium',  label:'Selenium',  unit:'mcg',bl:55,  bh:400,   bl2:20,   bh2:500,  scored:false},
+  {key:'combined_minerals', label:'Combined Minerals', unit:'%', bl:60, bh:null, bl2:30, bh2:null, scored:true, computed:true},
 ],
 vitamins:[
-  {key:'vitamin_a',          label:'Vitamin A',    unit:'mcg',bl:700,  bh:3000,  bl2:200,  bh2:4000,  scored:true},
-  {key:'vitamin_e',          label:'Vitamin E',    unit:'mg', bl:15,   bh:1000,  bl2:5,    bh2:1500,  scored:true},
-  {key:'vitamin_d',          label:'Vitamin D',    unit:'mcg',bl:15,   bh:100,   bl2:5,    bh2:150,   scored:true},
-  {key:'vitamin_c',          label:'Vitamin C',    unit:'mg', bl:75,   bh:2000,  bl2:20,   bh2:3000,  scored:true},
-  {key:'thiamin',            label:'Thiamin',      unit:'mg', bl:1.1,  bh:null,  bl2:0.4,  bh2:null,  scored:true},
-  {key:'riboflavin',         label:'Riboflavin',   unit:'mg', bl:1.1,  bh:null,  bl2:0.4,  bh2:null,  scored:true},
-  {key:'niacin',             label:'Niacin',       unit:'mg', bl:14,   bh:35,    bl2:5,    bh2:50,    scored:true},
-  {key:'pantothenic_acid',   label:'Pantothenic',  unit:'mg', bl:5,    bh:null,  bl2:1.5,  bh2:null,  scored:true},
-  {key:'vitamin_b6',         label:'Vitamin B6',   unit:'mg', bl:1.3,  bh:100,   bl2:0.4,  bh2:150,   scored:true},
-  {key:'biotin',             label:'Biotin',        unit:'mcg',bl:30,   bh:null,  bl2:10,   bh2:null,  scored:true},
-  {key:'folate',             label:'Folate',        unit:'mcg',bl:400,  bh:1000,  bl2:120,  bh2:1500,  scored:true},
-  {key:'vitamin_b12',        label:'Vitamin B12',  unit:'mcg',bl:2.4,  bh:null,  bl2:0.5,  bh2:null,  scored:true},
-  {key:'vitamin_k',          label:'Vitamin K',    unit:'mcg',bl:90,   bh:null,  bl2:30,   bh2:null,  scored:true},
+  {key:'vitamin_a',          label:'Vitamin A',    unit:'mcg',bl:700,  bh:3000,  bl2:200,  bh2:4000,  scored:false},
+  {key:'vitamin_e',          label:'Vitamin E',    unit:'mg', bl:15,   bh:1000,  bl2:5,    bh2:1500,  scored:false},
+  {key:'vitamin_d',          label:'Vitamin D',    unit:'mcg',bl:15,   bh:100,   bl2:5,    bh2:150,   scored:false},
+  {key:'vitamin_c',          label:'Vitamin C',    unit:'mg', bl:75,   bh:2000,  bl2:20,   bh2:3000,  scored:false},
+  {key:'thiamin',            label:'Thiamin',      unit:'mg', bl:1.1,  bh:null,  bl2:0.4,  bh2:null,  scored:false},
+  {key:'riboflavin',         label:'Riboflavin',   unit:'mg', bl:1.1,  bh:null,  bl2:0.4,  bh2:null,  scored:false},
+  {key:'niacin',             label:'Niacin',       unit:'mg', bl:14,   bh:35,    bl2:5,    bh2:50,    scored:false},
+  {key:'pantothenic_acid',   label:'Pantothenic',  unit:'mg', bl:5,    bh:null,  bl2:1.5,  bh2:null,  scored:false},
+  {key:'vitamin_b6',         label:'Vitamin B6',   unit:'mg', bl:1.3,  bh:100,   bl2:0.4,  bh2:150,   scored:false},
+  {key:'biotin',             label:'Biotin',        unit:'mcg',bl:30,   bh:null,  bl2:10,   bh2:null,  scored:false},
+  {key:'folate',             label:'Folate',        unit:'mcg',bl:400,  bh:1000,  bl2:120,  bh2:1500,  scored:false},
+  {key:'vitamin_b12',        label:'Vitamin B12',  unit:'mcg',bl:2.4,  bh:null,  bl2:0.5,  bh2:null,  scored:false},
+  {key:'vitamin_k',          label:'Vitamin K',    unit:'mcg',bl:90,   bh:null,  bl2:30,   bh2:null,  scored:false},
+  {key:'combined_vitamins',  label:'Combined Vitamins', unit:'%', bl:60, bh:null, bl2:30, bh2:null, scored:true, computed:true},
 ],
 screen:[
-  {key:'book_time',      label:'Book',       unit:'min',bl:30,bh:null,bl2:5,bh2:null,scored:true},
-  {key:'movie_time',     label:'Movie',      unit:'min',bl:null,bh:90,bl2:null,bh2:180,scored:true},
+  {key:'book_time',      label:'Book',       unit:'min',bl:30,bh:null,bl2:5,bh2:null,scored:false},
+  {key:'movie_time',     label:'Movie',      unit:'min',bl:null,bh:90,bl2:null,bh2:180,scored:false},
   {key:'reddit_time',    label:'Reddit',     unit:'min',bl:null,bh:30,bl2:null,bh2:90,scored:true},
   {key:'twitter_time',   label:'Twitter/X',  unit:'min',bl:null,bh:20,bl2:null,bh2:60,scored:true},
   {key:'youtube_time',   label:'YouTube',    unit:'min',bl:null,bh:60,bl2:null,bh2:180,scored:true},
@@ -1994,8 +1996,12 @@ screen:[
   {key:'total_screen',   label:'Total Screen',unit:'min',bl:null,bh:180,bl2:null,bh2:420,scored:false,computed:true},
 ],
 habits:[
-  {key:'stuff_count',    label:'Stuff',      unit:'',  bl:null,bh:1,bl2:null,bh2:3, scored:true},
-  {key:'alcohol',        label:'Alcohol',    unit:'units',bl:null,bh:0,bl2:null,bh2:3,scored:true},
+  {key:'stuff_count',       label:'Stuff',              unit:'',   bl:null,bh:1,   bl2:null,bh2:3,   scored:true},
+  {key:'alcohol',           label:'Alcohol',            unit:'units',bl:null,bh:0, bl2:null,bh2:3,   scored:true},
+  {key:'mindful_mins',      label:'Mindfulness',        unit:'min',bl:10,  bh:null,bl2:2,   bh2:null, scored:true},
+  {key:'book_time',         label:'Book',               unit:'min',bl:30,  bh:null,bl2:5,   bh2:null, scored:true},
+  {key:'movie_time',        label:'Movie',              unit:'min',bl:null, bh:90, bl2:null, bh2:180, scored:true},
+  {key:'habit_completion',  label:'Habit Completion',   unit:'%',  bl:80,  bh:null,bl2:50,  bh2:null, scored:true},
 ],
 movement:[
   // lower is better for most movement quality metrics
@@ -2399,6 +2405,17 @@ function generateLocalInsights(catId, dates){
 
   if(catId==='habits'){
     const dl=v('daylight'), mind=v('mindful_mins'), alc=v('alcohol'), surr=v('surround_sound');
+    const hc=v('habit_completion'), book=v('book_time'), movie=v('movie_time');
+    if(hc!=null){
+      if(hc>=90) ins.push({type:'good', text:'✅ Habit completion '+Math.round(hc)+'% — excellent consistency from your external app.'});
+      else if(hc>=70) ins.push({type:'info', text:'✅ Habit completion '+Math.round(hc)+'%. Aim for 80%+ to build lasting automaticity.'});
+      else ins.push({type:'warn', text:'✅ Habit completion only '+Math.round(hc)+'%. Consider simplifying your habit stack for better follow-through.'});
+    }
+    if(book>0) ins.push({type:'good', text:'📚 '+Math.round(book)+'min reading today. Reading 30min/day builds vocabulary, focus, and reduces stress.'});
+    if(movie>0){
+      if(movie<=90) ins.push({type:'good', text:'🎬 '+Math.round(movie)+'min of films today — moderate viewing supports relaxation.'});
+      else ins.push({type:'info', text:'🎬 '+Math.round(movie)+'min movie time. Keep passive screen time balanced with active pursuits.'});
+    }
     if(dl>0){
       if(dl>=20) ins.push({type:'good', text:'☀️ '+Math.round(dl)+'min daylight — excellent. Morning light regulates cortisol and circadian rhythm.'});
       else ins.push({type:'warn', text:'☀️ Only '+Math.round(dl)+'min daylight. Low light exposure disrupts sleep, mood, and vitamin D.'});
@@ -2413,7 +2430,7 @@ function generateLocalInsights(catId, dates){
       if(alc>=2) ins.push({type:'warn', text:'🍷 Alcohol logged today. Disrupts REM sleep, raises resting HR by 5-20bpm next day.'});
     }
     if(surr>0 && surr>180) ins.push({type:'warn', text:'🎧 '+Math.round(surr)+'min loud sound exposure. Prolonged noise exposure increases stress hormones.'});
-    if(!dl && !mind) ins.push({type:'info', text:'📝 No habits logged. Track daylight and mindfulness to build streaks and see correlations.'});
+    if(!dl && !mind && hc==null) ins.push({type:'info', text:'📝 No habits logged. Track daylight, mindfulness, and habit completion to build streaks.'});
   }
 
   if(catId==='physique' || catId==='movement'){
@@ -2517,7 +2534,7 @@ function computeScore(date){
   const _isRest = typeof isRestDay === 'function' && isRestDay(date);
   if(_isRest) return {overall:null, catScores:{}, workoutBonus:0, workoutTypes:0, workoutElite:false, wCompleted:0, energyOver:0, activityOver:0, maxScore:null, isRestDay:true};
   const e = computeAllFields(getEntry(date));
-  const catW = {energy:10,activity:12,workout:12,vitals:15,sleep:15,physique:12,nutrition:12,screen:5,habits:7};
+  const catW = {energy:10,activity:12,workout:12,vitals:15,sleep:15,physique:12,nutrition:12,screen:5,habits:9};
   let totalW=0, totalS=0;
   const catScores = {};
   CATS.forEach(cat=>{
@@ -3259,7 +3276,7 @@ function renderDashboard(){
         const vals = periodScores.map(s=>s.catScores[cat]).filter(v=>v!=null);
         if(vals.length) avgCat[cat] = Math.round(vals.reduce((a,b)=>a+b,0)/vals.length);
       });
-      const catW = {energy:10,activity:12,workout:12,vitals:15,sleep:15,physique:12,nutrition:12,screen:5,habits:7};
+      const catW = {energy:10,activity:12,workout:12,vitals:15,sleep:15,physique:12,nutrition:12,screen:5,habits:9};
       let tw=0,ts=0;
       Object.entries(avgCat).forEach(([k,v])=>{ const w=catW[k]||5; ts+=v*w; tw+=w; });
       const avgOverall = tw>0 ? Math.round(ts/tw) : null;
@@ -4146,6 +4163,49 @@ function computeAllFields(e){
   if(_mvScores.length > 0)
     r.movement_score = Math.round(_mvScores.reduce((a,b)=>a+b,0)/_mvScores.length);
 
+  // 26. Combined Minerals Score — average of individual mineral DV% scores (capped 0–100)
+  {
+    const _minDefs = [
+      {k:'calcium',   lo:1000,hi:2500},{k:'iron',     lo:8,   hi:45},
+      {k:'magnesium', lo:320, hi:420}, {k:'potassium',lo:3500,hi:null},
+      {k:'sodium',    lo:null,hi:2300},{k:'zinc',     lo:8,   hi:40},
+      {k:'iodine',    lo:150, hi:1100},{k:'selenium', lo:55,  hi:400},
+    ];
+    const _ms = [];
+    _minDefs.forEach(({k,lo,hi})=>{
+      const v = r[k];
+      if(v == null) return;
+      let s = 100;
+      if(lo != null && v < lo)  s = Math.round(v/lo*100);
+      if(hi != null && v > hi)  s = Math.round(Math.max(0, 100-(v-hi)/hi*50));
+      _ms.push(Math.min(100,Math.max(0,s)));
+    });
+    if(_ms.length > 0) r.combined_minerals = Math.round(_ms.reduce((a,b)=>a+b,0)/_ms.length);
+  }
+
+  // 27. Combined Vitamins Score — average of individual vitamin DV% scores (capped 0–100)
+  {
+    const _vitDefs = [
+      {k:'vitamin_a', lo:700, hi:3000},{k:'vitamin_e',lo:15,   hi:1000},
+      {k:'vitamin_d', lo:15,  hi:100}, {k:'vitamin_c',lo:75,   hi:2000},
+      {k:'thiamin',   lo:1.1, hi:null},{k:'riboflavin',lo:1.1, hi:null},
+      {k:'niacin',    lo:14,  hi:35},  {k:'vitamin_b6',lo:1.3, hi:100},
+      {k:'folate',    lo:400, hi:1000},{k:'vitamin_b12',lo:2.4,hi:null},
+      {k:'vitamin_k', lo:90,  hi:null},{k:'biotin',   lo:30,  hi:null},
+      {k:'pantothenic_acid',lo:5,hi:null},
+    ];
+    const _vs = [];
+    _vitDefs.forEach(({k,lo,hi})=>{
+      const v = r[k];
+      if(v == null) return;
+      let s = 100;
+      if(lo != null && v < lo)  s = Math.round(v/lo*100);
+      if(hi != null && v > hi)  s = Math.round(Math.max(0, 100-(v-hi)/hi*50));
+      _vs.push(Math.min(100,Math.max(0,s)));
+    });
+    if(_vs.length > 0) r.combined_vitamins = Math.round(_vs.reduce((a,b)=>a+b,0)/_vs.length);
+  }
+
   return r;
 }
 
@@ -4193,7 +4253,7 @@ const LOG_SECTIONS = [
   ]},
   {id:'body',      label:'Body',      keys:['weight','bmi','body_fat_ratio','muscle_rate','body_water','bone_mass','visceral_fat','subcutaneous_fat','protein_mass','muscle_mass','lean_body_mass','waist_size']},
   {id:'screen',    label:'Screen',    keys:['book_time','movie_time','reddit_time','twitter_time','youtube_time','mobile_time','tablet_time','laptop_time']},
-  {id:'habits',    label:'Habits',    keys:['stuff_count','alcohol']},
+  {id:'habits',    label:'Habits',    keys:['stuff_count','alcohol','habit_completion']},
 ];
 
 let logSection = 'energy';
@@ -4369,7 +4429,7 @@ function healthImportRun(){
     // Auto-push to Gist if configured
     try {
       const gc = JSON.parse(localStorage.getItem('ws2_gist') || '{}');
-      if(gc.gistId && gc.token){
+      if((gc.wsGistId || gc.gistId) && gc.token){
         log.textContent += '\n\nPushing to Gist...';
         gistPush();
       }
@@ -4943,6 +5003,11 @@ function renderLogFields(){
 
   // ── Habits: show temp habit adder + list ────────────────────────────────
   if(logSection === 'habits'){
+    // Info note for habit_completion
+    const hcNote = document.createElement('div');
+    hcNote.style.cssText = 'grid-column:1/-1;display:flex;align-items:center;gap:8px;padding:9px 12px;background:linear-gradient(135deg,rgba(99,102,241,.07),rgba(59,130,246,.05));border:1px solid rgba(99,102,241,.18);border-radius:var(--rs);margin-bottom:2px;font-size:11px;color:var(--t3)';
+    hcNote.innerHTML = `${_iconImg(ICON_URLS.habits,14)} <span><strong style="color:var(--accent)">habit_completion</strong> is normally pulled from your external habit app via Gist → Pull. You can also enter it manually here (0–100%).</span>`;
+    grid.insertBefore(hcNote, grid.firstChild);
     // Render temp habits as checkbox tick fields (binary only)
     if((tempHabits||[]).length > 0){
       const today  = new Date().toISOString().split('T')[0];
@@ -5284,7 +5349,7 @@ function renderRangeDetail(from, to, label){
     {title:'⚖️ Body',         keys:['weight','bmi','body_fat_ratio','muscle_rate','muscle_mass','lean_body_mass','body_water','bone_mass','waist_size','visceral_fat']},
     {title:'🥗 Nutrition',    keys:['dietary_calories','water','protein','carbohydrates','total_fats','fiber','sugar','caffeine']},
     {title:'📱 Screen',       keys:['total_screen','total_entertainment','mobile_time','laptop_time','tablet_time','youtube_time','reddit_time','twitter_time','book_time','movie_time','cognitive_time']},
-    {title:'✅ Habit',        keys:['stuff_count','alcohol']},
+    {title:'✅ Habit',        keys:['stuff_count','alcohol','habit_completion']},
   ];
 
   const rangeLabel = allD.length===1 ? allD[0] : `${from} → ${to} (${allD.length} days)`;
@@ -5677,6 +5742,7 @@ const DEFAULT_FIELD_ICONS = {
   // Habits
   stuff_count:  ICON_URLS.habits,
   alcohol:      ICON_URLS.alcohol,
+  habit_completion: ICON_URLS.habits,
 };
 
 // Merge DEFAULT_FIELD_ICONS into fieldIcons at load — only sets keys that aren't already customised
@@ -6620,6 +6686,9 @@ const _KEY_TO_LABEL = {
   'youtube_time':      'YouTube',
   'twitter_time':      'Twitter/X',
   'reddit_time':       'Reddit',
+  'habit_completion':  'Habit Completion',
+  'combined_minerals': 'Combined Minerals',
+  'combined_vitamins': 'Combined Vitamins',
 };
 
 /**
@@ -8733,13 +8802,19 @@ function renderAHNutrition(){
   // ── MINERALS (4 per row × 3.5 rows) ───────────
   left += ahSectionTitle(_iconImg(ICON_URLS.minerals,16),'Minerals');
   left += '<div class="ah-grid">';
-  M.minerals.forEach(f => { left += ahCard(f.key, dates, 'ah-w2', {icon:_iconImg(ICON_URLS.minerals,22)}); });
+  left += ahCard('combined_minerals', dates, 'ah-w3', {icon:_iconImg(ICON_URLS.minerals,22), big:true});
+  left += '</div>';
+  left += '<div class="ah-grid">';
+  M.minerals.filter(f=>f.key!=='combined_minerals').forEach(f => { left += ahCard(f.key, dates, 'ah-w2', {icon:_iconImg(ICON_URLS.minerals,22)}); });
   left += '</div>';
 
   // ── VITAMINS (4 per row) ───────────────────────
   left += ahSectionTitle(_iconImg(ICON_URLS.vitamins,16),'Vitamins');
   left += '<div class="ah-grid">';
-  M.vitamins.forEach(f => { left += ahCard(f.key, dates, 'ah-w2', {icon:_iconImg(ICON_URLS.vitamins,22)}); });
+  left += ahCard('combined_vitamins', dates, 'ah-w3', {icon:_iconImg(ICON_URLS.vitamins,22), big:true});
+  left += '</div>';
+  left += '<div class="ah-grid">';
+  M.vitamins.filter(f=>f.key!=='combined_vitamins').forEach(f => { left += ahCard(f.key, dates, 'ah-w2', {icon:_iconImg(ICON_URLS.vitamins,22)}); });
   left += '</div>';
 
   // ── RIGHT PANEL ────────────────────────────────
@@ -9608,7 +9683,12 @@ function renderAHHabits(){
   left += ahCard('mindful_mins',dates, 'ah-w3', {icon:_iconImg(ICON_URLS.mindful,22), big:true});
   left += ahCard('book_time',   dates, 'ah-w3', {icon:_iconImg(ICON_URLS.book,22),    big:true});
   left += '</div>';
-  // Row 3: Temp habits (2 per row)
+  // Row 3: Movie + Habit Completion
+  left += '<div class="ah-grid">';
+  left += ahCard('movie_time',        dates, 'ah-w3', {icon:_iconImg(ICON_URLS.movie,22),   big:true});
+  left += ahCard('habit_completion',  dates, 'ah-w3', {icon:_iconImg(ICON_URLS.habits,22),  big:true});
+  left += '</div>';
+  // Row 4: Temp habits (2 per row)
   if((tempHabits||[]).length > 0){
     for(let i=0; i<tempHabits.length; i+=2){
       left += '<div class="ah-grid">';
@@ -9636,6 +9716,30 @@ function renderAHHabits(){
   });
   left += '</div>';
 
+  // ── Habit Completion banner ─────────────────────
+  const hcVal = dates.length ? (() => {
+    const vals = dates.map(d => (allData[d]||{}).habit_completion).filter(v=>v!=null&&!isNaN(v));
+    return vals.length ? Math.round(vals.reduce((a,b)=>a+b,0)/vals.length) : null;
+  })() : null;
+  if(hcVal != null){
+    left += `<div style="margin:12px 0 0;background:linear-gradient(135deg,rgba(99,102,241,.08),rgba(59,130,246,.06));border:1px solid rgba(99,102,241,.2);border-radius:var(--rs);padding:10px 14px;display:flex;align-items:center;gap:10px">
+      <div style="font-size:22px">${_iconImg(ICON_URLS.habits,22)}</div>
+      <div style="flex:1">
+        <div style="font-size:9px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--t4)">Habit Completion (from app)</div>
+        <div style="font-family:var(--fd);font-size:20px;font-weight:800;color:var(--accent);letter-spacing:-.3px">${hcVal}%</div>
+        <div style="font-size:9px;color:var(--t4);margin-top:1px">${dates.length > 1 ? 'avg over period' : 'today'} · pulled from external app via Gist</div>
+      </div>
+      <div style="width:52px;height:52px;position:relative">
+        <svg viewBox="0 0 44 44" style="width:100%;height:100%;transform:rotate(-90deg)">
+          <circle cx="22" cy="22" r="18" fill="none" stroke="var(--border2)" stroke-width="4"/>
+          <circle cx="22" cy="22" r="18" fill="none" stroke="var(--accent)" stroke-width="4" stroke-linecap="round"
+            stroke-dasharray="${(Math.min(100,hcVal)/100*113.1).toFixed(1)} 113.1"/>
+        </svg>
+        <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:var(--fd);font-size:10px;font-weight:800;color:var(--accent)">${hcVal}</div>
+      </div>
+    </div>`;
+  }
+
   // ── ADD / MANAGE ───────────────────────────────
   left += `<div style="margin-top:12px;display:flex;gap:8px;align-items:center;flex-wrap:wrap">
     <button onclick="showAddHabitPopup()" style="display:inline-flex;align-items:center;gap:6px;padding:9px 18px;border-radius:var(--rs);background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;font-size:12px;font-weight:700;border:none;cursor:pointer">+ Add Habit</button>
@@ -9647,10 +9751,12 @@ function renderAHHabits(){
 
   // ── RIGHT PANEL ────────────────────────────────
   const habitChecks = [
-    {key:'stuff_count', done:(v)=>{ const t=getTarget('stuff_count'); return v!=null&&v<=(t?.hi??1); }},
-    {key:'alcohol',     done:(v)=>{ const t=getTarget('alcohol');     return v!=null&&v<=(t?.hi??0); }},
-    {key:'mindful_mins',done:(v)=>{ const t=getTarget('mindful_mins');return v!=null&&v>=(t?.lo??5); }},
-    {key:'book_time',   done:(v)=>{ const t=getTarget('book_time');   return v!=null&&v>=(t?.lo??15);}},
+    {key:'stuff_count',      done:(v)=>{ const t=getTarget('stuff_count');     return v!=null&&v<=(t?.hi??1); }},
+    {key:'alcohol',          done:(v)=>{ const t=getTarget('alcohol');          return v!=null&&v<=(t?.hi??0); }},
+    {key:'mindful_mins',     done:(v)=>{ const t=getTarget('mindful_mins');     return v!=null&&v>=(t?.lo??5); }},
+    {key:'book_time',        done:(v)=>{ const t=getTarget('book_time');        return v!=null&&v>=(t?.lo??15);}},
+    {key:'movie_time',       done:(v)=>{ const t=getTarget('movie_time');       return v!=null&&v<=(t?.hi??90);}},
+    {key:'habit_completion', done:(v)=>{ const t=getTarget('habit_completion'); return v!=null&&v>=(t?.lo??80);}},
     ...(tempHabits||[]).map(h=>({key:h.key,done:(v)=>v!=null&&v>=1}))
   ];
   const total = habitChecks.length;
@@ -10253,7 +10359,7 @@ const TARGET_SECTIONS = [
   {label:'⚗️ Minerals',     keys:['calcium','magnesium','potassium','sodium','iron','zinc','phosphorus','iodine','selenium','chromium','copper','manganese','molybdenum','chloride']},
   {label:'💊 Vitamins',     keys:['vitamin_d','vitamin_c','vitamin_a','vitamin_e','vitamin_b12','folate','vitamin_b6','thiamin','riboflavin','niacin','pantothenic_acid','biotin','vitamin_k']},
   {label:'📱 Screen',       keys:['mobile_time','youtube_time','reddit_time','twitter_time','laptop_time','tablet_time','movie_time','book_time']},
-  {label:'✅ Habit',       keys:['stuff_count','alcohol']},
+  {label:'✅ Habit',       keys:['stuff_count','alcohol','habit_completion']},
   {label:'🦵 Movement',     keys:['double_support_time','ground_contact_time','running_stride','vertical_oscillation','walk_asymmetry','walking_step_length']},
 ];
 
@@ -10890,7 +10996,8 @@ function cycleWorkoutOptUnified(exKey, date){
 // ═══════════════════════════════════════════════
 const PASTE_COMPUTED = new Set(['active_ratio','cardio_load','cognitive_time','deep_sleep_pct',
   'hydration_score','net_energy_balance','protein_per_kg','recovery_index','sleep_efficiency',
-  'step_pace','total_activity_mins','total_calories','total_distance','total_screen','total_workout']);
+  'step_pace','total_activity_mins','total_calories','total_distance','total_screen','total_workout',
+  'combined_minerals','combined_vitamins','movement_score']);
 
 // All loggable columns in display order
 function getPasteCols(){
@@ -12276,15 +12383,17 @@ function mobSyncInit(){
   // Pre-fill Gist fields too
   const gi = document.getElementById('mob-gist-id');
   const gt = document.getElementById('mob-gist-token');
-  if(gi && gistConfig.gistId) gi.value = gistConfig.gistId;
-  if(gt && gistConfig.token)  gt.value = gistConfig.token;
+  if(gi && gistConfig.wsGistId) gi.value = gistConfig.wsGistId;
+  if(gt && gistConfig.token)    gt.value = gistConfig.token;
 }
 
 function mobGistSave(){
   const id  = document.getElementById('mob-gist-id')?.value.trim();
   const tok = document.getElementById('mob-gist-token')?.value.trim();
-  if(!id || !tok){ showToast('Enter Gist ID and token'); return; }
-  gistConfig = { gistId: id, token: tok };
+  if(!id || !tok){ showToast('Enter WellStat Gist ID and token'); return; }
+  gistConfig.wsGistId = id;
+  gistConfig.token    = tok;
+  delete gistConfig.gistId; // remove legacy key
   saveGistConfig();
   const st = document.getElementById('mob-gist-status');
   if(st){ st.textContent = '✅ Saved'; setTimeout(()=>st.textContent='', 2000); }
@@ -12292,7 +12401,7 @@ function mobGistSave(){
 }
 
 function mobGistPing(){
-  const id  = document.getElementById('mob-gist-id')?.value.trim() || gistConfig.gistId;
+  const id  = document.getElementById('mob-gist-id')?.value.trim() || gistConfig.wsGistId;
   const tok = document.getElementById('mob-gist-token')?.value.trim() || gistConfig.token;
   if(!id || !tok){ showToast('Save your Gist config first'); return; }
   const st = document.getElementById('mob-gist-status');
@@ -12306,36 +12415,32 @@ function mobGistPing(){
 }
 
 function mobGistPull(){
-  const id  = document.getElementById('mob-gist-id')?.value.trim() || gistConfig.gistId;
+  const id  = document.getElementById('mob-gist-id')?.value.trim() || gistConfig.wsGistId;
   const tok = document.getElementById('mob-gist-token')?.value.trim() || gistConfig.token;
   if(!id || !tok){ showToast('Save your Gist config first'); return; }
   const st = document.getElementById('mob-gist-status');
   if(st) st.textContent = '⏳ Pulling…';
-  // Temporarily use these credentials
-  const prev = {...gistConfig};
-  gistConfig = { gistId: id, token: tok };
   fetch(`https://api.github.com/gists/${id}`, {
     headers: { 'Authorization': 'token ' + tok, 'Accept': 'application/vnd.github.v3+json' }
   }).then(r => r.json()).then(d => {
     const file = d.files && d.files['wellstat-data.json'];
-    if(!file){ if(st) st.textContent = '❌ File not found'; showToast('❌ wellstat-data.json not found'); gistConfig=prev; return; }
+    if(!file){ if(st) st.textContent = '❌ File not found'; showToast('❌ wellstat-data.json not found'); return; }
     const payload = JSON.parse(file.content);
     const { newDays } = gistApplyPayload(payload);
     localStorage.setItem('ws2_gist_last_sync', new Date().toLocaleString());
     const settingsMsg = payload.settings ? ' + settings' : '';
     if(st) st.textContent = '✅ Pulled — ' + newDays + ' new days' + settingsMsg;
     showToast('✅ Pulled from GitHub' + settingsMsg);
-  }).catch(e => { if(st) st.textContent = '❌ ' + e.message; showToast('❌ Pull failed'); gistConfig=prev; });
+    gistConfig.wsGistId = id; gistConfig.token = tok; saveGistConfig();
+  }).catch(e => { if(st) st.textContent = '❌ ' + e.message; showToast('❌ Pull failed'); });
 }
 
 function mobGistPush(){
-  const id  = document.getElementById('mob-gist-id')?.value.trim() || gistConfig.gistId;
+  const id  = document.getElementById('mob-gist-id')?.value.trim() || gistConfig.wsGistId;
   const tok = document.getElementById('mob-gist-token')?.value.trim() || gistConfig.token;
   if(!id || !tok){ showToast('Save your Gist config first'); return; }
   const st = document.getElementById('mob-gist-status');
   if(st) st.textContent = '⏳ Pushing…';
-  const prev = {...gistConfig};
-  gistConfig = { gistId: id, token: tok };
   const payload = gistBuildPayload();
   fetch(`https://api.github.com/gists/${id}`, {
     method: 'PATCH',
@@ -12346,12 +12451,12 @@ function mobGistPush(){
       localStorage.setItem('ws2_gist_last_sync', new Date().toLocaleString());
       if(st) st.textContent = '✅ Pushed — ' + payload.days + ' days + settings';
       showToast('✅ Pushed to GitHub');
+      gistConfig.wsGistId = id; gistConfig.token = tok; saveGistConfig();
     } else {
       if(st) st.textContent = '❌ ' + (d.message||'Push failed');
       showToast('❌ Push failed');
-      gistConfig = prev;
     }
-  }).catch(e => { if(st) st.textContent = '❌ ' + e.message; showToast('❌ Push failed'); gistConfig=prev; });
+  }).catch(e => { if(st) st.textContent = '❌ ' + e.message; showToast('❌ Push failed'); });
 }
 
 
@@ -12500,7 +12605,7 @@ function doSync(mode){
 function triggerSync(){ doSync(); }
 
 function topbarGistRefresh(){
-  if(!gistConfig.gistId || !gistConfig.token){
+  if(!gistConfig.wsGistId || !gistConfig.token){
     showToast('Configure GitHub Sync in Settings first');
     showPage('settings');
     setTimeout(()=>showStgPanel('gist'), 150);
@@ -12509,7 +12614,7 @@ function topbarGistRefresh(){
   const btn = document.getElementById('tb-gist-btn');
   if(btn) btn.style.animation = 'spin 1s linear infinite';
   showToast('↻ Refreshing from GitHub…');
-  fetch(`https://api.github.com/gists/${gistConfig.gistId}`, {
+  fetch(`https://api.github.com/gists/${gistConfig.wsGistId}`, {
     headers: { 'Authorization': 'token ' + gistConfig.token, 'Accept': 'application/vnd.github.v3+json' }
   }).then(r => r.json()).then(d => {
     const file = d.files && d.files['wellstat-data.json'];
@@ -12529,7 +12634,7 @@ const SECRET = 'your_secret_key';
 const SHEET_NAME = 'WellStat';
 
 // Master column order — must match WellStat field keys
-const COLUMNS = ['date', 'active_calories', 'resting_calories', 'google_fit_points', 'steps', 'distance_foot', 'exercise_mins', 'standing_mins', 'stairs_climbed', 'walk_distance', 'walk_elevation', 'walk_best_pace', 'walk_avg_pace', 'run_distance', 'run_elevation', 'run_cadence', 'run_avg_pace', 'run_best_pace', 'run_avg_power', 'cycle_distance', 'cycle_elevation', 'cycle_avg_pace', 'cycle_best_pace', 'strength_training', 'yoga_duration', 'other_activity', 'heart_rate', 'hr_high', 'hr_low', 'resting_hr', 'walking_hr', 'hrv', 'cardio_fitness', 'cardio_recovery', 'blood_oxygen_high', 'bp_systolic', 'bp_diastolic', 'blood_glucose', 'breath_high', 'breath_low', 'total_sleep', 'sleep_rem', 'sleep_core', 'sleep_deep', 'sleep_awake', 'asleep', 'sleep_score', 'daylight', 'mindful_mins', 'surround_sound', 'state_of_mind', 'weight', 'bmi', 'body_fat_ratio', 'muscle_rate', 'body_water', 'bone_mass', 'visceral_fat', 'subcutaneous_fat', 'protein_mass', 'muscle_mass', 'lean_body_mass', 'waist_size', 'water', 'dietary_calories', 'protein', 'fiber', 'carbohydrates', 'total_fats', 'saturated_fats', 'monounsaturated_fats', 'polyunsaturated_fats', 'trans_fats', 'sugar', 'added_sugar', 'cholesterol', 'caffeine', 'calcium', 'magnesium', 'potassium', 'sodium', 'iron', 'zinc', 'phosphorus', 'iodine', 'selenium', 'chromium', 'copper', 'manganese', 'molybdenum', 'chloride', 'vitamin_d', 'vitamin_c', 'vitamin_a', 'vitamin_e', 'vitamin_b12', 'folate', 'vitamin_b6', 'thiamin', 'riboflavin', 'niacin', 'pantothenic_acid', 'biotin', 'vitamin_k', 'mobile_time', 'youtube_time', 'reddit_time', 'twitter_time', 'laptop_time', 'tablet_time', 'movie_time', 'book_time', 'stuff_count', 'alcohol', 'double_support_time', 'ground_contact_time', 'running_stride', 'vertical_oscillation', 'walk_asymmetry', 'walking_step_length'];
+const COLUMNS = ['date', 'active_calories', 'resting_calories', 'google_fit_points', 'steps', 'distance_foot', 'exercise_mins', 'standing_mins', 'stairs_climbed', 'walk_distance', 'walk_elevation', 'walk_best_pace', 'walk_avg_pace', 'run_distance', 'run_elevation', 'run_cadence', 'run_avg_pace', 'run_best_pace', 'run_avg_power', 'cycle_distance', 'cycle_elevation', 'cycle_avg_pace', 'cycle_best_pace', 'strength_training', 'yoga_duration', 'other_activity', 'heart_rate', 'hr_high', 'hr_low', 'resting_hr', 'walking_hr', 'hrv', 'cardio_fitness', 'cardio_recovery', 'blood_oxygen_high', 'bp_systolic', 'bp_diastolic', 'blood_glucose', 'breath_high', 'breath_low', 'total_sleep', 'sleep_rem', 'sleep_core', 'sleep_deep', 'sleep_awake', 'asleep', 'sleep_score', 'daylight', 'mindful_mins', 'surround_sound', 'state_of_mind', 'weight', 'bmi', 'body_fat_ratio', 'muscle_rate', 'body_water', 'bone_mass', 'visceral_fat', 'subcutaneous_fat', 'protein_mass', 'muscle_mass', 'lean_body_mass', 'waist_size', 'water', 'dietary_calories', 'protein', 'fiber', 'carbohydrates', 'total_fats', 'saturated_fats', 'monounsaturated_fats', 'polyunsaturated_fats', 'trans_fats', 'sugar', 'added_sugar', 'cholesterol', 'caffeine', 'calcium', 'magnesium', 'potassium', 'sodium', 'iron', 'zinc', 'phosphorus', 'iodine', 'selenium', 'chromium', 'copper', 'manganese', 'molybdenum', 'chloride', 'vitamin_d', 'vitamin_c', 'vitamin_a', 'vitamin_e', 'vitamin_b12', 'folate', 'vitamin_b6', 'thiamin', 'riboflavin', 'niacin', 'pantothenic_acid', 'biotin', 'vitamin_k', 'mobile_time', 'youtube_time', 'reddit_time', 'twitter_time', 'laptop_time', 'tablet_time', 'movie_time', 'book_time', 'stuff_count', 'alcohol', 'habit_completion', 'double_support_time', 'ground_contact_time', 'running_stride', 'vertical_oscillation', 'walk_asymmetry', 'walking_step_length'];
 
 function doPost(e) {
   try {
@@ -12692,93 +12797,115 @@ window.runInsights = function(){
 // ═══════════════════════════════════════════════
 // GITHUB GIST SYNC
 // ═══════════════════════════════════════════════
+// ws2_gist localStorage shape:
+//   { token, wsGistId, sharedGistId }
+//   wsGistId     — WellStat's own gist (wellstat-data.json + wellstat-backup.json)
+//   sharedGistId — shared gist with habit tracker & nutrition (health_log.json)
 
 let gistConfig = JSON.parse(localStorage.getItem('ws2_gist')||'{}');
 
-function saveGistConfig(){ localStorage.setItem('ws2_gist', JSON.stringify(gistConfig)); }
+function saveGistConfig(){
+  // Backward-compat: if old code wrote 'gistId', migrate it to wsGistId
+  if(gistConfig.gistId && !gistConfig.wsGistId){ gistConfig.wsGistId = gistConfig.gistId; delete gistConfig.gistId; }
+  localStorage.setItem('ws2_gist', JSON.stringify(gistConfig));
+}
 
 function renderStgGist(){
   const sc = document.getElementById('stg-content');
-  const connected = !!(gistConfig.gistId && gistConfig.token);
+  const wsConnected     = !!(gistConfig.wsGistId && gistConfig.token);
+  const sharedConnected = !!(gistConfig.sharedGistId && gistConfig.token);
   const lastSync = localStorage.getItem('ws2_gist_last_sync') || 'never';
   const allD = allDates();
 
   sc.innerHTML = `<div class="stg-panel on" id="sp-gist">
-    <div class="stg-panel-title">🐙GitHub Gist Sync</div>
-    <div class="stg-panel-sub">Free, permanent sync via GitHub Gist. No Google account needed. Your data is stored as a private JSON file on GitHub.</div>
-
-    <div class="sync-status-bar">
-      <div class="sdot${connected?' ok':''}"></div>
-      <span>${connected ? '✅ Connected · last sync: '+lastSync : 'Not configured'}</span>
-      ${connected?`<button class="stg-btn" style="margin-left:auto" onclick="gistSyncNow()">↻ Sync Now</button>`:''}
-    </div>
+    <div class="stg-panel-title">🐙 GitHub Gist Sync</div>
+    <div class="stg-panel-sub">Four separate Gists keep your apps isolated while sharing daily health data. One token works for all four.</div>
 
     <div style="background:linear-gradient(135deg,rgba(34,197,94,.08),rgba(59,130,246,.06));border:1px solid rgba(34,197,94,.2);border-radius:var(--r);padding:14px;margin-bottom:16px">
-      <div style="font-size:12px;font-weight:700;color:var(--t2);margin-bottom:8px">⚡ One-time setup (2 minutes)</div>
-      <div style="font-size:12px;color:var(--t3);line-height:1.8">
-        <strong style="color:var(--t2)">1.</strong> Go to <strong>gist.github.com</strong> → New gist<br>
-        <strong style="color:var(--t2)">2.</strong> Filename: <code style="background:var(--surface3);padding:1px 5px;border-radius:4px">wellstat-data.json</code> · Content: <code style="background:var(--surface3);padding:1px 5px;border-radius:4px">{}</code> → Create <strong>secret</strong> gist<br>
-        <strong style="color:var(--t2)">3.</strong> Copy the Gist ID from the URL: <code style="background:var(--surface3);padding:1px 5px;border-radius:4px">gist.github.com/<em>username</em>/<strong>THIS_PART</strong></code><br>
-        <strong style="color:var(--t2)">4.</strong> Go to <strong>github.com/settings/tokens</strong> → Generate new token (classic)<br>
-        <strong style="color:var(--t2)">5.</strong> Tick only <strong>gist</strong> scope → Generate → copy token<br>
-        <strong style="color:var(--t2)">6.</strong> Paste both below → Save → Push
+      <div style="font-size:12px;font-weight:700;color:var(--t2);margin-bottom:8px">⚡ One-time setup</div>
+      <div style="font-size:12px;color:var(--t3);line-height:1.9">
+        <strong style="color:var(--t2)">1.</strong> Go to <strong>github.com/settings/tokens</strong> → Generate new token (classic) → tick only <strong>gist</strong> scope → copy token<br>
+        <strong style="color:var(--t2)">2.</strong> Create <strong>4 secret gists</strong> at <strong>gist.github.com</strong> — one per row below (filename can be anything, content <code style="background:var(--surface3);padding:1px 4px;border-radius:3px">{}</code>)<br>
+        <strong style="color:var(--t2)">3.</strong> Paste the token + each Gist ID below → Save → Push
       </div>
     </div>
 
-    <div class="stg-row">
-      <div class="stg-row-label">Gist ID</div>
-      <input class="stg-input wide" id="gist-id-inp" value="${gistConfig.gistId||''}" placeholder="a3f8b2c1d4e5f6..." style="width:240px;font-family:var(--fm);font-size:12px">
-    </div>
     <div class="stg-row">
       <div class="stg-row-label">GitHub Token</div>
       <input class="stg-input wide" id="gist-token-inp" type="password" value="${gistConfig.token||''}" placeholder="ghp_xxxxxxxxxxxx" style="width:240px;font-family:var(--fm);font-size:12px">
     </div>
-    <div class="stg-row" style="margin-top:4px">
-      <button class="stg-btn primary" onclick="saveGistSettings()">💾 Save</button>
-      ${connected?`<button class="stg-btn" onclick="gistPing()">⚙️Test</button>`:''}
-    </div>
 
-    ${connected?`
     <div class="stg-divider"></div>
-    <div style="font-size:12px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.6px;margin-bottom:10px">Sync</div>
-
+    <div style="font-size:12px;font-weight:700;color:var(--t2);margin-bottom:10px">🟦 WellStat Gist <span style="font-weight:400;color:var(--t3);font-size:11px">— wellstat-data.json + wellstat-backup.json</span></div>
+    <div style="font-size:11px;color:var(--t3);margin-bottom:10px">WellStat's private gist. Stores all your daily logs, settings, and a full backup. Only this app reads/writes it.</div>
     <div class="stg-row">
-      <div>
-        <div class="stg-row-label">Push to GitHub</div>
-        <div class="stg-row-sub">Upload your ${allD.length} days to the Gist</div>
-      </div>
+      <div class="stg-row-label">WellStat Gist ID</div>
+      <input class="stg-input wide" id="gist-ws-id-inp" value="${gistConfig.wsGistId||''}" placeholder="Gist ID for WellStat only" style="width:240px;font-family:var(--fm);font-size:12px">
+    </div>
+    ${wsConnected?`
+    <div class="stg-row">
+      <div><div class="stg-row-label">Push WellStat data</div><div class="stg-row-sub">Upload ${allD.length} days + settings to WellStat Gist</div></div>
       <button class="stg-btn primary" onclick="gistPush()">⬆ Push</button>
     </div>
     <div class="stg-row">
-      <div>
-        <div class="stg-row-label">Pull from GitHub</div>
-        <div class="stg-row-sub">Download Gist data and merge with local</div>
-      </div>
+      <div><div class="stg-row-label">Pull WellStat data</div><div class="stg-row-sub">Merge WellStat Gist into local data</div></div>
       <button class="stg-btn" onclick="gistPull()">⬇ Pull</button>
     </div>
-
-    <div style="margin-top:12px;background:var(--surface2);border-radius:var(--rs);padding:10px 12px">
-      <div style="font-size:11px;font-weight:700;color:var(--t3);margin-bottom:4px">SYNC ON OTHER DEVICES</div>
-      <div style="font-size:11px;color:var(--t3);line-height:1.6">Enter the same Gist ID + token on any device → tap Pull → done. Push from whichever device has newer data.</div>
+    <div class="stg-row">
+      <div><div class="stg-row-label">Push Full Backup</div><div class="stg-row-sub">Writes wellstat-backup.json to WellStat Gist</div></div>
+      <button class="stg-btn" onclick="gistPushBackup()">⬆ Backup</button>
     </div>
-    `:''}
+    <div class="stg-row">
+      <div><div class="stg-row-label">Restore from Backup</div><div class="stg-row-sub">Overwrites local data from wellstat-backup.json</div></div>
+      <button class="stg-btn" style="color:var(--danger)" onclick="gistPullBackup()">⬇ Restore</button>
+    </div>`:''}
+
+    <div class="stg-divider"></div>
+    <div style="font-size:12px;font-weight:700;color:var(--t2);margin-bottom:10px">🟩 Shared Gist <span style="font-weight:400;color:var(--t3);font-size:11px">— health_log.json (shared with Habit Tracker &amp; Nutrition)</span></div>
+    <div style="font-size:11px;color:var(--t3);margin-bottom:10px">All three apps read this gist by date. WellStat pulls: <code style="background:var(--surface3);padding:1px 4px;border-radius:3px">habit_completion</code>, <code style="background:var(--surface3);padding:1px 4px;border-radius:3px">stuff_count</code>, <code style="background:var(--surface3);padding:1px 4px;border-radius:3px">water</code>, <code style="background:var(--surface3);padding:1px 4px;border-radius:3px">alcohol</code>, and all nutrition fields.</div>
+    <div class="stg-row">
+      <div class="stg-row-label">Shared Gist ID</div>
+      <input class="stg-input wide" id="gist-shared-id-inp" value="${gistConfig.sharedGistId||''}" placeholder="Same ID used by Habit Tracker &amp; Nutrition" style="width:240px;font-family:var(--fm);font-size:12px">
+    </div>
+    ${sharedConnected?`
+    <div class="stg-row">
+      <div><div class="stg-row-label">Pull from Shared Gist</div><div class="stg-row-sub">Merge habit + nutrition fields into WellStat logs by date</div></div>
+      <button class="stg-btn" onclick="gistPullShared()">⬇ Pull Shared</button>
+    </div>`:''}
+
+    <div class="stg-row" style="margin-top:12px">
+      <button class="stg-btn primary" onclick="saveGistSettings()">💾 Save All</button>
+      ${(wsConnected||sharedConnected)?`<button class="stg-btn" onclick="gistPing()">⚙️ Test</button>`:''}
+      ${wsConnected?`<button class="stg-btn" style="margin-left:auto" onclick="gistSyncNow()">↻ Sync Now</button>`:''}
+    </div>
+
+    <div style="margin-top:10px;background:var(--surface2);border-radius:var(--rs);padding:10px 12px">
+      <div style="font-size:11px;font-weight:700;color:var(--t3);margin-bottom:4px">MULTI-DEVICE</div>
+      <div style="font-size:11px;color:var(--t3);line-height:1.6">Enter the same token + all four Gist IDs on any device → Pull → done.</div>
+    </div>
+    <div style="font-size:11px;color:var(--t3);margin-top:8px">Last sync: ${lastSync}</div>
   </div>`;
 }
 
 function saveGistSettings(){
-  const id = document.getElementById('gist-id-inp').value.trim();
-  const tok = document.getElementById('gist-token-inp').value.trim();
-  if(!id || !tok){ showToast('❌ Enter both Gist ID and token'); return; }
-  gistConfig = { gistId: id, token: tok };
+  const tok        = document.getElementById('gist-token-inp')?.value.trim();
+  const wsId       = document.getElementById('gist-ws-id-inp')?.value.trim();
+  const sharedId   = document.getElementById('gist-shared-id-inp')?.value.trim();
+  if(!tok){ showToast('❌ Enter your GitHub token'); return; }
+  gistConfig.token        = tok;
+  if(wsId)     gistConfig.wsGistId     = wsId;
+  if(sharedId) gistConfig.sharedGistId = sharedId;
+  // Remove legacy key
+  delete gistConfig.gistId;
   saveGistConfig();
   showToast('✅ Saved');
   renderStgGist();
 }
 
 function gistPing(){
-  if(!gistConfig.gistId||!gistConfig.token){ showToast('Configure Gist first'); return; }
+  if(!gistConfig.wsGistId||!gistConfig.token){ showToast('Configure WellStat Gist first'); return; }
   showToast('⏳ Testing...');
-  fetch(`https://api.github.com/gists/${gistConfig.gistId}`, {
+  fetch(`https://api.github.com/gists/${gistConfig.wsGistId}`, {
     headers: { 'Authorization': 'token ' + gistConfig.token, 'Accept': 'application/vnd.github.v3+json' }
   }).then(r => {
     if(r.ok) showToast('✅ GitHub connected!');
@@ -12888,10 +13015,10 @@ function gistApplyPayload(payload){
 }
 
 function gistPush(){
-  if(!gistConfig.gistId||!gistConfig.token){ showToast('Configure Gist first'); return; }
+  if(!gistConfig.wsGistId||!gistConfig.token){ showToast('Configure WellStat Gist first'); return; }
   showToast('\u23f3 Pushing...');
   const payload = gistBuildPayload();
-  fetch(`https://api.github.com/gists/${gistConfig.gistId}`, {
+  fetch(`https://api.github.com/gists/${gistConfig.wsGistId}`, {
     method: 'PATCH',
     headers: { 'Authorization': 'token ' + gistConfig.token, 'Accept': 'application/vnd.github.v3+json', 'Content-Type': 'application/json' },
     body: JSON.stringify({ files: { 'wellstat-data.json': { content: JSON.stringify(payload, null, 2) } } })
@@ -12907,33 +13034,14 @@ function gistPush(){
 }
 
 function gistPull(){
-  if(!gistConfig.gistId||!gistConfig.token){ showToast('Configure Gist first'); return; }
+  if(!gistConfig.wsGistId||!gistConfig.token){ showToast('Configure WellStat Gist first'); return; }
   showToast('\u23f3 Pulling...');
-  fetch(`https://api.github.com/gists/${gistConfig.gistId}`, {
+  fetch(`https://api.github.com/gists/${gistConfig.wsGistId}`, {
     headers: { 'Authorization': 'token ' + gistConfig.token, 'Accept': 'application/vnd.github.v3+json' }
   }).then(r => r.json()).then(d => {
     const file = d.files && d.files['wellstat-data.json'];
-    if(!file){ showToast('\u274c wellstat-data.json not found in Gist'); return; }
+    if(!file){ showToast('\u274c wellstat-data.json not found in WellStat Gist'); return; }
     const payload = JSON.parse(file.content);
-    // Also merge health_log.json (nutrition/habit) fields if present
-    const hlFile = d.files && d.files['health_log.json'];
-    if(hlFile && hlFile.content){
-      try{
-        const hlData = JSON.parse(hlFile.content);
-        const nutMap = {dietary_calories:'dietary_calories',protein:'protein',carbs:'carbs',fat:'fat',
-                        water:'water',alcohol:'alcohol',fiber:'fiber',sodium:'sodium',sugar:'sugar',
-                        sat_fat:'sat_fat',caffeine:'caffeine',habit_completion:'habit_completion',stuff_count:'stuff_count'};
-        if(!payload.data) payload.data = {};
-        Object.keys(hlData).forEach(date => {
-          if(!/^\d{4}-\d{2}-\d{2}$/.test(date)) return;
-          if(!payload.data[date]) payload.data[date] = {};
-          const src = hlData[date];
-          Object.keys(nutMap).forEach(k => {
-            if(src[k] !== undefined && src[k] !== null) payload.data[date][k] = src[k];
-          });
-        });
-      }catch(e){}
-    }
     const { newDays } = gistApplyPayload(payload);
     localStorage.setItem('ws2_gist_last_sync', new Date().toLocaleString());
     const settingsMsg = payload.settings ? ' + settings' : '';
@@ -12942,11 +13050,81 @@ function gistPull(){
   }).catch(e => showToast('\u274c ' + e.message));
 }
 
+// Pull shared fields (habit_completion, stuff_count, water, alcohol, nutrition) from shared gist
+function gistPullShared(){
+  if(!gistConfig.sharedGistId||!gistConfig.token){ showToast('Configure Shared Gist first'); return; }
+  showToast('\u23f3 Pulling shared data...');
+  fetch(`https://api.github.com/gists/${gistConfig.sharedGistId}`, {
+    headers: { 'Authorization': 'token ' + gistConfig.token, 'Accept': 'application/vnd.github.v3+json' }
+  }).then(r => r.json()).then(d => {
+    const hlFile = d.files && d.files['health_log.json'];
+    if(!hlFile || !hlFile.content){ showToast('\u274c health_log.json not found in Shared Gist'); return; }
+    const hlData = JSON.parse(hlFile.content);
+    // Fields we accept from the shared gist into WellStat
+    const sharedKeys = ['dietary_calories','protein','carbohydrates','total_fats','saturated_fats',
+      'monounsaturated_fats','polyunsaturated_fats','trans_fats','fiber','sugar','added_sugar',
+      'cholesterol','sodium','caffeine','water','alcohol','vitamin_a','vitamin_c','vitamin_d',
+      'vitamin_e','vitamin_k','calcium','iron','magnesium','potassium','zinc',
+      'habit_completion','stuff_count','omega3','omega6'];
+    let merged = 0;
+    Object.keys(hlData).forEach(date => {
+      if(!/^\d{4}-\d{2}-\d{2}$/.test(date)) return;
+      if(!allData[date]) allData[date] = {};
+      const src = hlData[date];
+      sharedKeys.forEach(k => {
+        if(src[k] !== undefined && src[k] !== null) { allData[date][k] = src[k]; merged++; }
+      });
+    });
+    saveData();
+    localStorage.setItem('ws2_gist_last_sync', new Date().toLocaleString());
+    showToast('\u2705 Pulled shared \u2014 ' + Object.keys(hlData).length + ' dates, ' + merged + ' fields merged');
+    renderDashboard();
+  }).catch(e => showToast('\u274c ' + e.message));
+}
 
-// Auto-upsert to Gist on every log save (debounced)
+// Push full WellStat backup to wellstat-backup.json in WellStat Gist
+function gistPushBackup(){
+  if(!gistConfig.wsGistId||!gistConfig.token){ showToast('Configure WellStat Gist first'); return; }
+  showToast('\u23f3 Backing up...');
+  const payload = gistBuildPayload();
+  // Backup includes full payload (same as wellstat-data.json but named separately)
+  fetch(`https://api.github.com/gists/${gistConfig.wsGistId}`, {
+    method: 'PATCH',
+    headers: { 'Authorization': 'token ' + gistConfig.token, 'Accept': 'application/vnd.github.v3+json', 'Content-Type': 'application/json' },
+    body: JSON.stringify({ files: { 'wellstat-backup.json': { content: JSON.stringify(payload, null, 2) } } })
+  }).then(r => r.json()).then(d => {
+    if(d.id){
+      showToast('\u2705 Backup pushed \u2014 ' + payload.days + ' days');
+      renderStgGist();
+    } else {
+      showToast('\u274c Backup failed: ' + (d.message||'unknown error'));
+    }
+  }).catch(e => showToast('\u274c ' + e.message));
+}
+
+// Restore WellStat from wellstat-backup.json
+function gistPullBackup(){
+  if(!gistConfig.wsGistId||!gistConfig.token){ showToast('Configure WellStat Gist first'); return; }
+  if(!confirm('⚠ This will REPLACE all local WellStat data with the backup from wellstat-backup.json.\n\nAre you sure?')) return;
+  showToast('\u23f3 Restoring backup...');
+  fetch(`https://api.github.com/gists/${gistConfig.wsGistId}`, {
+    headers: { 'Authorization': 'token ' + gistConfig.token, 'Accept': 'application/vnd.github.v3+json' }
+  }).then(r => r.json()).then(d => {
+    const file = d.files && d.files['wellstat-backup.json'];
+    if(!file){ showToast('\u274c wellstat-backup.json not found — push a backup first'); return; }
+    const payload = JSON.parse(file.content);
+    const { newDays } = gistApplyPayload(payload);
+    localStorage.setItem('ws2_gist_last_sync', new Date().toLocaleString());
+    showToast('\u2705 Restored from backup \u2014 ' + newDays + ' days');
+    renderStgGist();
+  }).catch(e => showToast('\u274c ' + e.message));
+}
+
+
+// Auto-upsert to WellStat Gist on every log save (debounced)
 let _gistDebounce = null;
 function gistAutoUpsert(date){
-  if(!gistConfig.gistId || !gistConfig.token) return;
+  if(!gistConfig.wsGistId || !gistConfig.token) return;
   clearTimeout(_gistDebounce);
   _gistDebounce = setTimeout(() => gistPush(), 3000); // push 3s after last save
 }
