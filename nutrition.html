@@ -1953,7 +1953,12 @@ window.pushNutritionBackup = function() {
     logs:    JSON.parse(JSON.stringify(S.logs)),
     water:   JSON.parse(JSON.stringify(S.water)),
     foodDB:  JSON.parse(JSON.stringify(S.foodDB)),
-    cfg:     JSON.parse(JSON.stringify(S.cfg))
+    cfg:     (function() {
+      // Exclude the token from backup — never store it in gist content
+      var c = JSON.parse(JSON.stringify(S.cfg));
+      delete c.ghToken;
+      return c;
+    })()
   };
   var headers = { 'Authorization': 'token ' + token, 'Content-Type': 'application/json', 'Accept': 'application/vnd.github.v3+json' };
   var url    = gistId ? 'https://api.github.com/gists/' + gistId : 'https://api.github.com/gists';

@@ -1782,8 +1782,10 @@ window.pushFullBackup = function() {
     stuff:    JSON.parse(JSON.stringify(S.stuff)),
     uiIcons:  JSON.parse(JSON.stringify(S.uiIcons)),
     cfg: (function() {
-      // Include all config except the token for safety awareness; keep it anyway since it's local
-      return JSON.parse(JSON.stringify(S.cfg));
+      // Exclude the token from backup — never store it in gist content
+      var c = JSON.parse(JSON.stringify(S.cfg));
+      delete c.ghToken;
+      return c;
     })()
   };
 
