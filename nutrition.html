@@ -208,7 +208,7 @@ body{font-family:var(--fn);background:var(--bg);color:var(--tx);min-height:100vh
     </div>
     <div class="tbar-r">
       <button class="btn" id="theme-btn" onclick="toggleTheme()">🌙</button>
-      <button class="btn" onclick="pullGist()" title="Preview Gist contents">⬇ Pull</button>
+      <button class="btn" onclick="pullGist()" title="Preview Supabase contents">⬇ Pull</button>
       <button class="btn" id="gist-btn" onclick="pushGist()" title="Merge & push to GitHub Gist">⬆ Push</button>
     </div>
   </div>
@@ -328,15 +328,19 @@ body{font-family:var(--fn);background:var(--bg);color:var(--tx);min-height:100vh
       </div>
     </div>
     <div class="ss">
-      <div class="ss-ttl">🔗 Shared Gist <span style="font-size:11px;font-weight:400;color:var(--tx3);margin-left:6px">health_log.json</span></div>
+      <div class="ss-ttl">🟢 Supabase Sync <span style="font-size:11px;font-weight:400;color:var(--tx3);margin-left:6px">health-log row</span></div>
       <div style="padding:4px 16px 8px;font-size:11px;color:var(--tx3)">Shared with WellStat &amp; Habit Tracker. Pushes all nutrition totals + water + alcohol. Pulls shared fields from other apps by date.</div>
       <div class="sr">
-        <div><div class="srl">GitHub Token</div><div class="srs">Personal access token with "gist" scope. Create at github.com/settings/tokens</div></div>
+        <div><div class="srl">Supabase URL</div><div class="srs">From Project Settings → API (e.g. https://xxxx.supabase.co)</div></div>
         <input class="fi" type="password" id="gh-token" placeholder="ghp_..." style="width:200px;font-size:12px" oninput="saveCfg()">
       </div>
       <div class="sr">
-        <div><div class="srl">Shared Gist ID</div><div class="srs">Same ID used by WellStat &amp; Habit Tracker. Push merges nutrition fields in without touching other apps' data.</div></div>
-        <input class="fi" id="gh-gist-id" placeholder="Shared Gist ID" style="width:200px;font-size:12px" oninput="saveCfg()">
+        <div><div class="srl">Anon Key</div><div class="srs">Same key used by WellStat &amp; Habit Tracker.</div></div>
+        <input class="fi" type="password" id="gh-gist-id" placeholder="eyJhbGciOiJ..." style="width:200px;font-size:12px" oninput="saveCfg()">
+      </div>
+      <div class="sr">
+        <div><div class="srl">User ID</div><div class="srs">Same UUID as WellStat &amp; Habit Tracker</div></div>
+        <input class="fi" id="gh-user-id" placeholder="paste from WellStat Settings" style="width:200px;font-size:11px" oninput="saveCfg()">
       </div>
       <div class="sr">
         <div><div class="srl">Auto-push on save</div></div>
@@ -348,11 +352,10 @@ body{font-family:var(--fn);background:var(--bg);color:var(--tx);min-height:100vh
       </div>
     </div>
     <div class="ss">
-      <div class="ss-ttl">💾 Nutrition Backup Gist <span style="font-size:11px;font-weight:400;color:var(--tx3);margin-left:6px">ritual-nutrition-backup.json + food_log_*.json</span></div>
+      <div class="ss-ttl">💾 Nutrition Backup <span style="font-size:11px;font-weight:400;color:var(--tx3);margin-left:6px">ritual-nutrition-backup row in Supabase</span></div>
       <div style="padding:4px 16px 8px;font-size:11px;color:var(--tx3)">Your private nutrition-only backup. Stores all food logs, water logs, food DB, meal slots, targets, and settings. Use a separate Gist from the shared one above.</div>
       <div class="sr">
-        <div><div class="srl">Nutrition Backup Gist ID</div><div class="srs">Leave blank to auto-create on first push. Also stores per-day food_log_*.json files.</div></div>
-        <input class="fi" id="food-gist-id" placeholder="Leave blank to auto-create" style="width:200px;font-size:12px" oninput="saveCfg()">
+        <div><div class="srl">Backup row</div><div class="srs">Stores nutrition snapshot in Supabase under ritual-nutrition-backup filename.</div></div>
       </div>
       <div class="sr">
         <div><div class="srl">Auto-push entries on save</div><div class="srs">Debounced 4 s — fires after you finish adding food</div></div>
@@ -501,7 +504,7 @@ body{font-family:var(--fn);background:var(--bg);color:var(--tx);min-height:100vh
 <!-- GIST RESULT MODAL -->
 <div class="ovl" id="m-gist">
   <div class="modal" style="max-width:460px">
-    <div class="mhdr"><span class="mttl">Gist Export</span><button class="ibtn" onclick="closeModal('m-gist')">✕</button></div>
+    <div class="mhdr"><span class="mttl">Supabase Export</span><button class="ibtn" onclick="closeModal('m-gist')">✕</button></div>
     <div class="mbody" id="gist-body"></div>
     <div class="mftr"><button class="btn pri" onclick="closeModal('m-gist')">Done</button></div>
   </div>
@@ -617,8 +620,8 @@ var S = {
   foodDB: [],   // [{id, name, baseQty, baseUnit, baseNutrients, usedCount, lastUsed}]
   cfg: {
     theme:'light', groqKey:'', groqModel:'llama-3.3-70b-versatile',
-    ghToken:'', gistId:'', autoPush:false, wTgt:3,
-    foodGistId:'', foodGistAutoPush:false,
+    sbUrl:'', sbKey:'', sbUserId:'', autoPush:false, wTgt:3,
+    foodGistAutoPush:false,
     gcseKey:'', gcseCx:'', gcseAuto:false,
     targets: Object.assign({}, DEFAULT_TARGETS),
     mealSlots: [
@@ -639,12 +642,13 @@ var pendingNutrients = {};
 
 // ── STORAGE ──
 function save(){
-  // Sync shared gist config to ws2_gist key so index.html can read it
+  // Sync shared Supabase config to ws2_supabase_shared key
   try{
-    var gc = JSON.parse(localStorage.getItem('ws2_gist')||'{}');
-    if(S.cfg.ghToken) gc.token = S.cfg.ghToken;
-    if(S.cfg.gistId)  gc.sharedGistId = S.cfg.gistId;
-    localStorage.setItem('ws2_gist', JSON.stringify(gc));
+    var sc = JSON.parse(localStorage.getItem('ws2_supabase_shared')||'{}');
+    if(S.cfg.sbUrl)    sc.url     = S.cfg.sbUrl;
+    if(S.cfg.sbKey)    sc.anonKey = S.cfg.sbKey;
+    if(S.cfg.sbUserId) sc.userId  = S.cfg.sbUserId;
+    localStorage.setItem('ws2_supabase_shared', JSON.stringify(sc));
   }catch(e){}
   try{localStorage.setItem('ritual_nutrition_v2',JSON.stringify(S));}catch(e){}
 }
@@ -676,11 +680,13 @@ function load(){
       }
     }
   }catch(e){}
-  // Overlay shared Gist config from ws2_gist key (written by index.html or habit tracker)
+  // Overlay shared Supabase config from ws2_supabase_shared (written by WellStat or Habit Tracker)
   try{
-    var sgc = JSON.parse(localStorage.getItem('ws2_gist')||'{}');
-    if(sgc.token && !S.cfg.ghToken) S.cfg.ghToken = sgc.token;
-    if(sgc.sharedGistId && !S.cfg.gistId) S.cfg.gistId = sgc.sharedGistId;
+    var sgc = JSON.parse(localStorage.getItem('ws2_supabase_shared')||
+              localStorage.getItem('ws2_supabase')||'{}');
+    if(sgc.url     && !S.cfg.sbUrl)    S.cfg.sbUrl    = sgc.url;
+    if(sgc.anonKey && !S.cfg.sbKey)    S.cfg.sbKey    = sgc.anonKey;
+    if(sgc.userId  && !S.cfg.sbUserId) S.cfg.sbUserId = sgc.userId;
   }catch(e){}
 }
 
@@ -1590,11 +1596,11 @@ function renderSettings(){
   var gk=document.getElementById('groq-key');if(gk)gk.value=S.cfg.groqKey||'';
   var gs=document.getElementById('groq-status');if(gs)gs.textContent=S.cfg.groqKey?'✓ Key saved':'Not set';
   var gm=document.getElementById('groq-model');if(gm)gm.value=S.cfg.groqModel||'llama-3.3-70b-versatile';
-  var gt=document.getElementById('gh-token');if(gt)gt.value=S.cfg.ghToken||'';
-  var gi=document.getElementById('gh-gist-id');if(gi)gi.value=S.cfg.gistId||'';
+  var gt=document.getElementById('gh-token');if(gt)gt.value=S.cfg.sbUrl||'';
+  var gi=document.getElementById('gh-gist-id');if(gi)gi.value=S.cfg.sbKey||'';
+  var gu=document.getElementById('gh-user-id');if(gu)gu.value=S.cfg.sbUserId||'';
   var ap=document.getElementById('auto-push');if(ap)ap.checked=S.cfg.autoPush||false;
   var dt=document.getElementById('dark-tog');if(dt)dt.checked=S.cfg.theme==='dark';
-  var fgi=document.getElementById('food-gist-id');if(fgi)fgi.value=S.cfg.foodGistId||'';
   var fga=document.getElementById('food-gist-auto-push');if(fga)fga.checked=S.cfg.foodGistAutoPush||false;
   var gca=document.getElementById('gcse-auto');if(gca)gca.checked=S.cfg.gcseAuto||false;
 }
@@ -1602,10 +1608,10 @@ function renderSettings(){
 window.saveCfg=function(){
   var gk=document.getElementById('groq-key');if(gk){S.cfg.groqKey=gk.value.trim();var gs=document.getElementById('groq-status');if(gs)gs.textContent=S.cfg.groqKey?'✓ Key saved':'Not set';}
   var gm=document.getElementById('groq-model');if(gm)S.cfg.groqModel=gm.value;
-  var gt=document.getElementById('gh-token');if(gt)S.cfg.ghToken=gt.value.trim();
-  var gi=document.getElementById('gh-gist-id');if(gi)S.cfg.gistId=gi.value.trim();
+  var gt=document.getElementById('gh-token');if(gt)S.cfg.sbUrl=gt.value.trim().replace(/\/+$/,'');
+  var gi=document.getElementById('gh-gist-id');if(gi)S.cfg.sbKey=gi.value.trim();
+  var gu=document.getElementById('gh-user-id');if(gu)S.cfg.sbUserId=gu.value.trim();
   var ap=document.getElementById('auto-push');if(ap)S.cfg.autoPush=ap.checked;
-  var fgi=document.getElementById('food-gist-id');if(fgi)S.cfg.foodGistId=fgi.value.trim();
   var fga=document.getElementById('food-gist-auto-push');if(fga)S.cfg.foodGistAutoPush=fga.checked;
   var gca=document.getElementById('gcse-auto');if(gca)S.cfg.gcseAuto=gca.checked;
   save();
@@ -1906,121 +1912,71 @@ function gistDayToNutKeys(gistDay) {
   return out;
 }
 
-// ── BRIDGE: push nutrition fields into wellstat-data.json on WellStat gist ──
-function bridgeNutritionToWellstat(healthLogDays) {
-  // WellStat gist ID is stored separately in ws2_gist.wsGistId
-  var wsgc; try { wsgc = JSON.parse(localStorage.getItem('ws2_gist')||'{}'); } catch(e) { return; }
-  var wsGistId = wsgc.wsGistId || wsgc.gistId || '';
-  var token    = S.cfg.ghToken;
-  if (!wsGistId || !token) return; // WellStat gist not configured — skip bridge silently
-  var headers = { 'Authorization': 'token ' + token, 'Content-Type': 'application/json', 'Accept': 'application/vnd.github.v3+json' };
-  fetch('https://api.github.com/gists/' + wsGistId, { headers: headers })
-    .then(function(r) { return r.json(); })
-    .then(function(gistData) {
-      var wsPayload = { version:4, pushed: new Date().toISOString(), days:0, data:{}, settings:null };
-      try {
-        var wsFile = gistData.files && gistData.files['wellstat-data.json'];
-        if (wsFile && wsFile.content) wsPayload = JSON.parse(wsFile.content);
-      } catch(e) {}
-      if (!wsPayload.data) wsPayload.data = {};
-      Object.keys(healthLogDays).forEach(function(ds) {
-        if (!wsPayload.data[ds]) wsPayload.data[ds] = {};
-        var hl = healthLogDays[ds];
-        Object.keys(hl).forEach(function(hk) {
-          if (hl[hk] !== undefined && hl[hk] !== null && hl[hk] !== 0) {
-            wsPayload.data[ds][hk] = hl[hk];
-          }
-        });
-      });
-      wsPayload.days = Object.keys(wsPayload.data).length;
-      wsPayload.pushed = new Date().toISOString();
-      return fetch('https://api.github.com/gists/' + wsGistId, {
-        method: 'PATCH', headers: headers,
-        body: JSON.stringify({ files: { 'wellstat-data.json': { content: JSON.stringify(wsPayload, null, 2) } } })
-      });
-    })
-    .catch(function(e) { console.warn('WellStat bridge push failed:', e.message); });
+// ── Supabase REST helpers (Nutrition) ──
+function _sbHdrsN(key){ return {'apikey':key,'Authorization':'Bearer '+key,'Content-Type':'application/json','Prefer':'resolution=merge-duplicates'}; }
+function _sbUpsertN(url,key,uid,filename,payload){
+  return fetch(url+'/rest/v1/health_data',{method:'POST',headers:_sbHdrsN(key),
+    body:JSON.stringify({user_id:uid,filename:filename,payload:payload,updated_at:new Date().toISOString()})});
 }
+function _sbFetchN(url,key,uid,filename){
+  return fetch(url+'/rest/v1/health_data?user_id=eq.'+encodeURIComponent(uid)+'&filename=eq.'+encodeURIComponent(filename)+'&select=payload',
+    {headers:{'apikey':key,'Authorization':'Bearer '+key}})
+    .then(function(r){ if(!r.ok) throw new Error('HTTP '+r.status); return r.json(); })
+    .then(function(rows){ return rows && rows[0] ? rows[0].payload : null; });
+}
+function _sbCreds(){ return { url: S.cfg.sbUrl, key: S.cfg.sbKey, uid: S.cfg.sbUserId ||
+  (JSON.parse(localStorage.getItem('ws2_supabase')||'{}').userId)||'' }; }
 
-// ── NUTRITION FULL BACKUP (everything → ritual-nutrition-backup.json in Backup Gist) ──
+// ── NUTRITION FULL BACKUP → ritual-nutrition-backup row in Supabase ──
 window.pushNutritionBackup = function() {
-  var token  = S.cfg.ghToken;
-  var gistId = S.cfg.foodGistId; // nutrition backup gist
-  if (!token) { setFoodGistStatus('⚠️ No GitHub token set.', 'var(--dng)'); return; }
+  var c = _sbCreds();
+  if (!c.url||!c.key) { setFoodGistStatus('⚠️ Set Supabase URL and anon key in Settings.', 'var(--dng)'); return; }
   var snapshot = {
     version: 2,
     backed_up: new Date().toISOString(),
-    logs:    JSON.parse(JSON.stringify(S.logs)),
-    water:   JSON.parse(JSON.stringify(S.water)),
-    foodDB:  JSON.parse(JSON.stringify(S.foodDB)),
-    cfg:     (function() {
-      // Exclude the token from backup — never store it in gist content
-      var c = JSON.parse(JSON.stringify(S.cfg));
-      delete c.ghToken;
-      return c;
-    })()
+    logs:   JSON.parse(JSON.stringify(S.logs)),
+    water:  JSON.parse(JSON.stringify(S.water)),
+    foodDB: JSON.parse(JSON.stringify(S.foodDB)),
+    cfg:    (function(){ var cp=JSON.parse(JSON.stringify(S.cfg)); delete cp.sbKey; return cp; })()
   };
-  var headers = { 'Authorization': 'token ' + token, 'Content-Type': 'application/json', 'Accept': 'application/vnd.github.v3+json' };
-  var url    = gistId ? 'https://api.github.com/gists/' + gistId : 'https://api.github.com/gists';
-  var method = gistId ? 'PATCH' : 'POST';
-  var body = { description: 'Ritual Nutrition Backup — ' + new Date().toISOString().split('T')[0], public: false,
-    files: { 'ritual-nutrition-backup.json': { content: JSON.stringify(snapshot, null, 2) } } };
   setFoodGistStatus('Backing up…', 'var(--tx3)');
-  fetch(url, { method: method, headers: headers, body: JSON.stringify(body) })
-    .then(function(r) { return r.json(); })
-    .then(function(data) {
-      if (data.id) {
-        if (!gistId) { S.cfg.foodGistId = data.id; save(); renderSettings(); }
+  _sbUpsertN(c.url,c.key,c.uid,'ritual-nutrition-backup',snapshot)
+    .then(function(r) {
+      if (r.ok) {
         var dayCount = Object.keys(snapshot.logs).length;
-        setFoodGistStatus('✓ Backed up ' + dayCount + ' day(s) + ' + snapshot.foodDB.length + ' foods — ' + new Date().toLocaleTimeString(), 'var(--ac)');
+        setFoodGistStatus('✓ Backed up '+dayCount+' day(s) + '+snapshot.foodDB.length+' foods — '+new Date().toLocaleTimeString(), 'var(--ac)');
       } else {
-        setFoodGistStatus('✗ ' + (data.message || 'Unknown error'), 'var(--dng)');
+        r.json().then(function(d){ setFoodGistStatus('✗ '+(d.message||d.hint||'Unknown error'),'var(--dng)'); });
       }
     })
-    .catch(function(e) { setFoodGistStatus('✗ Network error: ' + e.message, 'var(--dng)'); });
+    .catch(function(e){ setFoodGistStatus('✗ Network error: '+e.message,'var(--dng)'); });
 };
 
 window.pullNutritionBackup = function() {
-  var token  = S.cfg.ghToken;
-  var gistId = S.cfg.foodGistId;
-  if (!token || !gistId) { setFoodGistStatus('⚠️ Set token and Nutrition Backup Gist ID first.', 'var(--dng)'); return; }
+  var c = _sbCreds();
+  if (!c.url||!c.key) { setFoodGistStatus('⚠️ Set Supabase URL and anon key in Settings.', 'var(--dng)'); return; }
   if (!confirm('⚠ This will REPLACE all local food logs, water logs, food DB, and settings with the backup.\n\nAre you sure?')) return;
-  var headers = { 'Authorization': 'token ' + token, 'Accept': 'application/vnd.github.v3+json' };
   setFoodGistStatus('Restoring…', 'var(--tx3)');
-  fetch('https://api.github.com/gists/' + gistId, { headers: headers })
-    .then(function(r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
-    .then(function(data) {
-      var file = data.files && data.files['ritual-nutrition-backup.json'];
-      if (!file || !file.content) throw new Error('No ritual-nutrition-backup.json found in this Gist.');
-      var snap = JSON.parse(file.content);
-      // Preserve current connection settings
-      var savedToken     = S.cfg.ghToken;
-      var savedGistId    = S.cfg.gistId;
-      var savedFoodGistId= S.cfg.foodGistId;
+  _sbFetchN(c.url,c.key,c.uid,'ritual-nutrition-backup')
+    .then(function(snap) {
+      if (!snap) throw new Error('No ritual-nutrition-backup row found. Push a backup first.');
+      var savedUrl=S.cfg.sbUrl, savedKey=S.cfg.sbKey, savedUid=S.cfg.sbUserId;
       S.logs   = snap.logs   || {};
       S.water  = snap.water  || {};
       S.foodDB = snap.foodDB || [];
       S.cfg    = Object.assign({}, S.cfg, snap.cfg || {});
-      S.cfg.ghToken    = savedToken;
-      S.cfg.gistId     = savedGistId;
-      S.cfg.foodGistId = savedFoodGistId;
-      save();
-      applyTheme();
-      renderLog();
-      renderHistory();
-      renderSettings();
+      S.cfg.sbUrl=savedUrl; S.cfg.sbKey=savedKey; S.cfg.sbUserId=savedUid;
+      save(); applyTheme(); renderLog(); renderHistory(); renderSettings();
       var backed = snap.backed_up ? new Date(snap.backed_up).toLocaleString() : 'unknown date';
-      setFoodGistStatus('✓ Restored ' + Object.keys(S.logs).length + ' day(s) from backup dated ' + backed, 'var(--ac)');
+      setFoodGistStatus('✓ Restored '+Object.keys(S.logs).length+' day(s) from backup dated '+backed, 'var(--ac)');
     })
-    .catch(function(e) { setFoodGistStatus('✗ ' + e.message, 'var(--dng)'); });
+    .catch(function(e){ setFoodGistStatus('✗ '+e.message,'var(--dng)'); });
 };
 
-// ── FOOD LOG GIST — raw per-entry log, one file per day ──
-
+// ── FOOD LOG BACKUP — per-day raw entries stored in Supabase ──
 var _foodPushTimers = {};
 
 function scheduleFoodLogPush(ds) {
-  // Debounce: wait 4 s of inactivity then push
   if (_foodPushTimers[ds]) clearTimeout(_foodPushTimers[ds]);
   _foodPushTimers[ds] = setTimeout(function() {
     delete _foodPushTimers[ds];
@@ -2028,20 +1984,9 @@ function scheduleFoodLogPush(ds) {
   }, 4000);
 }
 
-function foodGistHeaders() {
-  return {
-    'Authorization': 'token ' + S.cfg.ghToken,
-    'Content-Type': 'application/json',
-    'Accept': 'application/vnd.github.v3+json'
-  };
-}
-
-function foodLogFileName(ds) {
-  return 'food_log_' + ds + '.json';
-}
+function foodLogFileName(ds) { return 'food_log_' + ds; }
 
 function buildFoodLogPayload(ds) {
-  // Builds the JSON to store for one day — full raw entries
   var dl = S.logs[ds];
   if (!dl) return null;
   var entries = [];
@@ -2049,28 +1994,13 @@ function buildFoodLogPayload(ds) {
     var items = (dl.meals && dl.meals[meal.id]) || [];
     items.forEach(function(item, idx) {
       entries.push({
-        id: item.id || (meal.id + '_' + idx),
-        meal: meal.id,
-        mealName: meal.name,
-        mealIcon: meal.icon,
-        name: item.name,
-        qty: item.qty,
-        unit: item.unit,
-        baseQty: item.baseQty,
-        baseUnit: item.baseUnit,
-        baseNutrients: item.baseNutrients,
-        nutrients: item.nutrients,
-        imageUrl: item.imageUrl || '',
-        ts: item.ts || null
+        id: item.id || (meal.id+'_'+idx), meal: meal.id, mealName: meal.name, mealIcon: meal.icon,
+        name: item.name, qty: item.qty, unit: item.unit, baseQty: item.baseQty, baseUnit: item.baseUnit,
+        baseNutrients: item.baseNutrients, nutrients: item.nutrients, imageUrl: item.imageUrl||'', ts: item.ts||null
       });
     });
   });
-  return {
-    date: ds,
-    pushed: new Date().toISOString(),
-    water: S.water[ds] || 0,
-    entries: entries
-  };
+  return { date: ds, pushed: new Date().toISOString(), water: S.water[ds]||0, entries: entries };
 }
 
 function setFoodGistStatus(msg, color) {
@@ -2080,71 +2010,49 @@ function setFoodGistStatus(msg, color) {
 
 window.pushFoodLog = function(ds, silent) {
   ds = ds || currentDate;
-  var token = S.cfg.ghToken;
-  if (!token) {
-    if (!silent) setFoodGistStatus('⚠️ No GitHub token — set it in Settings → GitHub Gist Export.', 'var(--dng)');
+  var c = _sbCreds();
+  if (!c.url||!c.key) {
+    if (!silent) setFoodGistStatus('⚠️ Set Supabase credentials in Settings.', 'var(--dng)');
     return;
   }
   var payload = buildFoodLogPayload(ds);
   if (!payload || !payload.entries.length) {
-    if (!silent) setFoodGistStatus('No food entries logged for ' + ds + '.', 'var(--tx3)');
+    if (!silent) setFoodGistStatus('No food entries logged for '+ds+'.', 'var(--tx3)');
     return;
   }
-  if (!silent) setFoodGistStatus('Pushing ' + ds + '…', 'var(--tx3)');
-  var headers = foodGistHeaders();
-  var fileName = foodLogFileName(ds);
-  var body = {
-    description: 'Ritual Food Log — raw entries',
-    public: false,
-    files: {}
-  };
-  body.files[fileName] = { content: JSON.stringify(payload, null, 2) };
-  var gistId = S.cfg.foodGistId;
-  var url = gistId ? 'https://api.github.com/gists/' + gistId : 'https://api.github.com/gists';
-  var method = gistId ? 'PATCH' : 'POST';
-  fetch(url, { method: method, headers: headers, body: JSON.stringify(body) })
-    .then(function(r) { return r.json(); })
-    .then(function(data) {
-      if (data.id) {
-        if (!gistId) { S.cfg.foodGistId = data.id; save(); renderSettings(); }
-        if (!silent) setFoodGistStatus('✓ Pushed ' + payload.entries.length + ' entries for ' + ds + '.', 'var(--ac)');
+  if (!silent) setFoodGistStatus('Pushing '+ds+'…', 'var(--tx3)');
+  _sbUpsertN(c.url,c.key,c.uid,foodLogFileName(ds),payload)
+    .then(function(r) {
+      if (r.ok) {
+        if (!silent) setFoodGistStatus('✓ Pushed '+payload.entries.length+' entries for '+ds+'.', 'var(--ac)');
       } else {
-        if (!silent) setFoodGistStatus('Error: ' + (data.message || 'unknown'), 'var(--dng)');
+        r.json().then(function(d){ if(!silent) setFoodGistStatus('Error: '+(d.message||'unknown'),'var(--dng)'); });
       }
     })
-    .catch(function(e) {
-      if (!silent) setFoodGistStatus('Network error: ' + e.message, 'var(--dng)');
-    });
+    .catch(function(e){ if(!silent) setFoodGistStatus('Network error: '+e.message,'var(--dng)'); });
 };
 
 window.pushFoodLogAll = function() {
-  var token = S.cfg.ghToken;
-  if (!token) { setFoodGistStatus('⚠️ No GitHub token.', 'var(--dng)'); return; }
+  var c = _sbCreds();
+  if (!c.url||!c.key) { setFoodGistStatus('⚠️ Set Supabase credentials in Settings.', 'var(--dng)'); return; }
   var dates = Object.keys(S.logs).filter(function(ds) {
     var dl = S.logs[ds];
-    return dl && S.cfg.mealSlots.some(function(m) { return (dl.meals[m.id]||[]).length > 0; });
+    return dl && S.cfg.mealSlots.some(function(m){ return (dl.meals[m.id]||[]).length>0; });
   });
   if (!dates.length) { setFoodGistStatus('No logged days to push.', 'var(--tx3)'); return; }
-  setFoodGistStatus('Pushing ' + dates.length + ' days…', 'var(--tx3)');
-  // Push sequentially with 300 ms delay to avoid rate limits
+  setFoodGistStatus('Pushing '+dates.length+' days…', 'var(--tx3)');
   var i = 0;
   function next() {
-    if (i >= dates.length) {
-      setFoodGistStatus('✓ Pushed all ' + dates.length + ' days.', 'var(--ac)');
-      return;
-    }
-    var ds = dates[i++];
-    pushFoodLog(ds, true);
+    if (i >= dates.length) { setFoodGistStatus('✓ Pushed all '+dates.length+' days.', 'var(--ac)'); return; }
+    pushFoodLog(dates[i++], true);
     setTimeout(next, 350);
   }
   next();
 };
 
 window.pullFoodLogDay = function() {
-  if (!S.cfg.ghToken || !S.cfg.foodGistId) {
-    setFoodGistStatus('⚠️ Set token and Food Log Gist ID in Settings first.', 'var(--dng)');
-    return;
-  }
+  var c = _sbCreds();
+  if (!c.url||!c.key) { setFoodGistStatus('⚠️ Set Supabase credentials in Settings.', 'var(--dng)'); return; }
   var dp = document.getElementById('pull-food-date');
   if (dp) dp.value = currentDate;
   var ps = document.getElementById('pull-food-status');
@@ -2155,196 +2063,124 @@ window.pullFoodLogDay = function() {
 window.confirmPullFoodDay = function() {
   var dp = document.getElementById('pull-food-date');
   var ds = dp ? dp.value : currentDate;
-  if (!ds) { return; }
+  if (!ds) return;
   var ps = document.getElementById('pull-food-status');
   if (ps) ps.textContent = 'Fetching…';
-  var token = S.cfg.ghToken;
-  var gistId = S.cfg.foodGistId;
-  var fileName = foodLogFileName(ds);
-  fetch('https://api.github.com/gists/' + gistId, {
-    headers: { 'Authorization': 'token ' + token }
-  })
-    .then(function(r) { return r.json(); })
-    .then(function(data) {
-      var file = data.files && data.files[fileName];
-      if (!file || !file.content) {
-        if (ps) ps.textContent = '❌ No food log found for ' + ds + ' in the Gist.';
-        if (ps) ps.style.color = 'var(--dng)';
+  var c = _sbCreds();
+  _sbFetchN(c.url,c.key,c.uid,foodLogFileName(ds))
+    .then(function(payload) {
+      if (!payload) {
+        if (ps) { ps.textContent = '❌ No food log found for '+ds+' in Supabase.'; ps.style.color='var(--dng)'; }
         return;
       }
-      var payload = JSON.parse(file.content);
-      // Rebuild the day's meals from raw entries
-      var dl = { meals: {}, customMeals: [] };
-      S.cfg.mealSlots.forEach(function(m) { dl.meals[m.id] = []; });
-      (payload.entries || []).forEach(function(entry) {
-        var mealId = entry.meal;
-        if (!dl.meals[mealId]) dl.meals[mealId] = [];
-        dl.meals[mealId].push({
-          name: entry.name,
-          qty: entry.qty,
-          unit: entry.unit,
-          baseQty: entry.baseQty,
-          baseUnit: entry.baseUnit,
-          baseNutrients: entry.baseNutrients,
-          nutrients: entry.nutrients,
-          imageUrl: entry.imageUrl || '',
-          ts: entry.ts
-        });
+      var dl = { meals:{}, customMeals:[] };
+      S.cfg.mealSlots.forEach(function(m){ dl.meals[m.id]=[]; });
+      (payload.entries||[]).forEach(function(entry) {
+        var mealId=entry.meal;
+        if(!dl.meals[mealId]) dl.meals[mealId]=[];
+        dl.meals[mealId].push({name:entry.name,qty:entry.qty,unit:entry.unit,baseQty:entry.baseQty,
+          baseUnit:entry.baseUnit,baseNutrients:entry.baseNutrients,nutrients:entry.nutrients,
+          imageUrl:entry.imageUrl||'',ts:entry.ts});
       });
-      S.logs[ds] = dl;
-      // Restore water if present
-      if (payload.water) S.water[ds] = payload.water;
+      S.logs[ds]=dl;
+      if (payload.water) S.water[ds]=payload.water;
       save();
-      if (ps) { ps.textContent = '✓ Restored ' + (payload.entries||[]).length + ' entries for ' + ds + '.'; ps.style.color = 'var(--ac)'; }
-      // If pulled day is the current view, re-render
-      if (ds === currentDate) { renderAll(); renderWaterLog(); }
-      setTimeout(function() { closeModal('m-pull-food'); }, 1200);
+      if (ps) { ps.textContent='✓ Restored '+(payload.entries||[]).length+' entries for '+ds+'.'; ps.style.color='var(--ac)'; }
+      if (ds===currentDate) { renderAll(); renderWaterLog(); }
+      setTimeout(function(){ closeModal('m-pull-food'); }, 1200);
     })
-    .catch(function(e) {
-      if (ps) { ps.textContent = '❌ ' + e.message; ps.style.color = 'var(--dng)'; }
-    });
+    .catch(function(e){ if(ps){ ps.textContent='❌ '+e.message; ps.style.color='var(--dng)'; } });
 };
 
+// ── PUSH nutrition → shared health-log row in Supabase ──
 window.pushGist = function(silent) {
-  var token = S.cfg.ghToken;
-  if (!token) {
+  var c = _sbCreds();
+  if (!c.url||!c.key) {
     if (!silent) {
       var gb = document.getElementById('gist-body');
-      if (gb) gb.innerHTML = '<div style="color:var(--dng);font-size:13px">⚠️ No GitHub token. Go to Settings → GitHub Gist Export.</div>';
+      if (gb) gb.innerHTML = '<div style="color:var(--dng);font-size:13px">⚠️ Set Supabase URL and anon key in Settings → Supabase Sync.</div>';
       openModal('m-gist');
     }
     return;
   }
 
-  var gistId = S.cfg.gistId;
-  var headers = { 'Authorization': 'token ' + token, 'Content-Type': 'application/json' };
-
-  function doMergeAndPush(existingDays) {
-    // existingDays = the full parsed JSON from the shared Gist file (may be empty {})
-    // We merge our nutrition data day by day into it
-    var merged = Object.assign({}, existingDays);
-
-    // Build nutrition totals for every date we have data for
-    Object.keys(S.logs).forEach(function(ds) {
-      var myDay = nutTotalsToGistDay(ds);
-      if (!Object.keys(myDay).length) return; // nothing logged this day
-      if (!merged[ds]) merged[ds] = {};
-      // Merge field by field — our keys overwrite same-named fields, other app's keys untouched
-      Object.keys(myDay).forEach(function(k) { merged[ds][k] = myDay[k]; });
-    });
-
-    // Sort dates descending for readability
-    var sorted = {};
-    Object.keys(merged).sort(function(a,b){ return b.localeCompare(a); }).forEach(function(ds) {
-      sorted[ds] = merged[ds];
-    });
-
-    var payload = JSON.stringify(sorted, null, 2);
-    var today = new Date().toISOString().split('T')[0];
-    var body = {
-      description: 'Ritual Health Log — updated ' + today,
-      public: false,
-      files: { 'health_log.json': { content: payload } }
-    };
-    var url = gistId ? 'https://api.github.com/gists/' + gistId : 'https://api.github.com/gists';
-    var method = gistId ? 'PATCH' : 'POST';
-
-    return fetch(url, { method: method, headers: headers, body: JSON.stringify(body) })
-      .then(function(r) { return r.json(); })
-      .then(function(data) {
-        if (data.id) {
-          S.cfg.gistId = data.id; save(); renderSettings();
-          // Also bridge nutrition data into wellstat-data.json on WellStat gist
-          bridgeNutritionToWellstat(sorted);
-          if (!silent) {
-            var gb = document.getElementById('gist-body');
-            if (gb) gb.innerHTML =
-              '<div style="color:var(--ac);font-size:13px;margin-bottom:10px">✓ Synced successfully!</div>'
-              + '<div style="font-size:12px;color:var(--tx2);margin-bottom:4px">Gist URL:</div>'
-              + '<a href="' + data.html_url + '" target="_blank" style="font-size:12px;color:var(--blue);word-break:break-all">' + data.html_url + '</a>'
-              + '<div style="font-size:11px;color:var(--tx3);margin-top:10px">'
-              + Object.keys(S.logs).length + ' date(s) synced. Other apps\' fields preserved.</div>';
-            openModal('m-gist');
-          }
-        } else {
-          if (!silent) {
-            var gb = document.getElementById('gist-body');
-            if (gb) gb.innerHTML = '<div style="color:var(--dng);font-size:13px">Error: ' + (data.message || 'Unknown') + '</div>';
-            openModal('m-gist');
-          }
+  // Fetch existing health-log row, merge nutrition fields in, then upsert
+  _sbFetchN(c.url,c.key,c.uid,'health-log')
+    .catch(function(){ return null; })
+    .then(function(existingDays) {
+      var merged = Object.assign({}, existingDays||{});
+      Object.keys(S.logs).forEach(function(ds) {
+        var myDay = nutTotalsToGistDay(ds);
+        if (!Object.keys(myDay).length) return;
+        if (!merged[ds]) merged[ds] = {};
+        Object.keys(myDay).forEach(function(k){ merged[ds][k]=myDay[k]; });
+      });
+      var sorted = {};
+      Object.keys(merged).sort(function(a,b){ return b.localeCompare(a); }).forEach(function(ds){ sorted[ds]=merged[ds]; });
+      return _sbUpsertN(c.url,c.key,c.uid,'health-log',sorted).then(function(r){ return {r:r,sorted:sorted}; });
+    })
+    .then(function(obj) {
+      if (!obj) return;
+      var r=obj.r, sorted=obj.sorted;
+      if (r.ok) {
+        if (!silent) {
+          var gb = document.getElementById('gist-body');
+          if (gb) gb.innerHTML =
+            '<div style="color:var(--ac);font-size:13px;margin-bottom:10px">✓ Synced to Supabase!</div>'
+            +'<div style="font-size:11px;color:var(--tx3);margin-top:10px">'
+            +Object.keys(S.logs).length+' date(s) synced. Other apps\' fields preserved.</div>';
+          openModal('m-gist');
         }
-      });
-  }
-
-  if (gistId) {
-    // PULL first — get existing Gist content so we can merge into it
-    fetch('https://api.github.com/gists/' + gistId, { headers: headers })
-      .then(function(r) { return r.json(); })
-      .then(function(gistData) {
-        var existingDays = {};
-        try {
-          var file = gistData.files && (gistData.files['health_log.json'] || Object.values(gistData.files)[0]);
-          if (file && file.content) existingDays = JSON.parse(file.content);
-        } catch(e) { existingDays = {}; }
-        return doMergeAndPush(existingDays);
-      })
-      .catch(function(e) {
-        // Pull failed — push anyway without merge (first time or network hiccup)
-        return doMergeAndPush({});
-      });
-  } else {
-    // No Gist yet — create fresh
-    doMergeAndPush({}).catch(function(e) {
-      if (!silent) {
-        var gb = document.getElementById('gist-body');
-        if (gb) gb.innerHTML = '<div style="color:var(--dng);font-size:13px">Network error: ' + e.message + '</div>';
-        openModal('m-gist');
-      }
-    });
-  }
-};
-
-// Pull from Gist and show what's there (read-only view, doesn't affect local logs)
-window.pullGist = function() {
-  var token = S.cfg.ghToken;
-  var gistId = S.cfg.gistId;
-  if (!token || !gistId) {
-    var gb = document.getElementById('gist-body');
-    if (gb) gb.innerHTML = '<div style="color:var(--dng);font-size:13px">⚠️ Set your GitHub token and Gist ID in Settings first.</div>';
-    openModal('m-gist');
-    return;
-  }
-  var gb = document.getElementById('gist-body');
-  if (gb) gb.innerHTML = '<div style="color:var(--tx3);font-size:13px">Fetching from Gist...</div>';
-  openModal('m-gist');
-  fetch('https://api.github.com/gists/' + gistId, { headers: { 'Authorization': 'token ' + token } })
-    .then(function(r) { return r.json(); })
-    .then(function(data) {
-      try {
-        var file = data.files && (data.files['health_log.json'] || Object.values(data.files)[0]);
-        var content = file && file.content ? JSON.parse(file.content) : {};
-        var dates = Object.keys(content).sort(function(a,b){ return b.localeCompare(a); }).slice(0,7);
-        var html = '<div style="font-size:12px;font-weight:500;margin-bottom:10px;color:var(--tx2)">Last ' + dates.length + ' days in Gist:</div>';
-        dates.forEach(function(ds) {
-          var d = content[ds];
-          var nutFields = ['dietary_calories','protein','carbohydrates','total_fats','vitamin_d'];
-          var preview = nutFields.filter(function(k){ return d[k] !== undefined; })
-            .map(function(k){ return '<span style="color:var(--tx3)">'+k+':</span> <strong>'+d[k]+'</strong>'; }).join(' · ');
-          var otherCount = Object.keys(d).filter(function(k){ return nutFields.indexOf(k)===-1; }).length;
-          html += '<div style="padding:8px 0;border-bottom:1px solid var(--bor);font-size:12px">'
-            + '<div style="font-weight:500;margin-bottom:3px">'+ds+'</div>'
-            + '<div style="color:var(--tx2)">' + (preview||'no nutrition fields') + '</div>'
-            + (otherCount ? '<div style="color:var(--tx3);margin-top:2px">+ '+otherCount+' other fields from other apps</div>' : '')
-            + '</div>';
+      } else {
+        r.json().then(function(d){
+          if (!silent) {
+            var gb=document.getElementById('gist-body');
+            if(gb) gb.innerHTML='<div style="color:var(--dng);font-size:13px">Error: '+(d.message||d.hint||'Unknown')+'</div>';
+            openModal('m-gist');
+          }
         });
-        if (gb) gb.innerHTML = html || '<div style="color:var(--tx3)">No data found.</div>';
-      } catch(e) {
-        if (gb) gb.innerHTML = '<div style="color:var(--dng);font-size:13px">Could not parse Gist content.</div>';
       }
     })
     .catch(function(e) {
-      if (gb) gb.innerHTML = '<div style="color:var(--dng);font-size:13px">Network error: ' + e.message + '</div>';
+      if (!silent) {
+        var gb=document.getElementById('gist-body');
+        if(gb) gb.innerHTML='<div style="color:var(--dng);font-size:13px">Network error: '+e.message+'</div>';
+        openModal('m-gist');
+      }
     });
+};
+
+// Pull from Supabase health-log row and show preview
+window.pullGist = function() {
+  var c = _sbCreds();
+  if (!c.url||!c.key) {
+    var gb=document.getElementById('gist-body');
+    if(gb) gb.innerHTML='<div style="color:var(--dng);font-size:13px">⚠️ Set Supabase URL and anon key in Settings first.</div>';
+    openModal('m-gist'); return;
+  }
+  var gb=document.getElementById('gist-body');
+  if(gb) gb.innerHTML='<div style="color:var(--tx3);font-size:13px">Fetching from Supabase…</div>';
+  openModal('m-gist');
+  _sbFetchN(c.url,c.key,c.uid,'health-log')
+    .then(function(content) {
+      content = content || {};
+      var dates = Object.keys(content).sort(function(a,b){ return b.localeCompare(a); }).slice(0,7);
+      var html = '<div style="font-size:12px;font-weight:500;margin-bottom:10px;color:var(--tx2)">Last '+dates.length+' days in Supabase:</div>';
+      dates.forEach(function(ds) {
+        var d = content[ds];
+        var nutFields = ['dietary_calories','protein','carbohydrates','total_fats','vitamin_d'];
+        var preview = nutFields.filter(function(k){ return d[k]!==undefined; })
+          .map(function(k){ return '<span style="color:var(--tx3)">'+k+':</span> <strong>'+d[k]+'</strong>'; }).join(' · ');
+        var otherCount = Object.keys(d).filter(function(k){ return nutFields.indexOf(k)===-1; }).length;
+        html += '<div style="padding:8px 0;border-bottom:1px solid var(--bor);font-size:12px">'
+          +'<div style="font-weight:500;margin-bottom:3px">'+ds+'</div>'
+          +'<div style="color:var(--tx2)">'+(preview||'no nutrition fields')+'</div>'
+          +(otherCount?'<div style="color:var(--tx3);margin-top:2px">+ '+otherCount+' other fields from other apps</div>':'')
+          +'</div>';
+      });
+      if(gb) gb.innerHTML = html || '<div style="color:var(--tx3)">No data found.</div>';
+    })
+    .catch(function(e){ if(gb) gb.innerHTML='<div style="color:var(--dng);font-size:13px">Network error: '+e.message+'</div>'; });
 };
 
 // ── EXPORT ──

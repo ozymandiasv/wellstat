@@ -1025,7 +1025,7 @@ canvas{display:block}
       <div id="tb-profile" style="cursor:pointer;font-size:13px;font-weight:600;color:var(--t3);min-width:28px;text-align:center" onclick="showPage('settings');setTimeout(()=>showStgPanel('profile'),100)" title="Profile">🧑</div>
       <div class="tb-btn mob-menu-btn" onclick="openMobNav()" title="Menu" style="display:none">☰</div>
       <div class="tb-btn" onclick="triggerSync()" title="Sheets Sync">☁️</div>
-      <div class="tb-btn" onclick="topbarGistRefresh()" title="Refresh from GitHub" id="tb-gist-btn">🐙</div>
+      <div class="tb-btn" onclick="topbarGistRefresh()" title="Refresh from Supabase" id="tb-gist-btn">🟢</div>
       <div class="tb-btn" onclick="showPage('settings');setTimeout(()=>showStgPanel('data'),100)" title="Export">📦</div>
       <div class="tb-btn" onclick="showPage('log')" title="Log Entry">✏️</div>
     </div>
@@ -1711,15 +1711,17 @@ canvas{display:block}
           </div>
         </div>
 
-        <!-- GitHub Gist sync panel for mobile -->
+        <!-- Supabase sync panel for mobile -->
         <div style="width:100%;max-width:400px;text-align:left;background:var(--surface2);border:1px solid var(--border);border-radius:var(--rm);padding:18px;margin-top:14px">
-          <div style="font-family:var(--fd);font-size:15px;font-weight:800;color:var(--t1);margin-bottom:4px">🐙 GitHub Sync</div>
-          <div style="font-size:12px;color:var(--t3);margin-bottom:14px">Sync your WellStat data via GitHub Gist. Use the same WellStat Gist ID + token across all devices. Configure the Shared Gist in desktop Settings.</div>
+          <div style="font-family:var(--fd);font-size:15px;font-weight:800;color:var(--t1);margin-bottom:4px">🟢 Supabase Sync</div>
+          <div style="font-size:12px;color:var(--t3);margin-bottom:14px">Sync your WellStat data via Supabase. Use the same URL, anon key, and User ID across all devices.</div>
           <div id="stg-mobile-gist-content">
-            <div style="font-size:11px;font-weight:700;color:var(--t3);margin-bottom:4px">WellStat Gist ID</div>
-            <input id="mob-gist-id" class="stg-input" style="width:100%;margin-bottom:10px;box-sizing:border-box;font-family:var(--fm);font-size:12px" placeholder="WellStat Gist ID..." value="">
-            <div style="font-size:11px;font-weight:700;color:var(--t3);margin-bottom:4px">GitHub Token</div>
-            <input id="mob-gist-token" class="stg-input" style="width:100%;margin-bottom:14px;box-sizing:border-box;font-family:var(--fm);font-size:12px" placeholder="ghp_xxxxxxxxxxxx" type="password" value="">
+            <div style="font-size:11px;font-weight:700;color:var(--t3);margin-bottom:4px">Supabase URL</div>
+            <input id="mob-gist-id" class="stg-input" style="width:100%;margin-bottom:10px;box-sizing:border-box;font-family:var(--fm);font-size:12px" placeholder="https://xxxx.supabase.co" value="">
+            <div style="font-size:11px;font-weight:700;color:var(--t3);margin-bottom:4px">Anon Key</div>
+            <input id="mob-gist-token" class="stg-input" style="width:100%;margin-bottom:10px;box-sizing:border-box;font-family:var(--fm);font-size:12px" placeholder="eyJhbGciOiJ..." type="password" value="">
+            <div style="font-size:11px;font-weight:700;color:var(--t3);margin-bottom:4px">User ID</div>
+            <input id="mob-gist-uid" class="stg-input" style="width:100%;margin-bottom:14px;box-sizing:border-box;font-family:var(--fm);font-size:11px" placeholder="paste UUID from desktop Settings" value="">
             <div style="display:flex;gap:8px;flex-wrap:wrap">
               <button class="stg-btn primary" onclick="mobGistSave()">💾 Save</button>
               <button class="stg-btn" onclick="mobGistPull()">⬇ Pull</button>
@@ -1752,7 +1754,7 @@ canvas{display:block}
             <div class="stg-nav-item" onclick="showStgPanel('data')" id="sni-data">📦 Data</div>
             <div class="stg-nav-item" onclick="showStgPanel('healthimport')" id="sni-healthimport">🍎 Health Import</div>
             <div class="stg-nav-item" onclick="showStgPanel('sync')" id="sni-sync">☁️ Sheets Sync</div>
-            <div class="stg-nav-item" onclick="showStgPanel('gist')" id="sni-gist">🐙 GitHub Sync</div>
+            <div class="stg-nav-item" onclick="showStgPanel('gist')" id="sni-gist">🟢 Supabase Sync</div>
 
           </div>
           <div class="stg-content" id="stg-content">
@@ -4426,11 +4428,10 @@ function healthImportRun(){
     log.textContent = lines.join('\n');
     showToast('✅ Imported ' + totalFields + ' fields for ' + date);
 
-    // Auto-push to Gist if configured
+    // Auto-push to Supabase if configured
     try {
-      const gc = JSON.parse(localStorage.getItem('ws2_gist') || '{}');
-      if((gc.wsGistId || gc.gistId) && gc.token){
-        log.textContent += '\n\nPushing to Gist...';
+      if(gistConfig.url && gistConfig.anonKey){
+        log.textContent += '\n\nPushing to Supabase...';
         gistPush();
       }
     } catch(e) {}
@@ -5006,7 +5007,7 @@ function renderLogFields(){
     // Info note for habit_completion
     const hcNote = document.createElement('div');
     hcNote.style.cssText = 'grid-column:1/-1;display:flex;align-items:center;gap:8px;padding:9px 12px;background:linear-gradient(135deg,rgba(99,102,241,.07),rgba(59,130,246,.05));border:1px solid rgba(99,102,241,.18);border-radius:var(--rs);margin-bottom:2px;font-size:11px;color:var(--t3)';
-    hcNote.innerHTML = `${_iconImg(ICON_URLS.habits,14)} <span><strong style="color:var(--accent)">habit_completion</strong> is normally pulled from your external habit app via Gist → Pull. You can also enter it manually here (0–100%).</span>`;
+    hcNote.innerHTML = `${_iconImg(ICON_URLS.habits,14)} <span><strong style="color:var(--accent)">habit_completion</strong> is normally pulled from your external habit app via Supabase → Pull. You can also enter it manually here (0–100%).</span>`;
     grid.insertBefore(hcNote, grid.firstChild);
     // Render temp habits as checkbox tick fields (binary only)
     if((tempHabits||[]).length > 0){
@@ -5230,7 +5231,7 @@ function saveLogEntry(){
       })
       .catch(()=>{ showToast('⚠️ Saved locally — Sheets offline'); });
   }
-  // Auto-push to Gist if configured (debounced 3s)
+  // Auto-push to Supabase if configured (debounced 3s)
   gistAutoUpsert(logDate);
 }
 
@@ -9727,7 +9728,7 @@ function renderAHHabits(){
       <div style="flex:1">
         <div style="font-size:9px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--t4)">Habit Completion (from app)</div>
         <div style="font-family:var(--fd);font-size:20px;font-weight:800;color:var(--accent);letter-spacing:-.3px">${hcVal}%</div>
-        <div style="font-size:9px;color:var(--t4);margin-top:1px">${dates.length > 1 ? 'avg over period' : 'today'} · pulled from external app via Gist</div>
+        <div style="font-size:9px;color:var(--t4);margin-top:1px">${dates.length > 1 ? 'avg over period' : 'today'} · pulled from external app via Supabase</div>
       </div>
       <div style="width:52px;height:52px;position:relative">
         <svg viewBox="0 0 44 44" style="width:100%;height:100%;transform:rotate(-90deg)">
@@ -10377,7 +10378,7 @@ function renderStgTargets(){
       <button class="stg-btn primary" onclick="saveTargetsUI()">💾 Save Targets</button>
       <button class="stg-btn primary" onclick="saveTargetsFromDate()">📅Save From Date</button>
       <button class="stg-btn" onclick="resetTargets()">↩ Reset to defaults</button>
-      <button class="stg-btn" onclick="saveTargetsUI();gistPush();showToast('✅ Targets saved &amp; pushed to Gist')" style="margin-left:auto">⬆ Push to Gist</button>
+      <button class="stg-btn" onclick="saveTargetsUI();gistPush();showToast('✅ Targets saved &amp; pushed to Supabase')" style="margin-left:auto">⬆ Push to Supabase</button>
     </div>
     <div class="tgt-hdr">
       <span>Field</span>
@@ -10673,7 +10674,7 @@ function renderStgSchedule(){
     +'<button class="stg-btn" onclick="clearAllEnergyOpts()">✕ Clear energy</button>'
     +'<button class="stg-btn" onclick="clearAllActivityOpts()">✕ Clear activity</button>'
     +'<button class="stg-btn" onclick="workoutOptDays={};saveWorkoutOpts();renderUnifiedSchedCal();showToast(\'Workout opt-outs cleared\')">✕ Clear workout</button>'
-    +'<button class="stg-btn" onclick="gistPush();showToast(\'✅ Schedule &amp; opt-outs pushed to Gist\')" style="margin-left:auto">⬆ Push to Gist</button>'
+    +'<button class="stg-btn" onclick="gistPush();showToast(\'✅ Schedule &amp; opt-outs pushed to Supabase\')" style="margin-left:auto">⬆ Push to Supabase</button>'
     +'</div>'
     +'</div>';
 
@@ -12380,95 +12381,95 @@ function mobSyncInit(){
   const s = document.getElementById('mob-sync-secret');
   if(u && syncConfig.url)    u.value = syncConfig.url;
   if(s && syncConfig.secret) s.value = syncConfig.secret;
-  // Pre-fill Gist fields too
-  const gi = document.getElementById('mob-gist-id');
-  const gt = document.getElementById('mob-gist-token');
-  if(gi && gistConfig.wsGistId) gi.value = gistConfig.wsGistId;
-  if(gt && gistConfig.token)    gt.value = gistConfig.token;
+  // Pre-fill Supabase fields
+  const gi  = document.getElementById('mob-gist-id');
+  const gt  = document.getElementById('mob-gist-token');
+  const gu  = document.getElementById('mob-gist-uid');
+  if(gi && gistConfig.url)     gi.value = gistConfig.url;
+  if(gt && gistConfig.anonKey) gt.value = gistConfig.anonKey;
+  if(gu && gistConfig.userId)  gu.value = gistConfig.userId;
 }
 
 function mobGistSave(){
-  const id  = document.getElementById('mob-gist-id')?.value.trim();
-  const tok = document.getElementById('mob-gist-token')?.value.trim();
-  if(!id || !tok){ showToast('Enter WellStat Gist ID and token'); return; }
-  gistConfig.wsGistId = id;
-  gistConfig.token    = tok;
-  delete gistConfig.gistId; // remove legacy key
+  const url     = document.getElementById('mob-gist-id')?.value.trim().replace(/\/+$/, '');
+  const anonKey = document.getElementById('mob-gist-token')?.value.trim();
+  const userId  = document.getElementById('mob-gist-uid')?.value.trim();
+  if(!url || !anonKey){ showToast('Enter Supabase URL and anon key'); return; }
+  gistConfig.url     = url;
+  gistConfig.anonKey = anonKey;
+  if(userId) gistConfig.userId = userId;
   saveGistConfig();
+  const shared = { url: gistConfig.url, anonKey: gistConfig.anonKey, userId: gistConfig.userId };
+  localStorage.setItem('ws2_supabase_shared', JSON.stringify(shared));
   const st = document.getElementById('mob-gist-status');
   if(st){ st.textContent = '✅ Saved'; setTimeout(()=>st.textContent='', 2000); }
-  showToast('✅ GitHub Sync saved');
+  showToast('✅ Supabase Sync saved');
 }
 
 function mobGistPing(){
-  const id  = document.getElementById('mob-gist-id')?.value.trim() || gistConfig.wsGistId;
-  const tok = document.getElementById('mob-gist-token')?.value.trim() || gistConfig.token;
-  if(!id || !tok){ showToast('Save your Gist config first'); return; }
+  const url     = document.getElementById('mob-gist-id')?.value.trim() || gistConfig.url;
+  const anonKey = document.getElementById('mob-gist-token')?.value.trim() || gistConfig.anonKey;
+  if(!url || !anonKey){ showToast('Save your Supabase config first'); return; }
   const st = document.getElementById('mob-gist-status');
   if(st) st.textContent = '⏳ Testing…';
-  fetch(`https://api.github.com/gists/${id}`, {
-    headers: { 'Authorization': 'token ' + tok, 'Accept': 'application/vnd.github.v3+json' }
+  fetch(`${url}/rest/v1/health_data?limit=1`, {
+    headers: { 'apikey': anonKey, 'Authorization': 'Bearer ' + anonKey }
   }).then(r => {
-    if(r.ok){ if(st) st.textContent = '✅ Connected!'; showToast('✅ GitHub connected!'); }
-    else     { if(st) st.textContent = '❌ Check ID & token'; showToast('❌ Failed'); }
+    if(r.ok){ if(st) st.textContent = '✅ Connected!'; showToast('✅ Supabase connected!'); }
+    else     { if(st) st.textContent = '❌ Check URL & key'; showToast('❌ Failed'); }
   }).catch(() => { if(st) st.textContent = '❌ Network error'; });
 }
 
 function mobGistPull(){
-  const id  = document.getElementById('mob-gist-id')?.value.trim() || gistConfig.wsGistId;
-  const tok = document.getElementById('mob-gist-token')?.value.trim() || gistConfig.token;
-  if(!id || !tok){ showToast('Save your Gist config first'); return; }
+  const url     = document.getElementById('mob-gist-id')?.value.trim() || gistConfig.url;
+  const anonKey = document.getElementById('mob-gist-token')?.value.trim() || gistConfig.anonKey;
+  const userId  = document.getElementById('mob-gist-uid')?.value.trim() || gistConfig.userId;
+  if(!url || !anonKey){ showToast('Save your Supabase config first'); return; }
   const st = document.getElementById('mob-gist-status');
   if(st) st.textContent = '⏳ Pulling…';
-  fetch(`https://api.github.com/gists/${id}`, {
-    headers: { 'Authorization': 'token ' + tok, 'Accept': 'application/vnd.github.v3+json' }
-  }).then(r => r.json()).then(d => {
-    const file = d.files && d.files['wellstat-data.json'];
-    if(!file){ if(st) st.textContent = '❌ File not found'; showToast('❌ wellstat-data.json not found'); return; }
-    const payload = JSON.parse(file.content);
+  _sbFetch(url, anonKey, userId, 'wellstat-data')
+  .then(payload => {
+    if(!payload){ if(st) st.textContent = '❌ No data found'; showToast('❌ No wellstat-data in Supabase'); return; }
     const { newDays } = gistApplyPayload(payload);
     localStorage.setItem('ws2_gist_last_sync', new Date().toLocaleString());
     const settingsMsg = payload.settings ? ' + settings' : '';
     if(st) st.textContent = '✅ Pulled — ' + newDays + ' new days' + settingsMsg;
-    showToast('✅ Pulled from GitHub' + settingsMsg);
-    gistConfig.wsGistId = id; gistConfig.token = tok; saveGistConfig();
+    showToast('✅ Pulled from Supabase' + settingsMsg);
+    gistConfig.url = url; gistConfig.anonKey = anonKey; gistConfig.userId = userId; saveGistConfig();
   }).catch(e => { if(st) st.textContent = '❌ ' + e.message; showToast('❌ Pull failed'); });
 }
 
 function mobGistPush(){
-  const id  = document.getElementById('mob-gist-id')?.value.trim() || gistConfig.wsGistId;
-  const tok = document.getElementById('mob-gist-token')?.value.trim() || gistConfig.token;
-  if(!id || !tok){ showToast('Save your Gist config first'); return; }
+  const url     = document.getElementById('mob-gist-id')?.value.trim() || gistConfig.url;
+  const anonKey = document.getElementById('mob-gist-token')?.value.trim() || gistConfig.anonKey;
+  const userId  = document.getElementById('mob-gist-uid')?.value.trim() || gistConfig.userId;
+  if(!url || !anonKey){ showToast('Save your Supabase config first'); return; }
   const st = document.getElementById('mob-gist-status');
   if(st) st.textContent = '⏳ Pushing…';
   const payload = gistBuildPayload();
-  fetch(`https://api.github.com/gists/${id}`, {
-    method: 'PATCH',
-    headers: { 'Authorization': 'token ' + tok, 'Accept': 'application/vnd.github.v3+json', 'Content-Type': 'application/json' },
-    body: JSON.stringify({ files: { 'wellstat-data.json': { content: JSON.stringify(payload, null, 2) } } })
-  }).then(r => r.json()).then(d => {
-    if(d.id){
+  _sbUpsert(url, anonKey, userId, 'wellstat-data', payload)
+  .then(r => {
+    if(r.ok){
       localStorage.setItem('ws2_gist_last_sync', new Date().toLocaleString());
       if(st) st.textContent = '✅ Pushed — ' + payload.days + ' days + settings';
-      showToast('✅ Pushed to GitHub');
-      gistConfig.wsGistId = id; gistConfig.token = tok; saveGistConfig();
+      showToast('✅ Pushed to Supabase');
+      gistConfig.url = url; gistConfig.anonKey = anonKey; gistConfig.userId = userId; saveGistConfig();
     } else {
-      if(st) st.textContent = '❌ ' + (d.message||'Push failed');
-      showToast('❌ Push failed');
+      r.json().then(d => { if(st) st.textContent = '❌ ' + (d.message||'Push failed'); showToast('❌ Push failed'); });
     }
   }).catch(e => { if(st) st.textContent = '❌ ' + e.message; showToast('❌ Push failed'); });
 }
 
 
 function mobDeleteAllData(){
-  if(!confirm('Delete ALL data on this device? This cannot be undone.\n\nMake sure you have pushed to GitHub first if you want to keep your data.')) return;
+  if(!confirm('Delete ALL data on this device? This cannot be undone.\n\nMake sure you have pushed to Supabase first if you want to keep your data.')) return;
   if(!confirm('Last chance — are you sure?')) return;
   allData = {};
   saveData();
   renderDashboard();
   showToast('All local data deleted');
   const st = document.getElementById('mob-gist-status');
-  if(st){ st.textContent = 'Data cleared — Pull from GitHub to reload'; }
+  if(st){ st.textContent = 'Data cleared — Pull from Supabase to reload'; }
 }
 
 function mobSyncSave(){
@@ -12605,21 +12606,18 @@ function doSync(mode){
 function triggerSync(){ doSync(); }
 
 function topbarGistRefresh(){
-  if(!gistConfig.wsGistId || !gistConfig.token){
-    showToast('Configure GitHub Sync in Settings first');
+  if(!gistConfig.url || !gistConfig.anonKey){
+    showToast('Configure Supabase Sync in Settings first');
     showPage('settings');
     setTimeout(()=>showStgPanel('gist'), 150);
     return;
   }
   const btn = document.getElementById('tb-gist-btn');
   if(btn) btn.style.animation = 'spin 1s linear infinite';
-  showToast('↻ Refreshing from GitHub…');
-  fetch(`https://api.github.com/gists/${gistConfig.wsGistId}`, {
-    headers: { 'Authorization': 'token ' + gistConfig.token, 'Accept': 'application/vnd.github.v3+json' }
-  }).then(r => r.json()).then(d => {
-    const file = d.files && d.files['wellstat-data.json'];
-    if(!file){ showToast('❌ wellstat-data.json not found'); return; }
-    const payload = JSON.parse(file.content);
+  showToast('↻ Refreshing from Supabase…');
+  _sbFetch(gistConfig.url, gistConfig.anonKey, gistConfig.userId, 'wellstat-data')
+  .then(payload => {
+    if(!payload){ showToast('❌ No wellstat-data in Supabase — push first'); return; }
     const { newDays } = gistApplyPayload(payload);
     localStorage.setItem('ws2_gist_last_sync', new Date().toLocaleString());
     const settingsMsg = payload.settings ? ' + settings' : '';
@@ -12795,125 +12793,179 @@ window.runInsights = function(){
 };
 
 // ═══════════════════════════════════════════════
-// GITHUB GIST SYNC
+// SUPABASE SYNC
 // ═══════════════════════════════════════════════
-// ws2_gist localStorage shape:
-//   { token, wsGistId, sharedGistId }
-//   wsGistId     — WellStat's own gist (wellstat-data.json + wellstat-backup.json)
-//   sharedGistId — shared gist with habit tracker & nutrition (health_log.json)
+// ws2_supabase localStorage shape:
+//   { url, anonKey, userId }
+//   url      — Supabase project URL (e.g. https://xxxx.supabase.co)
+//   anonKey  — Supabase anon/public key (safe client-side with RLS)
+//   userId   — unique user identifier (auto-generated UUID, shared across devices via manual copy)
+//
+// Supabase table: health_data
+//   CREATE TABLE health_data (
+//     user_id TEXT NOT NULL,
+//     filename TEXT NOT NULL,
+//     payload JSONB,
+//     updated_at TIMESTAMPTZ DEFAULT NOW(),
+//     PRIMARY KEY (user_id, filename)
+//   );
+//   ALTER TABLE health_data ENABLE ROW LEVEL SECURITY;
+//   CREATE POLICY "users manage own data" ON health_data
+//     USING (true) WITH CHECK (true);  -- open for personal use; tighten with auth if needed
 
-let gistConfig = JSON.parse(localStorage.getItem('ws2_gist')||'{}');
+let gistConfig = JSON.parse(localStorage.getItem('ws2_supabase')||
+                  // backward-compat: also check old key
+                  localStorage.getItem('ws2_gist')||'{}');
+// Migrate old gist-shaped config if needed (token/wsGistId → not applicable; just keep url/anonKey)
+if(!gistConfig.url) gistConfig = {};
+// Auto-generate a userId if not present
+if(!gistConfig.userId) { gistConfig.userId = crypto.randomUUID(); }
 
 function saveGistConfig(){
-  // Backward-compat: if old code wrote 'gistId', migrate it to wsGistId
-  if(gistConfig.gistId && !gistConfig.wsGistId){ gistConfig.wsGistId = gistConfig.gistId; delete gistConfig.gistId; }
-  localStorage.setItem('ws2_gist', JSON.stringify(gistConfig));
+  localStorage.setItem('ws2_supabase', JSON.stringify(gistConfig));
 }
+
+// ── Supabase REST helpers ──
+function _sbHeaders(anonKey){
+  return {
+    'apikey': anonKey,
+    'Authorization': 'Bearer ' + anonKey,
+    'Content-Type': 'application/json',
+    'Prefer': 'resolution=merge-duplicates'
+  };
+}
+async function _sbUpsert(url, anonKey, userId, filename, payload){
+  const res = await fetch(`${url}/rest/v1/health_data`, {
+    method: 'POST',
+    headers: _sbHeaders(anonKey),
+    body: JSON.stringify({ user_id: userId, filename, payload, updated_at: new Date().toISOString() })
+  });
+  return res;
+}
+async function _sbFetch(url, anonKey, userId, filename){
+  const res = await fetch(`${url}/rest/v1/health_data?user_id=eq.${encodeURIComponent(userId)}&filename=eq.${encodeURIComponent(filename)}&select=payload`, {
+    headers: { 'apikey': anonKey, 'Authorization': 'Bearer ' + anonKey }
+  });
+  if(!res.ok) throw new Error('HTTP ' + res.status);
+  const rows = await res.json();
+  return rows && rows[0] ? rows[0].payload : null;
+}
+
+
 
 function renderStgGist(){
   const sc = document.getElementById('stg-content');
-  const wsConnected     = !!(gistConfig.wsGistId && gistConfig.token);
-  const sharedConnected = !!(gistConfig.sharedGistId && gistConfig.token);
+  const connected = !!(gistConfig.url && gistConfig.anonKey);
   const lastSync = localStorage.getItem('ws2_gist_last_sync') || 'never';
   const allD = allDates();
 
   sc.innerHTML = `<div class="stg-panel on" id="sp-gist">
-    <div class="stg-panel-title">🐙 GitHub Gist Sync</div>
-    <div class="stg-panel-sub">Four separate Gists keep your apps isolated while sharing daily health data. One token works for all four.</div>
+    <div class="stg-panel-title">🟢 Supabase Sync</div>
+    <div class="stg-panel-sub">All three apps (WellStat, Habit Tracker, Nutrition) share one Supabase project. Your data is synced to a private Postgres table.</div>
 
     <div style="background:linear-gradient(135deg,rgba(34,197,94,.08),rgba(59,130,246,.06));border:1px solid rgba(34,197,94,.2);border-radius:var(--r);padding:14px;margin-bottom:16px">
       <div style="font-size:12px;font-weight:700;color:var(--t2);margin-bottom:8px">⚡ One-time setup</div>
       <div style="font-size:12px;color:var(--t3);line-height:1.9">
-        <strong style="color:var(--t2)">1.</strong> Go to <strong>github.com/settings/tokens</strong> → Generate new token (classic) → tick only <strong>gist</strong> scope → copy token<br>
-        <strong style="color:var(--t2)">2.</strong> Create <strong>4 secret gists</strong> at <strong>gist.github.com</strong> — one per row below (filename can be anything, content <code style="background:var(--surface3);padding:1px 4px;border-radius:3px">{}</code>)<br>
-        <strong style="color:var(--t2)">3.</strong> Paste the token + each Gist ID below → Save → Push
+        <strong style="color:var(--t2)">1.</strong> Go to <strong>supabase.com</strong> → New project → copy <strong>Project URL</strong> and <strong>anon public key</strong> from Project Settings → API<br>
+        <strong style="color:var(--t2)">2.</strong> In SQL editor run the create table script shown below<br>
+        <strong style="color:var(--t2)">3.</strong> Paste URL + anon key below → Save → Push
       </div>
     </div>
 
+    <div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);padding:12px;margin-bottom:16px;font-family:var(--fm);font-size:11px;color:var(--t3);line-height:1.8;overflow-x:auto">
+      CREATE TABLE health_data (<br>
+      &nbsp;&nbsp;user_id TEXT NOT NULL,<br>
+      &nbsp;&nbsp;filename TEXT NOT NULL,<br>
+      &nbsp;&nbsp;payload JSONB,<br>
+      &nbsp;&nbsp;updated_at TIMESTAMPTZ DEFAULT NOW(),<br>
+      &nbsp;&nbsp;PRIMARY KEY (user_id, filename)<br>
+      );<br>
+      ALTER TABLE health_data ENABLE ROW LEVEL SECURITY;<br>
+      CREATE POLICY "open" ON health_data USING (true) WITH CHECK (true);
+    </div>
+
     <div class="stg-row">
-      <div class="stg-row-label">GitHub Token</div>
-      <input class="stg-input wide" id="gist-token-inp" type="password" value="${gistConfig.token||''}" placeholder="ghp_xxxxxxxxxxxx" style="width:240px;font-family:var(--fm);font-size:12px">
+      <div class="stg-row-label">Supabase URL</div>
+      <input class="stg-input wide" id="sb-url-inp" value="${gistConfig.url||''}" placeholder="https://xxxx.supabase.co" style="width:280px;font-family:var(--fm);font-size:12px">
+    </div>
+    <div class="stg-row">
+      <div class="stg-row-label">Anon Key</div>
+      <input class="stg-input wide" id="sb-key-inp" type="password" value="${gistConfig.anonKey||''}" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." style="width:280px;font-family:var(--fm);font-size:12px">
     </div>
 
     <div class="stg-divider"></div>
-    <div style="font-size:12px;font-weight:700;color:var(--t2);margin-bottom:10px">🟦 WellStat Gist <span style="font-weight:400;color:var(--t3);font-size:11px">— wellstat-data.json + wellstat-backup.json</span></div>
-    <div style="font-size:11px;color:var(--t3);margin-bottom:10px">WellStat's private gist. Stores all your daily logs, settings, and a full backup. Only this app reads/writes it.</div>
+    <div style="font-size:12px;font-weight:700;color:var(--t2);margin-bottom:4px">🔑 Your User ID</div>
+    <div style="font-size:11px;color:var(--t3);margin-bottom:10px">This identifies your data row. Copy it to another device to sync.</div>
     <div class="stg-row">
-      <div class="stg-row-label">WellStat Gist ID</div>
-      <input class="stg-input wide" id="gist-ws-id-inp" value="${gistConfig.wsGistId||''}" placeholder="Gist ID for WellStat only" style="width:240px;font-family:var(--fm);font-size:12px">
+      <input class="stg-input wide" id="sb-uid-inp" value="${gistConfig.userId||''}" placeholder="auto-generated UUID" style="width:280px;font-family:var(--fm);font-size:11px">
+      <button class="stg-btn" onclick="navigator.clipboard.writeText(document.getElementById('sb-uid-inp').value);showToast('✅ User ID copied')">📋 Copy</button>
     </div>
-    ${wsConnected?`
+
+    ${connected?`
+    <div class="stg-divider"></div>
     <div class="stg-row">
-      <div><div class="stg-row-label">Push WellStat data</div><div class="stg-row-sub">Upload ${allD.length} days + settings to WellStat Gist</div></div>
+      <div><div class="stg-row-label">Push WellStat data</div><div class="stg-row-sub">Upload ${allD.length} days + settings to Supabase</div></div>
       <button class="stg-btn primary" onclick="gistPush()">⬆ Push</button>
     </div>
     <div class="stg-row">
-      <div><div class="stg-row-label">Pull WellStat data</div><div class="stg-row-sub">Merge WellStat Gist into local data</div></div>
+      <div><div class="stg-row-label">Pull WellStat data</div><div class="stg-row-sub">Merge Supabase data into local</div></div>
       <button class="stg-btn" onclick="gistPull()">⬇ Pull</button>
     </div>
     <div class="stg-row">
-      <div><div class="stg-row-label">Push Full Backup</div><div class="stg-row-sub">Writes wellstat-backup.json to WellStat Gist</div></div>
+      <div><div class="stg-row-label">Push Full Backup</div><div class="stg-row-sub">Writes wellstat-backup row to Supabase</div></div>
       <button class="stg-btn" onclick="gistPushBackup()">⬆ Backup</button>
     </div>
     <div class="stg-row">
-      <div><div class="stg-row-label">Restore from Backup</div><div class="stg-row-sub">Overwrites local data from wellstat-backup.json</div></div>
+      <div><div class="stg-row-label">Restore from Backup</div><div class="stg-row-sub">Overwrites local data from wellstat-backup row</div></div>
       <button class="stg-btn" style="color:var(--danger)" onclick="gistPullBackup()">⬇ Restore</button>
-    </div>`:''}
-
-    <div class="stg-divider"></div>
-    <div style="font-size:12px;font-weight:700;color:var(--t2);margin-bottom:10px">🟩 Shared Gist <span style="font-weight:400;color:var(--t3);font-size:11px">— health_log.json (shared with Habit Tracker &amp; Nutrition)</span></div>
-    <div style="font-size:11px;color:var(--t3);margin-bottom:10px">All three apps read this gist by date. WellStat pulls: <code style="background:var(--surface3);padding:1px 4px;border-radius:3px">habit_completion</code>, <code style="background:var(--surface3);padding:1px 4px;border-radius:3px">stuff_count</code>, <code style="background:var(--surface3);padding:1px 4px;border-radius:3px">water</code>, <code style="background:var(--surface3);padding:1px 4px;border-radius:3px">alcohol</code>, and all nutrition fields.</div>
-    <div class="stg-row">
-      <div class="stg-row-label">Shared Gist ID</div>
-      <input class="stg-input wide" id="gist-shared-id-inp" value="${gistConfig.sharedGistId||''}" placeholder="Same ID used by Habit Tracker &amp; Nutrition" style="width:240px;font-family:var(--fm);font-size:12px">
     </div>
-    ${sharedConnected?`
     <div class="stg-row">
-      <div><div class="stg-row-label">Pull from Shared Gist</div><div class="stg-row-sub">Merge habit + nutrition fields into WellStat logs by date</div></div>
+      <div><div class="stg-row-label">Pull Shared Data</div><div class="stg-row-sub">Merge habit + nutrition fields written by other apps</div></div>
       <button class="stg-btn" onclick="gistPullShared()">⬇ Pull Shared</button>
     </div>`:''}
 
     <div class="stg-row" style="margin-top:12px">
-      <button class="stg-btn primary" onclick="saveGistSettings()">💾 Save All</button>
-      ${(wsConnected||sharedConnected)?`<button class="stg-btn" onclick="gistPing()">⚙️ Test</button>`:''}
-      ${wsConnected?`<button class="stg-btn" style="margin-left:auto" onclick="gistSyncNow()">↻ Sync Now</button>`:''}
+      <button class="stg-btn primary" onclick="saveGistSettings()">💾 Save</button>
+      ${connected?`<button class="stg-btn" onclick="gistPing()">⚙️ Test</button>`:''}
+      ${connected?`<button class="stg-btn" style="margin-left:auto" onclick="gistSyncNow()">↻ Sync Now</button>`:''}
     </div>
 
     <div style="margin-top:10px;background:var(--surface2);border-radius:var(--rs);padding:10px 12px">
       <div style="font-size:11px;font-weight:700;color:var(--t3);margin-bottom:4px">MULTI-DEVICE</div>
-      <div style="font-size:11px;color:var(--t3);line-height:1.6">Enter the same token + all four Gist IDs on any device → Pull → done.</div>
+      <div style="font-size:11px;color:var(--t3);line-height:1.6">Enter the same Supabase URL, anon key, and User ID on every device → Pull → done.</div>
     </div>
     <div style="font-size:11px;color:var(--t3);margin-top:8px">Last sync: ${lastSync}</div>
   </div>`;
 }
 
 function saveGistSettings(){
-  const tok        = document.getElementById('gist-token-inp')?.value.trim();
-  const wsId       = document.getElementById('gist-ws-id-inp')?.value.trim();
-  const sharedId   = document.getElementById('gist-shared-id-inp')?.value.trim();
-  if(!tok){ showToast('❌ Enter your GitHub token'); return; }
-  gistConfig.token        = tok;
-  if(wsId)     gistConfig.wsGistId     = wsId;
-  if(sharedId) gistConfig.sharedGistId = sharedId;
-  // Remove legacy key
-  delete gistConfig.gistId;
+  const url     = document.getElementById('sb-url-inp')?.value.trim().replace(/\/+$/, '');
+  const anonKey = document.getElementById('sb-key-inp')?.value.trim();
+  const userId  = document.getElementById('sb-uid-inp')?.value.trim();
+  if(!url || !anonKey){ showToast('❌ Enter Supabase URL and anon key'); return; }
+  gistConfig.url     = url;
+  gistConfig.anonKey = anonKey;
+  if(userId) gistConfig.userId = userId;
   saveGistConfig();
+  // Write shared key so habit-tracker & nutrition can read it
+  const shared = { url: gistConfig.url, anonKey: gistConfig.anonKey, userId: gistConfig.userId };
+  localStorage.setItem('ws2_supabase_shared', JSON.stringify(shared));
   showToast('✅ Saved');
   renderStgGist();
 }
 
 function gistPing(){
-  if(!gistConfig.wsGistId||!gistConfig.token){ showToast('Configure WellStat Gist first'); return; }
+  if(!gistConfig.url||!gistConfig.anonKey){ showToast('Configure Supabase first'); return; }
   showToast('⏳ Testing...');
-  fetch(`https://api.github.com/gists/${gistConfig.wsGistId}`, {
-    headers: { 'Authorization': 'token ' + gistConfig.token, 'Accept': 'application/vnd.github.v3+json' }
+  fetch(`${gistConfig.url}/rest/v1/health_data?limit=1`, {
+    headers: { 'apikey': gistConfig.anonKey, 'Authorization': 'Bearer ' + gistConfig.anonKey }
   }).then(r => {
-    if(r.ok) showToast('✅ GitHub connected!');
-    else showToast('❌ Failed — check Gist ID and token');
+    if(r.ok) showToast('✅ Supabase connected!');
+    else r.json().then(d => showToast('❌ ' + (d.message||d.hint||'Check URL and anon key')));
   }).catch(() => showToast('❌ Network error'));
 }
 
-// ── Gist helpers: build full snapshot and restore it ──
+// ── Supabase helpers: build full snapshot and restore it ──
 
 function gistBuildPayload(){
   const clean = {};
@@ -13015,33 +13067,27 @@ function gistApplyPayload(payload){
 }
 
 function gistPush(){
-  if(!gistConfig.wsGistId||!gistConfig.token){ showToast('Configure WellStat Gist first'); return; }
+  if(!gistConfig.url||!gistConfig.anonKey){ showToast('Configure Supabase first'); return; }
   showToast('\u23f3 Pushing...');
   const payload = gistBuildPayload();
-  fetch(`https://api.github.com/gists/${gistConfig.wsGistId}`, {
-    method: 'PATCH',
-    headers: { 'Authorization': 'token ' + gistConfig.token, 'Accept': 'application/vnd.github.v3+json', 'Content-Type': 'application/json' },
-    body: JSON.stringify({ files: { 'wellstat-data.json': { content: JSON.stringify(payload, null, 2) } } })
-  }).then(r => r.json()).then(d => {
-    if(d.id){
+  _sbUpsert(gistConfig.url, gistConfig.anonKey, gistConfig.userId, 'wellstat-data', payload)
+  .then(r => {
+    if(r.ok){
       localStorage.setItem('ws2_gist_last_sync', new Date().toLocaleString());
       showToast('\u2705 Pushed \u2014 ' + payload.days + ' days + settings');
       renderStgGist();
     } else {
-      showToast('\u274c Push failed: ' + (d.message||'unknown error'));
+      r.json().then(d => showToast('\u274c Push failed: ' + (d.message||d.hint||'unknown')));
     }
   }).catch(e => showToast('\u274c ' + e.message));
 }
 
 function gistPull(){
-  if(!gistConfig.wsGistId||!gistConfig.token){ showToast('Configure WellStat Gist first'); return; }
+  if(!gistConfig.url||!gistConfig.anonKey){ showToast('Configure Supabase first'); return; }
   showToast('\u23f3 Pulling...');
-  fetch(`https://api.github.com/gists/${gistConfig.wsGistId}`, {
-    headers: { 'Authorization': 'token ' + gistConfig.token, 'Accept': 'application/vnd.github.v3+json' }
-  }).then(r => r.json()).then(d => {
-    const file = d.files && d.files['wellstat-data.json'];
-    if(!file){ showToast('\u274c wellstat-data.json not found in WellStat Gist'); return; }
-    const payload = JSON.parse(file.content);
+  _sbFetch(gistConfig.url, gistConfig.anonKey, gistConfig.userId, 'wellstat-data')
+  .then(payload => {
+    if(!payload){ showToast('\u274c No wellstat-data found in Supabase'); return; }
     const { newDays } = gistApplyPayload(payload);
     localStorage.setItem('ws2_gist_last_sync', new Date().toLocaleString());
     const settingsMsg = payload.settings ? ' + settings' : '';
@@ -13050,17 +13096,14 @@ function gistPull(){
   }).catch(e => showToast('\u274c ' + e.message));
 }
 
-// Pull shared fields (habit_completion, stuff_count, water, alcohol, nutrition) from shared gist
+// Pull shared fields (habit_completion, stuff_count, water, alcohol, nutrition) from shared Supabase row
 function gistPullShared(){
-  if(!gistConfig.sharedGistId||!gistConfig.token){ showToast('Configure Shared Gist first'); return; }
+  if(!gistConfig.url||!gistConfig.anonKey){ showToast('Configure Supabase first'); return; }
   showToast('\u23f3 Pulling shared data...');
-  fetch(`https://api.github.com/gists/${gistConfig.sharedGistId}`, {
-    headers: { 'Authorization': 'token ' + gistConfig.token, 'Accept': 'application/vnd.github.v3+json' }
-  }).then(r => r.json()).then(d => {
-    const hlFile = d.files && d.files['health_log.json'];
-    if(!hlFile || !hlFile.content){ showToast('\u274c health_log.json not found in Shared Gist'); return; }
-    const hlData = JSON.parse(hlFile.content);
-    // Fields we accept from the shared gist into WellStat
+  _sbFetch(gistConfig.url, gistConfig.anonKey, gistConfig.userId, 'health-log')
+  .then(hlData => {
+    if(!hlData){ showToast('\u274c No health-log found — push from Habit Tracker or Nutrition first'); return; }
+    // Fields we accept from the shared row into WellStat
     const sharedKeys = ['dietary_calories','protein','carbohydrates','total_fats','saturated_fats',
       'monounsaturated_fats','polyunsaturated_fats','trans_fats','fiber','sugar','added_sugar',
       'cholesterol','sodium','caffeine','water','alcohol','vitamin_a','vitamin_c','vitamin_d',
@@ -13082,37 +13125,30 @@ function gistPullShared(){
   }).catch(e => showToast('\u274c ' + e.message));
 }
 
-// Push full WellStat backup to wellstat-backup.json in WellStat Gist
+// Push full WellStat backup to wellstat-backup row in Supabase
 function gistPushBackup(){
-  if(!gistConfig.wsGistId||!gistConfig.token){ showToast('Configure WellStat Gist first'); return; }
+  if(!gistConfig.url||!gistConfig.anonKey){ showToast('Configure Supabase first'); return; }
   showToast('\u23f3 Backing up...');
   const payload = gistBuildPayload();
-  // Backup includes full payload (same as wellstat-data.json but named separately)
-  fetch(`https://api.github.com/gists/${gistConfig.wsGistId}`, {
-    method: 'PATCH',
-    headers: { 'Authorization': 'token ' + gistConfig.token, 'Accept': 'application/vnd.github.v3+json', 'Content-Type': 'application/json' },
-    body: JSON.stringify({ files: { 'wellstat-backup.json': { content: JSON.stringify(payload, null, 2) } } })
-  }).then(r => r.json()).then(d => {
-    if(d.id){
+  _sbUpsert(gistConfig.url, gistConfig.anonKey, gistConfig.userId, 'wellstat-backup', payload)
+  .then(r => {
+    if(r.ok){
       showToast('\u2705 Backup pushed \u2014 ' + payload.days + ' days');
       renderStgGist();
     } else {
-      showToast('\u274c Backup failed: ' + (d.message||'unknown error'));
+      r.json().then(d => showToast('\u274c Backup failed: ' + (d.message||d.hint||'unknown')));
     }
   }).catch(e => showToast('\u274c ' + e.message));
 }
 
-// Restore WellStat from wellstat-backup.json
+// Restore WellStat from wellstat-backup row in Supabase
 function gistPullBackup(){
-  if(!gistConfig.wsGistId||!gistConfig.token){ showToast('Configure WellStat Gist first'); return; }
-  if(!confirm('⚠ This will REPLACE all local WellStat data with the backup from wellstat-backup.json.\n\nAre you sure?')) return;
+  if(!gistConfig.url||!gistConfig.anonKey){ showToast('Configure Supabase first'); return; }
+  if(!confirm('\u26a0 This will REPLACE all local WellStat data with the Supabase backup.\n\nAre you sure?')) return;
   showToast('\u23f3 Restoring backup...');
-  fetch(`https://api.github.com/gists/${gistConfig.wsGistId}`, {
-    headers: { 'Authorization': 'token ' + gistConfig.token, 'Accept': 'application/vnd.github.v3+json' }
-  }).then(r => r.json()).then(d => {
-    const file = d.files && d.files['wellstat-backup.json'];
-    if(!file){ showToast('\u274c wellstat-backup.json not found — push a backup first'); return; }
-    const payload = JSON.parse(file.content);
+  _sbFetch(gistConfig.url, gistConfig.anonKey, gistConfig.userId, 'wellstat-backup')
+  .then(payload => {
+    if(!payload){ showToast('\u274c No wellstat-backup found \u2014 push a backup first'); return; }
     const { newDays } = gistApplyPayload(payload);
     localStorage.setItem('ws2_gist_last_sync', new Date().toLocaleString());
     showToast('\u2705 Restored from backup \u2014 ' + newDays + ' days');
@@ -13121,10 +13157,10 @@ function gistPullBackup(){
 }
 
 
-// Auto-upsert to WellStat Gist on every log save (debounced)
+// Auto-upsert to Supabase on every log save (debounced)
 let _gistDebounce = null;
 function gistAutoUpsert(date){
-  if(!gistConfig.wsGistId || !gistConfig.token) return;
+  if(!gistConfig.url || !gistConfig.anonKey) return;
   clearTimeout(_gistDebounce);
   _gistDebounce = setTimeout(() => gistPush(), 3000); // push 3s after last save
 }
@@ -13384,7 +13420,7 @@ function renderStgPercentiles(){
       <button class="stg-btn" onclick="resetGlobalPercentilestoDefaults()">🔄 Reset to Defaults</button>
       <button class="stg-btn" onclick="exportGlobalPercentiles()">📥 Export</button>
       <button class="stg-btn" onclick="document.getElementById('import-percentiles-file').click()">📤 Import</button>
-      <button class="stg-btn" onclick="saveGlobalPercentilesSettings();gistPush();showToast('✅ Percentiles saved &amp; pushed to Gist')" style="margin-left:auto">⬆ Push to Gist</button>
+      <button class="stg-btn" onclick="saveGlobalPercentilesSettings();gistPush();showToast('✅ Percentiles saved &amp; pushed to Supabase')" style="margin-left:auto">⬆ Push to Supabase</button>
       <input type="file" id="import-percentiles-file" accept=".json" style="display:none" onchange="importGlobalPercentiles(this.files[0])">
     </div>
     

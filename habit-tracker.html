@@ -389,12 +389,14 @@ body{font-family:var(--fn);background:var(--bg);color:var(--tx);min-height:100vh
         <input class="wi-input" type="number" id="wtgt" value="3" min="0.5" max="10" step="0.5" onchange="saveCfg()" style="width:70px"></div>
     </div>
     <div class="ss">
-      <div class="ss-ttl" style="display:flex;align-items:center;justify-content:space-between">🔗 Shared Gist <span style="font-size:11px;font-weight:400;color:var(--tx3)">health_log.json</span> <button class="btn" style="font-size:11px;padding:3px 9px" onclick="document.getElementById('m-gist-guide').classList.add('open')">? Setup guide</button></div>
+      <div class="ss-ttl" style="display:flex;align-items:center;justify-content:space-between">🟢 Supabase Sync <span style="font-size:11px;font-weight:400;color:var(--tx3)">health-log row</span> <button class="btn" style="font-size:11px;padding:3px 9px" onclick="document.getElementById('m-gist-guide').classList.add('open')">? Setup guide</button></div>
       <div style="padding:4px 16px 8px;font-size:11px;color:var(--tx3)">Shared with WellStat &amp; Nutrition. Pushes <code style="font-family:monospace">habit_completion</code>, <code style="font-family:monospace">stuff_count</code>, <code style="font-family:monospace">water</code>. Pulls those same fields from other apps by date.</div>
-      <div class="sr"><div><div class="srl">GitHub Token</div><div class="srs">Personal access token with "gist" scope</div></div>
-        <input class="fi" type="password" id="gh-token" placeholder="ghp_..." style="width:180px;font-size:12px" oninput="saveCfg()"></div>
-      <div class="sr"><div><div class="srl">Shared Gist ID</div><div class="srs">Same ID used by WellStat &amp; Nutrition apps</div></div>
-        <input class="fi" id="gh-gist-id" placeholder="Shared Gist ID" style="width:180px;font-size:12px" oninput="saveCfg()"></div>
+      <div class="sr"><div><div class="srl">Supabase URL</div><div class="srs">From Project Settings → API</div></div>
+        <input class="fi" id="gh-token" placeholder="https://xxxx.supabase.co" style="width:220px;font-size:12px" oninput="saveCfg()"></div>
+      <div class="sr"><div><div class="srl">Anon Key</div><div class="srs">Public anon key (safe client-side)</div></div>
+        <input class="fi" type="password" id="gh-gist-id" placeholder="eyJhbGciOiJ..." style="width:220px;font-size:12px" oninput="saveCfg()"></div>
+      <div class="sr"><div><div class="srl">User ID</div><div class="srs">Same UUID as WellStat &amp; Nutrition</div></div>
+        <input class="fi" id="gh-user-id" placeholder="paste from WellStat Settings" style="width:220px;font-size:11px" oninput="saveCfg()"></div>
       <div class="sr"><div><div class="srl">Auto-push on save</div></div>
         <label class="tsw"><input type="checkbox" id="auto-push" onchange="saveCfg()"><span class="tsl"></span></label></div>
       <div class="sr"><div></div>
@@ -403,19 +405,17 @@ body{font-family:var(--fn);background:var(--bg);color:var(--tx);min-height:100vh
       </div>
     </div>
     <div class="ss">
-      <div class="ss-ttl">💾 Habit Backup Gist <span style="font-size:11px;font-weight:400;color:var(--tx3)">ritual-backup.json + ritual-habit-data.json</span></div>
-      <div style="padding:4px 16px 8px;font-size:11px;color:var(--tx3)">Your private habit-tracker-only backup. Stores all habits, sub-tasks, check-ins, icons, logs, and settings. Use a separate Gist from the shared one above.</div>
-      <div class="sr"><div><div class="srl">Habit Backup Gist ID</div><div class="srs">Leave blank to auto-create on first push</div></div>
-        <input class="fi" id="gh-backup-gist-id" placeholder="Leave blank = auto-create" style="width:180px;font-size:12px" oninput="saveCfg()"></div>
-      <div class="sr"><div><div class="srl">Push Full Backup</div><div class="srs">Overwrites ritual-backup.json in your Backup Gist</div></div>
+      <div class="ss-ttl">💾 Habit Backup <span style="font-size:11px;font-weight:400;color:var(--tx3)">ritual-backup row in Supabase</span></div>
+      <div style="padding:4px 16px 8px;font-size:11px;color:var(--tx3)">Your private habit-tracker-only backup. Stores all habits, sub-tasks, check-ins, icons, logs, and settings in a dedicated Supabase row.</div>
+      <div class="sr"><div><div class="srl">Push Full Backup</div><div class="srs">Overwrites ritual-backup row in Supabase</div></div>
         <button class="btn pri" onclick="pushFullBackup()">⬆ Backup now</button></div>
-      <div class="sr"><div><div class="srl">Pull Full Backup</div><div class="srs">Restores everything from ritual-backup.json — overwrites local data</div></div>
+      <div class="sr"><div><div class="srl">Pull Full Backup</div><div class="srs">Restores everything from ritual-backup row — overwrites local data</div></div>
         <button class="btn dng" onclick="pullFullBackup()">⬇ Restore now</button></div>
       <div class="sr" id="backup-status-row" style="display:none"><div><div class="srl" id="backup-status-lbl" style="font-size:12px;color:var(--tx3)"></div></div></div>
     </div>
     <div class="ss">
-      <div class="ss-ttl">🏷️ Gist Field Names</div>
-      <div style="padding:8px 16px 4px;font-size:11px;color:var(--tx3)">These are the exact key names written to your shared Gist. Change them here to match your existing Gist if they differ.</div>
+      <div class="ss-ttl">🏷️ Supabase Field Names</div>
+      <div style="padding:8px 16px 4px;font-size:11px;color:var(--tx3)">These are the exact key names written to the shared health-log row. Change them to match your existing setup if they differ.</div>
       <div id="gist-key-rows"></div>
     </div>
     <div class="ss">
@@ -426,47 +426,44 @@ body{font-family:var(--fn);background:var(--bg);color:var(--tx);min-height:100vh
   </div>
 </div>
 
-<!-- GIST SETUP GUIDE MODAL -->
+<!-- SUPABASE SETUP GUIDE MODAL -->
 <div class="ovl" id="m-gist-guide">
   <div class="modal" style="max-width:560px">
-    <div class="mhdr"><span class="mttl">🔗 How to set up Gist Sync</span><button class="ibtn" onclick="closeModal('m-gist-guide')">✕</button></div>
+    <div class="mhdr"><span class="mttl">🟢 How to set up Supabase Sync</span><button class="ibtn" onclick="closeModal('m-gist-guide')">✕</button></div>
     <div class="mbody" style="font-size:13px;line-height:1.7">
       <div style="background:var(--acl);border:1px solid var(--ac);border-radius:8px;padding:12px 14px;margin-bottom:18px;font-size:12px;color:var(--ac)">
-        You only need to do this once. Your token is stored locally on this device only.
+        You only need to do this once. Your anon key is stored locally on this device only.
       </div>
 
-      <div style="font-weight:500;margin-bottom:6px">Step 1 — Create a GitHub account</div>
-      <div style="color:var(--tx2);margin-bottom:14px">If you don't have one, sign up free at <a href="https://github.com" target="_blank" style="color:var(--ac)">github.com</a>. No special plan needed.</div>
+      <div style="font-weight:500;margin-bottom:6px">Step 1 — Create a Supabase project</div>
+      <div style="color:var(--tx2);margin-bottom:14px">Sign up free at <a href="https://supabase.com" target="_blank" style="color:var(--ac)">supabase.com</a> and create a new project.</div>
 
-      <div style="font-weight:500;margin-bottom:6px">Step 2 — Generate a Personal Access Token</div>
+      <div style="font-weight:500;margin-bottom:6px">Step 2 — Create the health_data table</div>
+      <div style="color:var(--tx2);margin-bottom:6px">In the SQL Editor, run:</div>
+      <pre style="background:var(--sur2);border-radius:6px;padding:10px;font-size:11px;overflow-x:auto;margin-bottom:14px">CREATE TABLE health_data (
+  user_id TEXT NOT NULL,
+  filename TEXT NOT NULL,
+  payload JSONB,
+  updated_at TIMESTAMPTZ DEFAULT NOW(),
+  PRIMARY KEY (user_id, filename)
+);
+ALTER TABLE health_data ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "open" ON health_data USING (true) WITH CHECK (true);</pre>
+
+      <div style="font-weight:500;margin-bottom:6px">Step 3 — Copy your credentials</div>
+      <div style="color:var(--tx2);margin-bottom:14px">Go to <strong>Project Settings → API</strong>. Copy the <strong>Project URL</strong> and the <strong>anon public key</strong>. Paste them into Settings → Supabase Sync.</div>
+
+      <div style="font-weight:500;margin-bottom:6px">Step 4 — Sync to another device</div>
       <ol style="color:var(--tx2);padding-left:18px;margin-bottom:14px">
-        <li>Go to <a href="https://github.com/settings/tokens/new" target="_blank" style="color:var(--ac)">github.com/settings/tokens/new</a></li>
-        <li>Under <strong>Note</strong>, type something like <em>Ritual Habit Tracker</em></li>
-        <li>Set <strong>Expiration</strong> to <em>No expiration</em> (or 1 year)</li>
-        <li>Under <strong>Select scopes</strong>, tick only <strong>gist</strong> ✓</li>
-        <li>Scroll down and click <strong>Generate token</strong></li>
-        <li>Copy the token that appears — it starts with <code style="background:var(--sur2);padding:1px 5px;border-radius:4px;font-size:11px">ghp_</code></li>
-        <li style="color:var(--dng)">⚠ GitHub only shows it once — copy it now!</li>
-      </ol>
-
-      <div style="font-weight:500;margin-bottom:6px">Step 3 — Paste the token into Ritual</div>
-      <div style="color:var(--tx2);margin-bottom:14px">In Settings → Gist Sync, paste your token into the <strong>GitHub Token</strong> field.</div>
-
-      <div style="font-weight:500;margin-bottom:6px">Step 4 — Leave Gist ID blank (first time)</div>
-      <div style="color:var(--tx2);margin-bottom:14px">Leave the Gist ID field empty. When you click <strong>⬆ Backup now</strong> or <strong>⬆ Push now</strong> for the first time, Ritual will automatically create a new private Gist and fill in the ID for you.</div>
-
-      <div style="font-weight:500;margin-bottom:6px">Step 5 — Sync to another device</div>
-      <div style="color:var(--tx2);margin-bottom:6px">On your second device:</div>
-      <ol style="color:var(--tx2);padding-left:18px;margin-bottom:14px">
-        <li>Enter the same GitHub Token</li>
-        <li>Enter the Gist ID that was saved after your first push (copy it from your first device's Settings)</li>
-        <li>Click <strong>⬇ Restore now</strong> to pull everything down</li>
+        <li>Open WellStat Settings → Supabase Sync on your first device</li>
+        <li>Copy your <strong>User ID</strong></li>
+        <li>On the second device, enter the same URL, anon key, and User ID → Pull</li>
       </ol>
 
       <div style="background:var(--sur2);border-radius:8px;padding:12px 14px;font-size:12px;color:var(--tx2)">
-        <strong>Metrics sync vs Full backup</strong><br>
-        <strong>⬆ Push now</strong> — sends only daily totals (water, habit %, stuff count) for use by WellStat.<br>
-        <strong>⬆ Backup now</strong> — sends your entire app: habits, sub-tasks, check-ins, icons, all logs, and settings.
+        <strong>Shared vs Backup rows</strong><br>
+        <strong>⬆ Push now</strong> — sends daily totals (water, habit %, stuff count) to the shared <code>health-log</code> row for WellStat to read.<br>
+        <strong>⬆ Backup now</strong> — saves your entire app state to a private <code>ritual-backup</code> row.
       </div>
     </div>
     <div class="mftr"><button class="btn pri" onclick="closeModal('m-gist-guide')">Got it</button></div>
@@ -588,7 +585,8 @@ var S = {
   tasks:[], logs:{}, enqs:[], elogs:{}, water:{},
   stuff:{},   // { "YYYY-MM-DD": count }
   uiIcons:{},
-  cfg:{ theme:'light', notif:false, notifOff:10, wTgt:3, gistId:'', backupGistId:'', ghToken:'' }
+  cfg:{ theme:'light', notif:false, notifOff:10, wTgt:3, sbUrl:'', sbKey:'', sbUserId:'', autoPush:false,
+    gistKeys:{stuff_count:'stuff_count',water:'water',dietary_calories:'dietary_calories'} }
 };
 
 var editTid = null;
@@ -625,12 +623,13 @@ var UI_DEFS = [
 
 // ── STORAGE ──
 function save() {
-  // Sync shared gist config to shared ws2_gist key (token + shared gist ID)
+  // Sync shared Supabase config to ws2_supabase_shared key
   try {
-    var gc = JSON.parse(localStorage.getItem('ws2_gist')||'{}');
-    if(S.cfg.ghToken) gc.token = S.cfg.ghToken;
-    if(S.cfg.gistId)  gc.sharedGistId = S.cfg.gistId;
-    localStorage.setItem('ws2_gist', JSON.stringify(gc));
+    var sc = JSON.parse(localStorage.getItem('ws2_supabase_shared')||'{}');
+    if(S.cfg.sbUrl)    sc.url    = S.cfg.sbUrl;
+    if(S.cfg.sbKey)    sc.anonKey= S.cfg.sbKey;
+    if(S.cfg.sbUserId) sc.userId = S.cfg.sbUserId;
+    localStorage.setItem('ws2_supabase_shared', JSON.stringify(sc));
   } catch(e) {}
   try { localStorage.setItem('ritual_v4', JSON.stringify(S)); } catch(e) {}
 }
@@ -646,17 +645,19 @@ function load() {
       S.water   = parsed.water   || {};
       S.stuff   = parsed.stuff   || {};
       S.uiIcons = parsed.uiIcons || {};
-      S.cfg     = Object.assign({theme:'light',notif:false,notifOff:10,wTgt:3,ghToken:'',gistId:'',backupGistId:'',autoPush:false,
+      S.cfg     = Object.assign({theme:'light',notif:false,notifOff:10,wTgt:3,sbUrl:'',sbKey:'',sbUserId:'',autoPush:false,
         gistKeys:{stuff_count:'stuff_count',water:'water',dietary_calories:'dietary_calories'}
       }, parsed.cfg || {});
       if(!S.cfg.gistKeys) S.cfg.gistKeys={stuff_count:'stuff_count',water:'water',dietary_calories:'dietary_calories'};
     }
   } catch(e) {}
-  // Overlay shared Gist config from ws2_gist (token + shared gist ID)
+  // Overlay shared Supabase config from ws2_supabase_shared (written by WellStat or Nutrition)
   try {
-    var sgc = JSON.parse(localStorage.getItem('ws2_gist')||'{}');
-    if(sgc.token && !S.cfg.ghToken) S.cfg.ghToken = sgc.token;
-    if(sgc.sharedGistId && !S.cfg.gistId) S.cfg.gistId = sgc.sharedGistId;
+    var sgc = JSON.parse(localStorage.getItem('ws2_supabase_shared')||
+              localStorage.getItem('ws2_supabase')||'{}');
+    if(sgc.url     && !S.cfg.sbUrl)    S.cfg.sbUrl    = sgc.url;
+    if(sgc.anonKey && !S.cfg.sbKey)    S.cfg.sbKey    = sgc.anonKey;
+    if(sgc.userId  && !S.cfg.sbUserId) S.cfg.sbUserId = sgc.userId;
   } catch(e) {}
 }
 
@@ -1563,9 +1564,9 @@ window.editEnqSubItem=function(i){
 window.saveCfg = function() {
   var no = document.getElementById('notif-off'); if(no) S.cfg.notifOff = parseInt(no.value)||10;
   var wt = document.getElementById('wtgt'); if(wt) S.cfg.wTgt = parseFloat(wt.value)||3;
-  var gt = document.getElementById('gh-token'); if(gt) S.cfg.ghToken = gt.value.trim();
-  var gi = document.getElementById('gh-gist-id'); if(gi) S.cfg.gistId = gi.value.trim();
-  var bg = document.getElementById('gh-backup-gist-id'); if(bg) S.cfg.backupGistId = bg.value.trim();
+  var gt = document.getElementById('gh-token');   if(gt) S.cfg.sbUrl    = gt.value.trim().replace(/\/+$/,'');
+  var gi = document.getElementById('gh-gist-id'); if(gi) S.cfg.sbKey    = gi.value.trim();
+  var gu = document.getElementById('gh-user-id'); if(gu) S.cfg.sbUserId = gu.value.trim();
   var ap = document.getElementById('auto-push'); if(ap) S.cfg.autoPush = ap.checked;
   // Read gist key overrides
   var keyFields = ['stuff_count','water','dietary_calories','steps','weight','sleep_score'];
@@ -1597,180 +1598,97 @@ function renderGistKeyRows() {
   }).join('');
 }
 
-// ── BRIDGE: push habit data into wellstat-data.json ──
-function bridgeHabitToWellstat(gistId, token, allDates) {
-  if (!gistId || !token) return;
-  var headers = {'Authorization':'token '+token,'Content-Type':'application/json','Accept':'application/vnd.github.v3+json'};
-  fetch('https://api.github.com/gists/'+gistId, {headers:headers})
-    .then(function(r){ return r.json(); })
-    .then(function(gistData) {
-      var wsPayload = {version:4, pushed:new Date().toISOString(), days:0, data:{}, settings:null};
-      try {
-        var wsFile = gistData.files && gistData.files['wellstat-data.json'];
-        if (wsFile && wsFile.content) wsPayload = JSON.parse(wsFile.content);
-      } catch(e) {}
-      if (!wsPayload.data) wsPayload.data = {};
-      // Merge habit completion + stuff into wellstat data
-      Object.keys(allDates).forEach(function(ds) {
-        if (!wsPayload.data[ds]) wsPayload.data[ds] = {};
-        var pct = getCompletion(ds);
-        if (pct !== null) wsPayload.data[ds]['habit_completion'] = pct;
-        if (S.stuff && S.stuff[ds] != null) wsPayload.data[ds]['stuff_count'] = S.stuff[ds];
-        // Read alcohol from nutrition localStorage if available
-        try {
-          var nutRaw = localStorage.getItem('ritual_nutrition_v2');
-          if (nutRaw) {
-            var nutS = JSON.parse(nutRaw);
-            var nutLog = nutS.logs && nutS.logs[ds];
-            if (nutLog) {
-              // sum alcohol across all meals
-              var alcohol = 0;
-              Object.values(nutLog.meals||{}).forEach(function(items) {
-                items.forEach(function(item) {
-                  if (item.nutrients && item.nutrients.alcohol) alcohol += parseFloat(item.nutrients.alcohol)||0;
-                });
-              });
-              if (alcohol > 0) wsPayload.data[ds]['alcohol'] = Math.round(alcohol*100)/100;
-            }
-          }
-        } catch(e) {}
-      });
-      wsPayload.days = Object.keys(wsPayload.data).length;
-      wsPayload.pushed = new Date().toISOString();
-      return fetch('https://api.github.com/gists/'+gistId, {
-        method:'PATCH', headers:headers,
-        body:JSON.stringify({files:{'wellstat-data.json':{content:JSON.stringify(wsPayload,null,2)}}})
-      });
-    })
-    .catch(function(e){ console.warn('WellStat bridge push failed:', e.message); });
+// ── Supabase REST helpers ──
+function _sbHdrs(key){ return {'apikey':key,'Authorization':'Bearer '+key,'Content-Type':'application/json','Prefer':'resolution=merge-duplicates'}; }
+function _sbUpsertHT(url,key,userId,filename,payload){
+  return fetch(url+'/rest/v1/health_data',{method:'POST',headers:_sbHdrs(key),
+    body:JSON.stringify({user_id:userId,filename:filename,payload:payload,updated_at:new Date().toISOString()})});
+}
+function _sbFetchHT(url,key,userId,filename){
+  return fetch(url+'/rest/v1/health_data?user_id=eq.'+encodeURIComponent(userId)+'&filename=eq.'+encodeURIComponent(filename)+'&select=payload',
+    {headers:{'apikey':key,'Authorization':'Bearer '+key}})
+    .then(function(r){ if(!r.ok) throw new Error('HTTP '+r.status); return r.json(); })
+    .then(function(rows){ return rows && rows[0] ? rows[0].payload : null; });
 }
 
-// ── GIST PULL (shared health_log.json → read shared fields into local view) ──
+// ── PULL shared health-log row → merge into local view ──
 window.pullFromSharedGist = function() {
-  var token  = S.cfg.ghToken;
-  var gistId = S.cfg.gistId;
-  if (!token || !gistId) { alert('Set your GitHub token and Shared Gist ID in Settings first.'); return; }
-  var headers = { 'Authorization': 'token ' + token, 'Accept': 'application/vnd.github.v3+json' };
-  fetch('https://api.github.com/gists/' + gistId, { headers: headers })
-    .then(function(r) { return r.json(); })
-    .then(function(data) {
-      var file = data.files && data.files['health_log.json'];
-      if (!file || !file.content) { alert('No health_log.json found in shared Gist.'); return; }
-      var shared = JSON.parse(file.content);
-      // Merge shared fields into local water/stuff stores (by date)
+  var url=S.cfg.sbUrl, key=S.cfg.sbKey, uid=S.cfg.sbUserId;
+  if (!url||!key) { alert('Set Supabase URL and anon key in Settings first.'); return; }
+  if (!uid) uid = (JSON.parse(localStorage.getItem('ws2_supabase')||'{}').userId)||'';
+  _sbFetchHT(url,key,uid,'health-log')
+    .then(function(shared) {
+      if (!shared) { alert('No health-log row found. Push from Nutrition or WellStat first.'); return; }
       var updated = 0;
       Object.keys(shared).forEach(function(ds) {
         if (!/^\d{4}-\d{2}-\d{2}$/.test(ds)) return;
         var day = shared[ds];
-        // water: bring in from nutrition if not locally set
-        if (day.water != null && !S.water[ds]) { S.water[ds] = day.water; updated++; }
-        // stuff_count: only pull if we don't have a local value
-        if (day.stuff_count != null && (S.stuff[ds] == null)) { S.stuff[ds] = day.stuff_count; updated++; }
+        if (day.water != null && !S.water[ds])   { S.water[ds] = day.water;       updated++; }
+        if (day.stuff_count != null && S.stuff[ds]==null) { S.stuff[ds] = day.stuff_count; updated++; }
       });
       if (updated) { save(); renderDash(); }
-      alert('✓ Pulled shared data from health_log.json (' + Object.keys(shared).length + ' dates). ' + updated + ' field(s) merged locally.');
+      alert('✓ Pulled shared data (' + Object.keys(shared).length + ' dates). ' + updated + ' field(s) merged locally.');
     })
-    .catch(function(e) { alert('Pull failed: ' + e.message); });
+    .catch(function(e){ alert('Pull failed: '+e.message); });
 };
 
-// ── GIST PUSH (habit tracker → shared health_log.json) ──
+// ── PUSH habit tracker → shared health-log row in Supabase ──
 window.pushToGist = function(silent) {
-  var token = S.cfg.ghToken;
-  if (!token) {
-    if (!silent) alert('Set your GitHub token in Settings → Gist Sync first.');
+  var url=S.cfg.sbUrl, key=S.cfg.sbKey, uid=S.cfg.sbUserId;
+  if (!url||!key) {
+    if (!silent) alert('Set Supabase URL and anon key in Settings → Supabase Sync first.');
     return;
   }
-  var gistId = S.cfg.gistId;
-  var headers = {'Authorization':'token '+token,'Content-Type':'application/json'};
+  if (!uid) uid = (JSON.parse(localStorage.getItem('ws2_supabase')||'{}').userId)||crypto.randomUUID();
 
   function buildMyDay(ds) {
     var keys = S.cfg.gistKeys || {};
     var out = {};
-    // stuff_count
     var stuffKey = keys.stuff_count || 'stuff_count';
     var stuffVal = S.stuff && S.stuff[ds] != null ? S.stuff[ds] : null;
     if (stuffVal !== null) out[stuffKey] = stuffVal;
-    // water from habit tracker store (L)
     var waterKey = keys.water || 'water';
     if (S.water && S.water[ds] != null) out[waterKey] = S.water[ds];
-    // habit completion %
     var pctKey = keys.habit_pct || 'habit_completion';
     var pct = getCompletion(ds);
     if (pct !== null) out[pctKey] = pct;
     return out;
   }
 
-  function doMergeAndPush(existing) {
-    var merged = Object.assign({}, existing);
-    // Push data for all dates we have stuff or water logs
-    var allDates = {};
-    if (S.stuff) Object.keys(S.stuff).forEach(function(d){ allDates[d]=1; });
-    if (S.water) Object.keys(S.water).forEach(function(d){ allDates[d]=1; });
-    if (S.logs)  Object.keys(S.logs).forEach(function(d){ allDates[d]=1; });
-    Object.keys(allDates).forEach(function(ds) {
-      var day = buildMyDay(ds);
-      if (!Object.keys(day).length) return;
-      if (!merged[ds]) merged[ds] = {};
-      Object.keys(day).forEach(function(k){ merged[ds][k] = day[k]; });
-    });
-    // Sort descending
-    var sorted = {};
-    Object.keys(merged).sort(function(a,b){ return b.localeCompare(a); }).forEach(function(ds){ sorted[ds] = merged[ds]; });
-
-    var url = gistId ? 'https://api.github.com/gists/'+gistId : 'https://api.github.com/gists';
-    var method = gistId ? 'PATCH' : 'POST';
-    var today_ = new Date().toISOString().split('T')[0];
-    var body = {
-      description: 'Ritual Health Log — ' + today_,
-      public: false,
-      files: {'health_log.json': {content: JSON.stringify(sorted, null, 2)}}
-    };
-    return fetch(url, {method:method, headers:headers, body:JSON.stringify(body)})
-      .then(function(r){ return r.json(); })
-      .then(function(data) {
-        if (data.id) {
-          S.cfg.gistId = data.id; save(); renderGistKeyRows();
-          // Bridge habit data into wellstat-data.json on the WellStat gist (separate gist)
-          try {
-            var wsgc = JSON.parse(localStorage.getItem('ws2_gist') || '{}');
-            var wsGistId = wsgc.wsGistId || wsgc.gistId || '';
-            if (wsGistId) bridgeHabitToWellstat(wsGistId, token, allDates);
-          } catch(e) {}
-          if (!silent) {
-            var gi = document.getElementById('gh-gist-id');
-            if (gi) gi.value = data.id;
-            alert('✓ Pushed to Shared Gist!\n' + data.html_url);
-          }
-        } else {
-          if (!silent) alert('Gist error: ' + (data.message||'unknown'));
-        }
+  // First fetch existing row to merge
+  _sbFetchHT(url,key,uid,'health-log')
+    .catch(function(){ return null; })
+    .then(function(existing) {
+      var merged = Object.assign({}, existing||{});
+      var allDates = {};
+      if (S.stuff) Object.keys(S.stuff).forEach(function(d){ allDates[d]=1; });
+      if (S.water) Object.keys(S.water).forEach(function(d){ allDates[d]=1; });
+      if (S.logs)  Object.keys(S.logs).forEach(function(d){ allDates[d]=1; });
+      Object.keys(allDates).forEach(function(ds) {
+        var day = buildMyDay(ds);
+        if (!Object.keys(day).length) return;
+        if (!merged[ds]) merged[ds] = {};
+        Object.keys(day).forEach(function(k){ merged[ds][k] = day[k]; });
       });
-  }
-
-  if (gistId) {
-    fetch('https://api.github.com/gists/'+gistId, {headers:headers})
-      .then(function(r){ return r.json(); })
-      .then(function(data) {
-        var existing = {};
-        try {
-          var file = data.files && (data.files['health_log.json'] || Object.values(data.files)[0]);
-          if (file && file.content) existing = JSON.parse(file.content);
-        } catch(e) {}
-        return doMergeAndPush(existing);
-      }).catch(function(){ return doMergeAndPush({}); });
-  } else {
-    doMergeAndPush({}).catch(function(e){ if(!silent) alert('Network error: '+e.message); });
-  }
+      return _sbUpsertHT(url,key,uid,'health-log',merged);
+    })
+    .then(function(r) {
+      if (!r) return;
+      if (r.ok) {
+        if (!silent) alert('✓ Pushed to Supabase health-log row!');
+      } else {
+        r.json().then(function(d){ if(!silent) alert('Supabase error: '+(d.message||d.hint||'unknown')); });
+      }
+    })
+    .catch(function(e){ if(!silent) alert('Network error: '+e.message); });
 };
 
-// ── FULL BACKUP PUSH (everything → ritual-backup.json in Habit Backup Gist) ──
+// ── FULL BACKUP PUSH → ritual-backup row in Supabase ──
 window.pushFullBackup = function() {
-  var token = S.cfg.ghToken;
-  if (!token) { alert('Set your GitHub token in Settings → Shared Gist first.'); return; }
-  var gistId = S.cfg.backupGistId; // use BACKUP gist, not shared gist
-  var headers = { 'Authorization': 'token ' + token, 'Content-Type': 'application/json' };
+  var url=S.cfg.sbUrl, key=S.cfg.sbKey, uid=S.cfg.sbUserId;
+  if (!url||!key) { alert('Set Supabase URL and anon key in Settings first.'); return; }
+  if (!uid) uid = (JSON.parse(localStorage.getItem('ws2_supabase')||'{}').userId)||crypto.randomUUID();
 
-  // Build complete snapshot — all tasks, sub-tasks, icons, check-ins, logs, config
   var snapshot = {
     version: 4,
     backed_up: new Date().toISOString(),
@@ -1782,9 +1700,8 @@ window.pushFullBackup = function() {
     stuff:    JSON.parse(JSON.stringify(S.stuff)),
     uiIcons:  JSON.parse(JSON.stringify(S.uiIcons)),
     cfg: (function() {
-      // Exclude the token from backup — never store it in gist content
       var c = JSON.parse(JSON.stringify(S.cfg));
-      delete c.ghToken;
+      delete c.sbKey; // never store secret in backup payload
       return c;
     })()
   };
@@ -1796,59 +1713,42 @@ window.pushFullBackup = function() {
     if (lbl) { lbl.textContent = msg; lbl.style.color = ok ? 'var(--ac)' : 'var(--dng)'; }
   }
 
-  var url    = gistId ? 'https://api.github.com/gists/' + gistId : 'https://api.github.com/gists';
-  var method = gistId ? 'PATCH' : 'POST';
-  var body = {
-    description: 'Ritual Full Backup — ' + new Date().toISOString().split('T')[0],
-    public: false,
-    files: { 'ritual-backup.json': { content: JSON.stringify(snapshot, null, 2) } }
-  };
-
-  fetch(url, { method: method, headers: headers, body: JSON.stringify(body) })
-    .then(function(r) { return r.json(); })
-    .then(function(data) {
-      if (data.id) {
-        if (!gistId) {
-          S.cfg.backupGistId = data.id; save();
-          var bg = document.getElementById('gh-backup-gist-id'); if (bg) bg.value = data.id;
-          renderGistKeyRows();
-        }
-        var taskCount = (snapshot.tasks || []).length;
-        var enqCount  = (snapshot.enqs  || []).length;
-        var stCount   = (snapshot.tasks || []).reduce(function(a,t){ return a + (t.subtasks||[]).length; }, 0);
-        setStatus('✓ Backed up ' + taskCount + ' habits (' + stCount + ' sub-tasks), ' + enqCount + ' check-ins — ' + new Date().toLocaleTimeString(), true);
+  _sbUpsertHT(url,key,uid,'ritual-backup',snapshot)
+    .then(function(r) {
+      if (r.ok) {
+        var taskCount = (snapshot.tasks||[]).length;
+        var enqCount  = (snapshot.enqs ||[]).length;
+        var stCount   = (snapshot.tasks||[]).reduce(function(a,t){ return a+(t.subtasks||[]).length; },0);
+        setStatus('✓ Backed up '+taskCount+' habits ('+stCount+' sub-tasks), '+enqCount+' check-ins — '+new Date().toLocaleTimeString(), true);
       } else {
-        setStatus('✗ ' + (data.message || 'Unknown error'), false);
+        r.json().then(function(d){ setStatus('✗ '+(d.message||d.hint||'Unknown error'), false); });
       }
     })
-    .catch(function(e) { setStatus('✗ Network error: ' + e.message, false); });
+    .catch(function(e){ setStatus('✗ Network error: '+e.message, false); });
 };
 
-// ── FULL BACKUP PULL (ritual-backup.json → restore everything) ──
+// ── FULL BACKUP PULL → restore from ritual-backup row ──
 window.pullFullBackup = function() {
-  var token = S.cfg.ghToken;
-  if (!token) { alert('Set your GitHub token in Settings → Shared Gist first.'); return; }
-  var gistId = S.cfg.backupGistId; // use BACKUP gist
-  if (!gistId) { alert('No Habit Backup Gist ID set. Push a backup first, or enter your Backup Gist ID.'); return; }
-
+  var url=S.cfg.sbUrl, key=S.cfg.sbKey, uid=S.cfg.sbUserId;
+  if (!url||!key) { alert('Set Supabase URL and anon key in Settings first.'); return; }
+  if (!uid) uid = (JSON.parse(localStorage.getItem('ws2_supabase')||'{}').userId)||'';
+  if (!uid) { alert('No User ID set. Enter it in Settings first.'); return; }
   if (!confirm('⚠ This will REPLACE all your local habits, check-ins, logs, and settings with the backup.\n\nAre you sure?')) return;
 
-  var headers = { 'Authorization': 'token ' + token, 'Content-Type': 'application/json' };
+  function setStatus(msg, ok) {
+    var row = document.getElementById('backup-status-row');
+    var lbl = document.getElementById('backup-status-lbl');
+    if (row) row.style.display = 'flex';
+    if (lbl) { lbl.textContent = msg; lbl.style.color = ok ? 'var(--ac)' : 'var(--dng)'; }
+  }
 
-  fetch('https://api.github.com/gists/' + gistId, { headers: headers })
-    .then(function(r) {
-      if (!r.ok) throw new Error('HTTP ' + r.status);
-      return r.json();
-    })
-    .then(function(data) {
-      var file = data.files && data.files['ritual-backup.json'];
-      if (!file || !file.content) throw new Error('No ritual-backup.json found in this Gist. Have you pushed a full backup yet?');
-
-      var snap = JSON.parse(file.content);
-      // Restore all fields, preserve token + both gist IDs so we don't lose connection
-      var savedToken        = S.cfg.ghToken;
-      var savedGistId       = S.cfg.gistId;
-      var savedBackupGistId = S.cfg.backupGistId;
+  _sbFetchHT(url,key,uid,'ritual-backup')
+    .then(function(snap) {
+      if (!snap) throw new Error('No ritual-backup row found. Push a backup first.');
+      // Preserve current connection settings
+      var savedUrl    = S.cfg.sbUrl;
+      var savedKey    = S.cfg.sbKey;
+      var savedUserId = S.cfg.sbUserId;
 
       S.tasks   = snap.tasks   || [];
       S.logs    = snap.logs    || {};
@@ -1857,45 +1757,25 @@ window.pullFullBackup = function() {
       S.water   = snap.water   || {};
       S.stuff   = snap.stuff   || {};
       S.uiIcons = snap.uiIcons || {};
-      S.cfg     = Object.assign({ theme:'light', notif:false, notifOff:10, wTgt:3, ghToken:'', gistId:'', backupGistId:'', autoPush:false, gistKeys:{} }, snap.cfg || {});
-      // Always preserve current connection settings
-      S.cfg.ghToken       = savedToken;
-      S.cfg.gistId        = savedGistId;
-      S.cfg.backupGistId  = savedBackupGistId;
+      S.cfg     = Object.assign({theme:'light',notif:false,notifOff:10,wTgt:3,sbUrl:'',sbKey:'',sbUserId:'',autoPush:false,gistKeys:{}}, snap.cfg||{});
+      S.cfg.sbUrl    = savedUrl;
+      S.cfg.sbKey    = savedKey;
+      S.cfg.sbUserId = savedUserId;
 
-      save();
-      applyTheme();
-      applyUIIcons();
-      renderDash();
-      renderTasks();
-      renderEnqs();
-      renderGistKeyRows();
+      save(); applyTheme(); applyUIIcons(); renderDash(); renderTasks(); renderEnqs(); renderGistKeyRows();
 
-      // Update settings fields
-      var wtgt = document.getElementById('wtgt'); if (wtgt) wtgt.value = S.cfg.wTgt || 3;
-      var noff = document.getElementById('notif-off'); if (noff) noff.value = S.cfg.notifOff || 10;
-      var gi   = document.getElementById('gh-gist-id'); if (gi) gi.value = S.cfg.gistId || '';
-      var bg   = document.getElementById('gh-backup-gist-id'); if (bg) bg.value = S.cfg.backupGistId || '';
-      var ap   = document.getElementById('auto-push'); if (ap) ap.checked = !!S.cfg.autoPush;
+      var wtgt = document.getElementById('wtgt');     if(wtgt) wtgt.value = S.cfg.wTgt||3;
+      var noff = document.getElementById('notif-off');if(noff) noff.value = S.cfg.notifOff||10;
+      var gi   = document.getElementById('gh-gist-id'); if(gi) gi.value = S.cfg.sbKey||'';
+      var ap   = document.getElementById('auto-push');   if(ap) ap.checked = !!S.cfg.autoPush;
 
       var backed = snap.backed_up ? new Date(snap.backed_up).toLocaleString() : 'unknown date';
-      var taskCount = (S.tasks || []).length;
-      var enqCount  = (S.enqs  || []).length;
-      var stCount   = (S.tasks || []).reduce(function(a,t){ return a + (t.subtasks||[]).length; }, 0);
-
-      var row = document.getElementById('backup-status-row');
-      var lbl = document.getElementById('backup-status-lbl');
-      if (row) row.style.display = 'flex';
-      if (lbl) { lbl.textContent = '✓ Restored ' + taskCount + ' habits (' + stCount + ' sub-tasks), ' + enqCount + ' check-ins from backup dated ' + backed; lbl.style.color = 'var(--ac)'; }
+      var taskCount = (S.tasks||[]).length, enqCount=(S.enqs||[]).length;
+      var stCount=(S.tasks||[]).reduce(function(a,t){return a+(t.subtasks||[]).length;},0);
+      setStatus('✓ Restored '+taskCount+' habits ('+stCount+' sub-tasks), '+enqCount+' check-ins from backup dated '+backed, true);
     })
-    .catch(function(e) {
-      var row = document.getElementById('backup-status-row');
-      var lbl = document.getElementById('backup-status-lbl');
-      if (row) row.style.display = 'flex';
-      if (lbl) { lbl.textContent = '✗ ' + e.message; lbl.style.color = 'var(--dng)'; }
-    });
+    .catch(function(e){ setStatus('✗ '+e.message, false); });
 };
-
 // Completion % for a date (0–100 or null)
 function getCompletion(ds) {
   var d = new Date(ds+'T12:00:00'), dow = d.getDay();
@@ -2008,9 +1888,9 @@ applyUIIcons();
 // Settings form values
 var wtgt=document.getElementById('wtgt'); if(wtgt) wtgt.value=S.cfg.wTgt||3;
 var noff=document.getElementById('notif-off'); if(noff) noff.value=S.cfg.notifOff||10;
-var ghtok=document.getElementById('gh-token'); if(ghtok) ghtok.value=S.cfg.ghToken||'';
-var ghgid=document.getElementById('gh-gist-id'); if(ghgid) ghgid.value=S.cfg.gistId||'';
-var ghbgid=document.getElementById('gh-backup-gist-id'); if(ghbgid) ghbgid.value=S.cfg.backupGistId||'';
+var ghtok=document.getElementById('gh-token'); if(ghtok) ghtok.value=S.cfg.sbUrl||'';
+var ghgid=document.getElementById('gh-gist-id'); if(ghgid) ghgid.value=S.cfg.sbKey||'';
+var ghuid=document.getElementById('gh-user-id'); if(ghuid) ghuid.value=S.cfg.sbUserId||'';
 var apush=document.getElementById('auto-push'); if(apush) apush.checked=!!S.cfg.autoPush;
 
 // Today label
